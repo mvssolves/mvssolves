@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book a call — MVS Solves</title>
+<meta name="description" content="Pick a 30-min slot with Martin.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f1e9dc; --paper-2: #e8ddc8; --paper-edge: #d9c9ad;
+    --espresso: #1f1813; --bean: #2e201a;
+    --mocha: #6e4a2e; --mocha-soft: #8a6747;
+    --brass: #a07043; --brass-deep: #8a5a30;
+    --rule: rgba(31,24,19,0.14); --rule-strong: rgba(31,24,19,0.30);
+    --ink-soft: rgba(31,24,19,0.70); --ink-mute: rgba(31,24,19,0.52);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--paper); color: var(--espresso);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 17px; line-height: 1.55;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden; position: relative; min-height: 100vh;
+    cursor: none;
+  }
+  body::before {
+    content: ''; position: fixed; inset: -20%; pointer-events: none; z-index: 1;
+    opacity: 0.35;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.12  0 0 0 0 0.09  0 0 0 0 0.07  0 0 0 0.07 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .h-word .char { animation: none !important; transform: none !important; }
+    .underline-wrap svg path { animation: none; stroke-dashoffset: 0; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .ph-mark { animation: none !important; }
+    .eyebrow .live i { animation: none; }
+  }
+  body::after {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 1;
+    background: radial-gradient(120% 90% at 50% 30%, transparent 55%, rgba(46,32,26,0.16) 100%);
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 2; }
+  .serif-i { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; }
+  .hand { font-family: 'Caveat', cursive; font-weight: 600; }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: var(--brass); color: var(--paper); }
+
+  /* CURSOR — position via rAF, scale/color via CSS */
+  .cursor-dot, .cursor-ring {
+    position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;
+    will-change: transform;
+    transform: translate3d(-100px, -100px, 0);
+  }
+  .cursor-dot i, .cursor-ring i {
+    display: block; border-radius: 50%;
+    transition: transform 0.25s cubic-bezier(.2,1,.3,1), background 0.25s, border-color 0.25s;
+    will-change: transform;
+  }
+  .cursor-dot i {
+    width: 6px; height: 6px; margin: -3px 0 0 -3px;
+    background: var(--espresso);
+  }
+  .cursor-ring i {
+    width: 42px; height: 42px; margin: -21px 0 0 -21px;
+    border: 1.5px solid var(--brass);
+    box-sizing: border-box;
+  }
+  .cursor-hover .cursor-ring i { transform: scale(1.8); border-color: var(--brass-deep); }
+  .cursor-hover .cursor-dot  i { transform: scale(0.6); background: var(--brass-deep); }
+  @media (hover: none) { body { cursor: auto; } .cursor-dot, .cursor-ring { display: none; } }
+
+  /* TOP */
+  header.top { padding: 22px 0 0; position: relative; z-index: 5; }
+  .top-inner {
+    display: flex; align-items: baseline; justify-content: space-between;
+    border-bottom: 1px solid var(--rule); padding-bottom: 18px;
+  }
+  .brand { display: inline-flex; align-items: baseline; gap: 10px; }
+  .brand-mark {
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    font-size: 28px; line-height: 1; color: var(--brass-deep);
+    transform: translateY(2px); display: inline-block;
+    transition: transform 0.4s cubic-bezier(.2,1,.3,1);
+  }
+  .brand:hover .brand-mark { transform: translateY(2px) rotate(-12deg); }
+  .brand-word { font-weight: 700; letter-spacing: 0.02em; font-size: 15px; text-transform: uppercase; }
+  .brand-word .dot { color: var(--brass); }
+  .top-right { display: flex; align-items: center; gap: 24px; font-size: 14px; color: var(--ink-soft); }
+  .top-back {
+    display: inline-flex; align-items: center; gap: 6px;
+    position: relative; padding-bottom: 4px;
+  }
+  .top-back::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+    background: var(--espresso); transform-origin: right; transform: scaleX(0.4);
+    transition: transform 0.5s cubic-bezier(.2,1,.3,1);
+  }
+  .top-back:hover::after { transform: scaleX(1); transform-origin: left; }
+  .top-back .a { display: inline-block; transition: transform 0.4s cubic-bezier(.2,1,.3,1); }
+  .top-back:hover .a { transform: translateX(-4px); }
+
+  /* HERO */
+  .hero { padding: 70px 0 36px; }
+  .hero-grid {
+    display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: 70px; align-items: end;
+  }
+  @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; gap: 28px; } .hero { padding: 50px 0 24px; } }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 12px;
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--mocha); margin-bottom: 28px; font-weight: 500;
+  }
+  .eyebrow .bar { width: 36px; height: 1px; background: var(--mocha-soft);
+    transform-origin: left; transform: scaleX(0); animation: barIn 1s 0.2s cubic-bezier(.2,1,.3,1) forwards; }
+  @keyframes barIn { to { transform: scaleX(1); } }
+  .eyebrow .live { display: inline-flex; align-items: center; gap: 8px; color: var(--mocha-soft); }
+  .eyebrow .live i {
+    width: 7px; height: 7px; border-radius: 50%; background: #4a7a3a;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(74,122,58,0.55); }
+    70% { box-shadow: 0 0 0 8px rgba(74,122,58,0); }
+    100% { box-shadow: 0 0 0 0 rgba(74,122,58,0); }
+  }
+
+  h1.headline {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(54px, 8.5vw, 108px);
+    line-height: 0.96; letter-spacing: -0.028em;
+  }
+  h1.headline em { font-style: italic; color: var(--brass-deep); font-weight: 400; }
+  .h-word { display: inline-block; overflow: hidden; vertical-align: bottom; }
+  .h-word .char {
+    display: inline-block; transform: translateY(110%);
+    animation: charUp 0.9s cubic-bezier(.2,1,.3,1) forwards;
+  }
+  @keyframes charUp { to { transform: translateY(0); } }
+  .underline-wrap { position: relative; display: inline-block; }
+  .underline-wrap svg {
+    position: absolute; left: -4px; right: -4px; bottom: -10px; width: calc(100% + 8px); height: 16px;
+    overflow: visible; pointer-events: none;
+  }
+  .underline-wrap svg path {
+    stroke: var(--brass); stroke-width: 2.4; fill: none; stroke-linecap: round;
+    stroke-dasharray: 600; stroke-dashoffset: 600;
+    animation: draw 1.6s 1s cubic-bezier(.65,0,.35,1) forwards;
+  }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+
+  .hero-aside {
+    border-left: 1px solid var(--rule-strong); padding-left: 28px;
+    color: var(--ink-soft); font-size: 16px; line-height: 1.6;
+    max-width: 300px;
+  }
+  @media (max-width: 900px) {
+    .hero-aside { border-left: 0; border-top: 1px solid var(--rule-strong); padding-left: 0; padding-top: 22px; }
+  }
+
+  /* BOOKING */
+  .booking { padding: 40px 0 80px; }
+  .booking-grid {
+    display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.6fr);
+    gap: 60px; align-items: start;
+  }
+  @media (max-width: 980px) {
+    .booking-grid { grid-template-columns: 1fr; gap: 40px; }
+    .booking { padding: 24px 0 60px; }
+  }
+
+  .expect-col { position: sticky; top: 40px; }
+  @media (max-width: 980px) { .expect-col { position: static; } }
+
+  .expect-label {
+    font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--mocha); margin-bottom: 18px;
+  }
+  .expect-label::before {
+    content: ''; display: block; width: 36px; height: 1px;
+    background: var(--mocha-soft); margin-bottom: 14px;
+  }
+  .expect-col h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(34px, 4.2vw, 50px);
+    line-height: 1.02; letter-spacing: -0.02em;
+    margin-bottom: 36px;
+  }
+  .expect-col h2 em { color: var(--brass-deep); }
+
+  .expect-list { list-style: none; }
+  .expect-list li {
+    display: grid; grid-template-columns: 32px 1fr; gap: 14px;
+    padding: 18px 0;
+    border-top: 1px dashed var(--rule-strong);
+    transition: padding-left 0.4s cubic-bezier(.2,1,.3,1);
+  }
+  .expect-list li:last-child { border-bottom: 1px dashed var(--rule-strong); }
+  .expect-list li:hover { padding-left: 8px; }
+  .expect-list .n {
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    font-size: 22px; color: var(--brass); line-height: 1.1;
+    transition: transform 0.4s cubic-bezier(.2,1,.3,1), color 0.3s;
+  }
+  .expect-list li:hover .n { color: var(--brass-deep); transform: rotate(-8deg); }
+  .expect-list h4 {
+    font-family: 'Instrument Serif', serif; font-weight: 400;
+    font-size: 19px; line-height: 1.15; letter-spacing: -0.01em;
+  }
+  .expect-list p { color: var(--ink-soft); font-size: 14px; line-height: 1.5; margin-top: 2px; }
+
+  /* CAL CARD */
+  .cal-card {
+    background: var(--paper);
+    border: 1px solid var(--rule-strong);
+    padding: 8px;
+    position: relative;
+    box-shadow: 0 1px 0 rgba(31,24,19,0.04), 0 30px 60px -30px rgba(46,32,26,0.18);
+    transition: transform 0.6s cubic-bezier(.2,1,.3,1);
+  }
+  .cal-card::before {
+    content: ''; position: absolute; inset: -1px; pointer-events: none;
+    border: 1px solid rgba(160,112,67,0.20);
+    transform: translate(6px, 6px);
+    z-index: -1;
+    transition: transform 0.6s cubic-bezier(.2,1,.3,1);
+  }
+  .cal-card:hover::before { transform: translate(10px, 10px); }
+
+  .cal-card-inner {
+    background: #fbf6ec;
+    border: 1px solid var(--rule);
+    padding: 28px 30px 22px;
+    position: relative;
+  }
+  .cal-card-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 22px; padding-bottom: 16px; border-bottom: 1px dashed var(--rule-strong);
+    flex-wrap: wrap; gap: 10px;
+  }
+  .cal-card-head h3 {
+    font-family: 'Instrument Serif', serif; font-weight: 400;
+    font-size: 26px; letter-spacing: -0.015em; line-height: 1.1;
+  }
+  .cal-card-head h3 em { color: var(--brass-deep); }
+  .cal-card-head .meta {
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--mocha);
+  }
+
+  #cal-embed { min-height: 640px; width: 100%; overflow: hidden; position: relative; }
+  #cal-embed iframe { background: transparent !important; }
+
+  .cal-placeholder {
+    min-height: 560px;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; padding: 40px 30px;
+    border: 1px dashed var(--rule-strong);
+    background: rgba(217,201,173,0.18);
+    color: var(--ink-soft);
+  }
+  .cal-placeholder .ph-mark {
+    font-size: 44px; color: var(--brass); margin-bottom: 14px;
+    animation: steam 3.5s ease-in-out infinite;
+  }
+  @keyframes steam {
+    0%,100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-6px) rotate(3deg); }
+  }
+  .cal-placeholder h4 {
+    font-family: 'Instrument Serif', serif; font-weight: 400;
+    font-size: 26px; color: var(--espresso); margin-bottom: 8px;
+  }
+  .cal-placeholder p { max-width: 360px; font-size: 14px; line-height: 1.5; }
+  .cal-placeholder .fallback { margin-top: 20px; font-size: 13.5px; color: var(--ink-mute); }
+  .cal-placeholder .fallback a {
+    color: var(--espresso); border-bottom: 1px solid var(--rule-strong); padding-bottom: 2px;
+  }
+  .cal-placeholder .fallback a:hover { border-color: var(--espresso); }
+
+  .cal-footnote {
+    margin-top: 18px; font-size: 13px; color: var(--ink-mute); text-align: center;
+  }
+  .cal-footnote a { color: var(--espresso); border-bottom: 1px solid var(--rule); padding-bottom: 1px; }
+  .cal-footnote a:hover { border-color: var(--espresso); }
+
+  @media (max-width: 600px) {
+    .cal-card { padding: 6px; }
+    .cal-card-inner { padding: 22px 18px 18px; }
+    .cal-card-head h3 { font-size: 22px; }
+    #cal-embed { min-height: 580px; }
+  }
+
+  footer { padding: 40px 0 50px; border-top: 1px solid var(--rule); margin-top: 30px; }
+  .foot-inner {
+    display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 24px;
+    font-size: 13.5px; color: var(--ink-mute);
+  }
+  .foot-inner a { color: var(--espresso); border-bottom: 1px solid var(--rule-strong); padding-bottom: 2px; }
+
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.9s cubic-bezier(.2,1,.3,1), transform 0.9s cubic-bezier(.2,1,.3,1); }
+  .reveal.in { opacity: 1; transform: none; }
+  .reveal[data-d="1"] { transition-delay: 0.08s; }
+  .reveal[data-d="2"] { transition-delay: 0.16s; }
+  .reveal[data-d="3"] { transition-delay: 0.24s; }
+
+  @media (max-width: 720px) { .wrap { padding: 0 22px; } }
+</style>
+</head>
+<body>
+
+<div class="cursor-dot"><i></i></div>
+<div class="cursor-ring"><i></i></div>
+
+<!-- TOP -->
+<header class="top">
+  <div class="wrap">
+    <div class="top-inner">
+      <a class="brand hover-target" href="index.html">
+        <span class="brand-mark">m</span>
+        <span class="brand-word">MVS <span class="dot">·</span> Solves</span>
+      </a>
+      <div class="top-right">
+        <a class="top-back hover-target" href="index.html"><span class="a">←</span> back home</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">
+          <span class="bar"></span>
+          <span>30 min · free</span>
+          <span class="live"><i></i> Slots open this week</span>
+        </div>
+        <h1 class="headline">
+          <span class="h-word"><span class="char" style="animation-delay:.1s">P</span><span class="char" style="animation-delay:.13s">i</span><span class="char" style="animation-delay:.16s">c</span><span class="char" style="animation-delay:.19s">k</span></span>
+          <span class="h-word"><span class="char" style="animation-delay:.25s">a</span></span>
+          <span class="underline-wrap"><em>time.</em>
+            <svg viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M2,9 C 40,3 80,12 120,6 C 150,2 180,10 198,7"/>
+            </svg>
+          </span>
+        </h1>
+      </div>
+
+      <aside class="hero-aside reveal" data-d="2">
+        Tell me what's broken or what you're building. <br>I'll tell you straight if I can help.
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- BOOKING -->
+<section class="booking">
+  <div class="wrap">
+    <div class="booking-grid">
+
+      <div class="expect-col reveal">
+        <div class="expect-label">What you get</div>
+        <h2>30 min that <em>actually helps.</em></h2>
+
+        <ul class="expect-list">
+          <li class="hover-target">
+            <span class="n">i</span>
+            <div><h4>Plain answers</h4><p>No jargon. No deck.</p></div>
+          </li>
+          <li class="hover-target">
+            <span class="n">ii</span>
+            <div><h4>A real number</h4><p>You leave knowing what it costs.</p></div>
+          </li>
+          <li class="hover-target">
+            <span class="n">iii</span>
+            <div><h4>Zero pressure</h4><p>Not a fit? I'll say so.</p></div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="reveal" data-d="1">
+        <div class="cal-card hover-target">
+          <div class="cal-card-inner">
+            <div class="cal-card-head">
+              <h3>Pick a <em>slot</em></h3>
+              <span class="meta">30 min · free</span>
+            </div>
+
+            <div id="cal-embed">
+              <div class="cal-placeholder" id="cal-placeholder">
+                <div class="ph-mark">☕</div>
+                <h4>Calendar loading…</h4>
+                <p>Slots are live. Pick one and you'll get an invite straight away.</p>
+                <div class="fallback">
+                  Trouble? <a href="mailto:martin@mvssolves.com?subject=Booking%20a%20call">Email Martin →</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="cal-footnote">
+          Prefer email? <a href="mailto:martin@mvssolves.com">martin@mvssolves.com</a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-inner">
+    <div>© 2026 MVS Solves</div>
+    <div><a href="mailto:martin@mvssolves.com">martin@mvssolves.com</a></div>
+    <div><a href="index.html">← back home</a></div>
+  </div>
+</footer>
+
+<!-- CAL.COM EMBED -->
+<script type="text/javascript">
+  var CAL_SLUG = "YOUR-HANDLE/discovery"; // ← swap this
+
+  (function (C, A, L) {
+    let p = function (a, ar) { a.q.push(ar); };
+    let d = C.document;
+    C.Cal = C.Cal || function () {
+      let cal = C.Cal, ar = arguments;
+      if (!cal.loaded) {
+        cal.ns = {}; cal.q = cal.q || [];
+        d.head.appendChild(d.createElement("script")).src = A;
+        cal.loaded = true;
+      }
+      if (ar[0] === L) {
+        const api = function () { p(api, arguments); };
+        const namespace = ar[1];
+        api.q = api.q || [];
+        if (typeof namespace === "string") {
+          cal.ns[namespace] = cal.ns[namespace] || api;
+          p(cal.ns[namespace], ar);
+          p(cal, ["initNamespace", namespace]);
+        } else { p(cal, ar); }
+        return;
+      }
+      p(cal, ar);
+    };
+  })(window, "https://app.cal.com/embed/embed.js", "init");
+
+  Cal("init", "discovery", { origin: "https://app.cal.com" });
+  Cal.ns.discovery("inline", {
+    elementOrSelector: "#cal-embed",
+    calLink: CAL_SLUG,
+    layout: "month_view",
+    config: { theme: "light" }
+  });
+  Cal.ns.discovery("ui", {
+    theme: "light",
+    cssVarsPerTheme: {
+      light: {
+        "cal-brand": "#a07043",
+        "cal-text": "#1f1813",
+        "cal-text-emphasis": "#1f1813",
+        "cal-bg": "#fbf6ec",
+        "cal-bg-emphasis": "#f1e9dc",
+        "cal-bg-muted": "#e8ddc8",
+        "cal-border": "rgba(31,24,19,0.18)",
+        "cal-border-emphasis": "rgba(31,24,19,0.30)",
+        "cal-border-subtle": "rgba(31,24,19,0.10)"
+      }
+    },
+    hideEventTypeDetails: false,
+    layout: "month_view"
+  });
+
+  (function () {
+    const target = document.getElementById('cal-embed');
+    const placeholder = document.getElementById('cal-placeholder');
+    if (!target || !placeholder) return;
+    const obs = new MutationObserver(() => {
+      if (target.querySelector('iframe')) { placeholder.style.display = 'none'; obs.disconnect(); }
+    });
+    obs.observe(target, { childList: true, subtree: true });
+    setTimeout(() => obs.disconnect(), 8000);
+  })();
+</script>
+
+<!-- UI MOTION -->
+<script>
+(function () {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const coarse = matchMedia('(hover: none)').matches;
+
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+    document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+  }
+
+  if (coarse) {
+    document.body.style.cursor = 'auto';
+    document.querySelectorAll('.cursor-dot,.cursor-ring').forEach(el => el.remove());
+    return;
+  }
+
+  const dot  = document.querySelector('.cursor-dot');
+  const ring = document.querySelector('.cursor-ring');
+  let mx = innerWidth/2, my = innerHeight/2, rx = mx, ry = my;
+
+  addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; }, { passive: true });
+
+  document.querySelectorAll('.hover-target').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+  });
+
+  (function frame() {
+    dot.style.transform  = `translate3d(${mx}px, ${my}px, 0)`;
+    rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+    ring.style.transform = `translate3d(${rx}px, ${ry}px, 0)`;
+    requestAnimationFrame(frame);
+  })();
+})();
+</script>
+</body>
+</html>

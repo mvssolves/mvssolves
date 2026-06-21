@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVS Solves — Digital work, done properly.</title>
+<meta name="description" content="One person. Websites, Google profiles, AI booking, local SEO. Done properly.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:        #f1e9dc;
+    --paper-2:      #e8ddc8;
+    --paper-edge:   #d9c9ad;
+    --espresso:     #1f1813;
+    --bean:         #2e201a;
+    --mocha:        #6e4a2e;
+    --mocha-soft:   #8a6747;
+    --brass:        #a07043;
+    --brass-deep:   #8a5a30;
+    --rule:         rgba(31,24,19,0.14);
+    --rule-strong:  rgba(31,24,19,0.30);
+    --ink-soft:     rgba(31,24,19,0.70);
+    --ink-mute:     rgba(31,24,19,0.52);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--espresso);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 17px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    position: relative;
+    cursor: none;
+  }
+  body::before {
+    content: ''; position: fixed; inset: -20%; pointer-events: none; z-index: 1;
+    opacity: 0.35;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.12  0 0 0 0 0.09  0 0 0 0 0.07  0 0 0 0.07 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  body::after {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 1;
+    background: radial-gradient(120% 90% at 50% 30%, transparent 55%, rgba(46,32,26,0.18) 100%);
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 2; }
+  .serif-i { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; }
+  .hand { font-family: 'Caveat', cursive; font-weight: 600; }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: var(--brass); color: var(--paper); }
+
+  /* CUSTOM CURSOR — position via rAF, scale/color via CSS */
+  .cursor-dot, .cursor-ring {
+    position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;
+    will-change: transform;
+    transform: translate3d(-100px, -100px, 0);
+  }
+  .cursor-dot i, .cursor-ring i {
+    display: block; border-radius: 50%;
+    transition: transform 0.25s cubic-bezier(.2,1,.3,1), background 0.25s, border-color 0.25s;
+    will-change: transform;
+  }
+  .cursor-dot i {
+    width: 6px; height: 6px; margin: -3px 0 0 -3px;
+    background: var(--espresso);
+  }
+  .cursor-ring i {
+    width: 42px; height: 42px; margin: -21px 0 0 -21px;
+    border: 1.5px solid var(--brass);
+    box-sizing: border-box;
+  }
+  .cursor-hover .cursor-ring i { transform: scale(1.8); border-color: var(--brass-deep); }
+  .cursor-hover .cursor-dot  i { transform: scale(0.6); background: var(--brass-deep); }
+  @media (hover: none) { body { cursor: auto; } .cursor-dot, .cursor-ring { display: none; } }
+
+  /* TOP */
+  header.top { padding: 22px 0 0; position: relative; z-index: 5; }
+  .top-inner {
+    display: flex; align-items: baseline; justify-content: space-between;
+    border-bottom: 1px solid var(--rule); padding-bottom: 18px;
+  }
+  .brand { display: inline-flex; align-items: baseline; gap: 10px; }
+  .brand-mark {
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    font-size: 28px; line-height: 1; color: var(--brass-deep);
+    transform: translateY(2px);
+    transition: transform 0.4s cubic-bezier(.2,1,.3,1);
+    display: inline-block;
+  }
+  .brand:hover .brand-mark { transform: translateY(2px) rotate(-12deg); }
+  .brand-word { font-weight: 700; letter-spacing: 0.02em; font-size: 15px; text-transform: uppercase; }
+  .brand-word .dot { color: var(--brass); }
+  .top-right { display: flex; align-items: center; gap: 26px; font-size: 14px; color: var(--ink-soft); }
+  .ping { display: inline-flex; align-items: center; gap: 8px; }
+  .ping i {
+    width: 7px; height: 7px; border-radius: 50%; background: #4a7a3a;
+    box-shadow: 0 0 0 0 rgba(74,122,58,0.5);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(74,122,58,0.55); }
+    70% { box-shadow: 0 0 0 8px rgba(74,122,58,0); }
+    100% { box-shadow: 0 0 0 0 rgba(74,122,58,0); }
+  }
+  @media (max-width: 720px) { .ping { display: none; } }
+
+  /* HERO */
+  .hero { padding: 90px 0 60px; position: relative; }
+  .hero-grid {
+    display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: 70px; align-items: end;
+  }
+  @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; gap: 40px; } .hero { padding: 56px 0 36px; } }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 12px;
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--mocha); margin-bottom: 32px; font-weight: 500;
+  }
+  .eyebrow .bar { width: 36px; height: 1px; background: var(--mocha-soft);
+    transform-origin: left; transform: scaleX(0); animation: barIn 1s 0.2s cubic-bezier(.2,1,.3,1) forwards; }
+  @keyframes barIn { to { transform: scaleX(1); } }
+
+  h1.headline {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(58px, 9vw, 124px);
+    line-height: 0.94; letter-spacing: -0.028em;
+  }
+  h1.headline em { font-style: italic; color: var(--brass-deep); font-weight: 400; }
+  /* char fade-in */
+  .h-word { display: inline-block; overflow: hidden; vertical-align: bottom; }
+  .h-word .char {
+    display: inline-block; transform: translateY(110%);
+    animation: charUp 0.9s cubic-bezier(.2,1,.3,1) forwards;
+  }
+  @keyframes charUp { to { transform: translateY(0); } }
+
+  /* drifting serif word */
+  .drift { display: inline-block; will-change: transform; }
+
+  .underline-wrap { position: relative; display: inline-block; }
+  .underline-wrap svg {
+    position: absolute; left: -4px; right: -4px; bottom: -10px; width: calc(100% + 8px); height: 16px;
+    overflow: visible; pointer-events: none;
+  }
+  .underline-wrap svg path {
+    stroke: var(--brass); stroke-width: 2.4; fill: none; stroke-linecap: round;
+    stroke-dasharray: 600; stroke-dashoffset: 600;
+    animation: draw 1.6s 1.0s cubic-bezier(.65,0,.35,1) forwards;
+  }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+
+  .hero-aside {
+    border-left: 1px solid var(--rule-strong); padding-left: 28px;
+    color: var(--ink-soft); font-size: 17px; line-height: 1.6;
+    max-width: 320px;
+  }
+  .hero-aside .sig { margin-top: 22px; display: flex; align-items: baseline; gap: 12px; }
+  .hero-aside .sig .name { font-family: 'Caveat', cursive; font-size: 32px; color: var(--espresso); line-height: 1; }
+  .hero-aside .sig .role { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mocha); }
+
+  .hero-cta-row { margin-top: 48px; display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
+
+  /* MAGNETIC BUTTON */
+  .btn-magnetic {
+    position: relative; display: inline-flex; align-items: center; gap: 14px;
+    background: var(--espresso); color: var(--paper);
+    padding: 18px 30px 18px 32px; border-radius: 999px;
+    font-size: 15px; font-weight: 500; letter-spacing: 0.01em;
+    border: 1px solid var(--espresso);
+    transition: background 0.4s, color 0.4s;
+    overflow: hidden; will-change: transform;
+  }
+  .btn-magnetic .label { position: relative; z-index: 2; transition: transform 0.4s cubic-bezier(.2,1,.3,1); }
+  .btn-magnetic .arrow {
+    position: relative; z-index: 2;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--brass); color: var(--espresso);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px; line-height: 1;
+    transition: transform 0.4s cubic-bezier(.2,1,.3,1), background 0.4s;
+  }
+  .btn-magnetic::before {
+    content: ''; position: absolute; inset: 0; border-radius: inherit;
+    background: var(--brass);
+    transform: translateY(101%);
+    transition: transform 0.55s cubic-bezier(.7,0,.2,1);
+    z-index: 1;
+  }
+  .btn-magnetic:hover::before { transform: translateY(0); }
+  .btn-magnetic:hover { color: var(--espresso); border-color: var(--brass); }
+  .btn-magnetic:hover .arrow { background: var(--espresso); color: var(--brass); transform: translate(4px, -2px) rotate(8deg); }
+
+  .btn-quiet {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 15px; color: var(--espresso);
+    position: relative; padding-bottom: 4px;
+  }
+  .btn-quiet::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+    height: 1px; background: var(--espresso); transform-origin: right; transform: scaleX(0.4);
+    transition: transform 0.5s cubic-bezier(.2,1,.3,1);
+  }
+  .btn-quiet:hover::after { transform: scaleX(1); transform-origin: left; }
+  .btn-quiet:hover { color: var(--brass-deep); }
+
+  /* MARQUEE */
+  .marquee {
+    margin-top: 70px; overflow: hidden;
+    border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+    padding: 22px 0; background: var(--paper-2);
+    position: relative; z-index: 2;
+  }
+  .marquee-track {
+    display: inline-flex; gap: 48px; white-space: nowrap;
+    animation: scroll 38s linear infinite;
+    font-family: 'Instrument Serif', serif; font-size: 30px; line-height: 1;
+    color: var(--espresso);
+  }
+  .marquee-track span { display: inline-flex; align-items: center; gap: 48px; }
+  .marquee-track span::after {
+    content: '✦'; color: var(--brass); font-size: 18px;
+  }
+  .marquee-track em { font-style: italic; color: var(--brass-deep); }
+  @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* SECTION RULE */
+  .section-rule {
+    display: flex; align-items: baseline; gap: 18px;
+    padding-top: 28px; border-top: 1px solid var(--rule);
+    color: var(--mocha); font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+    font-weight: 500; margin-bottom: 48px;
+  }
+  .section-rule .num {
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    font-size: 22px; letter-spacing: 0; color: var(--brass-deep);
+    transform: translateY(2px); text-transform: none;
+  }
+
+  /* SERVICES */
+  .services { padding: 80px 0 80px; }
+  .services-head { margin-bottom: 56px; max-width: 760px; }
+  .services-head h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(40px, 5.6vw, 72px);
+    line-height: 1.0; letter-spacing: -0.025em;
+  }
+  .services-head h2 em { color: var(--brass-deep); }
+
+  .service-row {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1.4fr) minmax(0, 1fr) 130px;
+    align-items: center;
+    gap: 28px;
+    padding: 32px 0;
+    border-top: 1px solid var(--rule);
+    position: relative;
+    transition: padding 0.5s cubic-bezier(.2,1,.3,1);
+  }
+  .service-row:last-of-type { border-bottom: 1px solid var(--rule); }
+  .service-row::before {
+    content: ''; position: absolute; left: -32px; right: -32px; top: 0; bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(160,112,67,0.10), transparent);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.7s cubic-bezier(.2,1,.3,1);
+    pointer-events: none; z-index: -1;
+  }
+  .service-row:hover::before { transform: scaleX(1); }
+  .service-row:hover { padding-left: 12px; padding-right: 12px; }
+  .service-row .n {
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    font-size: 32px; color: var(--mocha); line-height: 1;
+    transition: color 0.4s, transform 0.4s;
+  }
+  .service-row:hover .n { color: var(--brass-deep); transform: rotate(-8deg) scale(1.08); }
+  .service-row h3 {
+    font-family: 'Instrument Serif', serif; font-weight: 400;
+    font-size: clamp(28px, 3.2vw, 38px); line-height: 1.05;
+    letter-spacing: -0.018em;
+  }
+  .service-row h3 em { color: var(--brass-deep); }
+  .service-row .desc { color: var(--ink-soft); font-size: 15.5px; line-height: 1.55; }
+  .service-row .tag {
+    justify-self: end; text-align: right;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--mocha);
+    transition: transform 0.4s, color 0.4s;
+  }
+  .service-row:hover .tag { color: var(--brass-deep); transform: translateX(-6px); }
+  @media (max-width: 820px) {
+    .service-row { grid-template-columns: 48px 1fr; gap: 14px 18px; padding: 26px 0; }
+    .service-row .desc { grid-column: 1 / -1; padding-left: 62px; }
+    .service-row .tag { grid-column: 1 / -1; justify-self: start; text-align: left; padding-left: 62px; }
+  }
+
+  /* HOW */
+  .how {
+    background: var(--paper-2); padding: 100px 0;
+    border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+  .how::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n2'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.10  0 0 0 0 0.07  0 0 0 0 0.05  0 0 0 0.10 0'/></filter><rect width='100%' height='100%' filter='url(%23n2)'/></svg>");
+    opacity: 0.5; mix-blend-mode: multiply;
+  }
+  .how-head { margin-bottom: 56px; max-width: 720px; }
+  .how-head h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(40px, 5.4vw, 64px);
+    line-height: 1.0; letter-spacing: -0.022em;
+  }
+  .how-head h2 em { color: var(--brass-deep); }
+  .steps {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
+  }
+  @media (max-width: 820px) { .steps { grid-template-columns: 1fr; gap: 22px; } }
+  .step {
+    padding: 32px 28px; background: var(--paper); border: 1px solid var(--rule);
+    position: relative; overflow: hidden;
+    transition: transform 0.5s cubic-bezier(.2,1,.3,1), box-shadow 0.5s;
+  }
+  .step::after {
+    content: ''; position: absolute; left: 0; bottom: 0; height: 2px; width: 100%;
+    background: var(--brass);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.7s cubic-bezier(.2,1,.3,1);
+  }
+  .step:hover { transform: translateY(-6px); box-shadow: 0 30px 50px -30px rgba(46,32,26,0.25); }
+  .step:hover::after { transform: scaleX(1); }
+  .step-num {
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    font-size: 56px; line-height: 0.9; color: var(--brass);
+    margin-bottom: 18px; display: inline-block;
+    transition: transform 0.5s cubic-bezier(.2,1,.3,1);
+  }
+  .step:hover .step-num { transform: rotate(-6deg) translateY(-2px); }
+  .step h4 {
+    font-family: 'Instrument Serif', serif; font-weight: 400;
+    font-size: 26px; line-height: 1.15; letter-spacing: -0.01em; margin-bottom: 10px;
+  }
+  .step p { color: var(--ink-soft); font-size: 15px; line-height: 1.55; }
+  .step .side {
+    display: inline-block; margin-top: 14px;
+    font-family: 'Caveat', cursive; font-size: 19px; color: var(--mocha);
+  }
+
+  /* CTA */
+  .cta {
+    background: var(--espresso); color: var(--paper);
+    padding: 130px 0; position: relative; overflow: hidden;
+  }
+  .cta::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n3'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.95  0 0 0 0 0.86  0 0 0 0 0.70  0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n3)'/></svg>");
+    opacity: 0.6;
+  }
+  /* brass orb — no filter, pure radial gradient */
+  .cta::after {
+    content: ''; position: absolute;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle at center, rgba(160,112,67,0.28), rgba(160,112,67,0.10) 35%, transparent 60%);
+    top: 50%; left: 50%; margin-top: -350px; margin-left: -350px;
+    will-change: transform;
+    animation: orbDrift 16s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes orbDrift {
+    0%,100% { transform: translate3d(-3%, 0, 0); }
+    50%     { transform: translate3d(3%, -3%, 0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cta::after { animation: none; }
+    .h-word .char { animation: none !important; transform: none !important; }
+    .underline-wrap svg path { animation: none; stroke-dashoffset: 0; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .ping i { animation: none; }
+  }
+  .cta-inner { position: relative; z-index: 1; text-align: center; }
+  .cta .kicker {
+    font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--brass); margin-bottom: 28px;
+  }
+  .cta h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(54px, 8vw, 108px);
+    line-height: 0.96; letter-spacing: -0.028em;
+    max-width: 12ch; margin: 0 auto 44px;
+  }
+  .cta h2 em { color: var(--brass); }
+  .cta .btn-magnetic { background: var(--paper); color: var(--espresso); border-color: var(--paper); }
+  .cta .btn-magnetic::before { background: var(--brass); }
+  .cta .btn-magnetic:hover { color: var(--espresso); border-color: var(--brass); }
+  .cta .btn-magnetic .arrow { background: var(--brass); color: var(--espresso); }
+  .cta .btn-magnetic:hover .arrow { background: var(--espresso); color: var(--brass); }
+  .cta .below {
+    margin-top: 22px; font-size: 14px; color: rgba(241,233,220,0.65);
+  }
+  .cta .below a { color: var(--paper); border-bottom: 1px solid rgba(241,233,220,0.4); padding-bottom: 1px; }
+
+  /* FOOTER */
+  footer { padding: 50px 0 56px; }
+  .foot-inner {
+    display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 24px;
+    font-size: 13.5px; color: var(--ink-mute);
+  }
+  .foot-inner a { color: var(--espresso); border-bottom: 1px solid var(--rule-strong); padding-bottom: 2px; }
+  .foot-inner a:hover { border-color: var(--espresso); }
+
+  /* REVEAL */
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.9s cubic-bezier(.2,1,.3,1), transform 0.9s cubic-bezier(.2,1,.3,1); }
+  .reveal.in { opacity: 1; transform: none; }
+  .reveal[data-d="1"] { transition-delay: 0.08s; }
+  .reveal[data-d="2"] { transition-delay: 0.16s; }
+  .reveal[data-d="3"] { transition-delay: 0.24s; }
+  .reveal[data-d="4"] { transition-delay: 0.32s; }
+
+  @media (max-width: 720px) { .wrap { padding: 0 22px; } }
+</style>
+</head>
+<body>
+
+<div class="cursor-dot"><i></i></div>
+<div class="cursor-ring"><i></i></div>
+
+<!-- TOP -->
+<header class="top">
+  <div class="wrap">
+    <div class="top-inner">
+      <a class="brand hover-target" href="/">
+        <span class="brand-mark">m</span>
+        <span class="brand-word">MVS <span class="dot">·</span> Solves</span>
+      </a>
+      <div class="top-right">
+        <span class="ping"><i></i> Booking new work</span>
+        <a class="btn-quiet hover-target" href="book-a-call.html">Book a call</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow"><span class="bar"></span> Done by one person</div>
+        <h1 class="headline">
+          <span class="h-word"><span class="char" style="animation-delay:.1s">D</span><span class="char" style="animation-delay:.13s">i</span><span class="char" style="animation-delay:.16s">g</span><span class="char" style="animation-delay:.19s">i</span><span class="char" style="animation-delay:.22s">t</span><span class="char" style="animation-delay:.25s">a</span><span class="char" style="animation-delay:.28s">l</span></span>
+          <span class="h-word"><span class="char" style="animation-delay:.34s">w</span><span class="char" style="animation-delay:.37s">o</span><span class="char" style="animation-delay:.4s">r</span><span class="char" style="animation-delay:.43s">k</span></span>,
+          <br>
+          <span class="underline-wrap drift">
+            <em>done properly.</em>
+            <svg viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M2,9 C 40,3 80,12 120,6 C 150,2 180,10 198,7"/>
+            </svg>
+          </span>
+        </h1>
+
+        <div class="hero-cta-row">
+          <a class="btn-magnetic hover-target" href="book-a-call.html" data-magnetic>
+            <span class="label">Book a call</span>
+            <span class="arrow">↗</span>
+          </a>
+          <a class="btn-quiet hover-target" href="mailto:martin@mvssolves.com">or email Martin</a>
+        </div>
+      </div>
+
+      <aside class="hero-aside reveal" data-d="2">
+        Websites. Google profiles. AI booking. Local SEO. <br>No agency, no handoffs — just me.
+        <div class="sig">
+          <span class="name">Martin</span>
+          <span class="role">— MVS Solves</span>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span>Websites</span><span><em>Google profiles</em></span><span>AI booking</span><span><em>Local SEO</em></span><span>Reviews on autopilot</span><span><em>Built by one person</em></span>
+    <span>Websites</span><span><em>Google profiles</em></span><span>AI booking</span><span><em>Local SEO</em></span><span>Reviews on autopilot</span><span><em>Built by one person</em></span>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section class="services">
+  <div class="wrap">
+    <div class="section-rule reveal"><span class="num">i.</span><span>What I do</span></div>
+    <div class="services-head reveal">
+      <h2>Four things, <em>done properly.</em></h2>
+    </div>
+
+    <div class="service-list">
+      <article class="service-row hover-target reveal" data-d="1">
+        <div class="n">01</div>
+        <h3>Websites that <em>convert.</em></h3>
+        <p class="desc">Fast, honest, built to sell — not template soup.</p>
+        <div class="tag">Design · Build</div>
+      </article>
+
+      <article class="service-row hover-target reveal" data-d="2">
+        <div class="n">02</div>
+        <h3>Google Profile, <em>fixed properly.</em></h3>
+        <p class="desc">The single biggest source of local customers, set up right.</p>
+        <div class="tag">Local · Maps</div>
+      </article>
+
+      <article class="service-row hover-target reveal" data-d="3">
+        <div class="n">03</div>
+        <h3>AI booking that <em>doesn't feel robotic.</em></h3>
+        <p class="desc">Takes bookings and FAQs at 2am, in your voice.</p>
+        <div class="tag">Automation</div>
+      </article>
+
+      <article class="service-row hover-target reveal" data-d="4">
+        <div class="n">04</div>
+        <h3>Local SEO & <em>real reviews.</em></h3>
+        <p class="desc">Map-pack visibility + a steady stream of 5-stars.</p>
+        <div class="tag">Search · Reviews</div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section class="how">
+  <div class="wrap">
+    <div class="section-rule reveal" style="margin-bottom: 28px;"><span class="num">ii.</span><span>How it works</span></div>
+    <div class="how-head reveal">
+      <h2>Three steps, <em>no surprises.</em></h2>
+    </div>
+
+    <div class="steps">
+      <div class="step hover-target reveal" data-d="1">
+        <div class="step-num">i</div>
+        <h4>We talk for 30 min</h4>
+        <p>You tell me what's broken. I tell you straight if I can fix it.</p>
+        <span class="side">— no pitch deck</span>
+      </div>
+      <div class="step hover-target reveal" data-d="2">
+        <div class="step-num">ii</div>
+        <h4>You get a one-page plan</h4>
+        <p>What, when, how much. Flat fee. Plain language.</p>
+        <span class="side">— no clock ticking</span>
+      </div>
+      <div class="step hover-target reveal" data-d="3">
+        <div class="step-num">iii</div>
+        <h4>I build it</h4>
+        <p>Drafts before live. Then I hand you the keys — or I keep watch.</p>
+        <span class="side">— your call</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <div class="wrap cta-inner">
+    <div class="kicker reveal">Ready when you are</div>
+    <h2 class="reveal" data-d="1">Let's <em>build</em> something.</h2>
+    <a class="btn-magnetic hover-target reveal" data-d="2" href="book-a-call.html" data-magnetic>
+      <span class="label">Book the 30-min call</span>
+      <span class="arrow">↗</span>
+    </a>
+    <div class="below reveal" data-d="3">
+      Or <a href="mailto:martin@mvssolves.com">email Martin</a> — same-day reply.
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap foot-inner">
+    <div>© 2026 MVS Solves</div>
+    <div><a href="mailto:martin@mvssolves.com">martin@mvssolves.com</a></div>
+    <div><a href="book-a-call.html">Book a call ↗</a></div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const coarse = matchMedia('(hover: none)').matches;
+
+  /* ----- REVEALS (always on) ----- */
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+    document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+  }
+
+  if (coarse) {
+    document.body.style.cursor = 'auto';
+    document.querySelectorAll('.cursor-dot,.cursor-ring').forEach(el => el.remove());
+    return;
+  }
+
+  /* ----- SHARED STATE ----- */
+  const dot  = document.querySelector('.cursor-dot');
+  const ring = document.querySelector('.cursor-ring');
+  const drift = reduce ? null : document.querySelector('.drift');
+  const magnets = reduce ? [] : Array.from(document.querySelectorAll('[data-magnetic]')).map(btn => ({
+    el: btn, label: btn.querySelector('.label'),
+    rect: null, hover: false, tx: 0, ty: 0, lx: 0, ly: 0
+  }));
+
+  let mx = innerWidth/2, my = innerHeight/2;
+  let rx = mx, ry = my;
+  let scrollY = window.scrollY;
+  let needScroll = true;
+  let lastDriftY = -1;
+
+  /* ----- INPUT (pure capture, no DOM writes) ----- */
+  addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; }, { passive: true });
+  addEventListener('scroll',    () => { scrollY = scrollY; needScroll = true; scrollY = window.scrollY; }, { passive: true });
+
+  /* ----- HOVER CLASS ----- */
+  document.querySelectorAll('.hover-target').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+  });
+
+  /* ----- MAGNETIC ENTER / LEAVE ----- */
+  magnets.forEach(m => {
+    m.el.addEventListener('mouseenter', () => { m.hover = true; m.rect = m.el.getBoundingClientRect(); });
+    m.el.addEventListener('mouseleave', () => { m.hover = false; });
+  });
+  addEventListener('resize', () => { magnets.forEach(m => m.rect = m.el.getBoundingClientRect()); }, { passive: true });
+
+  /* ----- SINGLE rAF LOOP ----- */
+  function frame() {
+    // cursor dot — snap
+    dot.style.transform = `translate3d(${mx}px, ${my}px, 0)`;
+    // cursor ring — eased (lower = more trail)
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.transform = `translate3d(${rx}px, ${ry}px, 0)`;
+
+    // magnetic buttons
+    for (const m of magnets) {
+      let dx = 0, dy = 0, ldx = 0, ldy = 0;
+      if (m.hover && m.rect) {
+        const r = m.rect;
+        const x = mx - r.left - r.width / 2;
+        const y = my - r.top - r.height / 2;
+        dx = x * 0.25; dy = y * 0.35;
+        ldx = x * 0.12; ldy = y * 0.18;
+      }
+      m.tx += (dx - m.tx) * 0.2;
+      m.ty += (dy - m.ty) * 0.2;
+      m.lx += (ldx - m.lx) * 0.2;
+      m.ly += (ldy - m.ly) * 0.2;
+      m.el.style.transform = `translate3d(${m.tx}px, ${m.ty}px, 0)`;
+      if (m.label) m.label.style.transform = `translate3d(${m.lx}px, ${m.ly}px, 0)`;
+    }
+
+    // parallax drift — only when scroll changed
+    if (drift && needScroll && scrollY !== lastDriftY) {
+      drift.style.transform = `translate3d(${scrollY*0.05}px, ${scrollY*-0.08}px, 0) rotate(${scrollY*-0.02}deg)`;
+      lastDriftY = scrollY;
+      needScroll = false;
+    }
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
