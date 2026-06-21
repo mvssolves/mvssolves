@@ -72,6 +72,8 @@
   .cursor-hover .cursor-ring i { transform: scale(1.8); border-color: var(--brass-deep); }
   .cursor-hover .cursor-dot  i { transform: scale(0.6); background: var(--brass-deep); }
   @media (hover: none) { body { cursor: auto; } .cursor-dot, .cursor-ring { display: none; } }
+  body.cursor-off { cursor: auto; }
+  body.cursor-off .cursor-dot, body.cursor-off .cursor-ring { opacity: 0; visibility: hidden; }
 
   /* TOP */
   header.top { padding: 22px 0 0; position: relative; z-index: 5; }
@@ -519,6 +521,17 @@
     el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
     el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
   });
+
+  /* Hide custom cursor over Cal embed (iframe eats mousemove) */
+  const calZone = document.getElementById('cal-embed');
+  if (calZone) {
+    calZone.addEventListener('mouseenter', () => {
+      document.body.classList.add('cursor-off');
+    });
+    calZone.addEventListener('mouseleave', () => {
+      document.body.classList.remove('cursor-off');
+    });
+  }
 
   (function frame() {
     dot.style.transform  = `translate3d(${mx}px, ${my}px, 0)`;
