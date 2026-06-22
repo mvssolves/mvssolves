@@ -5,6 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MVS Solves — Digital work, done properly.</title>
 <meta name="description" content="One person. Websites, Google profiles, AI booking, local SEO. Done properly.">
+<meta name="author" content="Martin · MVS Solves">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://mvssolves.com/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MVS Solves">
+<meta property="og:title" content="MVS Solves — Digital work, done properly.">
+<meta property="og:description" content="One person. Websites, Google profiles, AI booking, local SEO. Done properly.">
+<meta property="og:url" content="https://mvssolves.com/">
+<meta property="og:image" content="https://mvssolves.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="MVS Solves — Digital work, done properly.">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MVS Solves — Digital work, done properly.">
+<meta name="twitter:description" content="One person. Websites, Google profiles, AI booking, local SEO. Done properly.">
+<meta name="twitter:image" content="https://mvssolves.com/og-image.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
@@ -52,6 +73,13 @@
   .hand { font-family: 'Caveat', cursive; font-weight: 600; }
   a { color: inherit; text-decoration: none; }
   ::selection { background: var(--brass); color: var(--paper); }
+
+  /* inline body links (contextual / citations) */
+  .txt-link {
+    color: var(--brass-deep); border-bottom: 1px solid rgba(160,112,67,0.45);
+    padding-bottom: 1px; transition: border-color 0.3s, color 0.3s;
+  }
+  .txt-link:hover { color: var(--espresso); border-color: var(--espresso); }
 
   /* CUSTOM CURSOR — position via rAF, scale/color via CSS */
   .cursor-dot, .cursor-ring {
@@ -402,6 +430,30 @@
   }
   .cta .below a { color: var(--paper); border-bottom: 1px solid rgba(241,233,220,0.4); padding-bottom: 1px; }
 
+  /* FAQ */
+  .faq { padding: 90px 0 80px; }
+  .faq-head { margin-bottom: 48px; max-width: 760px; }
+  .faq-head h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(40px, 5.4vw, 64px);
+    line-height: 1.0; letter-spacing: -0.022em;
+  }
+  .faq-head h2 em { color: var(--brass-deep); }
+  .faq-list { max-width: 920px; }
+  .faq-item {
+    border-top: 1px solid var(--rule); padding: 28px 0;
+    transition: padding-left 0.4s cubic-bezier(.2,1,.3,1);
+  }
+  .faq-item:last-child { border-bottom: 1px solid var(--rule); }
+  .faq-item:hover { padding-left: 8px; }
+  .faq-item h3 {
+    font-family: 'Instrument Serif', serif; font-weight: 400;
+    font-size: clamp(22px, 2.6vw, 30px); line-height: 1.15;
+    letter-spacing: -0.015em; margin-bottom: 10px;
+  }
+  .faq-item h3 em { color: var(--brass-deep); }
+  .faq-item p { color: var(--ink-soft); font-size: 16px; line-height: 1.62; max-width: 72ch; }
+
   /* FOOTER */
   footer { padding: 50px 0 56px; }
   .foot-inner {
@@ -437,7 +489,7 @@
       </a>
       <div class="top-right">
         <span class="ping"><i></i> Booking new work</span>
-        <a class="btn-quiet hover-target" href="book-a-call.html">Book a call</a>
+        <a class="btn-quiet hover-target" href="/book-a-call">Book a call</a>
       </div>
     </div>
   </div>
@@ -462,7 +514,7 @@
         </h1>
 
         <div class="hero-cta-row">
-          <a class="btn-magnetic hover-target" href="book-a-call.html" data-magnetic>
+          <a class="btn-magnetic hover-target" href="/book-a-call" data-magnetic>
             <span class="label">Book a call</span>
             <span class="arrow">↗</span>
           </a>
@@ -471,7 +523,7 @@
       </div>
 
       <aside class="hero-aside reveal" data-d="2">
-        Websites. Google profiles. AI booking. Local SEO. <br>No agency, no handoffs — just me.
+        <a class="txt-link" href="/#what-i-do">Websites, Google profiles, AI booking and local SEO</a> — built by one person, no agency, no handoffs. See <a class="txt-link" href="/#how">how it works</a>, read the <a class="txt-link" href="/#faq">common questions</a>, or <a class="txt-link" href="/book-a-call">book a 30-minute call</a>.
         <div class="sig">
           <span class="name">Martin</span>
           <span class="role">— MVS Solves</span>
@@ -490,7 +542,7 @@
 </div>
 
 <!-- SERVICES -->
-<section class="services">
+<section class="services" id="what-i-do">
   <div class="wrap">
     <div class="section-rule reveal"><span class="num">i.</span><span>What I do</span></div>
     <div class="services-head reveal">
@@ -530,7 +582,7 @@
 </section>
 
 <!-- HOW -->
-<section class="how">
+<section class="how" id="how">
   <div class="wrap">
     <div class="section-rule reveal" style="margin-bottom: 28px;"><span class="num">ii.</span><span>How it works</span></div>
     <div class="how-head reveal">
@@ -560,12 +612,49 @@
   </div>
 </section>
 
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="wrap">
+    <div class="section-rule reveal"><span class="num">iii.</span><span>Common questions</span></div>
+    <div class="faq-head reveal">
+      <h2>Questions, <em>answered straight.</em></h2>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item reveal" data-d="1">
+        <h3>What does <em>MVS Solves</em> do?</h3>
+        <p>MVS Solves builds and fixes the digital basics small businesses rely on: fast websites, Google Business Profiles, AI-powered booking, and local SEO. It's all done by one person, end to end — see the <a class="txt-link" href="/#what-i-do">full list of services</a>. Speed matters because <a class="txt-link" href="https://web.dev/articles/why-speed-matters" target="_blank" rel="noopener">slow sites lose customers and rankings</a>.</p>
+      </div>
+      <div class="faq-item reveal" data-d="1">
+        <h3>Who actually <em>builds the work?</em></h3>
+        <p>Martin — one person, start to finish. No agency, no account managers, no handoffs, so you always talk to the person doing the work. Here's <a class="txt-link" href="/#how">how a project runs</a> from first call to launch.</p>
+      </div>
+      <div class="faq-item reveal" data-d="1">
+        <h3>How much does a <em>website cost?</em></h3>
+        <p>Every project is quoted up front in plain language — what, when, and how much — before any work starts. There are no lock-in surprises. The fastest way to get a number for your project is to <a class="txt-link" href="/book-a-call">book a free 30-minute call</a>.</p>
+      </div>
+      <div class="faq-item reveal" data-d="1">
+        <h3>What is <em>local SEO?</em></h3>
+        <p>Local SEO is the practice of making a business easier to find in local search and on <a class="txt-link" href="https://www.google.com/maps" target="_blank" rel="noopener">Google Maps</a>. It's driven largely by a well-kept <a class="txt-link" href="https://support.google.com/business/" target="_blank" rel="noopener">Google Business Profile</a> and a steady stream of genuine customer reviews. Google explains the ranking factors in its <a class="txt-link" href="https://developers.google.com/search/docs/appearance/structured-data" target="_blank" rel="noopener">Search Central documentation</a>.</p>
+      </div>
+      <div class="faq-item reveal" data-d="1">
+        <h3>How does <em>AI booking</em> work?</h3>
+        <p>An AI assistant answers common questions and takes bookings around the clock in your tone of voice, then drops each appointment straight into your calendar. You can try a live booking flow on the <a class="txt-link" href="/book-a-call">book a call</a> page.</p>
+      </div>
+      <div class="faq-item reveal" data-d="1">
+        <h3>How do we <em>get started?</em></h3>
+        <p>It starts with a free 30-minute call: you explain what's broken or what you're building, and you leave with a real plan and no obligation. Read <a class="txt-link" href="/#how">how it works</a>, then <a class="txt-link" href="/book-a-call">pick a time that suits you</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- CTA -->
 <section class="cta">
   <div class="wrap cta-inner">
     <div class="kicker reveal">Ready when you are</div>
     <h2 class="reveal" data-d="1">Let's <em>connect.</em></h2>
-    <a class="btn-magnetic hover-target reveal" data-d="2" href="book-a-call.html" data-magnetic>
+    <a class="btn-magnetic hover-target reveal" data-d="2" href="/book-a-call" data-magnetic>
       <span class="label">Book the 30-min call</span>
       <span class="arrow">↗</span>
     </a>
@@ -580,7 +669,7 @@
   <div class="wrap foot-inner">
     <div>© 2026 MVS Solves</div>
     <div><a href="mailto:martin@mvssolves.com">martin@mvssolves.com</a></div>
-    <div><a href="book-a-call.html">Book a call ↗</a></div>
+    <div><a href="/book-a-call">Book a call ↗</a></div>
   </div>
 </footer>
 
@@ -673,6 +762,63 @@
   }
   requestAnimationFrame(frame);
 })();
+</script>
+
+<!-- STRUCTURED DATA -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "ProfessionalService",
+      "@id": "https://mvssolves.com/#business",
+      "name": "MVS Solves",
+      "url": "https://mvssolves.com/",
+      "image": "https://mvssolves.com/og-image.png",
+      "description": "MVS Solves builds and fixes the digital basics small businesses rely on: fast websites, Google Business Profiles, AI-powered booking, and local SEO — done by one person, end to end.",
+      "slogan": "Digital work, done properly.",
+      "email": "martin@mvssolves.com",
+      "priceRange": "$$",
+      "founder": { "@id": "https://mvssolves.com/#martin" },
+      "areaServed": { "@type": "AdministrativeArea", "name": "Local & remote clients" },
+      "serviceType": ["Web design", "Google Business Profile setup", "AI booking automation", "Local SEO"],
+      "makesOffer": [
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Websites that convert", "description": "Fast, honest websites built to sell — not template soup." } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Google Business Profile setup", "description": "The single biggest source of local customers, set up right." } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "AI booking", "description": "Takes bookings and answers FAQs around the clock, in your voice." } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Local SEO & reviews", "description": "Map-pack visibility plus a steady stream of genuine 5-star reviews." } }
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://mvssolves.com/#website",
+      "url": "https://mvssolves.com/",
+      "name": "MVS Solves",
+      "description": "One person. Websites, Google profiles, AI booking, local SEO. Done properly.",
+      "publisher": { "@id": "https://mvssolves.com/#business" }
+    },
+    {
+      "@type": "Person",
+      "@id": "https://mvssolves.com/#martin",
+      "name": "Martin",
+      "jobTitle": "Founder",
+      "worksFor": { "@id": "https://mvssolves.com/#business" },
+      "email": "martin@mvssolves.com"
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://mvssolves.com/#faq",
+      "mainEntity": [
+        { "@type": "Question", "name": "What does MVS Solves do?", "acceptedAnswer": { "@type": "Answer", "text": "MVS Solves builds and fixes the digital basics small businesses rely on: fast websites, Google Business Profiles, AI-powered booking, and local SEO. It's all done by one person, end to end." } },
+        { "@type": "Question", "name": "Who actually builds the work?", "acceptedAnswer": { "@type": "Answer", "text": "Martin — one person, start to finish. No agency, no account managers, no handoffs, so you always talk to the person doing the work." } },
+        { "@type": "Question", "name": "How much does a website cost?", "acceptedAnswer": { "@type": "Answer", "text": "Every project is quoted up front in plain language — what, when, and how much — before any work starts. The fastest way to get a number for your project is to book a free 30-minute call." } },
+        { "@type": "Question", "name": "What is local SEO?", "acceptedAnswer": { "@type": "Answer", "text": "Local SEO is the practice of making a business easier to find in local search and on Google Maps. It's driven largely by a well-kept Google Business Profile and a steady stream of genuine customer reviews." } },
+        { "@type": "Question", "name": "How does AI booking work?", "acceptedAnswer": { "@type": "Answer", "text": "An AI assistant answers common questions and takes bookings around the clock in your tone of voice, then drops each appointment straight into your calendar." } },
+        { "@type": "Question", "name": "How do we get started?", "acceptedAnswer": { "@type": "Answer", "text": "It starts with a free 30-minute call: you explain what's broken or what you're building, and you leave with a real plan and no obligation." } }
+      ]
+    }
+  ]
+}
 </script>
 </body>
 </html>

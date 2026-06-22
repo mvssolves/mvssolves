@@ -4,7 +4,28 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Book a call — MVS Solves</title>
-<meta name="description" content="Pick a 30-min slot with Martin.">
+<meta name="description" content="Pick a free 30-minute slot with Martin. Tell me what's broken or what you're building, and leave with a real plan — no obligation.">
+<meta name="author" content="Martin · MVS Solves">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://mvssolves.com/book-a-call">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MVS Solves">
+<meta property="og:title" content="Book a call — MVS Solves">
+<meta property="og:description" content="Pick a free 30-minute slot with Martin. Leave with a real plan — no obligation.">
+<meta property="og:url" content="https://mvssolves.com/book-a-call">
+<meta property="og:image" content="https://mvssolves.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="MVS Solves — Digital work, done properly.">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Book a call — MVS Solves">
+<meta name="twitter:description" content="Pick a free 30-minute slot with Martin. Leave with a real plan — no obligation.">
+<meta name="twitter:image" content="https://mvssolves.com/og-image.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
@@ -48,6 +69,13 @@
   .hand { font-family: 'Caveat', cursive; font-weight: 600; }
   a { color: inherit; text-decoration: none; }
   ::selection { background: var(--brass); color: var(--paper); }
+
+  /* inline body links (contextual) */
+  .txt-link {
+    color: var(--brass-deep); border-bottom: 1px solid rgba(160,112,67,0.45);
+    padding-bottom: 1px; transition: border-color 0.3s, color 0.3s;
+  }
+  .txt-link:hover { color: var(--espresso); border-color: var(--espresso); }
 
   /* CURSOR — position via rAF, scale/color via CSS */
   .cursor-dot, .cursor-ring {
@@ -323,12 +351,12 @@
 <header class="top">
   <div class="wrap">
     <div class="top-inner">
-      <a class="brand hover-target" href="index.html">
+      <a class="brand hover-target" href="/">
         <span class="brand-mark">m</span>
         <span class="brand-word">MVS <span class="dot">·</span> Solves</span>
       </a>
       <div class="top-right">
-        <a class="top-back hover-target" href="index.html"><span class="a">←</span> back home</a>
+        <a class="top-back hover-target" href="/"><span class="a">←</span> back home</a>
       </div>
     </div>
   </div>
@@ -356,7 +384,7 @@
       </div>
 
       <aside class="hero-aside reveal" data-d="2">
-        Tell me what's broken or what you're building. <br>I'll tell you straight if I can help.
+        Tell me what's broken or what you're building. <br>I'll tell you straight if I can help. Not sure yet? Browse <a class="txt-link" href="/#what-i-do">what I do</a> or see <a class="txt-link" href="/#how">how it works</a> first.
       </aside>
     </div>
   </div>
@@ -378,7 +406,7 @@
           </li>
           <li class="hover-target">
             <span class="n">ii</span>
-            <div><h4>A real plan</h4><p>You leave with a real plan and course of action to take.</p></div>
+            <div><h4>A real plan</h4><p>You leave with a real plan and course of action to take — the same <a class="txt-link" href="/#how">three-step process</a> every project follows.</p></div>
           </li>
           <li class="hover-target">
             <span class="n">iii</span>
@@ -421,7 +449,7 @@
   <div class="wrap foot-inner">
     <div>© 2026 MVS Solves</div>
     <div><a href="mailto:martin@mvssolves.com">martin@mvssolves.com</a></div>
-    <div><a href="index.html">← back home</a></div>
+    <div><a href="/">← back home</a></div>
   </div>
 </footer>
 
@@ -540,6 +568,39 @@
     requestAnimationFrame(frame);
   })();
 })();
+</script>
+
+<!-- STRUCTURED DATA -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://mvssolves.com/book-a-call#webpage",
+      "url": "https://mvssolves.com/book-a-call",
+      "name": "Book a call — MVS Solves",
+      "description": "Pick a free 30-minute slot with Martin. Tell me what's broken or what you're building, and leave with a real plan — no obligation.",
+      "isPartOf": { "@id": "https://mvssolves.com/#website" },
+      "about": { "@id": "https://mvssolves.com/#business" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://mvssolves.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Book a call", "item": "https://mvssolves.com/book-a-call" }
+      ]
+    },
+    {
+      "@type": "Service",
+      "name": "Free 30-minute discovery call",
+      "serviceType": "Consultation",
+      "provider": { "@id": "https://mvssolves.com/#business" },
+      "description": "A free 30-minute call to talk through what's broken or what you're building. You leave with a real plan and no obligation.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock" }
+    }
+  ]
+}
 </script>
 </body>
 </html>
