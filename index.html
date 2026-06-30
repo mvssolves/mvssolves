@@ -20,7 +20,7 @@
 <meta name="twitter:image" content="https://mvssolves.com/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -40,7 +40,7 @@
       { "@type": "Question", "name": "Who actually builds the work?", "acceptedAnswer": { "@type": "Answer", "text": "Martin — one person, start to finish. No agency, no account managers, no handoffs, so you always talk to the person doing the work." } },
       { "@type": "Question", "name": "How much does a website cost?", "acceptedAnswer": { "@type": "Answer", "text": "Packages start at R7,500 build + R3,500/mo on the Launch tier, with clear ZAR pricing for every step. Every project is quoted up front in plain language before any work starts." } },
       { "@type": "Question", "name": "How does AI booking work?", "acceptedAnswer": { "@type": "Answer", "text": "An AI assistant answers common questions and takes bookings around the clock in your tone of voice, then drops each appointment straight into your calendar." } },
-      { "@type": "Question", "name": "How do we get started?", "acceptedAnswer": { "@type": "Answer", "text": "It starts with a free 30-minute call and a digital audit: you explain what's broken or what you're building, and you leave with a real plan and no obligation." } }
+      { "@type": "Question", "name": "How do we get started?", "acceptedAnswer": { "@type": "Answer", "text": "It starts with a free 30-minute call: you explain what's broken or what you're building, and you leave with a real plan and no obligation." } }
     ] }
   ]
 }
@@ -233,16 +233,13 @@
 
   /* ===== polish pass ===== */
   /* lighter, sparser drifting diamonds */
-  .hero-bg .d1{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='112' height='112'%3E%3Cpath d='M56 47 L58.5 53.5 L65 56 L58.5 58.5 L56 65 L53.5 58.5 L47 56 L53.5 53.5 Z' fill='%230a0a0a'/%3E%3C/svg%3E");background-size:112px 112px;opacity:.13;}
-  .hero-bg .d2{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='188' height='188'%3E%3Cpath d='M94 84 L97 91 L104 94 L97 97 L94 104 L91 97 L84 94 L91 91 Z' fill='%230a0a0a'/%3E%3C/svg%3E");background-size:188px 188px;opacity:.06;}
-  @keyframes drift1{from{transform:translateX(0);}to{transform:translateX(-112px);}}
-  @keyframes drift2{from{transform:translateX(0);}to{transform:translateX(-188px);}}
+  .hero-bg .d1{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cpath d='M80 71 L82.5 77.5 L89 80 L82.5 82.5 L80 89 L77.5 82.5 L71 80 L77.5 77.5 Z' fill='%230a0a0a'/%3E%3C/svg%3E");background-size:160px 160px;opacity:.07;animation:drift1 24s linear infinite;}
+  .hero-bg .d2{display:none;}
+  @keyframes drift1{from{transform:translateX(0);}to{transform:translateX(-160px);}}
 
-  /* hero light-sheen "glow" — soft band rakes through the ink */
-  h1{background-image:linear-gradient(100deg,#0a0a0a 0%,#0a0a0a 38%,#5a5a64 50%,#0a0a0a 62%,#0a0a0a 100%);background-size:280% 100%;background-position:120% 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:heroSheen 6.5s ease-in-out 1.2s infinite;}
-  h1 .aw{background-image:linear-gradient(100deg,#0a0a0a 0%,#0a0a0a 40%,#6e6e78 50%,#0a0a0a 60%,#0a0a0a 100%);background-size:280% 100%;background-position:120% 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:heroSheen 6.5s ease-in-out 1.45s infinite;text-shadow:0 1px 22px rgba(10,10,10,.10);}
-  @keyframes heroSheen{0%{background-position:120% 0;}55%,100%{background-position:-20% 0;}}
-  @supports not ((-webkit-background-clip:text) or (background-clip:text)){h1,h1 .aw{-webkit-text-fill-color:var(--ink);color:var(--ink);background:none;animation:none;}}
+  /* hero words: solid ink (sheen removed — background-clip:text conflicted with BlurText per-word spans) */
+  h1{color:var(--ink);}
+  h1 .aw{color:var(--ink);text-shadow:0 1px 20px rgba(10,10,10,.07);}
 
   /* nav: underline-grow + hover */
   .nav-r a:not(.navcta){position:relative;transition:color .25s ease;}
@@ -275,8 +272,29 @@
   .corner.bl{max-width:none;white-space:nowrap;letter-spacing:.04em;}
   .cursor{opacity:0;transition:width .25s,height .25s,opacity .15s;}
 
-  /* subtle film grain for depth */
-  body::after{content:'';position:fixed;inset:0;z-index:90;pointer-events:none;opacity:.03;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  /* film grain removed — fixed mix-blend overlay was costing scroll repaints */
+
+  /* heading font — characterful display */
+  h2{font-family:'Bricolage Grotesque','Inter',sans-serif;}
+
+  /* grid alignment safeguards */
+  .grid,.cap-grid,.tiers,.steps{align-items:stretch;}
+  .grid .card{height:100%;}
+
+  /* button effects: ghost fill-sweep + fill shine/arrow */
+  .btn-ghost{position:relative;overflow:hidden;z-index:0;}
+  .btn-ghost::before{content:'';position:absolute;inset:0;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .38s cubic-bezier(.4,0,.2,1);z-index:-1;}
+  .btn-ghost:hover{background:transparent;color:#fff;border-color:var(--ink);}
+  .btn-ghost:hover::before{transform:scaleX(1);}
+  .btn-fill{position:relative;overflow:hidden;}
+  .btn-fill svg{transition:transform .3s ease;}
+  .btn-fill:hover svg{transform:translateX(4px);}
+  .btn-fill::after{content:'';position:absolute;top:0;left:-40%;width:35%;height:100%;background:linear-gradient(110deg,transparent,rgba(255,255,255,.28),transparent);transform:skewX(-18deg);pointer-events:none;}
+  .btn-fill:hover::after{animation:shine .7s ease;}
+  @keyframes shine{from{left:-40%;}to{left:130%;}}
+
+  /* pause hero sheen when scrolled away (perf) */
+  .hero-off h1,.hero-off h1 .aw{animation-play-state:paused;}
 
   /* mobile polish (phone) */
   @media(max-width:600px){
@@ -292,11 +310,35 @@
     footer{padding:48px 20px 40px;}
   }
 
+  /* === BlurText hero (React Bits port) === */
+  .bw{display:inline-block;will-change:transform,filter,opacity;}
+
+  /* === ElectricBorder on featured card (React Bits port) === */
+  .tier.feat{position:relative;}
+  .eb-canvas{position:absolute;pointer-events:none;z-index:4;}
+  .eb-layers{position:absolute;inset:0;border-radius:16px;pointer-events:none;z-index:0;}
+  .eb-layers .eb-g1{position:absolute;inset:-1px;border-radius:16px;border:2px solid rgba(10,10,10,.42);filter:blur(1px);}
+  .eb-layers .eb-g2{position:absolute;inset:-1px;border-radius:16px;border:2px solid rgba(10,10,10,.26);filter:blur(6px);}
+
+  /* === Strands black CTA band (React Bits port) === */
+  .strands-band{position:relative;background:#0a0a0b;color:#fff;padding:128px 36px;overflow:hidden;text-align:center;border-top:1px solid var(--line);}
+  .strands-host{position:absolute;inset:0;z-index:0;}
+  .strands-host canvas{display:block;width:100%;height:100%;}
+  .strands-band .band-inner{position:relative;z-index:2;max-width:var(--maxw);margin:0 auto;}
+  .strands-band .lab{color:#fff;justify-content:center;}
+  .strands-band .lab::before{background:#fff;}
+  .strands-band h2{font-family:'Bricolage Grotesque',Inter,sans-serif;color:#fff;}
+  .band-btn{background:#fff!important;color:#0a0a0a!important;margin-top:28px;border:none;}
+  .band-btn svg{width:16px;height:16px;}
+  @media(max-width:600px){.strands-band{padding:88px 20px;}}
+
   @media(prefers-reduced-motion:reduce){
     h1,h1 .aw{animation:none;background:none;-webkit-text-fill-color:var(--ink);color:var(--ink);text-shadow:none;}
     .tier{transition:border-color .3s ease;}.tier:hover{transform:none;}
     .btn:active{transform:none;}
     .marquee .mtrack{animation:none;}
+    .btn-fill:hover::after{animation:none;}
+    .btn-ghost::before{transition:none;}
   }
 </style>
 </head>
@@ -347,7 +389,7 @@
   <div class="wrap work" id="work">
     <div class="lab">01 / What I do</div>
     <h2>Common projects,<br><span class="serif">uncommonly</span> done.</h2>
-    <p class="sub">Skip the agency runaround. Pick one thing or the full system — hand-built, fast, and made to earn back its cost. Hover a card.</p>
+    <p class="sub">Skip the agency runaround. Pick one thing or the full system — hand-built, fast, and made to earn back its cost.</p>
     <div class="grid" id="svc-grid">
       <a class="card" data-num="01" data-title="AI Booking Bot" data-desc="A smart 24/7 assistant trained on your business — qualifies leads, answers FAQs, and books straight to your calendar from your site, WhatsApp and DMs.">
         <span class="num">01</span><span class="ct">AI Booking Bot</span><span class="cd">Books clients while you sleep.</span></a>
@@ -411,7 +453,7 @@
         <ul>
           <li>Premium website</li><li>Online booking</li><li>Google Business Profile</li><li>Basic SEO</li>
         </ul>
-        <a class="btn btn-ghost tcta" href="#book">Start with a free audit</a>
+        <a class="btn btn-ghost tcta" href="#book">Get package</a>
       </div>
       <div class="tier feat">
         <span class="badge">★ Most popular</span>
@@ -423,7 +465,7 @@
           <li class="inh">Everything in Launch</li><li>Review generation</li><li>Business system / CRM</li><li>Online payments</li><li>Business email</li>
         </ul>
         <div class="pos">“I get you found and booked.”</div>
-        <a class="btn btn-fill tcta" href="#book" style="justify-content:center">Get your free audit</a>
+        <a class="btn btn-fill tcta" href="#book" style="justify-content:center">Get package</a>
       </div>
       <div class="tier">
         <div class="tn">Premium</div>
@@ -434,7 +476,7 @@
           <li class="inh">Everything in Growth</li><li>AI WhatsApp booking bot</li><li>Custom automations</li><li>Monthly reporting</li>
         </ul>
         <div class="pos">“I run it so you never touch admin.”</div>
-        <a class="btn btn-ghost tcta" href="#book">Start with a free audit</a>
+        <a class="btn btn-ghost tcta" href="#book">Get package</a>
       </div>
     </div>
     <div class="alc">
@@ -451,7 +493,6 @@
         <div class="alc-row"><span class="s">WhatsApp Business setup</span><span class="p">R800–2,500</span></div>
         <div class="alc-row"><span class="s">Business email</span><span class="p">R1,000–2,500</span></div>
         <div class="alc-row"><span class="s">Digital menu / catalog (QR)</span><span class="p">R2,000–5,000</span></div>
-        <div class="alc-row"><span class="s">Digital audit</span><span class="p">Free</span></div>
       </div>
     </div>
   </div>
@@ -464,7 +505,7 @@
     <h2>Three steps,<br>no surprises.</h2>
     <p class="sub">No fluff. No drawn-out timelines. I move fast, ship clean, and keep you in the loop the whole way.</p>
     <div class="steps">
-      <div class="step"><div class="sn">01</div><div class="st">Free audit call</div><div class="sc">A 20-minute call and a one-page report. We look at your current setup and I tell you exactly what's costing you customers.</div></div>
+      <div class="step"><div class="sn">01</div><div class="st">Free intro call</div><div class="sc">A 20-minute call and a one-page report. We look at your current setup and I tell you exactly what's costing you customers.</div></div>
       <div class="step"><div class="sn">02</div><div class="st">Tell me what you need</div><div class="sc">Choose one service or a package. Flat ZAR pricing, no surprises, no agency contracts you can't read.</div></div>
       <div class="step"><div class="sn">03</div><div class="st">I build it</div><div class="sc">Most things ship in 5–7 days. You stay focused on running your business while I run the systems.</div></div>
     </div>
@@ -491,7 +532,7 @@
         <div class="fstats">
           <div class="fstat"><b>&lt; 7d</b><span>typical turnaround</span></div>
           <div class="fstat"><b>1</b><span>person, start to finish</span></div>
-          <div class="fstat"><b>Free</b><span>first digital audit</span></div>
+          <div class="fstat"><b>Free</b><span>first intro call</span></div>
           <div class="fstat"><b>100%</b><span>direct contact</span></div>
         </div>
       </div>
@@ -509,8 +550,19 @@
       <div class="qa"><q>Who actually builds the work?<span class="plus">+</span></q><div class="a"><p>Martin — one person, start to finish. No agency, no account managers, no handoffs, so you always talk to the person doing the work.</p></div></div>
       <div class="qa"><q>How much does a website cost?<span class="plus">+</span></q><div class="a"><p>Packages start at R7,500 build + R3,500/mo on Launch, and every à-la-carte service has a clear ZAR range. You're quoted up front in plain language — what, when, and how much — before any work starts. The fastest way to get a number is a free 30-minute call.</p></div></div>
       <div class="qa"><q>How does AI booking work?<span class="plus">+</span></q><div class="a"><p>An AI assistant answers common questions and takes bookings around the clock in your tone of voice, then drops each appointment straight into your calendar. You can try a live booking flow right here on the page.</p></div></div>
-      <div class="qa"><q>How do we get started?<span class="plus">+</span></q><div class="a"><p>It starts with a free 30-minute call and a digital audit: you explain what's broken or what you're building, and you leave with a real plan and no obligation. If we're not a fit, I'll say so and point you somewhere better.</p></div></div>
+      <div class="qa"><q>How do we get started?<span class="plus">+</span></q><div class="a"><p>It starts with a free 30-minute call: you explain what's broken or what you're building, and you leave with a real plan and no obligation. If we're not a fit, I'll say so and point you somewhere better.</p></div></div>
     </div>
+  </div>
+</section>
+
+<!-- STRANDS CTA BAND -->
+<section class="strands-band" id="cta-band">
+  <div class="strands-host" id="strandsHost" aria-hidden="true"></div>
+  <div class="band-inner">
+    <div class="lab">Ready when you are</div>
+    <h2>Let's automate<br>your business.</h2>
+    <a class="btn btn-fill band-btn" href="#book">Get started
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
   </div>
 </section>
 
@@ -521,7 +573,7 @@
     <div class="book-grid">
       <div>
         <h2>Your business<br>deserves to<br>be found.</h2>
-        <p class="sub">Tell me what you're working with. I'll tell you exactly what I can do — and whether it's worth it. No pitch, no fluff. Just a straight conversation and a one-page audit.</p>
+        <p class="sub">Tell me what you're working with. I'll tell you exactly what I can do — and whether it's worth it. No pitch, no fluff. Just a straight conversation and a clear plan.</p>
         <a class="btn btn-fill mailbtn" href="mailto:martin@mvssolves.com">Email martin@mvssolves.com</a>
         <div class="book-note">Same-day reply. Always. → book a free 30-minute call:</div>
       </div>
@@ -599,9 +651,19 @@ window.addEventListener('scroll',()=>onScroll(window.scrollY));
 if(lenis) lenis.on('scroll',({scroll})=>onScroll(scroll));
 
 /* hero intro */
-gsap.timeline({defaults:{ease:'power3.out'}})
-  .from('h1',{opacity:0,y:24,duration:1,delay:0.1})
-  .to('#hsub',{opacity:1,y:0,duration:0.9},'-=0.55')
+/* BlurText hero reveal (React Bits port → GSAP) */
+(function(){
+  const words=[];
+  document.querySelectorAll('h1 .line>span').forEach(span=>{
+    const parts=span.textContent.split(' ');span.textContent='';
+    parts.forEach((w,i)=>{const s=document.createElement('span');s.className='bw';
+      s.textContent=w+(i<parts.length-1?' ':'');span.appendChild(s);words.push(s);});
+  });
+  if(reduce){gsap.set(words,{opacity:1,filter:'blur(0px)',y:0});}
+  else{gsap.from(words,{opacity:0,filter:'blur(10px)',y:-22,duration:0.6,stagger:0.09,ease:'power3.out',delay:0.15});}
+})();
+gsap.timeline({defaults:{ease:'power3.out'},delay:reduce?0:0.55})
+  .to('#hsub',{opacity:1,y:0,duration:0.9})
   .to('#hcta',{opacity:1,y:0,duration:0.9},'-=0.7');
 
 /* magnetic CTA */
@@ -614,9 +676,45 @@ if(!reduce&&window.matchMedia('(pointer:fine)').matches){
   document.querySelectorAll('#magnet,.navcta,.tier .btn-fill').forEach(el=>magnetize(el,0.35,0.45));
 }
 
+/* ElectricBorder (React Bits port → vanilla canvas) on the featured card */
+function electricBorder(host,o){
+  o=o||{};const color=o.color||'#0a0a0a',speed=o.speed||0.9,chaos=o.chaos||0.09,thickness=o.thickness||1.4,br=o.borderRadius||16,off=30,disp=26;
+  const cvs=document.createElement('canvas');cvs.className='eb-canvas';
+  const layer=document.createElement('div');layer.className='eb-layers';layer.innerHTML='<span class="eb-g1"></span><span class="eb-g2"></span>';
+  host.appendChild(layer);host.appendChild(cvs);const ctx=cvs.getContext('2d');
+  const rnd=x=>(Math.sin(x*12.9898)*43758.5453)%1;
+  const n2=(x,y)=>{const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j,a=rnd(i+j*57),b=rnd(i+1+j*57),c=rnd(i+(j+1)*57),d=rnd(i+1+(j+1)*57),ux=fx*fx*(3-2*fx),uy=fy*fy*(3-2*fy);return a*(1-ux)*(1-uy)+b*ux*(1-uy)+c*(1-ux)*uy+d*ux*uy;};
+  const oct=(x,t,seed)=>{let y=0,amp=chaos,fr=10;for(let i=0;i<8;i++){y+=amp*n2(fr*x+seed*100,t*fr*0.3);fr*=1.6;amp*=0.7;}return y;};
+  const corner=(cx,cy,r,sa,al,p)=>{const a=sa+p*al;return{x:cx+r*Math.cos(a),y:cy+r*Math.sin(a)};};
+  const rrp=(tt,L,T,w,h,r)=>{const sw=w-2*r,sh=h-2*r,ca=Math.PI*r/2,per=2*sw+2*sh+4*ca,dist=tt*per;let ac=0;
+    if(dist<=ac+sw)return{x:L+r+(dist-ac),y:T};ac+=sw;
+    if(dist<=ac+ca)return corner(L+w-r,T+r,r,-Math.PI/2,Math.PI/2,(dist-ac)/ca);ac+=ca;
+    if(dist<=ac+sh)return{x:L+w,y:T+r+(dist-ac)};ac+=sh;
+    if(dist<=ac+ca)return corner(L+w-r,T+h-r,r,0,Math.PI/2,(dist-ac)/ca);ac+=ca;
+    if(dist<=ac+sw)return{x:L+w-r-(dist-ac),y:T+h};ac+=sw;
+    if(dist<=ac+ca)return corner(L+r,T+h-r,r,Math.PI/2,Math.PI/2,(dist-ac)/ca);ac+=ca;
+    if(dist<=ac+sh)return{x:L,y:T+h-r-(dist-ac)};ac+=sh;
+    return corner(L+r,T+r,r,Math.PI,Math.PI/2,(dist-ac)/ca);};
+  let W,H,dpr,t=0,last=0,raf=null,running=false;
+  function size(){const rc=host.getBoundingClientRect();W=rc.width+off*2;H=rc.height+off*2;dpr=Math.min(window.devicePixelRatio||1,2);cvs.width=W*dpr;cvs.height=H*dpr;cvs.style.width=W+'px';cvs.style.height=H+'px';cvs.style.left=-off+'px';cvs.style.top=-off+'px';}
+  function draw(now){const dt=(now-last)/1000;t+=dt*speed;last=now;ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cvs.width,cvs.height);ctx.scale(dpr,dpr);ctx.strokeStyle=color;ctx.lineWidth=thickness;ctx.lineCap='round';ctx.lineJoin='round';
+    const bw=W-2*off,bh=H-2*off,r=Math.min(br,Math.min(bw,bh)/2),per=2*(bw+bh)+2*Math.PI*r,n=Math.floor(per/2);ctx.beginPath();
+    for(let i=0;i<=n;i++){const p=i/n,pt=rrp(p,off,off,bw,bh,r),dx=pt.x+oct(p*8,t,0)*disp,dy=pt.y+oct(p*8,t,1)*disp;i?ctx.lineTo(dx,dy):ctx.moveTo(dx,dy);}
+    ctx.closePath();ctx.stroke();raf=requestAnimationFrame(draw);}
+  function start(){if(running)return;running=true;last=performance.now();raf=requestAnimationFrame(draw);}
+  function stop(){running=false;cancelAnimationFrame(raf);}
+  size();new ResizeObserver(size).observe(host);
+  new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting?start():stop()),{threshold:0}).observe(host);
+}
+if(!reduce){const feat=document.querySelector('.tier.feat');if(feat)electricBorder(feat,{color:'#0a0a0a',chaos:0.09,speed:0.9,thickness:1.4,borderRadius:16});}
+
 /* section heading reveals */
 if(!reduce){
-  gsap.utils.toArray('.section h2, .section .sub, .lab').forEach(el=>{
+  gsap.utils.toArray('.section h2').forEach(el=>{
+    gsap.from(el,{clipPath:'inset(0 0 100% 0)',y:24,duration:1.05,ease:'power4.out',
+      scrollTrigger:{trigger:el,start:'top 86%'}});
+  });
+  gsap.utils.toArray('.section .sub, .lab').forEach(el=>{
     gsap.from(el,{y:30,opacity:0,duration:0.9,ease:'power3.out',
       scrollTrigger:{trigger:el,start:'top 88%'}});
   });
@@ -628,6 +726,9 @@ if(!reduce){
   /* hero content drifts up on scroll — subtle parallax, works on touch too */
   gsap.to('.h-wrap',{yPercent:-8,ease:'none',scrollTrigger:{trigger:'#top',start:'top top',end:'bottom top',scrub:true}});
 }
+/* pause hero sheen when scrolled past — kills off-screen repaint cost */
+(function(){const hero=document.getElementById('top');if(!hero)return;
+  new IntersectionObserver(es=>es.forEach(en=>document.documentElement.classList.toggle('hero-off',!en.isIntersecting)),{threshold:0}).observe(hero);})();
 
 /* CAPABILITIES converge — scroll/58 technique */
 if(!reduce){
@@ -720,6 +821,53 @@ function initCal(){
   new IntersectionObserver((es,ob)=>{es.forEach(en=>{if(en.isIntersecting&&!done){done=true;initCal();ob.disconnect();}});},{rootMargin:'500px'}).observe(sec);})();
 
 window.addEventListener('load',()=>{setTimeout(()=>ScrollTrigger.refresh(),400);});
+</script>
+<script type="module">
+/* Strands background (React Bits port, ogl via CDN) — grayscale on the black band */
+try{
+const {Renderer,Program,Mesh,Color,Triangle}=await import('https://esm.sh/ogl@1.0.11');
+const host=document.getElementById('strandsHost');
+const rm=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(host&&!rm){
+  const VERT=`#version 300 es
+in vec2 position;
+void main(){gl_Position=vec4(position,0.0,1.0);}`;
+  const FRAG=`#version 300 es
+precision highp float;
+uniform float uTime;uniform vec2 uResolution;uniform vec3 uColors[8];uniform int uColorCount;uniform int uStrandCount;
+uniform float uSpeed;uniform float uAmplitude;uniform float uWaviness;uniform float uThickness;uniform float uGlow;uniform float uTaper;uniform float uSpread;uniform float uHueShift;uniform float uIntensity;uniform float uOpacity;uniform float uScale;uniform float uSaturation;
+out vec4 fragColor;
+const float PI=3.14159265;
+vec3 spectrum(float t){return 0.5+0.5*cos(2.0*PI*(t+vec3(0.00,0.33,0.67)));}
+vec3 samplePalette(float t){t=fract(t);float s=t*float(uColorCount);int idx=int(floor(s));float bl=fract(s);int nx=idx+1;if(nx>=uColorCount)nx=0;return mix(uColors[idx],uColors[nx],bl);}
+vec3 strandColor(float t){if(uColorCount>0)return samplePalette(t);return spectrum(t);}
+void main(){
+  vec2 uv=(gl_FragCoord.xy-0.5*uResolution)/uResolution.y;uv/=max(uScale,0.0001);
+  float e=0.06+uIntensity*0.94;float env=pow(max(cos(uv.x*PI*1.3),0.0),uTaper);
+  vec3 col=vec3(0.0);
+  for(int i=0;i<12;i++){if(i>=uStrandCount)break;float fi=float(i);float ph=fi*1.7*uSpread;float freq=(2.0+fi*0.35)*uWaviness;float spd=1.4+fi*1.2;float tt=uTime*uSpeed;
+    float w=sin(uv.x*freq+tt*spd+ph)*0.60+sin(uv.x*freq*1.1-tt*spd*0.7+ph*1.7)*0.40;
+    float amp=(0.1+0.02*e)*env*uAmplitude;float y=w*amp;float d=abs(uv.y-y);float thick=(0.001+0.05*e)*(0.35+env)*uThickness;float g=thick/(d+thick*0.45);g=g*g;
+    float h=fi/float(uStrandCount)+uv.x*0.30+uTime*0.04+uHueShift;col+=strandColor(h)*g*env;}
+  col*=0.45+0.7*e;col=1.0-exp(-col*uGlow);
+  float gray=dot(col,vec3(0.2126,0.7152,0.0722));col=max(mix(vec3(gray),col,uSaturation),0.0);
+  float lum=max(max(col.r,col.g),col.b);float alpha=clamp(lum,0.0,1.0)*uOpacity;
+  fragColor=vec4(col*uOpacity,alpha);
+}`;
+  const renderer=new Renderer({alpha:true,premultipliedAlpha:true,antialias:true,dpr:Math.min(window.devicePixelRatio||1,1.5)});
+  const gl=renderer.gl;gl.clearColor(0,0,0,0);gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
+  const geometry=new Triangle(gl);if(geometry.attributes.uv)delete geometry.attributes.uv;
+  const cs=['#ffffff','#cfcfcf','#9a9a9a'];
+  const pal=()=>{const p=[];for(let i=0;i<8;i++){const c=new Color(cs[i]??cs[cs.length-1]);p.push([c.r,c.g,c.b]);}return p;};
+  const program=new Program(gl,{vertex:VERT,fragment:FRAG,uniforms:{uTime:{value:0},uResolution:{value:[host.offsetWidth,host.offsetHeight]},uColors:{value:pal()},uColorCount:{value:cs.length},uStrandCount:{value:3},uSpeed:{value:0.4},uAmplitude:{value:1.1},uWaviness:{value:1},uThickness:{value:0.85},uGlow:{value:2.4},uTaper:{value:3},uSpread:{value:1},uHueShift:{value:0},uIntensity:{value:0.6},uOpacity:{value:1},uScale:{value:1.7},uSaturation:{value:0.0}}});
+  const mesh=new Mesh(gl,{geometry,program});host.appendChild(gl.canvas);
+  const resize=()=>{renderer.setSize(host.offsetWidth,host.offsetHeight);program.uniforms.uResolution.value=[host.offsetWidth,host.offsetHeight];};
+  window.addEventListener('resize',resize);resize();
+  let raf=0,vis=false;
+  const loop=t=>{raf=requestAnimationFrame(loop);program.uniforms.uTime.value=t*0.001;renderer.render({scene:mesh});};
+  new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!vis){vis=true;raf=requestAnimationFrame(loop);}else if(!e.isIntersecting&&vis){vis=false;cancelAnimationFrame(raf);}}),{threshold:0}).observe(host);
+}
+}catch(err){console.warn('Strands failed to load',err);}
 </script>
 </body>
 </html>
