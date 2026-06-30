@@ -321,18 +321,6 @@
   .eb-layers .eb-g1{position:absolute;inset:-1px;border-radius:16px;border:2px solid rgba(10,10,10,.42);filter:blur(1px);}
   .eb-layers .eb-g2{position:absolute;inset:-1px;border-radius:16px;border:2px solid rgba(10,10,10,.26);filter:blur(6px);}
 
-  /* === Strands black CTA band (React Bits port) === */
-  .strands-band{position:relative;background:#0a0a0b;color:#fff;padding:128px 36px;overflow:hidden;text-align:center;border-top:1px solid var(--line);}
-  .strands-host{position:absolute;inset:0;z-index:0;}
-  .strands-host canvas{display:block;width:100%;height:100%;}
-  .strands-band .band-inner{position:relative;z-index:2;max-width:var(--maxw);margin:0 auto;}
-  .strands-band .lab{color:#fff;justify-content:center;}
-  .strands-band .lab::before{background:#fff;}
-  .strands-band h2{font-family:'Bricolage Grotesque',Inter,sans-serif;color:#fff;}
-  .band-btn{background:#fff!important;color:#0a0a0a!important;margin-top:28px;border:none;}
-  .band-btn svg{width:16px;height:16px;}
-  @media(max-width:600px){.strands-band{padding:88px 20px;}}
-
   @media(prefers-reduced-motion:reduce){
     h1,h1 .aw{animation:none;background:none;-webkit-text-fill-color:var(--ink);color:var(--ink);text-shadow:none;}
     .tier{transition:border-color .3s ease;}.tier:hover{transform:none;}
@@ -553,17 +541,6 @@
       <div class="qa"><q>How does AI booking work?<span class="plus">+</span></q><div class="a"><p>An AI assistant answers common questions and takes bookings around the clock in your tone of voice, then drops each appointment straight into your calendar. You can try a live booking flow right here on the page.</p></div></div>
       <div class="qa"><q>How do we get started?<span class="plus">+</span></q><div class="a"><p>It starts with a free 30-minute call: you explain what's broken or what you're building, and you leave with a real plan and no obligation. If we're not a fit, I'll say so and point you somewhere better.</p></div></div>
     </div>
-  </div>
-</section>
-
-<!-- STRANDS CTA BAND -->
-<section class="strands-band" id="cta-band">
-  <div class="strands-host" id="strandsHost" aria-hidden="true"></div>
-  <div class="band-inner">
-    <div class="lab">Ready when you are</div>
-    <h2>Let's automate<br>your business.</h2>
-    <a class="btn btn-fill band-btn" href="#book">Get started
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
   </div>
 </section>
 
@@ -822,53 +799,6 @@ function initCal(){
   new IntersectionObserver((es,ob)=>{es.forEach(en=>{if(en.isIntersecting&&!done){done=true;initCal();ob.disconnect();}});},{rootMargin:'500px'}).observe(sec);})();
 
 window.addEventListener('load',()=>{setTimeout(()=>ScrollTrigger.refresh(),400);});
-</script>
-<script type="module">
-/* Strands background (React Bits port, ogl via CDN) — grayscale on the black band */
-try{
-const {Renderer,Program,Mesh,Color,Triangle}=await import('https://esm.sh/ogl@1.0.11');
-const host=document.getElementById('strandsHost');
-const rm=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-if(host&&!rm){
-  const VERT=`#version 300 es
-in vec2 position;
-void main(){gl_Position=vec4(position,0.0,1.0);}`;
-  const FRAG=`#version 300 es
-precision highp float;
-uniform float uTime;uniform vec2 uResolution;uniform vec3 uColors[8];uniform int uColorCount;uniform int uStrandCount;
-uniform float uSpeed;uniform float uAmplitude;uniform float uWaviness;uniform float uThickness;uniform float uGlow;uniform float uTaper;uniform float uSpread;uniform float uHueShift;uniform float uIntensity;uniform float uOpacity;uniform float uScale;uniform float uSaturation;
-out vec4 fragColor;
-const float PI=3.14159265;
-vec3 spectrum(float t){return 0.5+0.5*cos(2.0*PI*(t+vec3(0.00,0.33,0.67)));}
-vec3 samplePalette(float t){t=fract(t);float s=t*float(uColorCount);int idx=int(floor(s));float bl=fract(s);int nx=idx+1;if(nx>=uColorCount)nx=0;return mix(uColors[idx],uColors[nx],bl);}
-vec3 strandColor(float t){if(uColorCount>0)return samplePalette(t);return spectrum(t);}
-void main(){
-  vec2 uv=(gl_FragCoord.xy-0.5*uResolution)/uResolution.y;uv/=max(uScale,0.0001);
-  float e=0.06+uIntensity*0.94;float env=pow(max(cos(uv.x*PI*1.3),0.0),uTaper);
-  vec3 col=vec3(0.0);
-  for(int i=0;i<12;i++){if(i>=uStrandCount)break;float fi=float(i);float ph=fi*1.7*uSpread;float freq=(2.0+fi*0.35)*uWaviness;float spd=1.4+fi*1.2;float tt=uTime*uSpeed;
-    float w=sin(uv.x*freq+tt*spd+ph)*0.60+sin(uv.x*freq*1.1-tt*spd*0.7+ph*1.7)*0.40;
-    float amp=(0.1+0.02*e)*env*uAmplitude;float y=w*amp;float d=abs(uv.y-y);float thick=(0.001+0.05*e)*(0.35+env)*uThickness;float g=thick/(d+thick*0.45);g=g*g;
-    float h=fi/float(uStrandCount)+uv.x*0.30+uTime*0.04+uHueShift;col+=strandColor(h)*g*env;}
-  col*=0.45+0.7*e;col=1.0-exp(-col*uGlow);
-  float gray=dot(col,vec3(0.2126,0.7152,0.0722));col=max(mix(vec3(gray),col,uSaturation),0.0);
-  float lum=max(max(col.r,col.g),col.b);float alpha=clamp(lum,0.0,1.0)*uOpacity;
-  fragColor=vec4(col*uOpacity,alpha);
-}`;
-  const renderer=new Renderer({alpha:true,premultipliedAlpha:true,antialias:true,dpr:Math.min(window.devicePixelRatio||1,1.5)});
-  const gl=renderer.gl;gl.clearColor(0,0,0,0);gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
-  const geometry=new Triangle(gl);if(geometry.attributes.uv)delete geometry.attributes.uv;
-  const cs=['#ffffff','#cfcfcf','#9a9a9a'];
-  const pal=()=>{const p=[];for(let i=0;i<8;i++){const c=new Color(cs[i]??cs[cs.length-1]);p.push([c.r,c.g,c.b]);}return p;};
-  const program=new Program(gl,{vertex:VERT,fragment:FRAG,uniforms:{uTime:{value:0},uResolution:{value:[host.offsetWidth,host.offsetHeight]},uColors:{value:pal()},uColorCount:{value:cs.length},uStrandCount:{value:3},uSpeed:{value:0.4},uAmplitude:{value:1.1},uWaviness:{value:1},uThickness:{value:0.85},uGlow:{value:2.4},uTaper:{value:3},uSpread:{value:1},uHueShift:{value:0},uIntensity:{value:0.6},uOpacity:{value:1},uScale:{value:1.7},uSaturation:{value:0.0}}});
-  const mesh=new Mesh(gl,{geometry,program});host.appendChild(gl.canvas);
-  const resize=()=>{renderer.setSize(host.offsetWidth,host.offsetHeight);program.uniforms.uResolution.value=[host.offsetWidth,host.offsetHeight];};
-  window.addEventListener('resize',resize);resize();
-  let raf=0,vis=false;
-  const loop=t=>{raf=requestAnimationFrame(loop);program.uniforms.uTime.value=t*0.001;renderer.render({scene:mesh});};
-  new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!vis){vis=true;raf=requestAnimationFrame(loop);}else if(!e.isIntersecting&&vis){vis=false;cancelAnimationFrame(raf);}}),{threshold:0}).observe(host);
-}
-}catch(err){console.warn('Strands failed to load',err);}
 </script>
 </body>
 </html>
