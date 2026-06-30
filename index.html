@@ -297,6 +297,17 @@
   /* pause hero sheen when scrolled away (perf) */
   .hero-off h1,.hero-off h1 .aw{animation-play-state:paused;}
 
+  /* Starter lead offer card */
+  .starter{position:relative;background:var(--ink);color:#fff;border-radius:18px;padding:30px 34px;margin-top:30px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:22px;}
+  .starter .s-badge{display:inline-block;background:#fff;color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;border-radius:5px;}
+  .starter .s-price{font-weight:900;font-size:clamp(36px,5vw,58px);letter-spacing:-.025em;line-height:1;margin-top:14px;font-family:'Bricolage Grotesque',Inter,sans-serif;}
+  .starter .s-price small{font-size:17px;font-weight:600;color:#b9b9c2;letter-spacing:0;font-family:'Inter',sans-serif;}
+  .starter .s-feat{font-size:14px;color:#cfcfd6;margin-top:10px;max-width:520px;line-height:1.5;}
+  .s-btn{background:#fff;color:var(--ink);font-weight:700;white-space:nowrap;}
+  .s-btn svg{width:16px;height:16px;}
+  .more-lab{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:40px 0 0;}
+  @media(max-width:600px){.starter{padding:26px 22px;}.s-btn{width:100%;justify-content:center;}}
+
   /* mobile polish (phone) */
   @media(max-width:600px){
     .wrap{padding:0 20px;}
@@ -428,7 +439,19 @@
   <div class="wrap">
     <div class="lab">03 / Pricing</div>
     <h2>Clear packages.<br>No surprises.</h2>
-    <p class="sub">Pick the package that fits where you are. Two ways to pay — start lean (lower upfront, higher monthly) or own it sooner (more upfront, lower monthly).</p>
+    <p class="sub">Most new clients start here — no setup, month-to-month.</p>
+
+    <div class="starter">
+      <div class="s-main">
+        <span class="s-badge">★ No setup fee</span>
+        <div class="s-price">R3,000<small> /mo</small></div>
+        <div class="s-feat">Website + online booking + SEO. Built in a day, hosted &amp; maintained. Cancel anytime.</div>
+      </div>
+      <a class="btn s-btn" href="#book">Get started
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+
+    <p class="more-lab">Need reviews, payments, automation or an AI bot? Step up:</p>
     <div class="toggle" id="payToggle">
       <button class="on" data-path="a">Start lean</button>
       <button data-path="b">Own it sooner</button>
