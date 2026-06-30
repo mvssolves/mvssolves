@@ -279,6 +279,7 @@
 
   /* grid alignment safeguards */
   .grid,.cap-grid,.tiers,.steps{align-items:stretch;}
+  .grid{grid-auto-rows:1fr;}
   .grid .card{height:100%;}
 
   /* button effects: ghost fill-sweep + fill shine/arrow */
@@ -721,7 +722,7 @@ if(!reduce){
   /* batched reveal for body groups so they don't pop in flat under animated headings */
   ['#svc-grid .card','.tiers .tier','.steps .step','.pillars .pillar','#faqList .qa','.founder'].forEach(sel=>{
     ScrollTrigger.batch(gsap.utils.toArray(sel),{start:'top 90%',
-      onEnter:b=>gsap.from(b,{y:24,opacity:0,duration:0.7,stagger:0.07,ease:'power3.out',overwrite:true})});
+      onEnter:b=>gsap.fromTo(b,{opacity:0},{opacity:1,duration:0.6,stagger:0.06,ease:'power2.out',overwrite:true})});
   });
   /* hero content drifts up on scroll — subtle parallax, works on touch too */
   gsap.to('.h-wrap',{yPercent:-8,ease:'none',scrollTrigger:{trigger:'#top',start:'top top',end:'bottom top',scrub:true}});
