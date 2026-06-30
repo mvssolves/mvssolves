@@ -306,6 +306,7 @@
   .s-btn{background:#fff;color:var(--ink);font-weight:700;white-space:nowrap;}
   .s-btn svg{width:16px;height:16px;}
   .more-lab{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:40px 0 0;}
+  .was{text-decoration:line-through;color:var(--muted);font-weight:600;font-size:.6em;margin-right:7px;opacity:.85;}
   @media(max-width:600px){.starter{padding:26px 22px;}.s-btn{width:100%;justify-content:center;}}
 
   /* mobile polish (phone) */
@@ -439,40 +440,25 @@
   <div class="wrap">
     <div class="lab">03 / Pricing</div>
     <h2>Clear packages.<br>No surprises.</h2>
-    <p class="sub">Most new clients start here — no setup, month-to-month.</p>
-
-    <div class="starter">
-      <div class="s-main">
-        <span class="s-badge">★ No setup fee</span>
-        <div class="s-price">R3,000<small> /mo</small></div>
-        <div class="s-feat">Website + online booking + SEO. Built in a day, hosted &amp; maintained. Cancel anytime.</div>
-      </div>
-      <a class="btn s-btn" href="#book">Get started
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-    </div>
-
-    <p class="more-lab">Need reviews, payments, automation or an AI bot? Step up:</p>
-    <div class="toggle" id="payToggle">
-      <button class="on" data-path="a">Start lean</button>
-      <button data-path="b">Own it sooner</button>
-    </div>
+    <p class="sub">No big upfront. Pick a plan, go live in a day, pay monthly.</p>
     <div class="tiers">
       <div class="tier">
+        <span class="badge">★ Free setup</span>
         <div class="tn">Launch</div>
         <div class="tl">Get online, look legit, take bookings.</div>
-        <div class="price" data-a="R7,500 <small>build</small>" data-b="R13,000 <small>build</small>">R7,500 <small>build</small></div>
-        <div class="price" style="font-size:18px;margin-top:4px" data-a="+ R3,500<small>/mo</small>" data-b="+ R2,500<small>/mo</small>">+ R3,500<small>/mo</small></div>
+        <div class="price"><s class="was">R7,500</s> R0 <small>setup</small></div>
+        <div class="price" style="font-size:22px;margin-top:4px">R3,000<small>/mo</small></div>
         <ul>
           <li>Premium website</li><li>Online booking</li><li>Google Business Profile</li><li>Basic SEO</li>
         </ul>
         <a class="btn btn-ghost tcta" href="#book">Get package</a>
       </div>
       <div class="tier feat">
-        <span class="badge">★ Most popular</span>
+        <span class="badge">★ Most popular · Free setup</span>
         <div class="tn">Growth</div>
         <div class="tl">Get found, booked, and bring people back.</div>
-        <div class="price" data-a="R12,000 <small>build</small>" data-b="R20,000 <small>build</small>">R12,000 <small>build</small></div>
-        <div class="price" style="font-size:18px;margin-top:4px" data-a="+ R4,500<small>/mo</small>" data-b="+ R3,000<small>/mo</small>">+ R4,500<small>/mo</small></div>
+        <div class="price"><s class="was">R12,000</s> R0 <small>setup</small></div>
+        <div class="price" style="font-size:22px;margin-top:4px">R4,000<small>/mo</small></div>
         <ul>
           <li class="inh">Everything in Launch</li><li>Review generation</li><li>Business system / CRM</li><li>Online payments</li><li>Business email</li>
         </ul>
@@ -482,8 +468,8 @@
       <div class="tier">
         <div class="tn">Premium</div>
         <div class="tl">Done-for-you. The system runs your front desk.</div>
-        <div class="price" data-a="R18,000 <small>build</small>" data-b="R30,000 <small>build</small>">R18,000 <small>build</small></div>
-        <div class="price" style="font-size:18px;margin-top:4px" data-a="+ R6,500<small>/mo</small>" data-b="+ R4,500<small>/mo</small>">+ R6,500<small>/mo</small></div>
+        <div class="price">R2,000 <small>setup</small></div>
+        <div class="price" style="font-size:22px;margin-top:4px">R6,000<small>/mo</small></div>
         <ul>
           <li class="inh">Everything in Growth</li><li>AI WhatsApp booking bot</li><li>Custom automations</li><li>Monthly reporting</li>
         </ul>
@@ -770,16 +756,7 @@ if(!reduce){
 
 /* hero background = drifting black diamonds (pure CSS .hero-bg) — physics chips removed */
 
-/* pricing toggle */
-document.getElementById('payToggle').addEventListener('click',e=>{
-  const b=e.target.closest('button');if(!b)return;const p=b.dataset.path;
-  document.querySelectorAll('#payToggle button').forEach(x=>x.classList.toggle('on',x===b));
-  document.querySelectorAll('.tier .price[data-a]').forEach(el=>{
-    if(reduce){el.innerHTML=el.dataset[p];return;}
-    gsap.to(el,{opacity:0,y:-4,duration:0.15,ease:'power2.in',onComplete:()=>{
-      el.innerHTML=el.dataset[p];gsap.fromTo(el,{opacity:0,y:4},{opacity:1,y:0,duration:0.2,ease:'power2.out'});}});
-  });
-});
+/* pricing toggle removed — single monthly pricing */
 
 /* FAQ accordion */
 document.querySelectorAll('#faqList .qa').forEach(qa=>{
