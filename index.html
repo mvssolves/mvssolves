@@ -230,6 +230,69 @@
   /* page-transition bar wipe — pagetrans/13 */
   .overlay{position:fixed;inset:0;display:flex;pointer-events:none;z-index:9000;}
   .overlay .block{flex:1;height:100svh;background:var(--ink);transform:scaleX(0);transform-origin:left;}
+
+  /* ===== polish pass ===== */
+  /* lighter, sparser drifting diamonds */
+  .hero-bg .d1{background-size:84px 84px;opacity:.10;}
+  .hero-bg .d2{background-size:140px 140px;opacity:.05;}
+  @keyframes drift1{from{transform:translateX(0);}to{transform:translateX(-84px);}}
+  @keyframes drift2{from{transform:translateX(0);}to{transform:translateX(-140px);}}
+
+  /* hero light-sheen "glow" — soft band rakes through the ink */
+  h1{background-image:linear-gradient(100deg,#0a0a0a 0%,#0a0a0a 38%,#5a5a64 50%,#0a0a0a 62%,#0a0a0a 100%);background-size:280% 100%;background-position:120% 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:heroSheen 6.5s ease-in-out 1.2s infinite;}
+  h1 .aw{background-image:linear-gradient(100deg,#0a0a0a 0%,#0a0a0a 40%,#6e6e78 50%,#0a0a0a 60%,#0a0a0a 100%);background-size:280% 100%;background-position:120% 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:heroSheen 6.5s ease-in-out 1.45s infinite;text-shadow:0 1px 22px rgba(10,10,10,.10);}
+  @keyframes heroSheen{0%{background-position:120% 0;}55%,100%{background-position:-20% 0;}}
+  @supports not ((-webkit-background-clip:text) or (background-clip:text)){h1,h1 .aw{-webkit-text-fill-color:var(--ink);color:var(--ink);background:none;animation:none;}}
+
+  /* nav: underline-grow + hover */
+  .nav-r a:not(.navcta){position:relative;transition:color .25s ease;}
+  .nav-r a:not(.navcta)::after{content:'';position:absolute;left:0;bottom:-3px;width:100%;height:1px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .3s cubic-bezier(.4,0,.2,1);}
+  .nav-r a:not(.navcta):hover::after{transform:scaleX(1);}
+  .navcta{transition:opacity .25s ease;}.navcta:hover{opacity:.7;}
+  .logo{transition:opacity .25s ease;}.logo:hover{opacity:.78;}
+
+  /* missing transitions: toggle, tier hover, buttons, faq */
+  .toggle button{transition:background .3s ease,color .3s ease;}
+  .tier{transition:transform .3s cubic-bezier(.4,0,.2,1),border-color .3s ease,box-shadow .3s ease;}
+  .tier:not(.feat):hover{transform:translateY(-4px);border-color:var(--ink);box-shadow:0 8px 24px rgba(10,10,10,.06);}
+  .tier.feat:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(10,10,10,.10),0 2px 0 var(--ink);}
+  .btn{transition:transform .12s ease;}
+  .btn:active{transform:scale(.96);}
+  .btn-fill{transition:transform .12s ease,opacity .25s ease;}
+  .btn-fill:hover{opacity:.88;}
+  .qa q{transition:color .25s ease;}
+  .qa q:hover{color:var(--muted);}
+  .qa q:hover .plus{color:var(--ink);}
+  .marquee:hover .mtrack{animation-play-state:paused;}
+
+  /* loose-pixel cleanups */
+  #services{border-top:none;}
+  .corner.bl{max-width:none;white-space:nowrap;letter-spacing:.04em;}
+  .cursor{opacity:0;transition:width .25s,height .25s,opacity .15s;}
+
+  /* subtle film grain for depth */
+  body::after{content:'';position:fixed;inset:0;z-index:90;pointer-events:none;opacity:.03;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+
+  /* mobile polish (phone) */
+  @media(max-width:600px){
+    .wrap{padding:0 20px;}
+    nav{padding:16px 20px;}
+    .hero{min-height:auto;padding:104px 20px 56px;}
+    .hero-bg .d1{opacity:.07;}
+    .hero-bg .d2{opacity:.04;}
+    .h-sub{margin-top:24px;}
+    .h-cta{margin-top:28px;gap:12px;flex-direction:column;align-items:stretch;}
+    .h-cta .btn{width:100%;justify-content:center;padding:15px 22px;}
+    .corner.tl{top:74px;left:20px;}
+    footer{padding:48px 20px 40px;}
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    h1,h1 .aw{animation:none;background:none;-webkit-text-fill-color:var(--ink);color:var(--ink);text-shadow:none;}
+    .tier{transition:border-color .3s ease;}.tier:hover{transform:none;}
+    .btn:active{transform:none;}
+    .marquee .mtrack{animation:none;}
+  }
 </style>
 </head>
 <body>
@@ -245,7 +308,7 @@
     <a href="#pricing">Pricing</a>
     <a href="#process">Process</a>
     <a href="#faq">FAQ</a>
-    <a class="navcta" href="#book">Free audit</a>
+    <a class="navcta" href="#book">Automate your business</a>
   </div>
 </nav>
 
@@ -271,6 +334,7 @@
 
 <div class="marquee"><div class="mtrack" id="mtrack">
   <span><b>Websites</b> · <b>Online booking</b> · <b>Google profiles</b> · <b>Review systems</b> · <b>AI booking bots</b> · <b>WhatsApp business</b> · <b>SEO cleanup</b> · <b>Automations</b> · <b>Business systems</b> · </span>
+  <span aria-hidden="true"><b>Websites</b> · <b>Online booking</b> · <b>Google profiles</b> · <b>Review systems</b> · <b>AI booking bots</b> · <b>WhatsApp business</b> · <b>SEO cleanup</b> · <b>Automations</b> · <b>Business systems</b> · </span>
 </div></div>
 
 <!-- SERVICES — grid/4 hover preview -->
@@ -487,7 +551,7 @@ const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* cursor */
 const cur=document.getElementById('cursor');
 if(window.matchMedia('(pointer:fine)').matches){
-  window.addEventListener('mousemove',e=>{cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px';});
+  window.addEventListener('mousemove',e=>{cur.style.opacity='1';cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px';});
   const grow=()=>cur.classList.add('grow'),shrink=()=>cur.classList.remove('grow');
   document.querySelectorAll('a,button,.card').forEach(el=>{el.addEventListener('mouseenter',grow);el.addEventListener('mouseleave',shrink);});
 }
@@ -549,6 +613,11 @@ if(!reduce){
     gsap.from(el,{y:30,opacity:0,duration:0.9,ease:'power3.out',
       scrollTrigger:{trigger:el,start:'top 88%'}});
   });
+  /* batched reveal for body groups so they don't pop in flat under animated headings */
+  ['#svc-grid .card','.tiers .tier','.steps .step','.pillars .pillar','#faqList .qa'].forEach(sel=>{
+    ScrollTrigger.batch(gsap.utils.toArray(sel),{start:'top 90%',
+      onEnter:b=>gsap.from(b,{y:24,opacity:0,duration:0.7,stagger:0.07,ease:'power3.out',overwrite:true})});
+  });
 }
 
 /* CAPABILITIES converge — scroll/58 technique */
@@ -594,7 +663,11 @@ if(!reduce && window.innerWidth>=900){
 document.getElementById('payToggle').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;const p=b.dataset.path;
   document.querySelectorAll('#payToggle button').forEach(x=>x.classList.toggle('on',x===b));
-  document.querySelectorAll('.tier .price[data-a]').forEach(el=>{el.innerHTML=el.dataset[p];});
+  document.querySelectorAll('.tier .price[data-a]').forEach(el=>{
+    if(reduce){el.innerHTML=el.dataset[p];return;}
+    gsap.to(el,{opacity:0,y:-4,duration:0.15,ease:'power2.in',onComplete:()=>{
+      el.innerHTML=el.dataset[p];gsap.fromTo(el,{opacity:0,y:4},{opacity:1,y:0,duration:0.2,ease:'power2.out'});}});
+  });
 });
 
 /* FAQ accordion */
@@ -620,7 +693,7 @@ document.querySelectorAll('#faqList .qa').forEach(qa=>{
       reveal();}});}
   document.querySelectorAll('a[href^="#"]').forEach(link=>{
     link.addEventListener('click',e=>{const t=link.getAttribute('href');if(t==='#'||!document.querySelector(t))return;
-      if(reduce)return; e.preventDefault();if(busy)return;go(t);});
+      if(reduce)return; if(t==='#top'&&window.scrollY<10)return; e.preventDefault();if(busy)return;go(t);});
   });
 })();
 
