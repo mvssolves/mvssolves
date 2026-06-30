@@ -25,7 +25,7 @@
 {
   "@context": "https://schema.org",
   "@graph": [
-    { "@type": "ProfessionalService", "@id": "https://mvssolves.com/#business", "name": "MVS Solves", "url": "https://mvssolves.com/", "image": "https://mvssolves.com/og-image.png", "description": "Premium websites, automation & AI for service businesses — built end-to-end by one person. No agency, no handoffs.", "slogan": "Digital work, done properly.", "email": "martin@mvssolves.com", "priceRange": "ZAR", "founder": { "@id": "https://mvssolves.com/#martin" }, "areaServed": { "@type": "AdministrativeArea", "name": "Mbombela, South Africa & remote" }, "serviceType": ["Website design","Conversion funnels","Local SEO","Business automation","AI assistants","Custom systems"],
+    { "@type": "ProfessionalService", "@id": "https://mvssolves.com/#business", "name": "MVS Solves", "url": "https://mvssolves.com/", "image": "https://mvssolves.com/og-image.png", "description": "Premium websites, automation & AI for service businesses — built end-to-end by one person. No agency, no handoffs.", "slogan": "Digital work, done properly.", "email": "martin@mvssolves.com", "priceRange": "ZAR", "founder": { "@id": "https://mvssolves.com/#martin" }, "areaServed": { "@type": "AdministrativeArea", "name": "Local & remote clients" }, "serviceType": ["Website design","Conversion funnels","Local SEO","Business automation","AI assistants","Custom systems"],
       "makesOffer": [
         { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Websites built to convert", "description": "Fast, honest, built to sell — not template soup." } },
         { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Local presence, owned", "description": "Google Profile, map-pack visibility, and a steady stream of real 5-stars." } },
@@ -54,7 +54,6 @@
     --maxw:1300px;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
-  html{scroll-behavior:smooth;}
   body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,"Helvetica Neue",sans-serif;
     font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;cursor:none;}
   a{color:inherit;text-decoration:none;}
@@ -74,7 +73,8 @@
   .cursor{position:fixed;top:0;left:0;width:13px;height:13px;border-radius:50%;background:#fff;z-index:9999;
     pointer-events:none;mix-blend-mode:difference;transform:translate(-50%,-50%);transition:width .25s,height .25s;}
   .cursor.grow{width:54px;height:54px;}
-  @media(pointer:coarse){.cursor{display:none;}body{cursor:auto;}}
+  .trail{position:fixed;inset:0;z-index:9998;pointer-events:none;mix-blend-mode:multiply;}
+  @media(pointer:coarse){.cursor,.trail{display:none;}body{cursor:auto;}}
 
   /* nav */
   nav{position:fixed;top:0;left:0;right:0;z-index:60;padding:20px 36px;display:flex;align-items:center;
@@ -232,6 +232,7 @@
 <body>
 <div class="progress" id="progress"></div>
 <div class="cursor" id="cursor"></div>
+<canvas class="trail" id="trail"></canvas>
 <div class="overlay" id="overlay"></div>
 
 <nav id="nav">
@@ -247,7 +248,7 @@
 
 <header class="hero" id="top">
   <div class="corner tl mono">MVS SOLVES<br>DIGITAL STUDIO</div>
-  <div class="corner tr mono">MBOMBELA, ZA<br>25°S · EST. 2026</div>
+  <div class="corner tr mono">BY ONE PERSON<br>EST. 2026</div>
   <div id="chips"></div>
   <div class="chip-hint">↖ drag them</div>
   <div class="h-wrap">
@@ -467,7 +468,7 @@
       <div class="sign">Digital work, done properly.</div>
     </div>
     <div class="foot-meta">
-      MBOMBELA · MPUMALANGA · ZA<br>
+      REMOTE &amp; ON-SITE<br>
       MARTIN@MVSSOLVES.COM<br>
       © 2026 MVS SOLVES
     </div>
@@ -489,6 +490,26 @@ if(window.matchMedia('(pointer:fine)').matches){
   const grow=()=>cur.classList.add('grow'),shrink=()=>cur.classList.remove('grow');
   document.querySelectorAll('a,button,.card').forEach(el=>{el.addEventListener('mouseenter',grow);el.addEventListener('mouseleave',shrink);});
 }
+
+/* ink paint trail — black brush that cuts through the paper, fades fast */
+(function(){
+  if(reduce||!window.matchMedia('(pointer:fine)').matches)return;
+  const cv=document.getElementById('trail'),x=cv.getContext('2d');
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  function size(){cv.width=innerWidth*dpr;cv.height=innerHeight*dpr;cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';x.setTransform(dpr,0,0,dpr,0,0);}
+  size();addEventListener('resize',size);
+  const pts=[],LIFE=380;let raf=null;
+  function loop(now){
+    x.clearRect(0,0,innerWidth,innerHeight);
+    while(pts.length&&now-pts[0].t>LIFE)pts.shift();
+    if(pts.length>1){x.lineCap='round';x.lineJoin='round';x.strokeStyle='#0a0a0a';
+      for(let i=1;i<pts.length;i++){const p=pts[i-1],q=pts[i],age=(now-q.t)/LIFE;
+        x.globalAlpha=Math.max(0,1-age);x.lineWidth=Math.max(0.5,16*(1-age)*(1-age));
+        x.beginPath();x.moveTo(p.x,p.y);x.lineTo(q.x,q.y);x.stroke();}}
+    raf=pts.length?requestAnimationFrame(loop):null;
+  }
+  addEventListener('mousemove',e=>{pts.push({x:e.clientX,y:e.clientY,t:performance.now()});if(!raf)raf=requestAnimationFrame(loop);});
+})();
 
 /* Lenis + GSAP ticker (scroll/58 sync pattern) */
 let lenis;
@@ -568,12 +589,13 @@ if(!reduce && window.innerWidth>=900){
 
 /* hero physics chips — matter.js */
 function initChips(){
-  const host=document.getElementById('chips');if(!host||window.innerWidth<980)return;
+  const host=document.getElementById('chips');
+  if(!host||window.innerWidth<980||!window.matchMedia('(pointer:fine)').matches)return;
   const {Engine,Render,Runner,Bodies,Composite,Mouse,MouseConstraint}=Matter;
   const W=host.clientWidth,H=host.clientHeight;
   const eng=Engine.create();eng.gravity.y=0.35;
-  const render=Render.create({element:host,engine:eng,options:{width:W,height:H,background:'transparent',wireframes:false,pixelRatio:window.devicePixelRatio}});
-  Render.run(render);Runner.run(Runner.create(),eng);
+  const render=Render.create({element:host,engine:eng,options:{width:W,height:H,background:'transparent',wireframes:false,pixelRatio:Math.min(window.devicePixelRatio||1,1.5)}});
+  const runner=Runner.create();
   const acc=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
   const ink=getComputedStyle(document.documentElement).getPropertyValue('--accent-ink').trim();
   const labels=['Websites','Automation','AI'];
@@ -585,11 +607,19 @@ function initChips(){
     Bodies.rectangle(W/2,H+30,W,60,wall),Bodies.rectangle(W/2,-30,W,60,wall),
     Bodies.rectangle(-30,H/2,60,H,wall),Bodies.rectangle(W+30,H/2,60,H,wall)]);
   const mouse=Mouse.create(render.canvas);
+  /* stop Matter hijacking the wheel — its preventDefault was killing page scroll over the hero */
+  mouse.element.removeEventListener('wheel',mouse.mousewheel);
+  mouse.element.removeEventListener('DOMMouseScroll',mouse.mousewheel);
   Composite.add(eng.world,MouseConstraint.create(eng,{mouse,constraint:{stiffness:.2,render:{visible:false}}}));
   const ctx=render.context;
-  (function draw(){chips.forEach(b=>{ctx.save();ctx.translate(b.position.x,b.position.y);ctx.rotate(b.angle);
+  let running=false,rafId=null;
+  function draw(){chips.forEach(b=>{ctx.save();ctx.translate(b.position.x,b.position.y);ctx.rotate(b.angle);
     ctx.font='600 14px Inter,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillStyle=b.label==='Automation'?ink:acc;ctx.fillText(b.label,0,1);ctx.restore();});requestAnimationFrame(draw);})();
+    ctx.fillStyle=b.label==='Automation'?ink:acc;ctx.fillText(b.label,0,1);ctx.restore();});rafId=requestAnimationFrame(draw);}
+  function start(){if(running)return;running=true;Render.run(render);Runner.run(runner,eng);draw();}
+  function stop(){if(!running)return;running=false;Render.stop(render);Runner.stop(runner);cancelAnimationFrame(rafId);}
+  /* pause physics when the hero scrolls out of view — saves CPU/battery */
+  new IntersectionObserver(es=>es.forEach(en=>en.isIntersecting?start():stop()),{threshold:0.01}).observe(host);
 }
 if(!reduce&&typeof Matter!=='undefined'){window.addEventListener('load',()=>setTimeout(initChips,300));}
 
@@ -629,11 +659,16 @@ document.querySelectorAll('#faqList .qa').forEach(qa=>{
 
 /* Cal.com discovery embed (live booking) */
 (function(C,A,L){let p=function(a,ar){a.q.push(ar);};let d=C.document;C.Cal=C.Cal||function(){let cal=C.Cal;let ar=arguments;if(!cal.loaded){cal.ns={};cal.q=cal.q||[];d.head.appendChild(d.createElement("script")).src=A;cal.loaded=true;}if(ar[0]===L){const api=function(){p(api,arguments);};const namespace=ar[1];api.q=api.q||[];if(typeof namespace==="string"){cal.ns[namespace]=cal.ns[namespace]||api;p(cal.ns[namespace],ar);p(cal,["initNamespace",namespace]);}else p(cal,ar);return;}p(cal,ar);};})(window,"https://app.cal.com/embed/embed.js","init");
-try{
-  Cal("init","discovery",{origin:"https://app.cal.com"});
-  Cal.ns.discovery("inline",{elementOrSelector:"#cal-embed",calLink:"bjorn-van-staden-zxcmiq/discovery",layout:"month_view"});
-  Cal.ns.discovery("ui",{hideEventTypeDetails:false,layout:"month_view"});
-}catch(err){document.getElementById('cal-embed').innerHTML='<div style="padding:40px;font-family:JetBrains Mono,monospace;font-size:13px;color:#6a6a72">Booking calendar — <a href="https://cal.com/bjorn-van-staden-zxcmiq/discovery" style="color:#0a0a0a;text-decoration:underline">open in new tab →</a></div>';}
+function initCal(){
+  try{
+    Cal("init","discovery",{origin:"https://app.cal.com"});
+    Cal.ns.discovery("inline",{elementOrSelector:"#cal-embed",calLink:"bjorn-van-staden-zxcmiq/discovery",layout:"month_view"});
+    Cal.ns.discovery("ui",{hideEventTypeDetails:false,layout:"month_view"});
+  }catch(err){document.getElementById('cal-embed').innerHTML='<div style="padding:40px;font-family:JetBrains Mono,monospace;font-size:13px;color:#6a6a72">Booking calendar — <a href="https://cal.com/bjorn-van-staden-zxcmiq/discovery" style="color:#0a0a0a;text-decoration:underline">open in new tab →</a></div>';}
+}
+/* lazy-load the Cal.com booking app only when the visitor nears it — major initial-load win */
+(function(){const sec=document.getElementById('book');if(!sec)return;let done=false;
+  new IntersectionObserver((es,ob)=>{es.forEach(en=>{if(en.isIntersecting&&!done){done=true;initCal();ob.disconnect();}});},{rootMargin:'500px'}).observe(sec);})();
 
 window.addEventListener('load',()=>{setTimeout(()=>ScrollTrigger.refresh(),400);});
 </script>
