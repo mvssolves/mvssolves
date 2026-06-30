@@ -233,10 +233,10 @@
 
   /* ===== polish pass ===== */
   /* lighter, sparser drifting diamonds */
-  .hero-bg .d1{background-size:84px 84px;opacity:.10;}
-  .hero-bg .d2{background-size:140px 140px;opacity:.05;}
-  @keyframes drift1{from{transform:translateX(0);}to{transform:translateX(-84px);}}
-  @keyframes drift2{from{transform:translateX(0);}to{transform:translateX(-140px);}}
+  .hero-bg .d1{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='112' height='112'%3E%3Cpath d='M56 47 L58.5 53.5 L65 56 L58.5 58.5 L56 65 L53.5 58.5 L47 56 L53.5 53.5 Z' fill='%230a0a0a'/%3E%3C/svg%3E");background-size:112px 112px;opacity:.13;}
+  .hero-bg .d2{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='188' height='188'%3E%3Cpath d='M94 84 L97 91 L104 94 L97 97 L94 104 L91 97 L84 94 L91 91 Z' fill='%230a0a0a'/%3E%3C/svg%3E");background-size:188px 188px;opacity:.06;}
+  @keyframes drift1{from{transform:translateX(0);}to{transform:translateX(-112px);}}
+  @keyframes drift2{from{transform:translateX(0);}to{transform:translateX(-188px);}}
 
   /* hero light-sheen "glow" — soft band rakes through the ink */
   h1{background-image:linear-gradient(100deg,#0a0a0a 0%,#0a0a0a 38%,#5a5a64 50%,#0a0a0a 62%,#0a0a0a 100%);background-size:280% 100%;background-position:120% 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:heroSheen 6.5s ease-in-out 1.2s infinite;}
@@ -264,6 +264,11 @@
   .qa q:hover{color:var(--muted);}
   .qa q:hover .plus{color:var(--ink);}
   .marquee:hover .mtrack{animation-play-state:paused;}
+  .alc-row{transition:padding-left .25s ease,color .25s ease;}
+  .alc-row:hover{padding-left:8px;color:var(--ink);}
+  .card{transition:border-color .3s,transform .15s ease;}
+  .card:active{transform:scale(.985);}
+  .tier:active{transform:translateY(-2px);}
 
   /* loose-pixel cleanups */
   #services{border-top:none;}
@@ -600,11 +605,13 @@ gsap.timeline({defaults:{ease:'power3.out'}})
   .to('#hcta',{opacity:1,y:0,duration:0.9},'-=0.7');
 
 /* magnetic CTA */
-const mag=document.getElementById('magnet');
-if(!reduce&&mag){
-  mag.addEventListener('mousemove',e=>{const r=mag.getBoundingClientRect();
-    gsap.to(mag,{x:(e.clientX-(r.left+r.width/2))*0.4,y:(e.clientY-(r.top+r.height/2))*0.5,duration:0.4});});
-  mag.addEventListener('mouseleave',()=>gsap.to(mag,{x:0,y:0,duration:0.6,ease:'elastic.out(1,0.3)'}));
+function magnetize(el,sx,sy){
+  el.addEventListener('mousemove',e=>{const r=el.getBoundingClientRect();
+    gsap.to(el,{x:(e.clientX-(r.left+r.width/2))*sx,y:(e.clientY-(r.top+r.height/2))*sy,duration:0.4});});
+  el.addEventListener('mouseleave',()=>gsap.to(el,{x:0,y:0,duration:0.6,ease:'elastic.out(1,0.3)'}));
+}
+if(!reduce&&window.matchMedia('(pointer:fine)').matches){
+  document.querySelectorAll('#magnet,.navcta,.tier .btn-fill').forEach(el=>magnetize(el,0.35,0.45));
 }
 
 /* section heading reveals */
@@ -614,14 +621,16 @@ if(!reduce){
       scrollTrigger:{trigger:el,start:'top 88%'}});
   });
   /* batched reveal for body groups so they don't pop in flat under animated headings */
-  ['#svc-grid .card','.tiers .tier','.steps .step','.pillars .pillar','#faqList .qa'].forEach(sel=>{
+  ['#svc-grid .card','.tiers .tier','.steps .step','.pillars .pillar','#faqList .qa','.founder'].forEach(sel=>{
     ScrollTrigger.batch(gsap.utils.toArray(sel),{start:'top 90%',
       onEnter:b=>gsap.from(b,{y:24,opacity:0,duration:0.7,stagger:0.07,ease:'power3.out',overwrite:true})});
   });
+  /* hero content drifts up on scroll — subtle parallax, works on touch too */
+  gsap.to('.h-wrap',{yPercent:-8,ease:'none',scrollTrigger:{trigger:'#top',start:'top top',end:'bottom top',scrub:true}});
 }
 
 /* CAPABILITIES converge — scroll/58 technique */
-if(!reduce && window.innerWidth>=900){
+if(!reduce){
   const sec=document.getElementById('capabilities');
   const inners=sec.querySelectorAll('.cap-inner');
   inners.forEach(i=>i.parentElement.style.zIndex=String(gsap.utils.random(5,40,1)));
