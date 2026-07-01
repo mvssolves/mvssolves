@@ -168,7 +168,9 @@
   .tier .badge{display:inline-block;align-self:flex-start;background:var(--accent);color:var(--accent-ink);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:4px;margin-bottom:12px;}
   .tier .tn{font-weight:800;font-size:22px;color:var(--ink);letter-spacing:-.02em;}
   .tier .tl{color:var(--soft);font-size:13.5px;margin:6px 0 18px;min-height:38px;}
-  .tcap{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:-6px 0 14px;}
+  .tier-slot{display:flex;flex-direction:column;}
+  .tier-slot .tier{flex:1;}
+  .tier-note{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;text-align:center;margin-bottom:8px;}
   .tier .price{font-weight:900;font-size:30px;letter-spacing:-.02em;color:var(--ink);}
   .tier .price small{font-size:15px;font-weight:600;color:var(--muted);}
   .tier ul{list-style:none;margin:18px 0;padding:0;font-size:14px;}
@@ -456,36 +458,40 @@
       <button data-mode="own">Own outright</button>
     </div>
     <div class="tiers" id="tiers">
-      <div class="tier">
-        <span class="badge setup-badge">★ Free setup</span>
-        <div class="tn">Launch</div>
-        <div class="tl">Get online, look legit, take bookings.</div>
-        <div class="pm">
-          <div class="price"><s class="was">R7,500</s> R0 <small>setup</small></div>
-          <div class="price" style="font-size:22px;margin-top:4px">R3,000<small>/mo</small></div>
+      <div class="tier-slot">
+        <div class="tier-note">1 location · 1 person max</div>
+        <div class="tier">
+          <span class="badge setup-badge">★ Free setup</span>
+          <div class="tn">Launch</div>
+          <div class="tl">Get online, look legit, take bookings.</div>
+          <div class="pm">
+            <div class="price"><s class="was">R7,500</s> R0 <small>setup</small></div>
+            <div class="price" style="font-size:22px;margin-top:4px">R3,000<small>/mo</small></div>
+          </div>
+          <div class="po"><div class="price">R10,000 <small>once-off</small></div></div>
+          <ul>
+            <li>Premium website</li><li>Online booking</li><li>Google Business Profile</li><li>Basic SEO</li>
+          </ul>
+          <a class="btn btn-ghost tcta" href="#book">Get package</a>
         </div>
-        <div class="po"><div class="price">R10,000 <small>once-off</small></div></div>
-        <div class="tcap">1 location · 1 person max</div>
-        <ul>
-          <li>Premium website</li><li>Online booking</li><li>Google Business Profile</li><li>Basic SEO</li>
-        </ul>
-        <a class="btn btn-ghost tcta" href="#book">Get package</a>
       </div>
-      <div class="tier feat">
-        <span class="badge">★ Most popular</span>
-        <div class="tn">Growth</div>
-        <div class="tl">Get found, booked, and bring people back.</div>
-        <div class="pm">
-          <div class="price"><s class="was">R12,000</s> R0 <small>setup</small></div>
-          <div class="price" style="font-size:22px;margin-top:4px">R5,000<small>/mo</small></div>
+      <div class="tier-slot">
+        <div class="tier-note">1 location · 1 person max</div>
+        <div class="tier feat">
+          <span class="badge">★ Most popular</span>
+          <div class="tn">Growth</div>
+          <div class="tl">Get found, booked, and bring people back.</div>
+          <div class="pm">
+            <div class="price"><s class="was">R12,000</s> R0 <small>setup</small></div>
+            <div class="price" style="font-size:22px;margin-top:4px">R5,000<small>/mo</small></div>
+          </div>
+          <div class="po"><div class="price">R20,000 <small>once-off</small></div></div>
+          <ul>
+            <li class="inh">Everything in Launch</li><li>Review generation</li><li class="own-hide">Business system / CRM</li><li>Online payments</li><li>Business email</li>
+          </ul>
+          <div class="pos">“I get you found and booked.”</div>
+          <a class="btn btn-fill tcta" href="#book" style="justify-content:center">Get package</a>
         </div>
-        <div class="po"><div class="price">R20,000 <small>once-off</small></div></div>
-        <div class="tcap">1 location · 1 person max</div>
-        <ul>
-          <li class="inh">Everything in Launch</li><li>Review generation</li><li class="own-hide">Business system / CRM</li><li>Online payments</li><li>Business email</li>
-        </ul>
-        <div class="pos">“I get you found and booked.”</div>
-        <a class="btn btn-fill tcta" href="#book" style="justify-content:center">Get package</a>
       </div>
       <div class="tier">
         <span class="badge">★ Custom scope</span>
