@@ -126,7 +126,7 @@
   @keyframes drift2{from{transform:translateX(0);}to{transform:translateX(-90px);}}
   @media(prefers-reduced-motion:reduce){.hero-bg i{animation:none;}}
   .hero-fluid{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
-  .hero-fluid canvas{opacity:.5;}
+  .hero-fluid canvas{opacity:.7;}
   .h-wrap{position:relative;z-index:3;max-width:var(--maxw);margin:0 auto;width:100%;}
 
   /* marquee */
@@ -161,6 +161,46 @@
   .cap{border:1px solid var(--line);border-radius:14px;padding:22px;background:var(--bg-2);}
   .cap-inner{will-change:transform;}
   .cap .ci{width:30px;height:30px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;font-weight:800;font-family:'JetBrains Mono',monospace;font-size:13px;}
+
+  /* === BorderGlow (React Bits port) — grayscale, on-brand === */
+  .cap.border-glow-card{
+    --edge-proximity:0;--cursor-angle:45deg;--edge-sensitivity:30;--color-sensitivity:calc(var(--edge-sensitivity) + 20);
+    --glow-padding:24px;--cone-spread:25;--fill-opacity:.35;position:relative;isolation:isolate;overflow:visible;
+  }
+  .cap.border-glow-card::before,.cap.border-glow-card::after,.cap.border-glow-card>.edge-light{
+    content:"";position:absolute;inset:0;border-radius:inherit;transition:opacity .25s ease-out;z-index:-1;
+  }
+  .cap.border-glow-card:not(:hover)::before,.cap.border-glow-card:not(:hover)::after,.cap.border-glow-card:not(:hover)>.edge-light{
+    opacity:0;transition:opacity .75s ease-in-out;
+  }
+  .cap.border-glow-card::before{
+    border:1px solid transparent;
+    background:linear-gradient(var(--bg-2) 0 100%) padding-box,
+      radial-gradient(at 80% 55%,rgba(10,10,10,.9) 0px,transparent 55%) border-box,
+      radial-gradient(at 15% 20%,rgba(58,58,64,.8) 0px,transparent 55%) border-box,
+      radial-gradient(at 50% 90%,rgba(106,106,114,.7) 0px,transparent 55%) border-box;
+    opacity:calc((var(--edge-proximity) - var(--color-sensitivity)) / (100 - var(--color-sensitivity)));
+    mask-image:conic-gradient(from var(--cursor-angle) at center,black calc(var(--cone-spread) * 1%),transparent calc((var(--cone-spread) + 15) * 1%),transparent calc((100 - var(--cone-spread) - 15) * 1%),black calc((100 - var(--cone-spread)) * 1%));
+  }
+  .cap.border-glow-card::after{
+    background:radial-gradient(at 80% 55%,rgba(10,10,10,.9) 0px,transparent 55%) padding-box,
+      radial-gradient(at 15% 20%,rgba(58,58,64,.8) 0px,transparent 55%) padding-box,
+      radial-gradient(at 50% 90%,rgba(106,106,114,.7) 0px,transparent 55%) padding-box;
+    mask-image:radial-gradient(ellipse at 50% 50%,black 40%,transparent 70%);
+    opacity:calc(var(--fill-opacity) * (var(--edge-proximity) - var(--color-sensitivity)) / (100 - var(--color-sensitivity)));
+    mix-blend-mode:multiply;
+  }
+  .cap.border-glow-card>.edge-light{
+    inset:calc(var(--glow-padding) * -1);pointer-events:none;z-index:1;
+    mask-image:conic-gradient(from var(--cursor-angle) at center,black 2.5%,transparent 10%,transparent 90%,black 97.5%);
+    opacity:calc((var(--edge-proximity) - var(--edge-sensitivity)) / (100 - var(--edge-sensitivity)));
+  }
+  .cap.border-glow-card>.edge-light::before{
+    content:"";position:absolute;inset:var(--glow-padding);border-radius:inherit;
+    box-shadow:inset 0 0 0 1px rgba(10,10,10,.5),inset 0 0 6px 0 rgba(10,10,10,.3),inset 0 0 15px 0 rgba(10,10,10,.18),
+      0 0 6px 0 rgba(10,10,10,.28),0 0 15px 0 rgba(10,10,10,.16),0 0 30px 2px rgba(10,10,10,.10);
+  }
+  @media(prefers-reduced-motion:reduce){.cap.border-glow-card::before,.cap.border-glow-card::after,.cap.border-glow-card>.edge-light{display:none;}}
   .cap .cn{font-weight:700;font-size:16px;color:var(--ink);margin-top:16px;letter-spacing:-.01em;}
   .cap .cc{color:var(--soft);font-size:13px;margin-top:6px;line-height:1.5;}
 
@@ -457,14 +497,14 @@
     <h2>One person.<br>The whole stack.</h2>
     <p class="sub">No handoffs, no juniors, no account managers. The pieces below converge into one system around your business.</p>
     <div class="cap-grid" id="capGrid">
-      <div class="cap"><div class="cap-inner"><div class="ci">W</div><div class="cn">Website &amp; funnels</div><div class="cc">Fast, conversion-built pages.</div></div></div>
-      <div class="cap"><div class="cap-inner"><div class="ci">B</div><div class="cn">Online booking</div><div class="cc">Self-serve, synced to your calendar.</div></div></div>
-      <div class="cap"><div class="cap-inner"><div class="ci">G</div><div class="cn">Google profile</div><div class="cc">Map-pack visibility, owned.</div></div></div>
-      <div class="cap"><div class="cap-inner"><div class="ci">R</div><div class="cn">Reviews</div><div class="cc">Automated 5-star asks.</div></div></div>
-      <div class="cap"><div class="cap-inner"><div class="ci">A</div><div class="cn">Automations</div><div class="cc">Make / n8n, error-handled.</div></div></div>
-      <div class="cap"><div class="cap-inner"><div class="ci">AI</div><div class="cn">AI assistants</div><div class="cc">Booking &amp; replies in your voice.</div></div></div>
-      <div class="cap"><div class="cap-inner"><div class="ci">@</div><div class="cn">Email &amp; SMS</div><div class="cc">Lists, newsletters, payments.</div></div></div>
-      <div class="cap"><div class="cap-inner"><div class="ci">S</div><div class="cn">Systems &amp; CRM</div><div class="cc">Airtable trackers, dashboards.</div></div></div>
+      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">W</div><div class="cn">Website &amp; funnels</div><div class="cc">Fast, conversion-built pages.</div></div></div>
+      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">B</div><div class="cn">Online booking</div><div class="cc">Self-serve, synced to your calendar.</div></div></div>
+      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">G</div><div class="cn">Google profile</div><div class="cc">Map-pack visibility, owned.</div></div></div>
+      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">R</div><div class="cn">Reviews</div><div class="cc">Automated 5-star asks.</div></div></div>
+      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">A</div><div class="cn">Automations</div><div class="cc">Make / n8n, error-handled.</div></div></div>
+      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">AI</div><div class="cn">AI assistants</div><div class="cc">Booking &amp; replies in your voice.</div></div></div>
+      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">@</div><div class="cn">Email &amp; SMS</div><div class="cc">Lists, newsletters, payments.</div></div></div>
+      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">S</div><div class="cn">Systems &amp; CRM</div><div class="cc">Airtable trackers, dashboards.</div></div></div>
     </div>
   </div>
 </section>
@@ -834,87 +874,135 @@ if(!reduce){
   gradualBlur('bottom',{height:84,strength:1.4,divCount:6,curve:'bezier',exponential:true,opacity:.85});
 }
 
-/* Ferrofluid hero background (React Bits port → vanilla, ogl via CDN) — black-on-white, on-brand */
+/* BorderGlow (React Bits port → vanilla, no deps) on capability grid cards */
+if(window.matchMedia('(pointer:fine)').matches){
+  document.querySelectorAll('.border-glow-card').forEach(card=>{
+    card.addEventListener('pointermove',e=>{
+      const rc=card.getBoundingClientRect();
+      const x=e.clientX-rc.left,y=e.clientY-rc.top;
+      const cx=rc.width/2,cy=rc.height/2;
+      const dx=x-cx,dy=y-cy;
+      let kx=Infinity,ky=Infinity;
+      if(dx!==0)kx=cx/Math.abs(dx);
+      if(dy!==0)ky=cy/Math.abs(dy);
+      const edge=Math.min(Math.max(1/Math.min(kx,ky),0),1);
+      let angle=0;
+      if(dx!==0||dy!==0){angle=Math.atan2(dy,dx)*(180/Math.PI)+90;if(angle<0)angle+=360;}
+      card.style.setProperty('--edge-proximity',(edge*100).toFixed(3));
+      card.style.setProperty('--cursor-angle',angle.toFixed(3)+'deg');
+    });
+  });
+}
+
+/* ColorBends hero background (React Bits port → vanilla, three via CDN) — grayscale, on-brand */
 (function(){
   if(reduce)return;
   const host=document.getElementById('heroFluid');if(!host)return;
-  const FF_VERT=`attribute vec2 position;attribute vec2 uv;varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position,0.0,1.0);}`;
-  const FF_FRAG=`precision highp float;
-uniform vec3 iResolution;uniform vec2 iMouse;uniform float iTime;
-uniform vec3 uColor0;uniform vec3 uColor1;uniform vec3 uColor2;uniform vec3 uColor3;
-uniform vec3 uColor4;uniform vec3 uColor5;uniform vec3 uColor6;uniform vec3 uColor7;
-uniform int uColorCount;uniform vec2 uFlow;uniform float uSpeed;uniform float uScale;
-uniform float uTurbulence;uniform float uFluidity;uniform float uRimWidth;uniform float uSharpness;
-uniform float uShimmer;uniform float uGlow;uniform float uOpacity;uniform float uMouseEnabled;
-uniform float uMouseStrength;uniform float uMouseRadius;
+  const CB_VERT=`varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position,1.0);}`;
+  const CB_FRAG=`
+#define MAX_COLORS 8
+uniform vec2 uCanvas;uniform float uTime;uniform float uSpeed;uniform vec2 uRot;
+uniform int uColorCount;uniform vec3 uColors[MAX_COLORS];uniform int uTransparent;
+uniform float uScale;uniform float uFrequency;uniform float uWarpStrength;
+uniform vec2 uPointer;uniform float uMouseInfluence;uniform float uParallax;
+uniform float uNoise;uniform int uIterations;uniform float uIntensity;uniform float uBandWidth;
 varying vec2 vUv;
-#define PI 3.14159265
-vec3 palette(float h){int count=uColorCount;if(count<1)count=1;int idx=int(floor(clamp(h,0.0,0.999999)*float(count)));
-if(idx<=0)return uColor0;if(idx==1)return uColor1;if(idx==2)return uColor2;if(idx==3)return uColor3;
-if(idx==4)return uColor4;if(idx==5)return uColor5;if(idx==6)return uColor6;return uColor7;}
-float hash(vec3 p3){p3=fract(p3*0.1031);p3+=dot(p3,p3.zyx+33.33);return fract((p3.x+p3.y)*p3.z);}
-float smin(float a,float b,float k){float r=exp2(-a/k)+exp2(-b/k);return -k*log2(r);}
-float sinlerp(float a,float b,float w){return mix(a,b,(sin(w*PI-PI/2.0)+1.0)/2.0);}
-float vn(vec2 p,float s,float seed){vec2 cellp=floor(p/s);vec2 relp=mod(p,s);
-float g1=hash(vec3(cellp,seed));float g2=hash(vec3(cellp.x+1.0,cellp.y,seed));
-float g3=hash(vec3(cellp.x+1.0,cellp.y+1.0,seed));float g4=hash(vec3(cellp.x,cellp.y+1.0,seed));
-float bx=sinlerp(g1,g2,relp.x/s);float tx=sinlerp(g4,g3,relp.x/s);return sinlerp(bx,tx,relp.y/s);}
-float dbn(vec2 p,float s,float seed){float o=s/2.0;
-float n0=vn(p,s,seed);float n1=vn(p+vec2(o,o),s,seed+0.1);float n2=vn(p+vec2(-o,o),s,seed+0.2);
-float n3=vn(p+vec2(o,-o),s,seed+0.3);float n4=vn(p+vec2(-o,-o),s,seed+0.4);
-return(2.0*n0+1.5*n1+1.25*n2+1.125*n3+n4)/7.0;}
-void mainImage(out vec4 fragColor,in vec2 fragCoord){
-float ref=700.0/max(uScale,0.05);vec2 p=fragCoord/iResolution.y*ref;
-float spd=200.0*uSpeed;float t=iTime;vec2 dir=uFlow;vec2 perp=vec2(-dir.y,dir.x);
-float distort1=vn(p+perp*(t*spd),60.0,10.0)*50.0*uTurbulence;
-float distort2=vn(p-perp*(t*spd),120.0,15.0)*100.0*uTurbulence;
-float peaks=dbn(p+distort1+dir*(t*spd*0.5),40.0,1.0);
-float peaks2=dbn(p+distort2-dir*(t*spd*0.5),40.0,0.0);
-float mapeaks=smin(peaks,peaks2,max(uFluidity,0.001));
-float mGlow=0.0;
-if(uMouseEnabled>0.5){vec2 mp=iMouse/iResolution.y*ref;float md=length(p-mp)/ref;
-float rr=max(uMouseRadius,0.02);mGlow=exp(-md*md/(rr*rr))*uMouseStrength;}
-float band=(uRimWidth-abs((mapeaks-0.4)*2.0))*5.0;
-float ltn=clamp(band-vn(p+dir*(t*spd*0.5),60.0,12.0)*uShimmer,0.0,1.0);
-ltn=pow(ltn,uSharpness)*uGlow;ltn*=clamp(1.0-mGlow,0.0,1.0);
-float h=clamp(0.5+(peaks-peaks2)*0.8,0.0,1.0);vec3 col=palette(h);
-vec3 outc=col*ltn;float a=clamp(max(outc.r,max(outc.g,outc.b)),0.0,1.0);
-fragColor=vec4(outc,a*uOpacity);}
-void main(){vec4 color;mainImage(color,vUv*iResolution.xy);gl_FragColor=color;}`;
-  function hexToRGB(hex){const c=hex.replace('#','').padEnd(6,'0');return[parseInt(c.slice(0,2),16)/255,parseInt(c.slice(2,4),16)/255,parseInt(c.slice(4,6),16)/255];}
-  function prepColors(input){const base=(input&&input.length?input:['#0a0a0a']).slice(0,8);const count=base.length;const arr=[];
-    for(let i=0;i<8;i++)arr.push(hexToRGB(base[Math.min(i,base.length-1)]));return{arr,count};}
-  function flowVec(d){switch(d){case'up':return[0,1];case'down':return[0,-1];case'left':return[-1,0];case'right':return[1,0];default:return[0,-1];}}
-  import('https://esm.sh/ogl@1.0.6').then(({Renderer,Program,Mesh,Triangle})=>{
+void main(){
+  float t=uTime*uSpeed;
+  vec2 p=vUv*2.0-1.0;
+  p+=uPointer*uParallax*0.1;
+  vec2 rp=vec2(p.x*uRot.x-p.y*uRot.y,p.x*uRot.y+p.y*uRot.x);
+  vec2 q=vec2(rp.x*(uCanvas.x/uCanvas.y),rp.y);
+  q/=max(uScale,0.0001);
+  q/=0.5+0.2*dot(q,q);
+  q+=0.2*cos(t)-7.56;
+  vec2 toward=(uPointer-rp);
+  q+=toward*uMouseInfluence*0.2;
+  for(int j=0;j<5;j++){
+    if(j>=uIterations-1)break;
+    vec2 rr=sin(1.5*(q.yx*uFrequency)+2.0*cos(q*uFrequency));
+    q+=(rr-q)*0.15;
+  }
+  vec3 col=vec3(0.0);float a=1.0;
+  if(uColorCount>0){
+    vec2 s=q;vec3 sumCol=vec3(0.0);float cover=0.0;
+    for(int i=0;i<MAX_COLORS;++i){
+      if(i>=uColorCount)break;
+      s-=0.01;
+      vec2 r=sin(1.5*(s.yx*uFrequency)+2.0*cos(s*uFrequency));
+      float m0=length(r+sin(5.0*r.y*uFrequency-3.0*t+float(i))/4.0);
+      float kBelow=clamp(uWarpStrength,0.0,1.0);
+      float kMix=pow(kBelow,0.3);
+      float gain=1.0+max(uWarpStrength-1.0,0.0);
+      vec2 disp=(r-s)*kBelow;
+      vec2 warped=s+disp*gain;
+      float m1=length(warped+sin(5.0*warped.y*uFrequency-3.0*t+float(i))/4.0);
+      float m=mix(m0,m1,kMix);
+      float w=1.0-exp(-uBandWidth/exp(uBandWidth*m));
+      sumCol+=uColors[i]*w;cover=max(cover,w);
+    }
+    col=clamp(sumCol,0.0,1.0);a=uTransparent>0?cover:1.0;
+  }
+  col*=uIntensity;
+  if(uNoise>0.0001){
+    float n=fract(sin(dot(gl_FragCoord.xy+vec2(uTime),vec2(12.9898,78.233)))*43758.5453123);
+    col+=(n-0.5)*uNoise;col=clamp(col,0.0,1.0);
+  }
+  vec3 rgb=(uTransparent>0)?col*a:col;
+  gl_FragColor=vec4(rgb,a);
+}`;
+  function toVec3(hex){const h=hex.replace('#','').trim();
+    const v=h.length===3?[parseInt(h[0]+h[0],16),parseInt(h[1]+h[1],16),parseInt(h[2]+h[2],16)]:[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];
+    return [v[0]/255,v[1]/255,v[2]/255];}
+  import('https://esm.sh/three@0.164.1').then(THREE=>{
     try{
-      const renderer=new Renderer({dpr:Math.min(window.devicePixelRatio||1,2),alpha:true,antialias:true});
-      const gl=renderer.gl,canvas=gl.canvas;
-      gl.clearColor(0,0,0,0);
-      canvas.style.width='100%';canvas.style.height='100%';canvas.style.display='block';
-      host.appendChild(canvas);
-      const{arr,count}=prepColors(['#0a0a0a']);
-      const uniforms={
-        iResolution:{value:[gl.drawingBufferWidth,gl.drawingBufferHeight,1]},iMouse:{value:[0,0]},iTime:{value:0},
-        uColor0:{value:arr[0]},uColor1:{value:arr[1]},uColor2:{value:arr[2]},uColor3:{value:arr[3]},
-        uColor4:{value:arr[4]},uColor5:{value:arr[5]},uColor6:{value:arr[6]},uColor7:{value:arr[7]},
-        uColorCount:{value:count},uFlow:{value:flowVec('down')},
-        uSpeed:{value:0.35},uScale:{value:1.6},uTurbulence:{value:0.8},uFluidity:{value:0.12},
-        uRimWidth:{value:0.16},uSharpness:{value:2.6},uShimmer:{value:1.2},uGlow:{value:1.6},
-        uOpacity:{value:1},uMouseEnabled:{value:0},uMouseStrength:{value:0},uMouseRadius:{value:0.3}
-      };
-      const program=new Program(gl,{vertex:FF_VERT,fragment:FF_FRAG,uniforms});
-      const geometry=new Triangle(gl);
-      const mesh=new Mesh(gl,{geometry,program});
-      function size(){const rc=host.getBoundingClientRect();renderer.setSize(rc.width,rc.height);uniforms.iResolution.value=[gl.drawingBufferWidth,gl.drawingBufferHeight,1];}
+      const scene=new THREE.Scene();
+      const camera=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+      const geometry=new THREE.PlaneGeometry(2,2);
+      const colors=['#0a0a0a','#6a6a72','#c4c4c9'].map(toVec3);
+      const uColorsArray=Array.from({length:8},(_,i)=>new THREE.Vector3(...(colors[i]||[0,0,0])));
+      const material=new THREE.ShaderMaterial({
+        vertexShader:CB_VERT,fragmentShader:CB_FRAG,
+        uniforms:{
+          uCanvas:{value:new THREE.Vector2(1,1)},uTime:{value:0},uSpeed:{value:0.18},
+          uRot:{value:new THREE.Vector2(1,0)},uColorCount:{value:colors.length},uColors:{value:uColorsArray},
+          uTransparent:{value:1},uScale:{value:1.1},uFrequency:{value:1},uWarpStrength:{value:1},
+          uPointer:{value:new THREE.Vector2(0,0)},uMouseInfluence:{value:0.6},uParallax:{value:0.3},
+          uNoise:{value:0.06},uIterations:{value:1},uIntensity:{value:1.2},uBandWidth:{value:6}
+        },
+        premultipliedAlpha:true,transparent:true
+      });
+      const mesh=new THREE.Mesh(geometry,material);scene.add(mesh);
+      const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance',alpha:true});
+      renderer.outputColorSpace=THREE.SRGBColorSpace;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+      renderer.setClearColor(0x000000,0);
+      renderer.domElement.style.width='100%';renderer.domElement.style.height='100%';renderer.domElement.style.display='block';
+      host.appendChild(renderer.domElement);
+      const clock=new THREE.Clock();
+      function size(){const w=host.clientWidth||1,h=host.clientHeight||1;renderer.setSize(w,h,false);material.uniforms.uCanvas.value.set(w,h);}
       size();new ResizeObserver(size).observe(host);
+      const pointerTarget=new THREE.Vector2(0,0),pointerCur=new THREE.Vector2(0,0);
+      host.addEventListener('pointermove',e=>{
+        const rc=host.getBoundingClientRect();
+        pointerTarget.set(((e.clientX-rc.left)/(rc.width||1))*2-1,-(((e.clientY-rc.top)/(rc.height||1))*2-1));
+      });
       let raf=null,running=false;
-      function draw(t){raf=requestAnimationFrame(draw);uniforms.iTime.value=t*0.001;
-        try{renderer.render({scene:mesh});}catch(e){}}
+      function draw(){
+        raf=requestAnimationFrame(draw);
+        const dt=clock.getDelta(),elapsed=clock.elapsedTime;
+        material.uniforms.uTime.value=elapsed;
+        const rad=(90*Math.PI)/180;
+        material.uniforms.uRot.value.set(Math.cos(rad),Math.sin(rad));
+        pointerCur.lerp(pointerTarget,Math.min(1,dt*8));
+        material.uniforms.uPointer.value.copy(pointerCur);
+        try{renderer.render(scene,camera);}catch(e){}
+      }
       function start(){if(running)return;running=true;raf=requestAnimationFrame(draw);}
       function stop(){running=false;if(raf)cancelAnimationFrame(raf);}
       new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting?start():stop()),{threshold:0}).observe(host);
-    }catch(err){console.warn('Ferrofluid init failed',err);}
-  }).catch(err=>console.warn('ogl load failed',err));
+    }catch(err){console.warn('ColorBends init failed',err);}
+  }).catch(err=>console.warn('three load failed',err));
 })();
 
 /* hero background = drifting black diamonds (pure CSS .hero-bg) — physics chips removed */
