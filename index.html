@@ -799,11 +799,16 @@ if(!reduce){
   const mt=document.getElementById('modeToggle');if(!mt)return;
   const tiers=document.getElementById('tiers');
   mt.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    const mode=b.dataset.mode;
     mt.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
-    tiers.classList.toggle('mode-own',b.dataset.mode==='own');
-    tiers.classList.toggle('mode-usd',b.dataset.mode==='usd');
-    tiers.classList.toggle('mode-usd-own',b.dataset.mode==='usd-own');
-    if(!reduce)gsap.fromTo(tiers.querySelectorAll('.tier'),{opacity:.45,y:6},{opacity:1,y:0,duration:0.3,stagger:0.04,ease:'power2.out',overwrite:true});
+    tiers.classList.toggle('mode-own',mode==='own');
+    tiers.classList.toggle('mode-usd',mode==='usd');
+    tiers.classList.toggle('mode-usd-own',mode==='usd-own');
+    if(!reduce){
+      const sel=mode==='own'?'.po':mode==='usd'?'.pu':mode==='usd-own'?'.puo':'.pm';
+      const prices=tiers.querySelectorAll(sel+' .price');
+      gsap.fromTo(prices,{opacity:0,filter:'blur(10px)',y:-14},{opacity:1,filter:'blur(0px)',y:0,duration:0.5,stagger:0.06,ease:'power2.out',overwrite:true});
+    }
   });
 })();
 
