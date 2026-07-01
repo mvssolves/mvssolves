@@ -321,12 +321,17 @@
   .was{text-decoration:line-through;color:var(--muted);font-weight:600;font-size:.6em;margin-right:7px;opacity:.85;}
   .po{display:none;}
   .pu{display:none;}
+  .puo{display:none;}
   .tiers.mode-own .pm{display:none;}
   .tiers.mode-own .po{display:block;}
   .tiers.mode-own .own-hide{display:none;}
   .tiers.mode-own .setup-badge{display:none;}
   .tiers.mode-usd .pm{display:none;}
   .tiers.mode-usd .pu{display:block;}
+  .tiers.mode-usd-own .pm{display:none;}
+  .tiers.mode-usd-own .puo{display:block;}
+  .tiers.mode-usd-own .own-hide{display:none;}
+  .tiers.mode-usd-own .setup-badge{display:none;}
   @media(max-width:600px){.starter{padding:26px 22px;}.s-btn{width:100%;justify-content:center;}}
 
   /* mobile polish (phone) */
@@ -464,7 +469,8 @@
     <div class="toggle" id="modeToggle">
       <button class="on" data-mode="monthly">Monthly</button>
       <button data-mode="own">Own outright</button>
-      <button data-mode="usd">USD prices</button>
+      <button data-mode="usd">USD Monthly</button>
+      <button data-mode="usd-own">USD Own outright</button>
     </div>
     <div class="tiers" id="tiers">
       <div class="tier-slot">
@@ -481,6 +487,7 @@
             <div class="price"><s class="was">$350</s> $0 <small>setup</small></div>
             <div class="price" style="font-size:22px;margin-top:4px">$247<small>/mo</small></div>
           </div>
+          <div class="puo"><div class="price">$997 <small>once-off</small></div></div>
           <ul>
             <li>Premium website</li><li>Online booking</li><li>Google Business Profile</li><li>Basic SEO</li>
           </ul>
@@ -502,6 +509,7 @@
             <div class="price"><s class="was">$500</s> $0 <small>setup</small></div>
             <div class="price" style="font-size:22px;margin-top:4px">$397<small>/mo</small></div>
           </div>
+          <div class="puo"><div class="price">$1,997 <small>once-off</small></div></div>
           <ul>
             <li class="inh">Everything in Launch</li><li>Review generation</li><li class="own-hide">Business system / CRM</li><li>Online payments</li><li>Business email</li>
           </ul>
@@ -515,6 +523,7 @@
         <div class="pm"><div class="price" style="font-size:21px">Let's talk <small>— custom</small></div></div>
         <div class="po"><div class="price" style="font-size:21px">Let's talk <small>— custom</small></div></div>
         <div class="pu"><div class="price" style="font-size:21px">Let's talk <small>— custom</small></div></div>
+        <div class="puo"><div class="price" style="font-size:21px">Let's talk <small>— custom</small></div></div>
         <ul>
           <li class="inh">Everything in Growth</li><li>Multi-location rollout</li><li>Centralized booking across sites</li><li>AI WhatsApp booking bot</li><li>Custom automations</li><li>Dedicated support &amp; reporting</li>
         </ul>
@@ -793,6 +802,7 @@ if(!reduce){
     mt.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
     tiers.classList.toggle('mode-own',b.dataset.mode==='own');
     tiers.classList.toggle('mode-usd',b.dataset.mode==='usd');
+    tiers.classList.toggle('mode-usd-own',b.dataset.mode==='usd-own');
     if(!reduce)gsap.fromTo(tiers.querySelectorAll('.tier'),{opacity:.45,y:6},{opacity:1,y:0,duration:0.3,stagger:0.04,ease:'power2.out',overwrite:true});
   });
 })();
