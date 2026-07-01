@@ -870,8 +870,8 @@ function gradualBlur(position,o){
   document.body.appendChild(container);
 }
 if(!reduce){
-  gradualBlur('top',{height:84,strength:1.4,divCount:6,curve:'bezier',exponential:true,opacity:.85});
-  gradualBlur('bottom',{height:84,strength:1.4,divCount:6,curve:'bezier',exponential:true,opacity:.85});
+  gradualBlur('top',{height:84,strength:1.4,divCount:4,curve:'bezier',exponential:true,opacity:.85});
+  gradualBlur('bottom',{height:84,strength:1.4,divCount:4,curve:'bezier',exponential:true,opacity:.85});
 }
 
 /* BorderGlow (React Bits port → vanilla, no deps) on capability grid cards */
@@ -975,7 +975,7 @@ void main(){
       const mesh=new THREE.Mesh(geometry,material);scene.add(mesh);
       const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance',alpha:true});
       renderer.outputColorSpace=THREE.SRGBColorSpace;
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
       renderer.setClearColor(0x000000,0);
       renderer.domElement.style.width='100%';renderer.domElement.style.height='100%';renderer.domElement.style.display='block';
       host.appendChild(renderer.domElement);
@@ -987,10 +987,11 @@ void main(){
         const rc=host.getBoundingClientRect();
         pointerTarget.set(((e.clientX-rc.left)/(rc.width||1))*2-1,-(((e.clientY-rc.top)/(rc.height||1))*2-1));
       });
-      let raf=null,running=false;
+      let raf=null,running=false,frame=0;
       function draw(){
         raf=requestAnimationFrame(draw);
         const dt=clock.getDelta(),elapsed=clock.elapsedTime;
+        frame++;if(frame%2)return; // render every other frame — halves GPU cost, imperceptible on a slow ambient bg
         material.uniforms.uTime.value=elapsed;
         const rad=(90*Math.PI)/180;
         material.uniforms.uRot.value.set(Math.cos(rad),Math.sin(rad));
