@@ -163,6 +163,11 @@
   .toggle button.on{background:var(--accent);color:var(--accent-ink);}
   .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:34px;}
   @media(max-width:900px){.tiers{grid-template-columns:1fr;}}
+  .enterprise{margin-top:16px;border:1px solid var(--line);border-radius:16px;padding:22px 26px;display:flex;align-items:center;justify-content:space-between;gap:24px;background:var(--bg-2);}
+  .ent-title{font-weight:700;font-size:16px;letter-spacing:-0.2px;}
+  .ent-sub{color:var(--muted);font-size:13.5px;margin-top:4px;max-width:56ch;}
+  .enterprise .btn{flex-shrink:0;}
+  @media(max-width:760px){.enterprise{flex-direction:column;align-items:flex-start;}.enterprise .btn{width:100%;justify-content:center;}}
   .tier{border:1px solid var(--line);border-radius:16px;padding:28px;display:flex;flex-direction:column;background:var(--bg);}
   .tier.feat{border:2px solid var(--ink);box-shadow:0 2px 0 var(--ink);}
   .tier .badge{display:inline-block;align-self:flex-start;background:var(--accent);color:var(--accent-ink);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:4px;margin-bottom:12px;}
@@ -498,6 +503,13 @@
         <div class="pos">“I run it so you never touch admin.”</div>
         <a class="btn btn-ghost tcta" href="#book">Get package</a>
       </div>
+    </div>
+    <div class="enterprise">
+      <div class="ent-text">
+        <div class="ent-title">Multi-location or franchise?</div>
+        <div class="ent-sub">These packages are built for single-site operators. Running more than one location, or booking non-member/outside clients at scale? That's scoped and priced individually.</div>
+      </div>
+      <a class="btn btn-fill tcta" href="#book">Book a scoping call</a>
     </div>
   </div>
 </section>
