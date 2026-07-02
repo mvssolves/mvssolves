@@ -766,7 +766,6 @@ function electricBorder(host,o){
   new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting?start():stop()),{threshold:0}).observe(host);
 }
 if(!reduce&&window.matchMedia('(pointer:fine)').matches){const feat=document.querySelector('.tier.feat');if(feat)electricBorder(feat,{color:'#0a0a0a',chaos:0.09,speed:0.9,thickness:1.4,borderRadius:16});}
-if(!reduce&&window.matchMedia('(pointer:fine)').matches){const tog=document.getElementById('modeToggle');if(tog)electricBorder(tog,{color:'#0a0a0a',chaos:0.07,speed:0.9,thickness:1.2,borderRadius:999});}
 
 /* section heading reveals */
 if(!reduce){
