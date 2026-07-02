@@ -149,25 +149,6 @@
   .mtrack b{color:var(--ink);font-weight:600;}
   @keyframes scroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
 
-  /* services — grid/4 clip-path preview */
-  .work{position:relative;}
-  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:46px;}
-  @media(max-width:900px){.grid{grid-template-columns:1fr;}}
-  .card{position:relative;border:1px solid var(--line);border-radius:14px;padding:26px;min-height:188px;
-    display:flex;flex-direction:column;justify-content:space-between;background:var(--bg);transition:border-color .3s;contain:layout;}
-  .card:hover{border-color:var(--ink);}
-  .card .num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);}
-  .card .ct{font-weight:800;font-size:21px;letter-spacing:-.02em;color:var(--ink);margin-top:auto;}
-  .card .cd{color:var(--soft);font-size:13.5px;margin-top:8px;line-height:1.5;}
-  .preview{position:absolute;inset:0;margin-top:46px;opacity:0;pointer-events:none;z-index:5;
-    border-radius:14px;background:var(--ink);color:#fff;display:flex;flex-direction:column;justify-content:center;padding:6vw;}
-  .preview .masked{position:absolute;inset:0;border-radius:14px;background:var(--ink);}
-  .preview .pv{position:relative;z-index:2;}
-  .pv-num{font-family:'JetBrains Mono',monospace;font-size:13px;opacity:.6;}
-  .pv-title{font-weight:900;font-size:clamp(34px,5vw,72px);letter-spacing:-.03em;line-height:1.0;margin:10px 0 14px;}
-  .pv-desc{max-width:620px;font-size:clamp(15px,1.6vw,19px);line-height:1.5;opacity:.85;}
-  @media(max-width:900px){.preview{display:none;}}
-
   /* converge capabilities — scroll/58 */
   .cap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:46px;}
   @media(max-width:900px){.cap-grid{grid-template-columns:repeat(2,1fr);}}
@@ -330,12 +311,9 @@
   .marquee:hover .mtrack{animation-play-state:paused;}
   .alc-row{transition:padding-left .25s ease,color .25s ease;}
   .alc-row:hover{padding-left:8px;color:var(--ink);}
-  .card{transition:border-color .3s,transform .15s ease;}
-  .card:active{transform:scale(.985);}
   .tier:active{transform:translateY(-2px);}
 
   /* loose-pixel cleanups */
-  #services{border-top:none;}
   .corner.bl{max-width:none;white-space:nowrap;letter-spacing:.04em;}
   .cursor{opacity:0;transition:width .25s,height .25s,opacity .15s;}
 
@@ -345,9 +323,7 @@
   h2{font-family:'Bricolage Grotesque','Inter',sans-serif;}
 
   /* grid alignment safeguards */
-  .grid,.cap-grid,.tiers,.steps{align-items:stretch;}
-  .grid{grid-auto-rows:1fr;}
-  .grid .card{height:100%;}
+  .cap-grid,.tiers,.steps{align-items:stretch;}
 
   /* button effects: ghost fill-sweep + fill shine/arrow */
   .btn-ghost{position:relative;overflow:hidden;z-index:0;}
@@ -440,7 +416,7 @@
   <a class="logo" href="#top"><span class="logo-mark">M</span> MVS Solves</a>
   <div class="nav-r">
     <div class="nav-links" id="navLinks">
-      <a href="#services">Services</a>
+      <a href="#capabilities">Services</a>
       <a href="#pricing">Pricing</a>
       <a href="#faq">FAQ</a>
       <a href="/join-the-team">Join the team</a>
@@ -462,10 +438,10 @@
     <div class="h-cta" id="hcta">
       <a class="btn btn-fill" id="magnet" href="#book">Automate your business
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-      <a class="btn btn-ghost" href="#services">See what I do</a>
+      <a class="btn btn-ghost" href="#capabilities">See what I do</a>
     </div>
   </div>
-  <a class="scroll-arrow" href="#services" aria-label="Scroll down">
+  <a class="scroll-arrow" href="#capabilities" aria-label="Scroll down">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
   </a>
 </header>
@@ -475,41 +451,10 @@
   <span aria-hidden="true"><b>Websites</b> · <b>Online booking</b> · <b>Google profiles</b> · <b>Review systems</b> · <b>AI booking bots</b> · <b>WhatsApp business</b> · <b>SEO cleanup</b> · <b>Automations</b> · <b>Business systems</b> · </span>
 </div></div>
 
-<!-- SERVICES — grid/4 hover preview -->
-<section class="section" id="services">
-  <div class="wrap work" id="work">
-    <div class="lab">01 / What I do</div>
-    <h2>Common projects,<br><span class="serif">uncommonly</span> done.</h2>
-    <p class="sub">Skip the agency runaround. Pick one thing or the full system — hand-built, fast, and made to earn back its cost.</p>
-    <div class="grid" id="svc-grid">
-      <a class="card" data-num="01" data-title="AI Booking Bot" data-desc="A smart 24/7 assistant trained on your business — qualifies leads, answers FAQs, and books straight to your calendar from your site, WhatsApp and DMs.">
-        <span class="num">01</span><span class="ct">AI Booking Bot</span><span class="cd">Books clients while you sleep.</span></a>
-      <a class="card" data-num="02" data-title="Websites that convert" data-desc="Custom-designed, fast-loading, mobile-perfect sites built to turn visitors into bookings — not template soup. Hosted and live from 24 hours.">
-        <span class="num">02</span><span class="ct">Websites that convert</span><span class="cd">Built to sell, not to sit.</span></a>
-      <a class="card" data-num="03" data-title="Local presence, owned" data-desc="Google Business Profile claimed, verified and fully optimised — categories, photos, hours, posts — so you're the result people pick on the map.">
-        <span class="num">03</span><span class="ct">Local presence, owned</span><span class="cd">Be the one they call.</span></a>
-      <a class="card" data-num="04" data-title="Review generation" data-desc="Automated SMS &amp; email asks go out after every visit. More 5-stars land on Google, social proof compounds, walk-ins follow. Unhappy ones routed to you privately first.">
-        <span class="num">04</span><span class="ct">Review generation</span><span class="cd">5-stars, on autopilot.</span></a>
-      <a class="card" data-num="05" data-title="Automation, end to end" data-desc="Workflows, integrations, the boring bits handled — lead capture, follow-ups, reminders, invoicing, reporting — so the work runs itself.">
-        <span class="num">05</span><span class="ct">Automation, end to end</span><span class="cd">The work runs itself.</span></a>
-      <a class="card" data-num="06" data-title="Systems & CRM" data-desc="Custom Airtable / Sheets trackers for clients, appointments and payments — plus business email and digital menus — built around how you actually run.">
-        <span class="num">06</span><span class="ct">Systems &amp; CRM</span><span class="cd">Your whole back office, clean.</span></a>
-    </div>
-    <div class="preview" id="preview">
-      <div class="masked" id="masked"></div>
-      <div class="pv">
-        <div class="pv-num" id="pvNum">01</div>
-        <div class="pv-title" id="pvTitle">AI Booking Bot</div>
-        <div class="pv-desc" id="pvDesc"></div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- CAPABILITIES — scroll/58 converge -->
 <section class="section" id="capabilities" style="background:var(--bg-2)">
   <div class="wrap">
-    <div class="lab">02 / Everything handled</div>
+    <div class="lab">01 / Everything handled</div>
     <h2>One person.<br>The whole stack.</h2>
     <p class="sub">No handoffs, no juniors, no account managers. The pieces below converge into one system around your business.</p>
     <div class="cap-grid" id="capGrid">
@@ -528,7 +473,7 @@
 <!-- PRICING -->
 <section class="section" id="pricing">
   <div class="wrap">
-    <div class="lab">03 / Pricing</div>
+    <div class="lab">02 / Pricing</div>
     <h2>Clear packages.<br>No surprises.</h2>
     <p class="sub">Pay monthly with no setup — or own it outright. Your call.</p>
     <div class="toggle" id="modeToggle">
@@ -601,7 +546,7 @@
 <!-- WHY / PROOF -->
 <section class="section" id="why">
   <div class="wrap">
-    <div class="lab">04 / Why me</div>
+    <div class="lab">03 / Why me</div>
     <h2>Built for businesses<br>big agencies ignore.</h2>
     <p class="sub">If you've ever been quoted a fortune for a website and walked away — this is for you.</p>
     <div class="why-grid">
@@ -629,7 +574,7 @@
 <!-- FAQ -->
 <section class="section" id="faq">
   <div class="wrap">
-    <div class="lab">05 / Questions, answered straight</div>
+    <div class="lab">04 / Questions, answered straight</div>
     <h2>No jargon.<br>Just answers.</h2>
     <div class="faq" id="faqList">
       <div class="qa"><q>What does MVS Solves do?<span class="plus">+</span></q><div class="a"><p>I build and fix the digital basics service businesses rely on: fast websites, online booking, Google Business Profiles, automation and AI assistants — all done by one person, end to end. Speed matters because slow sites lose customers and rankings.</p></div></div>
@@ -644,7 +589,7 @@
 <!-- BOOK -->
 <section class="section" id="book" style="background:var(--bg-2)">
   <div class="wrap">
-    <div class="lab">06 / Let's connect — for free</div>
+    <div class="lab">05 / Let's connect — for free</div>
     <div class="book-grid">
       <div>
         <h2>Your business<br>deserves to<br>be found.</h2>
@@ -807,7 +752,7 @@ if(!reduce){
       scrollTrigger:{trigger:el,start:'top 88%'}});
   });
   /* batched reveal for body groups so they don't pop in flat under animated headings */
-  ['#svc-grid .card','.tiers .tier','.steps .step','.pillars .pillar','#faqList .qa','.founder'].forEach(sel=>{
+  ['.tiers .tier','.steps .step','.pillars .pillar','#faqList .qa','.founder'].forEach(sel=>{
     ScrollTrigger.batch(gsap.utils.toArray(sel),{start:'top 90%',
       onEnter:b=>gsap.fromTo(b,{opacity:0},{opacity:1,duration:0.6,stagger:0.06,ease:'power2.out',overwrite:true})});
   });
@@ -831,29 +776,6 @@ if(!reduce){
       {x:0,y:0,scale:1,rotate:0,opacity:1,ease:'back.inOut(1.6)'},0);
   });
 }
-
-/* SERVICES grid → preview clip-path — grid/4 technique */
-(function(){
-  const work=document.getElementById('work'),cards=gsap.utils.toArray('#svc-grid .card');
-  const preview=document.getElementById('preview'),masked=document.getElementById('masked');
-  const pvNum=document.getElementById('pvNum'),pvTitle=document.getElementById('pvTitle'),pvDesc=document.getElementById('pvDesc');
-  if(!preview||reduce||window.innerWidth<900) return;
-  const a=8;
-  const closed=`polygon(${50-a}% 0%,${50+a}% 0%,${50+a}% ${50-a}%,100% ${50-a}%,100% ${50+a}%,${50+a}% ${50+a}%,${50+a}% 100%,${50-a}% 100%,${50-a}% ${50+a}%,0% ${50+a}%,0% ${50-a}%,${50-a}% ${50-a}%)`;
-  const open=`polygon(50% 0%,50% 0%,50% 50%,100% 50%,100% 50%,50% 50%,50% 100%,50% 100%,50% 50%,0% 50%,0% 50%,50% 50%)`;
-  const tl=gsap.timeline({paused:true,defaults:{ease:'power2.inOut',duration:0.55}})
-    .to(preview,{opacity:1},0)
-    .to(cards,{opacity:0,x:i=>(i%3===0?'2vw':i%3===2?'-2vw':0),y:i=>(i<3?'2vw':'-2vw')},0)
-    .fromTo(masked,{clipPath:closed},{clipPath:open},0);
-  let delay=null,active=null;
-  cards.forEach(card=>{
-    card.addEventListener('mouseenter',()=>{clearTimeout(delay);
-      delay=setTimeout(()=>{active=card;
-        pvNum.textContent=card.dataset.num;pvTitle.textContent=card.dataset.title;pvDesc.textContent=card.dataset.desc;
-        tl.play();},100);});
-    card.addEventListener('mouseleave',()=>{clearTimeout(delay);if(active){tl.reverse();active=null;}});
-  });
-})();
 
 /* GradualBlur (React Bits port → vanilla, no deps) — fixed top/bottom edge blur across whole site */
 function gradualBlur(position,o){
