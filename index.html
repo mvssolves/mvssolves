@@ -1015,7 +1015,12 @@ void main(){
       }
       function start(){if(running)return;running=true;raf=requestAnimationFrame(draw);}
       function stop(){running=false;if(raf)cancelAnimationFrame(raf);}
-      new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting?start():stop()),{threshold:0}).observe(host);
+      let visible=false,scrollT=null;
+      new IntersectionObserver(es=>es.forEach(e=>{visible=e.isIntersecting;visible?start():stop();})).observe(host);
+      /* pause the shader entirely while actively scrolling — resume once scroll settles, avoids competing with scroll-triggered reveals for frame budget */
+      window.addEventListener('scroll',()=>{
+        stop();clearTimeout(scrollT);scrollT=setTimeout(()=>{if(visible)start();},160);
+      },{passive:true});
     }catch(err){console.warn('ColorBends init failed',err);}
   }).catch(err=>console.warn('three load failed',err));
 })();
