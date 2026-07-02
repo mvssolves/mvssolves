@@ -82,16 +82,28 @@
   @media(pointer:coarse){.cursor,.trail{display:none;}body{cursor:auto;}}
 
   /* nav */
-  nav{position:fixed;top:0;left:0;right:0;z-index:60;padding:20px 36px;display:flex;align-items:center;
+  nav{position:fixed;top:0;left:0;right:0;z-index:60;padding:20px 36px;display:flex;align-items:center;gap:16px;
     justify-content:space-between;border-bottom:1px solid transparent;transition:border-color .3s,background .3s;}
   nav.scrolled{border-color:var(--line);background:rgba(255,255,255,.8);backdrop-filter:blur(16px);}
-  .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:17px;color:var(--ink);}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:17px;color:var(--ink);white-space:nowrap;flex-shrink:0;}
   .logo-mark{width:26px;height:26px;border-radius:7px;background:var(--accent);color:var(--accent-ink);
     display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;}
   .nav-r{display:flex;gap:28px;align-items:center;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+  .nav-links{display:flex;gap:28px;align-items:center;}
   .nav-r a:hover{color:var(--ink);}
-  .navcta{color:var(--ink)!important;font-weight:700;border-bottom:2px solid var(--accent);padding-bottom:2px;}
-  @media(max-width:820px){.nav-r a:not(.navcta){display:none;}}
+  .navcta{color:var(--ink)!important;font-weight:700;border-bottom:2px solid var(--accent);padding-bottom:2px;white-space:nowrap;}
+  .navtoggle{display:none;background:none;border:0;padding:6px;margin:0;cursor:pointer;flex-direction:column;gap:5px;}
+  .navtoggle span{display:block;width:22px;height:2px;background:var(--ink);}
+  @media(max-width:820px){
+    .nav-r{gap:10px;}
+    .navcta{font-size:10px;}
+    .navtoggle{display:flex;}
+    .nav-links{position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:stretch;gap:0;
+      background:#fff;padding:0 20px;max-height:0;overflow:hidden;border-bottom:1px solid transparent;
+      transition:max-height .3s ease,border-color .3s ease;}
+    .nav-links a{padding:14px 0;border-bottom:1px solid var(--line);}
+    .nav-links.open{max-height:320px;border-color:var(--line);}
+  }
 
   /* hero */
   .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:120px 36px 80px;overflow:hidden;}
@@ -380,7 +392,7 @@
   @media(max-width:600px){
     .wrap{padding:0 20px;}
     nav{padding:16px 20px;}
-    .hero{min-height:100vh;min-height:100dvh;padding:104px 20px 56px;}
+    .hero{min-height:100vh;min-height:100dvh;padding:104px 20px 56px;justify-content:flex-end;}
     .hero-bg .d1{opacity:.07;}
     .hero-bg .d2{opacity:.04;}
     .h-sub{margin-top:24px;}
@@ -426,11 +438,14 @@
 <nav id="nav">
   <a class="logo" href="#top"><span class="logo-mark">M</span> MVS Solves</a>
   <div class="nav-r">
-    <a href="#services">Services</a>
-    <a href="#pricing">Pricing</a>
-    <a href="#faq">FAQ</a>
-    <a href="/join-the-team">Join the team</a>
+    <div class="nav-links" id="navLinks">
+      <a href="#services">Services</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a href="/join-the-team">Join the team</a>
+    </div>
     <a class="navcta" href="#book">Automate your business</a>
+    <button class="navtoggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
   </div>
 </nav>
 
@@ -701,6 +716,19 @@ if(!reduce){
   lenis.on('scroll',ScrollTrigger.update);
 }
 
+/* mobile nav toggle */
+(function(){
+  const btn=document.getElementById('navToggle'),links=document.getElementById('navLinks');
+  if(!btn||!links)return;
+  btn.addEventListener('click',()=>{
+    const open=links.classList.toggle('open');
+    btn.setAttribute('aria-expanded',open);
+  });
+  links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
+    links.classList.remove('open');btn.setAttribute('aria-expanded','false');
+  }));
+})();
+
 /* scroll progress + nav */
 const prog=document.getElementById('progress'),nav=document.getElementById('nav');
 function onScroll(y){nav.classList.toggle('scrolled',y>40);
@@ -880,7 +908,8 @@ if(window.matchMedia('(pointer:fine)').matches){
 
 /* ColorBends hero background (React Bits port → vanilla, three via CDN) — grayscale, on-brand */
 (function(){
-  if(reduce||!window.matchMedia('(pointer:fine)').matches)return;
+  if(reduce)return;
+  const coarse=window.matchMedia('(pointer:coarse)').matches;
   const host=document.getElementById('heroFluid');if(!host)return;
   const CB_VERT=`varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position,1.0);}`;
   const CB_FRAG=`
@@ -959,7 +988,7 @@ void main(){
       const mesh=new THREE.Mesh(geometry,material);scene.add(mesh);
       const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance',alpha:true});
       renderer.outputColorSpace=THREE.SRGBColorSpace;
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,coarse?1:1.5));
       renderer.setClearColor(0x000000,0);
       renderer.domElement.style.width='100%';renderer.domElement.style.height='100%';renderer.domElement.style.display='block';
       host.appendChild(renderer.domElement);
@@ -975,7 +1004,7 @@ void main(){
       function draw(){
         raf=requestAnimationFrame(draw);
         const dt=clock.getDelta(),elapsed=clock.elapsedTime;
-        frame++;if(frame%2)return; // render every other frame — halves GPU cost, imperceptible on a slow ambient bg
+        frame++;if(frame%(coarse?3:2))return; // skip more frames on touch — cuts GPU cost further, imperceptible on a slow ambient bg
         material.uniforms.uTime.value=elapsed;
         const rad=(90*Math.PI)/180;
         material.uniforms.uRot.value.set(Math.cos(rad),Math.sin(rad));
