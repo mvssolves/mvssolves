@@ -799,7 +799,7 @@ if(!reduce&&window.matchMedia('(pointer:fine)').matches){const feat=document.que
 /* section heading reveals */
 if(!reduce){
   gsap.utils.toArray('.section h2').forEach(el=>{
-    gsap.from(el,{clipPath:'inset(0 0 100% 0)',y:24,duration:1.05,ease:'power4.out',
+    gsap.from(el,{y:32,opacity:0,duration:1.05,ease:'power4.out',
       scrollTrigger:{trigger:el,start:'top 86%'}});
   });
   gsap.utils.toArray('.section .sub, .lab').forEach(el=>{
