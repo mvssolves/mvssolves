@@ -83,7 +83,8 @@
 
   /* nav */
   nav{position:fixed;top:0;left:0;right:0;z-index:60;padding:20px 36px;display:flex;align-items:center;gap:16px;
-    justify-content:space-between;border-bottom:1px solid transparent;transition:border-color .3s,background .3s;}
+    justify-content:space-between;border-bottom:1px solid transparent;transition:border-color .3s,background .3s;
+    will-change:background-color,backdrop-filter;}
   nav.scrolled{border-color:var(--line);background:rgba(255,255,255,.8);backdrop-filter:blur(16px);}
   .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:17px;color:var(--ink);white-space:nowrap;flex-shrink:0;}
   .logo-mark{width:26px;height:26px;border-radius:7px;background:var(--accent);color:var(--accent-ink);
@@ -1079,7 +1080,9 @@ function initCal(){
 (function(){const sec=document.getElementById('book');if(!sec)return;let done=false;
   new IntersectionObserver((es,ob)=>{es.forEach(en=>{if(en.isIntersecting&&!done){done=true;initCal();ob.disconnect();}});},{rootMargin:'500px'}).observe(sec);})();
 
-window.addEventListener('load',()=>{setTimeout(()=>ScrollTrigger.refresh(),400);});
+window.addEventListener('load',()=>{
+  (window.requestIdleCallback||function(cb){setTimeout(cb,400);})(()=>ScrollTrigger.refresh());
+});
 </script>
 </body>
 </html>
