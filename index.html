@@ -231,19 +231,16 @@
   /* why / proof */
   .why-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:40px;margin-top:46px;align-items:start;}
   @media(max-width:900px){.why-grid{grid-template-columns:1fr;}}
-  .pillars{display:flex;flex-direction:column;gap:2px;}
-  .pillar{border-bottom:1px solid var(--line);padding:18px 0;}
-  .pillar .pt{font-weight:800;font-size:18px;color:var(--ink);letter-spacing:-.01em;}
-  .pillar .pd{color:var(--soft);font-size:14px;margin-top:5px;line-height:1.5;}
-  .founder{border:1px solid var(--line);border-radius:16px;padding:28px;background:var(--bg-2);position:sticky;top:100px;}
+  .why-cards{display:flex;flex-direction:column;gap:14px;}
+  .founder{border-radius:16px;padding:28px;background:var(--ink);position:sticky;top:100px;}
   .founder .fhead{display:flex;align-items:center;gap:14px;}
-  .founder .favatar{width:52px;height:52px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;}
-  .founder .fn{font-weight:800;color:var(--ink);}
-  .founder .fr{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
-  .founder .fq{margin-top:18px;font-size:15px;line-height:1.6;color:var(--text);}
-  .founder .fstats{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px;border-top:1px solid var(--line);padding-top:18px;}
-  .founder .fstat b{display:block;font-size:22px;color:var(--ink);font-weight:900;letter-spacing:-.02em;}
-  .founder .fstat span{font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+  .founder .favatar{width:52px;height:52px;border-radius:50%;background:#fff;color:var(--ink);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;flex:none;}
+  .founder .fn{font-weight:800;color:#fff;}
+  .founder .fr{font-size:13px;color:rgba(255,255,255,.55);font-family:'JetBrains Mono',monospace;}
+  .founder .fq{margin-top:18px;font-size:15px;line-height:1.6;color:rgba(255,255,255,.88);}
+  .founder .fstats{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px;border-top:1px solid rgba(255,255,255,.14);padding-top:18px;}
+  .founder .fstat b{display:block;font-size:22px;color:#fff;font-weight:900;letter-spacing:-.02em;}
+  .founder .fstat span{font-size:11.5px;color:rgba(255,255,255,.55);font-family:'JetBrains Mono',monospace;}
 
   /* book */
   .book-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:40px;margin-top:46px;align-items:start;}
@@ -545,12 +542,12 @@
     <h2>Built for businesses<br>big agencies ignore.</h2>
     <p class="sub">If you've ever been quoted a fortune for a website and walked away — this is for you.</p>
     <div class="why-grid">
-      <div class="pillars">
-        <div class="pillar"><div class="pt">Pay what works for you</div><div class="pd">Low upfront, flexible plans, cancel anytime. Start small, scale when it pays for itself.</div></div>
-        <div class="pillar"><div class="pt">Skin in the game</div><div class="pd">The only way I win is when your business does. If I can't move the needle, I'll tell you on the first call.</div></div>
-        <div class="pillar"><div class="pt">Business-first, tech-second</div><div class="pd">Every system is shaped around revenue, not features. If it doesn't earn back its cost, I won't recommend it.</div></div>
-        <div class="pillar"><div class="pt">One human, one standard</div><div class="pd">No account managers, no juniors, no handoffs. You text me, you get me.</div></div>
-        <div class="pillar"><div class="pt">Honest scope, honest price</div><div class="pd">No long contracts. No surprise invoices. No upsells you didn't ask for.</div></div>
+      <div class="why-cards">
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">$</div><div class="cn">Pay what works for you</div><div class="cc">Low upfront, flexible plans, cancel anytime. Start small, scale when it pays for itself.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">%</div><div class="cn">Skin in the game</div><div class="cc">The only way I win is when your business does. If I can't move the needle, I'll tell you on the first call.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">B</div><div class="cn">Business-first, tech-second</div><div class="cc">Every system is shaped around revenue, not features. If it doesn't earn back its cost, I won't recommend it.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">1</div><div class="cn">One human, one standard</div><div class="cc">No account managers, no juniors, no handoffs. You text me, you get me.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">✓</div><div class="cn">Honest scope, honest price</div><div class="cc">No long contracts. No surprise invoices. No upsells you didn't ask for.</div></div></div>
       </div>
       <div class="founder">
         <div class="fhead"><div class="favatar">M</div><div><div class="fn">Martin</div><div class="fr">Founder · MVS Solves</div></div></div>
@@ -732,7 +729,7 @@ if(!reduce){
       scrollTrigger:{trigger:el,start:'top 88%'}});
   });
   /* batched reveal for body groups so they don't pop in flat under animated headings */
-  ['.tiers .tier','.steps .step','.pillars .pillar','.founder'].forEach(sel=>{
+  ['.tiers .tier','.steps .step','.why-cards .cap','.founder'].forEach(sel=>{
     ScrollTrigger.batch(gsap.utils.toArray(sel),{start:'top 90%',
       onEnter:b=>gsap.fromTo(b,{opacity:0},{opacity:1,duration:0.6,stagger:0.06,ease:'power2.out',overwrite:true})});
   });
