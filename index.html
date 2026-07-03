@@ -280,7 +280,7 @@
   .overlay .block{flex:1;height:100svh;background:var(--ink);transform:scaleX(0);transform-origin:left;}
 
   /* intro veil — block wipe + centered logo, on page load (pagetrans/13 style, matches stephanie-site) */
-  .intro-veil{position:fixed;inset:0;display:flex;pointer-events:none;z-index:99998;}
+  .intro-veil{position:fixed;inset:0;display:flex;pointer-events:none;z-index:99998;background:var(--ink);}
   .intro-veil .vb{flex:1 1 0;height:100%;background:var(--ink);transform:scaleX(1);transform-origin:left;
     transition:transform .55s cubic-bezier(.65,0,.35,1);}
   .intro-veil.wipe .vb{transform:scaleX(0);transform-origin:right;}
