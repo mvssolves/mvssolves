@@ -1219,8 +1219,8 @@ void main(){mainImage(gl_FragColor,gl_FragCoord.xy);}`;
   const cards=Array.from(container.querySelectorAll('.card'));
   if(cards.length<2)return;
 
-  const cardDistance=14,verticalDistance=18,delay=3200,skewAmount=4;
-  const ease='elastic.out(0.6,0.9)',durDrop=1.1,durMove=1.1,durReturn=1.1,promoteOverlap=0.9,returnDelay=0.05;
+  const cardDistance=14,verticalDistance=18,delay=2400,skewAmount=4;
+  const ease='elastic.out(0.6,0.9)',durDrop=0.85,durMove=0.85,durReturn=0.85,promoteOverlap=0.9,returnDelay=0.05;
 
   function makeSlot(i,total){return {x:i*cardDistance,y:-i*verticalDistance,z:-i*cardDistance*1.5,zIndex:total-i};}
   function placeNow(el,slot){gsap.set(el,{x:slot.x,y:slot.y,z:slot.z,xPercent:-50,yPercent:-50,skewY:skewAmount,transformOrigin:'center center',zIndex:slot.zIndex,force3D:true});}
