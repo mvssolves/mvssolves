@@ -199,7 +199,12 @@
   .tier li.inh::before{content:"+";color:var(--muted);}
   .tier .tcta{margin-top:auto;}
   .tier-details{margin:2px 0 16px;font-size:12px;}
-  .tier-details dl{margin:0;padding:0;}
+  .tier-details summary{cursor:pointer;font-weight:700;color:var(--muted);list-style:none;display:flex;align-items:center;gap:6px;transition:color .2s ease;}
+  .tier-details summary::-webkit-details-marker{display:none;}
+  .tier-details summary::before{content:"+";font-weight:800;font-size:14px;transition:transform .2s ease;display:inline-block;}
+  .tier-details[open] summary::before{transform:rotate(45deg);}
+  .tier-details summary:hover{color:var(--ink);}
+  .tier-details dl{margin:10px 0 0;padding:10px 0 0;border-top:1px dashed var(--line);}
   .tier-details dt{font-weight:700;color:var(--ink);margin-top:8px;}
   .tier-details dt:first-child{margin-top:0;}
   .tier-details dd{margin:2px 0 0;color:var(--soft);line-height:1.4;}
@@ -478,7 +483,7 @@
 <section class="section" id="pricing">
   <div class="wrap">
     <div class="lab">02 / Pricing</div>
-    <h2>Clear packages.<br>No surprises.</h2>
+    <h2>Clear packages, no surprises.</h2>
     <p class="sub">Pay monthly, low setup — or own it outright. Your call.</p>
     <div class="toggle" id="modeToggle">
       <button class="on" data-mode="monthly">Monthly</button>
@@ -503,14 +508,15 @@
           <ul>
             <li>Website &amp; funnels</li><li>Google profile</li><li>SEO cleanup</li><li>Logo &amp; brand</li>
           </ul>
-          <div class="tier-details">
+          <details class="tier-details">
+            <summary>Full details</summary>
             <dl>
               <dt>Website &amp; funnels</dt><dd>Professional site built to convert, live in about a day.</dd>
               <dt>Google profile</dt><dd>Set up and optimized so you show up in the map pack when locals search.</dd>
               <dt>SEO cleanup</dt><dd>Basic on-page SEO — your site actually ranks, not just exists.</dd>
               <dt>Logo &amp; brand</dt><dd>A logo and visual identity that reads premium, not DIY.</dd>
             </dl>
-          </div>
+          </details>
           <a class="btn btn-ghost tcta" href="#book">Get package</a>
         </div>
       </div>
@@ -533,7 +539,8 @@
           <ul>
             <li class="inh">Everything in Launch</li><li>Online booking</li><li>Reviews</li><li>Online payments</li><li>WhatsApp business</li><li>Copywriting</li>
           </ul>
-          <div class="tier-details">
+          <details class="tier-details">
+            <summary>Full details</summary>
             <dl>
               <dt>Everything in Launch</dt><dd>Website + Google profile + basic SEO — see Launch for the full breakdown.</dd>
               <dt>Online booking</dt><dd>Clients book themselves, synced straight to your calendar. No back-and-forth.</dd>
@@ -542,7 +549,7 @@
               <dt>WhatsApp business</dt><dd>One dedicated business number for calls, chats and bookings — always on.</dd>
               <dt>Copywriting</dt><dd>Sales pages, ads and messaging written to convert, not just read.</dd>
             </dl>
-          </div>
+          </details>
           <a class="btn btn-fill tcta" href="#book" style="justify-content:center">Get package</a>
         </div>
       </div>
@@ -565,7 +572,8 @@
           <ul>
             <li class="inh">Everything in Growth</li><li class="own-hide">Business system / CRM</li><li>AI assistants</li><li>Priority support</li><li>Automations</li><li>Email &amp; SMS</li><li>Referral programs</li>
           </ul>
-          <div class="tier-details">
+          <details class="tier-details">
+            <summary>Full details</summary>
             <dl>
               <dt>Everything in Growth</dt><dd>Booking + reviews + payments — see Growth for the full breakdown.</dd>
               <dt>Business system / CRM</dt><dd>A tracker for leads, clients and follow-ups — your business in one dashboard.</dd>
@@ -575,7 +583,7 @@
               <dt>Email &amp; SMS</dt><dd>Newsletters, promos and payment links straight to your list.</dd>
               <dt>Referral programs</dt><dd>A built-in system that turns happy clients into new ones.</dd>
             </dl>
-          </div>
+          </details>
           <a class="btn btn-fill tcta" href="#book" style="justify-content:center">Get package</a>
         </div>
       </div>
@@ -589,7 +597,8 @@
         <ul>
           <li class="inh">Everything in Premium</li><li>Multi-location rollout</li><li>Centralized booking across sites</li><li>AI WhatsApp booking bot</li><li>Custom automations</li><li>Dedicated support &amp; reporting</li>
         </ul>
-        <div class="tier-details">
+        <details class="tier-details">
+          <summary>Full details</summary>
           <dl>
             <dt>Everything in Premium</dt><dd>CRM + AI assistant + priority support — see Premium for the full breakdown.</dd>
             <dt>Multi-location rollout</dt><dd>The same system deployed and kept in sync across every branch.</dd>
@@ -598,7 +607,7 @@
             <dt>Custom automations</dt><dd>Bespoke Make/n8n workflows scoped to how your business actually runs.</dd>
             <dt>Dedicated support &amp; reporting</dt><dd>A direct line to me, plus regular performance reports.</dd>
           </dl>
-        </div>
+        </details>
         <a class="btn btn-ghost tcta" href="#book">Book a scoping call</a>
       </div>
     </div>
