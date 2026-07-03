@@ -284,10 +284,6 @@
   .foot-meta{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;line-height:1.8;}
   .sign{font-family:'Instrument Serif',serif;font-style:italic;font-size:26px;color:var(--ink);}
 
-  /* page-transition bar wipe — pagetrans/13 */
-  .overlay{position:fixed;inset:0;display:flex;pointer-events:none;z-index:9000;}
-  .overlay .block{flex:1;height:100svh;background:var(--ink);transform:scaleX(0);transform-origin:left;}
-
   /* intro veil — white bg, typewriter reveal one word at a time, fade transition into the hero */
   .intro-veil{position:fixed;inset:0;pointer-events:none;z-index:99998;background:#fff;
     transition:opacity .65s ease;}
@@ -386,8 +382,7 @@
     .hero{min-height:100vh;min-height:100svh;padding:140px 20px 56px;justify-content:flex-end;}
     .hero-bg .d1{opacity:.07;}
     .hero-bg .d2{opacity:.04;}
-    .h-sub{display:none;}
-    .h-cta{margin-top:28px;gap:12px;flex-direction:column;align-items:stretch;}
+    .h-cta{margin-top:18px;gap:10px;flex-direction:column;align-items:stretch;}
     .h-cta .btn{width:100%;justify-content:center;padding:15px 22px;}
     footer{padding:48px 20px 40px;}
   }
@@ -424,7 +419,6 @@
 <div class="site-lightning" id="siteLightning" aria-hidden="true"></div>
 <div class="progress" id="progress"></div>
 <div class="cursor" id="cursor"></div>
-<div class="overlay" id="overlay"></div>
 <div class="intro-veil" id="introVeil"></div>
 <div class="intro-type" id="introType">
   <div class="intro-type-line" id="introLine"></div>
@@ -492,7 +486,7 @@
 <section class="section" id="pricing">
   <div class="wrap">
     <div class="lab">02 / Pricing</div>
-    <h2>Clear packages, no surprises.</h2>
+    <h2>Clear packages.</h2>
     <p class="sub">Pay monthly, low setup — or own it outright. Your call.</p>
     <div class="toggle" id="modeToggle">
       <button class="on" data-mode="monthly">Monthly</button>
@@ -666,7 +660,7 @@
     <div class="lab">04 / Let's connect — for free</div>
     <div class="book-grid">
       <div>
-        <h2>Your business<br>deserves to<br>be found.</h2>
+        <h2 id="bookH2">No pitch.<br>Just a plan.</h2>
         <p class="sub">Tell me what you're working with. I'll tell you exactly what I can do — and whether it's worth it. No pitch, no fluff. Just a straight conversation and a clear plan.</p>
         <a class="btn btn-fill mailbtn" href="mailto:martin@mvssolves.com">Email martin@mvssolves.com</a>
         <div class="book-note">Same-day reply. Always. → book a free 30-minute call:</div>
@@ -761,24 +755,28 @@ function decryptText(el,opts){
   opts=opts||{};
   const speed=opts.speed||32;
   const chars=(opts.characters||'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*').split('');
-  const original=el.textContent;
-  el.textContent='';
-  const spans=original.split('').map(ch=>{
-    const s=document.createElement('span');s.className='dx-char dx-enc';s.textContent=ch;
-    el.appendChild(s);return s;
+  Array.from(el.childNodes).forEach(node=>{
+    if(node.nodeType!==3||!node.textContent.trim())return;
+    const original=node.textContent;
+    const frag=document.createDocumentFragment();
+    const spans=original.split('').map(ch=>{
+      const s=document.createElement('span');s.className='dx-char dx-enc';s.textContent=ch;
+      frag.appendChild(s);return s;
+    });
+    node.replaceWith(frag);
+    const total=spans.length;
+    let revealed=0;
+    const iv=setInterval(()=>{
+      for(let i=0;i<total;i++){
+        const ch=original[i];
+        if(ch===' ')continue;
+        if(i<revealed){spans[i].textContent=ch;spans[i].className='dx-char dx-rev';}
+        else spans[i].textContent=chars[Math.floor(Math.random()*chars.length)];
+      }
+      revealed++;
+      if(revealed>total)clearInterval(iv);
+    },speed);
   });
-  const total=spans.length;
-  let revealed=0;
-  const iv=setInterval(()=>{
-    for(let i=0;i<total;i++){
-      const ch=original[i];
-      if(ch===' ')continue;
-      if(i<revealed){spans[i].textContent=ch;spans[i].className='dx-char dx-rev';}
-      else spans[i].textContent=chars[Math.floor(Math.random()*chars.length)];
-    }
-    revealed++;
-    if(revealed>total)clearInterval(iv);
-  },speed);
 }
 function revealWords(words,delay){
   if(!words.length)return 0;
@@ -849,6 +847,11 @@ if(!reduce){
     gsap.from(el,{y:30,opacity:0,duration:0.9,ease:'power3.out',
       scrollTrigger:{trigger:el,start:'top 88%'}});
   });
+  /* final CTA heading — decrypt reveal in, plays once on scroll into view */
+  const bookH2=document.getElementById('bookH2');
+  if(bookH2){
+    ScrollTrigger.create({trigger:bookH2,start:'top 85%',once:true,onEnter:()=>decryptText(bookH2,{speed:28})});
+  }
   /* batched reveal for body groups so they don't pop in flat under animated headings */
   ['.tiers .tier','.steps .step','.why-cards .cap','.founder'].forEach(sel=>{
     ScrollTrigger.batch(gsap.utils.toArray(sel),{start:'top 90%',
@@ -1118,24 +1121,18 @@ void main(){mainImage(gl_FragColor,gl_FragCoord.xy);}`;
   });
 })();
 
-/* page-transition bar wipe — pagetrans/13 (in-page anchor jumps) */
-(function(){
-  const overlay=document.getElementById('overlay'),COUNT=18;
-  const blocks=Array.from({length:COUNT},()=>{const d=document.createElement('div');d.className='block';overlay.appendChild(d);return d;});
-  let busy=false;
-  function reveal(){gsap.set(blocks,{scaleX:1,transformOrigin:'right'});
-    gsap.to(blocks,{scaleX:0,duration:0.4,stagger:0.018,ease:'power2.out',onComplete:()=>{busy=false;overlay.style.pointerEvents='none';}});}
-  function go(target){busy=true;overlay.style.pointerEvents='auto';
-    gsap.set(blocks,{scaleX:0,transformOrigin:'left'});
-    gsap.to(blocks,{scaleX:1,duration:0.4,stagger:0.018,ease:'power2.out',onComplete:()=>{
-      const el=document.querySelector(target);
-      if(el){ if(lenis){lenis.scrollTo(el,{immediate:true});} else {el.scrollIntoView();} }
-      reveal();}});}
-  document.querySelectorAll('a[href^="#"]').forEach(link=>{
-    link.addEventListener('click',e=>{const t=link.getAttribute('href');if(t==='#'||!document.querySelector(t))return;
-      if(reduce)return; if(t==='#top'&&window.scrollY<10)return; e.preventDefault();if(busy)return;go(t);});
+/* in-page anchor jumps — smooth scroll, no wipe overlay */
+document.querySelectorAll('a[href^="#"]').forEach(link=>{
+  link.addEventListener('click',e=>{
+    const t=link.getAttribute('href');
+    if(t==='#'||!document.querySelector(t))return;
+    if(t==='#top'&&window.scrollY<10)return;
+    e.preventDefault();
+    const el=document.querySelector(t);
+    if(reduce){el.scrollIntoView();return;}
+    if(lenis){lenis.scrollTo(el);}else{el.scrollIntoView({behavior:'smooth'});}
   });
-})();
+});
 
 /* Cal.com discovery embed (live booking) */
 (function(C,A,L){let p=function(a,ar){a.q.push(ar);};let d=C.document;C.Cal=C.Cal||function(){let cal=C.Cal;let ar=arguments;if(!cal.loaded){cal.ns={};cal.q=cal.q||[];d.head.appendChild(d.createElement("script")).src=A;cal.loaded=true;}if(ar[0]===L){const api=function(){p(api,arguments);};const namespace=ar[1];api.q=api.q||[];if(typeof namespace==="string"){cal.ns[namespace]=cal.ns[namespace]||api;p(cal.ns[namespace],ar);p(cal,["initNamespace",namespace]);}else p(cal,ar);return;}p(cal,ar);};})(window,"https://app.cal.com/embed/embed.js","init");
