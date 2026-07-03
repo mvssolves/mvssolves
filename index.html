@@ -99,7 +99,7 @@
   .navtoggle span{display:block;width:22px;height:2px;background:var(--ink);}
 
   /* hero */
-  .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:space-between;padding:200px 36px 64px;overflow:hidden;}
+  .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;gap:40px;padding:200px 36px 64px;overflow:hidden;}
   .scrolldot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:bob 1.6s ease-in-out infinite;}
   @keyframes bob{0%,100%{transform:translateY(0);opacity:1;}50%{transform:translateY(5px);opacity:.4;}}
   .scroll-arrow{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:5;color:var(--ink);animation:scrollbob 1.6s ease-in-out infinite;}
@@ -110,8 +110,8 @@
   h1 .line{display:block;}
   h1 .line>span{display:block;}
   h1 .aw{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;text-transform:none;letter-spacing:-.02em;line-height:1.05;padding-bottom:.14em;}
-  .h-sub{margin-top:24px;max-width:560px;font-size:clamp(15px,1.5vw,18px);color:var(--soft);line-height:1.55;opacity:0;transform:translateY(20px);}
-  .h-cta{margin-top:28px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;opacity:0;transform:translateY(20px);}
+  .h-sub{margin-top:24px;max-width:560px;font-size:clamp(15px,1.5vw,18px);color:var(--soft);line-height:1.55;}
+  .h-cta{margin-top:28px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;}
   .btn{display:inline-flex;align-items:center;gap:10px;padding:16px 26px;border-radius:999px;font-weight:700;font-size:15px;}
   .btn-fill{background:var(--accent);color:var(--accent-ink);will-change:transform;}
   .btn-fill svg{width:16px;height:16px;}
@@ -250,10 +250,10 @@
   .founder .fstat b{display:block;font-size:22px;color:#fff;font-weight:900;letter-spacing:-.02em;}
   .founder .fstat span{font-size:11.5px;color:rgba(255,255,255,.55);font-family:'JetBrains Mono',monospace;}
 
-  /* why / proof — compact mobile: CardSwap cycler replaces the 5 stacked cards (React Bits port → vanilla, reuses page's GSAP) */
+  /* why / proof — CardSwap cycler replaces the 5 stacked cards on mobile AND desktop (React Bits port → vanilla, reuses page's GSAP) */
   @media(max-width:900px){#why{padding:64px 0;}}
   .why-cardswap{display:none;position:relative;height:210px;margin:8px 0 28px;}
-  @media(max-width:900px) and (prefers-reduced-motion:no-preference){
+  @media(prefers-reduced-motion:no-preference){
     .why-cards{display:none;}
     .why-cardswap{display:block;}
   }
@@ -263,6 +263,12 @@
     transform-style:preserve-3d;will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden;}
   .why-cardswap .card .cn{font-weight:700;font-size:16px;color:var(--ink);letter-spacing:-.01em;}
   .why-cardswap .card .cc{color:var(--soft);font-size:13px;margin-top:6px;line-height:1.5;}
+  @media(min-width:901px){
+    .why-cardswap{height:290px;}
+    .why-cardswap .card{width:300px;height:190px;padding:24px;}
+    .why-cardswap .card .cn{font-size:19px;}
+    .why-cardswap .card .cc{font-size:14.5px;}
+  }
 
   /* book */
   .book-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:40px;margin-top:46px;align-items:start;}
@@ -376,7 +382,7 @@
   @media(max-width:600px){
     .wrap{padding:0 20px;}
     nav{padding:16px 20px;}
-    .hero{min-height:100vh;min-height:100svh;padding:140px 20px 56px;justify-content:flex-start;}
+    .hero{min-height:100vh;min-height:100svh;padding:140px 20px 56px;justify-content:flex-end;}
     .hero-bg .d1{opacity:.07;}
     .hero-bg .d2{opacity:.04;}
     .h-sub{display:none;}
@@ -729,20 +735,40 @@ window.addEventListener('scroll',()=>onScroll(window.scrollY));
 if(lenis) lenis.on('scroll',({scroll})=>onScroll(scroll));
 
 /* hero intro */
-/* BlurText hero reveal (React Bits port → GSAP) */
-(function(){
-  const words=[];
-  document.querySelectorAll('h1 .line>span').forEach(span=>{
-    const parts=span.textContent.split(' ');span.textContent='';
-    parts.forEach((w,i)=>{const s=document.createElement('span');s.className='bw';
-      s.textContent=w+(i<parts.length-1?' ':'');span.appendChild(s);words.push(s);});
+/* BlurText reveal (React Bits port → GSAP) — nav CTA, H1 lines, subtitle, hero CTAs.
+   Wraps each element's own text node(s) in per-word spans, leaving any icon/svg children untouched. */
+function blurify(el){
+  const spans=[];
+  Array.from(el.childNodes).forEach(node=>{
+    if(node.nodeType===3&&node.textContent.trim()){
+      const words=node.textContent.trim().split(/\s+/);
+      const frag=document.createDocumentFragment();
+      words.forEach((w,i)=>{
+        const s=document.createElement('span');s.className='bw';
+        s.textContent=w+(i<words.length-1?' ':'');
+        frag.appendChild(s);spans.push(s);
+      });
+      node.replaceWith(frag);
+    }
   });
-  if(reduce){gsap.set(words,{opacity:1,filter:'blur(0px)',y:0});}
-  else{gsap.from(words,{opacity:0,filter:'blur(10px)',y:-22,duration:0.6,stagger:0.09,ease:'power3.out',delay:0.15});}
-})();
-gsap.timeline({defaults:{ease:'power3.out'},delay:reduce?0:0.55})
-  .to('#hsub',{opacity:1,y:0,duration:0.9})
-  .to('#hcta',{opacity:1,y:0,duration:0.9},'-=0.7');
+  return spans;
+}
+function playHeroReveal(){
+  const groups=[];
+  const navcta=document.querySelector('.navcta');
+  if(navcta)groups.push(blurify(navcta));
+  document.querySelectorAll('h1 .line>span').forEach(span=>groups.push(blurify(span)));
+  const hsub=document.getElementById('hsub');
+  if(hsub)groups.push(blurify(hsub));
+  document.querySelectorAll('#hcta .btn').forEach(btn=>groups.push(blurify(btn)));
+  let t=0;
+  groups.forEach(words=>{
+    if(!words.length)return;
+    if(reduce){gsap.set(words,{opacity:1,filter:'blur(0px)',y:0});return;}
+    gsap.from(words,{opacity:0,filter:'blur(10px)',y:-22,duration:0.6,stagger:0.05,ease:'power3.out',delay:t});
+    t+=Math.min(words.length*0.05,0.35)+0.12;
+  });
+}
 
 /* magnetic CTA */
 function magnetize(el,sx,sy){
@@ -1003,10 +1029,9 @@ void main(){mainImage(gl_FragColor,gl_FragCoord.xy);}`;
 
 /* hero background = drifting black diamonds (pure CSS .hero-bg) — physics chips removed */
 
-/* CardSwap — mobile-only compact "why me" reason cycler (React Bits port → vanilla, reuses page's existing GSAP) */
+/* CardSwap — "why me" reason cycler, mobile and desktop (React Bits port → vanilla, reuses page's existing GSAP) */
 (function(){
   if(reduce)return;
-  if(!window.matchMedia('(max-width:900px)').matches)return;
   const container=document.getElementById('whyCardSwap');if(!container)return;
   const cards=Array.from(container.querySelectorAll('.card'));
   if(cards.length<2)return;
@@ -1106,7 +1131,7 @@ window.addEventListener('load',()=>{
 (function(){
   const veil=document.getElementById('introVeil'),type=document.getElementById('introType');
   const el=document.getElementById('introLine');
-  if(!veil||reduce)return;
+  if(!veil||reduce){playHeroReveal();return;}
   const words=['Built.','To.','Convert.'];
   const CHAR_MS=55,HOLD_MS=380,CLEAR_MS=120;
   let t=250;
@@ -1127,7 +1152,7 @@ window.addEventListener('load',()=>{
     type.classList.add('exit');
     setTimeout(()=>{
       veil.classList.add('curtain');
-      setTimeout(()=>{veil.remove();type.remove();},700);
+      setTimeout(()=>{veil.remove();type.remove();playHeroReveal();},700);
     },250);
   },t);
 })();
