@@ -223,9 +223,14 @@
   .tier li.inh{color:var(--muted);}
   .tier li.inh::before{content:"+";color:var(--muted);}
   .tier .tcta{margin-top:auto;}
-  .tier-hidden{display:none;max-width:520px;margin:34px auto 0;}
-  .tiers.mode-franchise{display:none;}
-  .tiers.mode-franchise~.tier-hidden{display:block;}
+  .tier-hidden{display:none;max-width:520px;margin:20px auto 0;}
+  .tier-hidden.open{display:block;}
+  .franchise-cta{display:flex;align-items:center;justify-content:center;gap:8px;margin:34px auto 0;padding:12px 22px;
+    border:1px dashed var(--line-strong);border-radius:999px;background:transparent;color:var(--muted);
+    font-size:13px;font-weight:600;cursor:pointer;transition:border-color .25s ease,color .25s ease;}
+  .franchise-cta:hover{border-color:var(--ink);color:var(--ink);}
+  .franchise-cta .fc-arrow{transition:transform .25s ease;}
+  .franchise-cta.open .fc-arrow{transform:rotate(180deg);}
   @media(max-width:900px){.toggle{flex-wrap:wrap;justify-content:center;border-radius:24px;}}
   .tier.prem{position:relative;z-index:0;border-color:transparent;isolation:isolate;overflow:hidden;}
   .tier.prem::before{content:"";position:absolute;inset:-60%;z-index:-2;
@@ -502,7 +507,6 @@
     <div class="toggle" id="modeToggle">
       <button class="on" data-mode="monthly">Monthly</button>
       <button data-mode="own">Own outright</button>
-      <button data-mode="franchise">Franchise / Corp</button>
     </div>
     <div class="tiers" id="tiers">
       <div class="tier-slot">
@@ -570,6 +574,7 @@
         </div>
       </div>
     </div>
+    <button class="franchise-cta" id="franchiseCta" type="button">Need something bigger, more serious? <span class="fc-arrow">↓</span></button>
     <div class="tier-hidden" id="franchiseTier">
       <div class="tier">
         <span class="badge">★ Custom scope</span>
@@ -1014,15 +1019,26 @@ void main(){
     tiers.classList.toggle('mode-own',mode==='own');
     tiers.classList.toggle('mode-usd',mode==='usd');
     tiers.classList.toggle('mode-usd-own',mode==='usd-own');
-    tiers.classList.toggle('mode-franchise',mode==='franchise');
     if(!reduce){
-      if(mode==='franchise'){
-        gsap.fromTo('#franchiseTier',{opacity:0,y:24},{opacity:1,y:0,duration:0.5,ease:'power3.out',overwrite:true});
-      }else{
-        const sel=mode==='own'?'.po':mode==='usd'?'.pu':mode==='usd-own'?'.puo':'.pm';
-        const prices=tiers.querySelectorAll(sel+' .price');
-        gsap.fromTo(prices,{opacity:0,filter:'blur(10px)',y:-14},{opacity:1,filter:'blur(0px)',y:0,duration:0.5,stagger:0.06,ease:'power2.out',overwrite:true});
-      }
+      const sel=mode==='own'?'.po':mode==='usd'?'.pu':mode==='usd-own'?'.puo':'.pm';
+      const prices=tiers.querySelectorAll(sel+' .price');
+      gsap.fromTo(prices,{opacity:0,filter:'blur(10px)',y:-14},{opacity:1,filter:'blur(0px)',y:0,duration:0.5,stagger:0.06,ease:'power2.out',overwrite:true});
+    }
+    ScrollTrigger.refresh();
+  });
+})();
+
+/* franchise / corp — click-to-reveal below the tier grid */
+(function(){
+  const btn=document.getElementById('franchiseCta'),ft=document.getElementById('franchiseTier');
+  if(!btn||!ft)return;
+  btn.addEventListener('click',()=>{
+    const opening=!ft.classList.contains('open');
+    ft.classList.toggle('open',opening);
+    btn.classList.toggle('open',opening);
+    btn.firstChild.textContent=opening?'Never mind, I\'m still small ':'Need something bigger, more serious? ';
+    if(opening&&!reduce){
+      gsap.fromTo(ft,{opacity:0,y:24},{opacity:1,y:0,duration:0.5,ease:'power3.out',overwrite:true});
     }
     ScrollTrigger.refresh();
   });
