@@ -223,8 +223,17 @@
   .tier li.inh{color:var(--muted);}
   .tier li.inh::before{content:"+";color:var(--muted);}
   .tier .tcta{margin-top:auto;}
-  .tier-reveal-hint{text-align:center;margin-top:38px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
-  .tier-hidden{max-width:520px;margin:18px auto 0;}
+  .tier-hidden{display:none;max-width:520px;margin:34px auto 0;}
+  .tiers.mode-franchise{display:none;}
+  .tiers.mode-franchise~.tier-hidden{display:block;}
+  @media(max-width:900px){.toggle{flex-wrap:wrap;justify-content:center;border-radius:24px;}}
+  .tier.prem{border:1px solid transparent;background:linear-gradient(var(--bg),var(--bg)) padding-box,linear-gradient(135deg,var(--ink) 0%,var(--line) 45%,var(--ink) 100%) border-box;background-size:100% 100%,300% 300%;animation:premBorder 6s ease infinite;}
+  @keyframes premBorder{0%,100%{background-position:0 0,0% 50%;}50%{background-position:0 0,100% 50%;}}
+  .tier.prem .tcta{position:relative;overflow:hidden;z-index:1;transition:color .35s ease,border-color .35s ease;}
+  .tier.prem .tcta::before{content:"";position:absolute;inset:0;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .35s cubic-bezier(.4,0,.2,1);z-index:-1;}
+  .tier.prem .tcta:hover{color:#fff;border-color:var(--ink);}
+  .tier.prem .tcta:hover::before{transform:scaleX(1);}
+  @media(prefers-reduced-motion:reduce){.tier.prem{animation:none;}}
   .pos{font-style:italic;color:var(--muted);font-size:13px;margin-top:10px;}
   .alc{margin-top:50px;border-top:1px solid var(--line);padding-top:30px;}
   .alc-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 40px;margin-top:18px;}
@@ -491,6 +500,7 @@
       <button data-mode="own">Own outright</button>
       <button data-mode="usd">USD Monthly</button>
       <button data-mode="usd-own">USD Own outright</button>
+      <button data-mode="franchise">Franchise / Corp</button>
     </div>
     <div class="tiers" id="tiers">
       <div class="tier-slot">
@@ -538,7 +548,7 @@
       </div>
       <div class="tier-slot">
         <div class="tier-note">1 person max</div>
-        <div class="tier">
+        <div class="tier prem">
           <div class="tn">Premium</div>
           <div class="tl">Run bookings, systems, and payments in one place.</div>
           <div class="pm">
@@ -558,7 +568,6 @@
         </div>
       </div>
     </div>
-    <div class="tier-reveal-hint" id="tierRevealHint">↓ scroll for franchise / multi-location</div>
     <div class="tier-hidden" id="franchiseTier">
       <div class="tier">
         <span class="badge">★ Custom scope</span>
@@ -1003,21 +1012,18 @@ void main(){
     tiers.classList.toggle('mode-own',mode==='own');
     tiers.classList.toggle('mode-usd',mode==='usd');
     tiers.classList.toggle('mode-usd-own',mode==='usd-own');
+    tiers.classList.toggle('mode-franchise',mode==='franchise');
     if(!reduce){
-      const sel=mode==='own'?'.po':mode==='usd'?'.pu':mode==='usd-own'?'.puo':'.pm';
-      const prices=tiers.querySelectorAll(sel+' .price');
-      gsap.fromTo(prices,{opacity:0,filter:'blur(10px)',y:-14},{opacity:1,filter:'blur(0px)',y:0,duration:0.5,stagger:0.06,ease:'power2.out',overwrite:true});
+      if(mode==='franchise'){
+        gsap.fromTo('#franchiseTier',{opacity:0,y:24},{opacity:1,y:0,duration:0.5,ease:'power3.out',overwrite:true});
+      }else{
+        const sel=mode==='own'?'.po':mode==='usd'?'.pu':mode==='usd-own'?'.puo':'.pm';
+        const prices=tiers.querySelectorAll(sel+' .price');
+        gsap.fromTo(prices,{opacity:0,filter:'blur(10px)',y:-14},{opacity:1,filter:'blur(0px)',y:0,duration:0.5,stagger:0.06,ease:'power2.out',overwrite:true});
+      }
     }
+    ScrollTrigger.refresh();
   });
-})();
-
-/* franchise tier — hidden below the fold, scroll to reveal */
-(function(){
-  const ft=document.getElementById('franchiseTier');if(!ft)return;
-  if(reduce){gsap.set(ft,{opacity:1,y:0,filter:'blur(0px)'});return;}
-  gsap.set(ft,{opacity:0,y:50,filter:'blur(8px)'});
-  gsap.to(ft,{opacity:1,y:0,filter:'blur(0px)',duration:0.8,ease:'power3.out',
-    scrollTrigger:{trigger:ft,start:'top 88%',toggleActions:'play none none reverse'}});
 })();
 
 /* page-transition bar wipe — pagetrans/13 (in-page anchor jumps) */
