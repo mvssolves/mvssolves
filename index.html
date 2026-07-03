@@ -279,6 +279,19 @@
   .overlay{position:fixed;inset:0;display:flex;pointer-events:none;z-index:9000;}
   .overlay .block{flex:1;height:100svh;background:var(--ink);transform:scaleX(0);transform-origin:left;}
 
+  /* intro veil — block wipe + centered logo, on page load (pagetrans/13 style, matches stephanie-site) */
+  .intro-veil{position:fixed;inset:0;display:flex;pointer-events:none;z-index:99998;}
+  .intro-veil .vb{flex:1 1 0;height:100%;background:var(--ink);transform:scaleX(1);transform-origin:left;
+    transition:transform .55s cubic-bezier(.65,0,.35,1);}
+  .intro-veil.wipe .vb{transform:scaleX(0);transform-origin:right;}
+  .intro-logo{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
+    pointer-events:none;opacity:0;transform:scale(.85);transition:opacity .35s ease,transform .45s cubic-bezier(.2,1,.3,1);}
+  .intro-logo.show{opacity:1;transform:scale(1);}
+  .intro-logo.hide{opacity:0;transition:opacity .3s ease;}
+  .il-mark{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;color:#fff;letter-spacing:-.02em;}
+  .il-box{width:30px;height:30px;border-radius:8px;background:#fff;color:var(--ink);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;font-family:'JetBrains Mono',monospace;}
+  @media(prefers-reduced-motion:reduce){.intro-veil,.intro-logo{display:none!important;}}
+
   /* ===== polish pass ===== */
   /* lighter, sparser drifting diamonds */
   .hero-bg .d1{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cpath d='M80 71 L82.5 77.5 L89 80 L82.5 82.5 L80 89 L77.5 82.5 L71 80 L77.5 77.5 Z' fill='%230a0a0a'/%3E%3C/svg%3E");background-size:160px 160px;opacity:.07;animation:drift1 24s linear infinite;}
@@ -411,6 +424,8 @@
 <div class="cursor" id="cursor"></div>
 <canvas class="trail" id="trail"></canvas>
 <div class="overlay" id="overlay"></div>
+<div class="intro-veil" id="introVeil"></div>
+<div class="intro-logo" id="introLogo"><div class="il-mark"><span class="il-box">M</span> MVS Solves</div></div>
 
 <nav id="nav">
   <a class="logo" href="#top"><span class="logo-mark">M</span> MVS Solves</a>
@@ -1010,6 +1025,20 @@ function initCal(){
 window.addEventListener('load',()=>{
   (window.requestIdleCallback||function(cb){setTimeout(cb,400);})(()=>ScrollTrigger.refresh());
 });
+
+/* intro veil — block wipe + centered logo, plays once per page load */
+(function(){
+  const veil=document.getElementById('introVeil'),logo=document.getElementById('introLogo');
+  if(!veil||reduce)return;
+  const bars=Array.from({length:18},(_,i)=>{const b=document.createElement('div');b.className='vb';
+    b.style.transitionDelay=(i*0.025)+'s';veil.appendChild(b);return b;});
+  requestAnimationFrame(()=>logo.classList.add('show'));
+  setTimeout(()=>{
+    logo.classList.remove('show');logo.classList.add('hide');
+    veil.classList.add('wipe');
+    setTimeout(()=>{veil.remove();logo.remove();},650);
+  },700);
+})();
 </script>
 </body>
 </html>
