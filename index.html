@@ -223,6 +223,8 @@
   .tier li.inh{color:var(--muted);}
   .tier li.inh::before{content:"+";color:var(--muted);}
   .tier .tcta{margin-top:auto;}
+  .tier-reveal-hint{text-align:center;margin-top:38px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+  .tier-hidden{max-width:520px;margin:18px auto 0;}
   .pos{font-style:italic;color:var(--muted);font-size:13px;margin-top:10px;}
   .alc{margin-top:50px;border-top:1px solid var(--line);padding-top:30px;}
   .alc-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 40px;margin-top:18px;}
@@ -507,7 +509,7 @@
           </div>
           <div class="puo"><div class="price">$997 <small>once-off</small></div></div>
           <ul>
-            <li>Premium website</li><li>Online booking</li><li>Google Business Profile</li><li>Basic SEO</li>
+            <li>Premium website</li><li>Google Business Profile</li><li>Basic SEO</li>
           </ul>
           <a class="btn btn-ghost tcta" href="#book">Get package</a>
         </div>
@@ -520,7 +522,7 @@
           <div class="tl">Get found, booked, and bring people back.</div>
           <div class="pm">
             <div class="price"><s class="was">R12,000</s> R0 <small>setup</small></div>
-            <div class="price" style="font-size:22px;margin-top:4px">R5,000<small>/mo</small></div>
+            <div class="price" style="font-size:22px;margin-top:4px">R6,000<small>/mo</small></div>
           </div>
           <div class="po"><div class="price">R20,000 <small>once-off</small></div></div>
           <div class="pu">
@@ -529,21 +531,42 @@
           </div>
           <div class="puo"><div class="price">$1,997 <small>once-off</small></div></div>
           <ul>
-            <li class="inh">Everything in Launch</li><li>Review generation</li><li class="own-hide">Business system / CRM</li><li>Online payments</li><li>Business email</li>
+            <li class="inh">Everything in Launch</li><li>Online booking</li><li>Review generation</li><li>Business email</li>
           </ul>
           <a class="btn btn-fill tcta" href="#book" style="justify-content:center">Get package</a>
         </div>
       </div>
+      <div class="tier-slot">
+        <div class="tier-note">1 person max</div>
+        <div class="tier">
+          <div class="tn">Premium</div>
+          <div class="tl">Run bookings, systems, and payments in one place.</div>
+          <div class="pm">
+            <div class="price"><s class="was">R16,000</s> R0 <small>setup</small></div>
+            <div class="price" style="font-size:22px;margin-top:4px">R8,000<small>/mo</small></div>
+          </div>
+          <div class="po"><div class="price">R30,000 <small>once-off</small></div></div>
+          <div class="pu">
+            <div class="price"><s class="was">$700</s> $0 <small>setup</small></div>
+            <div class="price" style="font-size:22px;margin-top:4px">$647<small>/mo</small></div>
+          </div>
+          <div class="puo"><div class="price">$2,997 <small>once-off</small></div></div>
+          <ul>
+            <li class="inh">Everything in Growth</li><li class="own-hide">Business system / CRM</li><li>Online payments</li>
+          </ul>
+          <a class="btn btn-ghost tcta" href="#book">Get package</a>
+        </div>
+      </div>
+    </div>
+    <div class="tier-reveal-hint" id="tierRevealHint">↓ scroll for franchise / multi-location</div>
+    <div class="tier-hidden" id="franchiseTier">
       <div class="tier">
         <span class="badge">★ Custom scope</span>
         <div class="tn">Franchise / Corporation</div>
         <div class="tl">Multiple locations, or booking outside/non-member clients at scale. Scoped and built for the whole network.</div>
-        <div class="pm"><div class="price" style="font-size:21px">Let's talk <small>— custom</small></div></div>
-        <div class="po"><div class="price" style="font-size:21px">Let's talk <small>— custom</small></div></div>
-        <div class="pu"><div class="price" style="font-size:21px">Let's talk <small>— custom</small></div></div>
-        <div class="puo"><div class="price" style="font-size:21px">Let's talk <small>— custom</small></div></div>
+        <div class="price" style="font-size:21px">Let's talk <small>— custom</small></div>
         <ul>
-          <li class="inh">Everything in Growth</li><li>Multi-location rollout</li><li>Centralized booking across sites</li><li>AI WhatsApp booking bot</li><li>Custom automations</li><li>Dedicated support &amp; reporting</li>
+          <li class="inh">Everything in Premium</li><li>Multi-location rollout</li><li>Centralized booking across sites</li><li>AI WhatsApp booking bot</li><li>Custom automations</li><li>Dedicated support &amp; reporting</li>
         </ul>
         <a class="btn btn-ghost tcta" href="#book">Book a scoping call</a>
       </div>
@@ -986,6 +1009,15 @@ void main(){
       gsap.fromTo(prices,{opacity:0,filter:'blur(10px)',y:-14},{opacity:1,filter:'blur(0px)',y:0,duration:0.5,stagger:0.06,ease:'power2.out',overwrite:true});
     }
   });
+})();
+
+/* franchise tier — hidden below the fold, scroll to reveal */
+(function(){
+  const ft=document.getElementById('franchiseTier');if(!ft)return;
+  if(reduce){gsap.set(ft,{opacity:1,y:0,filter:'blur(0px)'});return;}
+  gsap.set(ft,{opacity:0,y:50,filter:'blur(8px)'});
+  gsap.to(ft,{opacity:1,y:0,filter:'blur(0px)',duration:0.8,ease:'power3.out',
+    scrollTrigger:{trigger:ft,start:'top 88%',toggleActions:'play none none reverse'}});
 })();
 
 /* page-transition bar wipe — pagetrans/13 (in-page anchor jumps) */
