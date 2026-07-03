@@ -4,24 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google-site-verification" content="ZtO1idXhZNEdwCWEoK2SGHLS-nC4Q6HmfW1AcKsdb7c" />
-<title>MVS Solves — Websites that convert. Automation that works.</title>
+<title>MVS Solves — Systems that work, not just websites.</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<meta name="description" content="Websites that convert and automation that works — built end-to-end by one person. No agency, no layers, no fluff.">
+<meta name="description" content="Systems that work, not just websites — built end-to-end by one person. No agency, no layers, no fluff.">
 <meta name="author" content="Martin · MVS Solves">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://mvssolves.com/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="MVS Solves">
-<meta property="og:title" content="MVS Solves — Websites that convert. Automation that works.">
-<meta property="og:description" content="Websites that convert and automation that works — built end-to-end by one person. No agency, no layers, no fluff.">
+<meta property="og:title" content="MVS Solves — Systems that work, not just websites.">
+<meta property="og:description" content="Systems that work, not just websites — built end-to-end by one person. No agency, no layers, no fluff.">
 <meta property="og:url" content="https://mvssolves.com/">
 <meta property="og:image" content="https://mvssolves.com/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="MVS Solves — Websites that convert. Automation that works.">
-<meta name="twitter:description" content="Websites that convert, automation that works. Built end-to-end by one person.">
+<meta name="twitter:title" content="MVS Solves — Systems that work, not just websites.">
+<meta name="twitter:description" content="Systems that work, not just websites. Built end-to-end by one person.">
 <meta name="twitter:image" content="https://mvssolves.com/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -314,21 +314,17 @@
   .overlay{position:fixed;inset:0;display:flex;pointer-events:none;z-index:9000;}
   .overlay .block{flex:1;height:100svh;background:var(--ink);transform:scaleX(0);transform-origin:left;}
 
-  /* intro veil — bloom bg + cycling phrases + spinner, then reveal (React Bits-adjacent, port of a reference product-site intro) */
-  .intro-veil{position:fixed;inset:0;pointer-events:none;z-index:99998;
-    background:radial-gradient(circle at 50% 45%,#ffffff 0%,#f7f4f0 55%,#efe9e2 100%);
-    opacity:1;transition:opacity .5s ease;}
-  .intro-veil.wipe{opacity:0;}
-  .intro-phrase{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
-    pointer-events:none;opacity:0;transition:opacity .22s ease;
-    font-family:'Bonny',serif;font-style:normal;font-weight:500;font-size:clamp(22px,3vw,34px);color:var(--ink);letter-spacing:-.01em;}
-  .intro-phrase.show{opacity:1;}
-  .intro-spinner{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
-    pointer-events:none;opacity:0;transition:opacity .2s ease;}
-  .intro-spinner.show{opacity:1;}
-  .intro-spinner-ring{width:26px;height:26px;border-radius:50%;border:2px solid rgba(10,10,10,.15);border-top-color:var(--ink);animation:introSpin .7s linear infinite;}
-  @keyframes introSpin{to{transform:rotate(360deg);}}
-  @media(prefers-reduced-motion:reduce){.intro-veil,.intro-phrase,.intro-spinner{display:none!important;}}
+  /* intro veil — dark bg, typewriter reveal of "Systems / That / Work.", curtain-lift transition into the hero */
+  .intro-veil{position:fixed;inset:0;pointer-events:none;z-index:99998;background:var(--ink);
+    transition:transform .65s cubic-bezier(.76,0,.24,1);}
+  .intro-veil.curtain{transform:translateY(-100%);}
+  .intro-type{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:2px;pointer-events:none;transition:opacity .3s ease,transform .3s ease;}
+  .intro-type.exit{opacity:0;transform:scale(.92);}
+  .intro-type-line{font-family:'Clash Display',sans-serif;font-weight:700;font-size:clamp(28px,4.6vw,52px);
+    color:#fff;text-transform:uppercase;letter-spacing:-.02em;line-height:1.15;min-height:1.15em;}
+  .intro-caret{display:inline-block;width:.06em;height:.85em;background:#fff;margin-left:.05em;vertical-align:-.08em;}
+  @media(prefers-reduced-motion:reduce){.intro-veil,.intro-type{display:none!important;}}
 
   /* ===== polish pass ===== */
   /* lighter, sparser drifting diamonds */
@@ -459,8 +455,11 @@
 <div class="cursor" id="cursor"></div>
 <div class="overlay" id="overlay"></div>
 <div class="intro-veil" id="introVeil"></div>
-<div class="intro-phrase" id="introPhrase"></div>
-<div class="intro-spinner" id="introSpinner"><div class="intro-spinner-ring"></div></div>
+<div class="intro-type" id="introType">
+  <div class="intro-type-line" id="introLine1"></div>
+  <div class="intro-type-line" id="introLine2"></div>
+  <div class="intro-type-line" id="introLine3"></div>
+</div>
 
 <nav id="nav">
   <a class="logo" href="#top"><span class="logo-mark">M</span> MVS Solves</a>
@@ -480,8 +479,8 @@
   <div class="corner tr mono">BY ONE PERSON<br>EST. 2026</div>
   <div class="h-wrap">
     <h1>
-      <span class="line"><span>Websites that convert,</span></span>
-      <span class="line"><span class="aw">automation that works.</span></span>
+      <span class="line"><span>Systems that work,</span></span>
+      <span class="line"><span class="aw">not just websites.</span></span>
     </h1>
     <p class="h-sub" id="hsub">Premium websites, automation &amp; AI — built end-to-end by one person. No agency, no layers, no fluff. You text me, you get me.</p>
     <div class="h-cta" id="hcta">
@@ -1199,28 +1198,31 @@ window.addEventListener('load',()=>{
   (window.requestIdleCallback||function(cb){setTimeout(cb,400);})(()=>ScrollTrigger.refresh());
 });
 
-/* intro veil — bloom bg, cycling phrases, spinner, then reveal. Plays once per page load. */
+/* intro veil — typewriter reveal of "Systems / That / Work.", then a curtain-lift into the hero. Plays once per page load. */
 (function(){
-  const veil=document.getElementById('introVeil'),phraseEl=document.getElementById('introPhrase'),spinner=document.getElementById('introSpinner');
+  const veil=document.getElementById('introVeil'),type=document.getElementById('introType');
+  const lines=[document.getElementById('introLine1'),document.getElementById('introLine2'),document.getElementById('introLine3')];
   if(!veil||reduce)return;
-  const phrases=['One person.','Every system.','Done properly.'];
-  const HOLD=450,GAP=250;
-  let delay=200;
-  phrases.forEach(text=>{
-    setTimeout(()=>{
-      phraseEl.textContent=text;
-      phraseEl.classList.add('show');
-      setTimeout(()=>phraseEl.classList.remove('show'),HOLD);
-    },delay);
-    delay+=HOLD+GAP;
+  const words=['Systems','That','Work.'];
+  const CHAR_MS=55,LINE_GAP=200;
+  let t=250;
+  words.forEach((word,i)=>{
+    const el=lines[i];
+    for(let c=1;c<=word.length;c++){
+      setTimeout(()=>{el.innerHTML=word.slice(0,c)+'<span class="intro-caret"></span>';},t);
+      t+=CHAR_MS;
+    }
+    setTimeout(()=>{el.textContent=word;},t);
+    t+=LINE_GAP;
   });
-  setTimeout(()=>spinner.classList.add('show'),delay);
-  delay+=450;
+  t+=450;
   setTimeout(()=>{
-    spinner.classList.remove('show');
-    veil.classList.add('wipe');
-    setTimeout(()=>{veil.remove();phraseEl.remove();spinner.remove();},520);
-  },delay);
+    type.classList.add('exit');
+    setTimeout(()=>{
+      veil.classList.add('curtain');
+      setTimeout(()=>{veil.remove();type.remove();},700);
+    },250);
+  },t);
 })();
 </script>
 </body>
