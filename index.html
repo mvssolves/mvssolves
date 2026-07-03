@@ -394,6 +394,8 @@
 
   /* === BlurText hero (React Bits port) === */
   .bw{display:inline-block;will-change:transform,filter,opacity;}
+  .dx-enc{color:var(--muted);}
+  .dx-rev{color:inherit;}
 
   /* === ElectricBorder on featured card (React Bits port) === */
   .tier.feat{position:relative;}
@@ -754,21 +756,45 @@ function blurify(el){
   });
   return spans;
 }
-function playHeroReveal(){
-  const groups=[];
-  const navcta=document.querySelector('.navcta');
-  if(navcta)groups.push(blurify(navcta));
-  document.querySelectorAll('h1 .line>span').forEach(span=>groups.push(blurify(span)));
-  const hsub=document.getElementById('hsub');
-  if(hsub)groups.push(blurify(hsub));
-  document.querySelectorAll('#hcta .btn').forEach(btn=>groups.push(blurify(btn)));
-  let t=0;
-  groups.forEach(words=>{
-    if(!words.length)return;
-    if(reduce){gsap.set(words,{opacity:1,filter:'blur(0px)',y:0});return;}
-    gsap.from(words,{opacity:0,filter:'blur(10px)',y:-22,duration:0.6,stagger:0.05,ease:'power3.out',delay:t});
-    t+=Math.min(words.length*0.05,0.35)+0.12;
+/* DecryptedText (React Bits port → vanilla) — sequential scramble-to-reveal, used on the H1 lines. */
+function decryptText(el,opts){
+  opts=opts||{};
+  const speed=opts.speed||32;
+  const chars=(opts.characters||'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*').split('');
+  const original=el.textContent;
+  el.textContent='';
+  const spans=original.split('').map(ch=>{
+    const s=document.createElement('span');s.className='dx-char dx-enc';s.textContent=ch;
+    el.appendChild(s);return s;
   });
+  const total=spans.length;
+  let revealed=0;
+  const iv=setInterval(()=>{
+    for(let i=0;i<total;i++){
+      const ch=original[i];
+      if(ch===' ')continue;
+      if(i<revealed){spans[i].textContent=ch;spans[i].className='dx-char dx-rev';}
+      else spans[i].textContent=chars[Math.floor(Math.random()*chars.length)];
+    }
+    revealed++;
+    if(revealed>total)clearInterval(iv);
+  },speed);
+}
+function revealWords(words,delay){
+  if(!words.length)return 0;
+  if(reduce){gsap.set(words,{opacity:1,filter:'blur(0px)',y:0});return 0;}
+  gsap.from(words,{opacity:0,filter:'blur(10px)',y:-22,duration:0.6,stagger:0.05,ease:'power3.out',delay});
+  return Math.min(words.length*0.05,0.35)+0.12;
+}
+function playHeroReveal(){
+  let t=0;
+  const navcta=document.querySelector('.navcta');
+  if(navcta)t+=revealWords(blurify(navcta),t);
+  if(!reduce)document.querySelectorAll('h1 .line>span').forEach(span=>decryptText(span,{speed:32}));
+  t=Math.max(t,0.75);
+  const hsub=document.getElementById('hsub');
+  if(hsub)t+=revealWords(blurify(hsub),t);
+  document.querySelectorAll('#hcta .btn').forEach(btn=>{t+=revealWords(blurify(btn),t);});
 }
 
 /* magnetic CTA */
