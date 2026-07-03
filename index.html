@@ -136,23 +136,6 @@
   .site-lightning{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;}
   .h-wrap{position:relative;z-index:3;max-width:var(--maxw);margin:0 auto;width:100%;}
 
-  /* service row — hover/tap preview (grid-to-preview inspired, text/icon variant) */
-  .svc-row{position:relative;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
-    background:var(--bg-2);padding:22px 36px;display:flex;flex-wrap:wrap;justify-content:center;gap:10px;}
-  .svc-item{font-family:'JetBrains Mono',monospace;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;
-    color:var(--muted);background:transparent;border:1px solid transparent;border-radius:999px;padding:8px 16px;
-    cursor:pointer;transition:background .25s ease,color .25s ease,border-color .25s ease;}
-  .svc-item:hover,.svc-item:focus-visible,.svc-item.on{background:var(--ink);color:#fff;border-color:var(--ink);}
-  .svc-preview{position:absolute;top:calc(100% + 10px);width:240px;transform:translateX(-50%) translateY(-6px);
-    left:50%;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:16px 18px;
-    box-shadow:0 12px 30px rgba(10,10,10,.10);opacity:0;pointer-events:none;z-index:20;
-    transition:opacity .25s ease,transform .25s ease;}
-  .svc-preview.show{opacity:1;transform:translateX(-50%) translateY(0);}
-  .svc-pi{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
-    background:var(--accent);color:var(--accent-ink);font-weight:800;font-family:'JetBrains Mono',monospace;font-size:12px;}
-  .svc-pd{display:block;margin-top:10px;font-size:13.5px;color:var(--soft);line-height:1.5;}
-  @media(max-width:640px){.svc-row{padding:16px 20px;gap:8px;}.svc-item{font-size:11.5px;padding:7px 13px;}}
-
   /* converge capabilities — scroll/58 */
   .cap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:46px;}
   @media(max-width:900px){.cap-grid{grid-template-columns:repeat(2,1fr);}}
@@ -415,7 +398,6 @@
     .hero-bg .d1{opacity:.07;}
     .hero-bg .d2{opacity:.04;}
     .h-sub{display:none;}
-    .svc-row{display:none;}
     .h-cta{margin-top:28px;gap:12px;flex-direction:column;align-items:stretch;}
     .h-cta .btn{width:100%;justify-content:center;padding:15px 22px;}
     .corner.tl{top:74px;left:20px;}
@@ -443,7 +425,6 @@
     h1,h1 .aw{animation:none;background:none;-webkit-text-fill-color:var(--ink);color:var(--ink);text-shadow:none;}
     .tier{transition:border-color .3s ease;}.tier:hover{transform:none;}
     .btn:active{transform:none;}
-    .svc-preview{transition:none;}
     .btn-fill:hover::after{animation:none;}
     .btn-ghost::before{transition:none;}
   }
@@ -480,7 +461,7 @@
       <span class="line"><span>Real conversion,</span></span>
       <span class="line"><span class="aw">for real businesses.</span></span>
     </h1>
-    <p class="h-sub" id="hsub">Premium websites, automation &amp; AI — built end-to-end by one person. No agency, no layers, no fluff. You text me, you get me.</p>
+    <p class="h-sub" id="hsub">Websites, automation &amp; AI — built end-to-end by one person. No handoffs, no account managers, no fluff. You text me, you get me.</p>
     <div class="h-cta" id="hcta">
       <a class="btn btn-fill" id="magnet" href="#book">Automate your business
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
@@ -492,24 +473,11 @@
   </a>
 </header>
 
-<div class="svc-row" id="svcRow">
-  <button class="svc-item" data-icon="W" data-desc="Fast, conversion-built pages.">Websites</button>
-  <button class="svc-item" data-icon="B" data-desc="Self-serve, synced to your calendar.">Online booking</button>
-  <button class="svc-item" data-icon="G" data-desc="Map-pack visibility, owned.">Google profiles</button>
-  <button class="svc-item" data-icon="R" data-desc="Automated 5-star asks.">Review systems</button>
-  <button class="svc-item" data-icon="AI" data-desc="Booking & replies in your voice.">AI booking bots</button>
-  <button class="svc-item" data-icon="WA" data-desc="One number, always on.">WhatsApp business</button>
-  <button class="svc-item" data-icon="SEO" data-desc="Fix what's blocking search.">SEO cleanup</button>
-  <button class="svc-item" data-icon="A" data-desc="Make / n8n, error-handled.">Automations</button>
-  <button class="svc-item" data-icon="S" data-desc="Airtable trackers, dashboards.">Business systems</button>
-  <div class="svc-preview" id="svcPreview"><span class="svc-pi"></span><span class="svc-pd"></span></div>
-</div>
-
 <!-- CAPABILITIES — scroll/58 converge -->
 <section class="section" id="capabilities" style="background:var(--bg-2-glass)">
   <div class="wrap">
     <div class="lab">01 / Everything handled</div>
-    <h2>One person.<br>The whole stack.</h2>
+    <h2>The whole stack.</h2>
     <p class="sub">No handoffs, no juniors, no account managers. The pieces below converge into one system around your business.</p>
     <div class="cap-grid" id="capGrid">
       <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">W</div><div class="cn">Website &amp; funnels</div><div class="cc">Fast, conversion-built pages.</div></div></div>
@@ -768,34 +736,6 @@ if(!reduce){
   links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
     links.classList.remove('open');btn.setAttribute('aria-expanded','false');
   }));
-})();
-
-/* service row — hover/tap preview */
-(function(){
-  const row=document.getElementById('svcRow'),preview=document.getElementById('svcPreview');
-  if(!row||!preview)return;
-  const pi=preview.querySelector('.svc-pi'),pd=preview.querySelector('.svc-pd');
-  const items=row.querySelectorAll('.svc-item');
-  let active=null;
-  function place(item){
-    pi.textContent=item.dataset.icon;pd.textContent=item.dataset.desc;
-    const r=item.getBoundingClientRect(),rowR=row.getBoundingClientRect();
-    const half=preview.offsetWidth/2||120;
-    let left=r.left-rowR.left+r.width/2;
-    left=Math.max(half+8,Math.min(rowR.width-half-8,left));
-    preview.style.left=left+'px';
-    preview.classList.add('show');
-    items.forEach(i=>i.classList.toggle('on',i===item));
-    active=item;
-  }
-  function hide(){preview.classList.remove('show');items.forEach(i=>i.classList.remove('on'));active=null;}
-  items.forEach(item=>{
-    item.addEventListener('mouseenter',()=>place(item));
-    item.addEventListener('focus',()=>place(item));
-    item.addEventListener('click',e=>{e.preventDefault();active===item?hide():place(item);});
-  });
-  row.addEventListener('mouseleave',()=>{if(!row.matches(':focus-within'))hide();});
-  document.addEventListener('click',e=>{if(!row.contains(e.target))hide();});
 })();
 
 /* scroll progress + nav */
