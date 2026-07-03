@@ -83,7 +83,10 @@
   nav.scrolled{border-color:var(--line);background:rgba(255,255,255,.8);backdrop-filter:blur(16px);}
   .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:17px;color:var(--ink);white-space:nowrap;flex-shrink:0;}
   .logo-mark{width:26px;height:26px;border-radius:7px;background:var(--accent);color:var(--accent-ink);
-    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;}
+    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;flex-shrink:0;}
+  .logo-text{display:inline-block;max-width:0;opacity:0;overflow:hidden;white-space:nowrap;
+    transition:max-width .35s ease,opacity .25s ease;}
+  .logo:hover .logo-text,.logo:focus-visible .logo-text{max-width:160px;opacity:1;}
   .nav-r{display:flex;gap:28px;align-items:center;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
   .nav-links{display:flex;gap:28px;align-items:center;}
   .nav-r a:hover{color:var(--ink);}
@@ -102,7 +105,7 @@
   }
 
   /* hero */
-  .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-start;padding:200px 36px 64px;overflow:hidden;}
+  .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:space-between;padding:200px 36px 64px;overflow:hidden;}
   .corner{position:absolute;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;z-index:4;}
   .corner.tl{top:92px;left:36px;}
   .corner.tr{top:92px;right:36px;text-align:right;}
@@ -134,7 +137,7 @@
   @keyframes drift2{from{transform:translateX(0);}to{transform:translateX(-90px);}}
   @media(prefers-reduced-motion:reduce){.hero-bg i{animation:none;}}
   .site-lightning{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;}
-  .h-wrap{position:relative;z-index:3;max-width:var(--maxw);margin:0 auto;width:100%;}
+  .h-wrap{position:relative;z-index:3;max-width:var(--maxw);margin:0;width:100%;}
 
   /* converge capabilities — scroll/58 */
   .cap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:46px;}
@@ -324,7 +327,6 @@
   .nav-r a:not(.navcta)::after{content:'';position:absolute;left:0;bottom:-3px;width:100%;height:1px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .3s cubic-bezier(.4,0,.2,1);}
   .nav-r a:not(.navcta):hover::after{transform:scaleX(1);}
   .navcta{transition:opacity .25s ease;}.navcta:hover{opacity:.7;}
-  .logo{transition:opacity .25s ease;}.logo:hover{opacity:.78;}
 
   /* missing transitions: toggle, tier hover, buttons, faq */
   .toggle button{transition:background .3s ease,color .3s ease;}
@@ -441,7 +443,7 @@
 </div>
 
 <nav id="nav">
-  <a class="logo" href="#top"><span class="logo-mark">M</span> MVS Solves</a>
+  <a class="logo" href="#top"><span class="logo-mark">M</span><span class="logo-text"> MVS Solves</span></a>
   <div class="nav-r">
     <div class="nav-links" id="navLinks">
       <a href="#capabilities">Services</a>
@@ -462,11 +464,11 @@
       <span class="line"><span class="aw">for real businesses.</span></span>
     </h1>
     <p class="h-sub" id="hsub">Websites, automation &amp; AI — built end-to-end by one person. No handoffs, no account managers, no fluff. You text me, you get me.</p>
-    <div class="h-cta" id="hcta">
-      <a class="btn btn-fill" id="magnet" href="#book">Automate your business
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-      <a class="btn btn-ghost" href="#capabilities">See what I do</a>
-    </div>
+  </div>
+  <div class="h-cta" id="hcta">
+    <a class="btn btn-fill" id="magnet" href="#book">Automate your business
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    <a class="btn btn-ghost" href="#capabilities">See what I do</a>
   </div>
   <a class="scroll-arrow" href="#capabilities" aria-label="Scroll down">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
