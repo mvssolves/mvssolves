@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&f[]=bonny@500&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=bonny@500&display=swap" rel="stylesheet">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -314,16 +314,16 @@
   .overlay{position:fixed;inset:0;display:flex;pointer-events:none;z-index:9000;}
   .overlay .block{flex:1;height:100svh;background:var(--ink);transform:scaleX(0);transform-origin:left;}
 
-  /* intro veil — dark bg, typewriter reveal of "Systems / That / Work.", curtain-lift transition into the hero */
-  .intro-veil{position:fixed;inset:0;pointer-events:none;z-index:99998;background:var(--ink);
+  /* intro veil — white bg, typewriter reveal one word at a time, curtain-lift transition into the hero */
+  .intro-veil{position:fixed;inset:0;pointer-events:none;z-index:99998;background:#fff;
     transition:transform .65s cubic-bezier(.76,0,.24,1);}
   .intro-veil.curtain{transform:translateY(-100%);}
-  .intro-type{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:2px;pointer-events:none;transition:opacity .3s ease,transform .3s ease;}
+  .intro-type{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
+    pointer-events:none;transition:opacity .3s ease,transform .3s ease;}
   .intro-type.exit{opacity:0;transform:scale(.92);}
-  .intro-type-line{font-family:'Clash Display',sans-serif;font-weight:700;font-size:clamp(28px,4.6vw,52px);
-    color:#fff;text-transform:uppercase;letter-spacing:-.02em;line-height:1.15;min-height:1.15em;}
-  .intro-caret{display:inline-block;width:.06em;height:.85em;background:#fff;margin-left:.05em;vertical-align:-.08em;}
+  .intro-type-line{font-family:'Clash Display',sans-serif;font-weight:500;font-size:clamp(28px,4.6vw,52px);
+    color:#000;text-transform:uppercase;letter-spacing:-.02em;line-height:1.15;min-height:1.15em;}
+  .intro-caret{display:inline-block;width:.06em;height:.85em;background:#000;margin-left:.05em;vertical-align:-.08em;}
   @media(prefers-reduced-motion:reduce){.intro-veil,.intro-type{display:none!important;}}
 
   /* ===== polish pass ===== */
@@ -456,9 +456,7 @@
 <div class="overlay" id="overlay"></div>
 <div class="intro-veil" id="introVeil"></div>
 <div class="intro-type" id="introType">
-  <div class="intro-type-line" id="introLine1"></div>
-  <div class="intro-type-line" id="introLine2"></div>
-  <div class="intro-type-line" id="introLine3"></div>
+  <div class="intro-type-line" id="introLine"></div>
 </div>
 
 <nav id="nav">
@@ -1198,22 +1196,25 @@ window.addEventListener('load',()=>{
   (window.requestIdleCallback||function(cb){setTimeout(cb,400);})(()=>ScrollTrigger.refresh());
 });
 
-/* intro veil — typewriter reveal of "Systems / That / Work.", then a curtain-lift into the hero. Plays once per page load. */
+/* intro veil — typewriter reveal, one word at a time, then a curtain-lift into the hero. Plays once per page load. */
 (function(){
   const veil=document.getElementById('introVeil'),type=document.getElementById('introType');
-  const lines=[document.getElementById('introLine1'),document.getElementById('introLine2'),document.getElementById('introLine3')];
+  const el=document.getElementById('introLine');
   if(!veil||reduce)return;
   const words=['Real','Conversion,','Only.'];
-  const CHAR_MS=55,LINE_GAP=200;
+  const CHAR_MS=55,HOLD_MS=380,CLEAR_MS=120;
   let t=250;
   words.forEach((word,i)=>{
-    const el=lines[i];
     for(let c=1;c<=word.length;c++){
       setTimeout(()=>{el.innerHTML=word.slice(0,c)+'<span class="intro-caret"></span>';},t);
       t+=CHAR_MS;
     }
     setTimeout(()=>{el.textContent=word;},t);
-    t+=LINE_GAP;
+    t+=HOLD_MS;
+    if(i<words.length-1){
+      setTimeout(()=>{el.textContent='';},t);
+      t+=CLEAR_MS;
+    }
   });
   t+=450;
   setTimeout(()=>{
