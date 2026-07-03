@@ -791,7 +791,10 @@ function playHeroReveal(){
   if(!reduce)document.querySelectorAll('h1 .line>span').forEach(span=>decryptText(span,{speed:32}));
   t=Math.max(t,0.75);
   const hsub=document.getElementById('hsub');
-  if(hsub)t+=revealWords(blurify(hsub),t);
+  if(hsub){
+    if(reduce){/* text already visible by default, nothing to do */}
+    else{setTimeout(()=>decryptText(hsub,{speed:16}),t*1000);t+=1.3;}
+  }
   document.querySelectorAll('#hcta .btn').forEach(btn=>{t+=revealWords(blurify(btn),t);});
 }
 
@@ -1176,7 +1179,8 @@ window.addEventListener('load',()=>{
     type.classList.add('exit');
     setTimeout(()=>{
       veil.classList.add('curtain');
-      setTimeout(()=>{veil.remove();type.remove();playHeroReveal();},700);
+      playHeroReveal();
+      setTimeout(()=>{veil.remove();type.remove();},700);
     },250);
   },t);
 })();
