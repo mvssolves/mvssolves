@@ -732,25 +732,8 @@ window.addEventListener('scroll',()=>onScroll(window.scrollY));
 if(lenis) lenis.on('scroll',({scroll})=>onScroll(scroll));
 
 /* hero intro */
-/* BlurText reveal (React Bits port → GSAP) — nav CTA, H1 lines, subtitle, hero CTAs.
-   Wraps each element's own text node(s) in per-word spans, leaving any icon/svg children untouched. */
-function blurify(el){
-  const spans=[];
-  Array.from(el.childNodes).forEach(node=>{
-    if(node.nodeType===3&&node.textContent.trim()){
-      const words=node.textContent.trim().split(/\s+/);
-      const frag=document.createDocumentFragment();
-      words.forEach((w,i)=>{
-        const s=document.createElement('span');s.className='bw';
-        s.textContent=w+(i<words.length-1?' ':'');
-        frag.appendChild(s);spans.push(s);
-      });
-      node.replaceWith(frag);
-    }
-  });
-  return spans;
-}
-/* DecryptedText (React Bits port → vanilla) — sequential scramble-to-reveal, used on the H1 lines. */
+/* DecryptedText (React Bits port → vanilla) — sequential scramble-to-reveal.
+   The one text transition for the whole hero: nav CTA, H1 lines, subtitle, hero CTAs. */
 function decryptText(el,opts){
   opts=opts||{};
   const speed=opts.speed||32;
@@ -778,24 +761,14 @@ function decryptText(el,opts){
     },speed);
   });
 }
-function revealWords(words,delay){
-  if(!words.length)return 0;
-  if(reduce){gsap.set(words,{opacity:1,filter:'blur(0px)',y:0});return 0;}
-  gsap.from(words,{opacity:0,filter:'blur(10px)',y:-22,duration:0.6,stagger:0.05,ease:'power3.out',delay});
-  return Math.min(words.length*0.05,0.35)+0.12;
-}
 function playHeroReveal(){
-  let t=0;
+  if(reduce)return;
   const navcta=document.querySelector('.navcta');
-  if(navcta)t+=revealWords(blurify(navcta),t);
-  if(!reduce)document.querySelectorAll('h1 .line>span').forEach(span=>decryptText(span,{speed:32}));
-  t=Math.max(t,0.75);
+  if(navcta)decryptText(navcta,{speed:28});
+  document.querySelectorAll('h1 .line>span').forEach(span=>decryptText(span,{speed:32}));
   const hsub=document.getElementById('hsub');
-  if(hsub){
-    if(reduce){/* text already visible by default, nothing to do */}
-    else{setTimeout(()=>decryptText(hsub,{speed:16}),t*1000);t+=1.3;}
-  }
-  document.querySelectorAll('#hcta .btn').forEach(btn=>{t+=revealWords(blurify(btn),t);});
+  if(hsub)setTimeout(()=>decryptText(hsub,{speed:16}),750);
+  document.querySelectorAll('#hcta .btn').forEach(btn=>setTimeout(()=>decryptText(btn,{speed:28}),1900));
 }
 
 /* magnetic CTA */
