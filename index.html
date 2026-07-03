@@ -72,8 +72,7 @@
   .cursor{position:fixed;top:0;left:0;width:13px;height:13px;border-radius:50%;background:#fff;z-index:9999;
     pointer-events:none;mix-blend-mode:difference;transform:translate(-50%,-50%);transition:width .25s,height .25s;}
   .cursor.grow{width:27px;height:27px;}
-  .trail{position:fixed;inset:0;z-index:9998;pointer-events:none;mix-blend-mode:multiply;}
-  @media(pointer:coarse){.cursor,.trail{display:none;}body{cursor:auto;}}
+  @media(pointer:coarse){.cursor{display:none;}body{cursor:auto;}}
 
   /* nav */
   nav{position:fixed;top:0;left:0;right:0;z-index:60;padding:20px 36px;display:flex;align-items:center;gap:16px;
@@ -457,7 +456,6 @@
 <div class="site-lightning" id="siteLightning" aria-hidden="true"></div>
 <div class="progress" id="progress"></div>
 <div class="cursor" id="cursor"></div>
-<canvas class="trail" id="trail"></canvas>
 <div class="overlay" id="overlay"></div>
 <div class="intro-veil" id="introVeil"></div>
 <div class="intro-logo" id="introLogo"><div class="il-mark"><span class="il-box">M</span> MVS Solves</div></div>
@@ -750,26 +748,6 @@ if(window.matchMedia('(pointer:fine)').matches){
   const grow=()=>cur.classList.add('grow'),shrink=()=>cur.classList.remove('grow');
   document.querySelectorAll('a,button,.card').forEach(el=>{el.addEventListener('mouseenter',grow);el.addEventListener('mouseleave',shrink);});
 }
-
-/* ink paint trail — black brush that cuts through the paper, fades fast */
-(function(){
-  if(reduce||!window.matchMedia('(pointer:fine)').matches)return;
-  const cv=document.getElementById('trail'),x=cv.getContext('2d');
-  const dpr=Math.min(window.devicePixelRatio||1,2);
-  function size(){cv.width=innerWidth*dpr;cv.height=innerHeight*dpr;cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';x.setTransform(dpr,0,0,dpr,0,0);}
-  size();addEventListener('resize',size);
-  const pts=[],LIFE=380;let raf=null;
-  function loop(now){
-    x.clearRect(0,0,innerWidth,innerHeight);
-    while(pts.length&&now-pts[0].t>LIFE)pts.shift();
-    if(pts.length>1){x.lineCap='round';x.lineJoin='round';x.strokeStyle='#0a0a0a';
-      for(let i=1;i<pts.length;i++){const p=pts[i-1],q=pts[i],age=(now-q.t)/LIFE;
-        x.globalAlpha=Math.max(0,1-age);x.lineWidth=Math.max(0.5,16*(1-age)*(1-age));
-        x.beginPath();x.moveTo(p.x,p.y);x.lineTo(q.x,q.y);x.stroke();}}
-    raf=pts.length?requestAnimationFrame(loop):null;
-  }
-  addEventListener('mousemove',e=>{pts.push({x:e.clientX,y:e.clientY,t:performance.now()});if(!raf)raf=requestAnimationFrame(loop);});
-})();
 
 /* Lenis + GSAP ticker (scroll/58 sync pattern) */
 let lenis;
