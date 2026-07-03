@@ -740,13 +740,13 @@ function decryptText(el,opts){
   const chars=(opts.characters||'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*').split('');
   Array.from(el.childNodes).forEach(node=>{
     if(node.nodeType!==3||!node.textContent.trim())return;
-    const original=node.textContent;
-    const frag=document.createDocumentFragment();
+    const original=node.textContent.trim().replace(/\s+/g,' ');
+    const wrap=document.createElement('span');
     const spans=original.split('').map(ch=>{
       const s=document.createElement('span');s.className='dx-char dx-enc';s.textContent=ch;
-      frag.appendChild(s);return s;
+      wrap.appendChild(s);return s;
     });
-    node.replaceWith(frag);
+    node.replaceWith(wrap);
     const total=spans.length;
     let revealed=0;
     const iv=setInterval(()=>{
