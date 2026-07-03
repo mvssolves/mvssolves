@@ -286,6 +286,18 @@
   .founder .fstat b{display:block;font-size:22px;color:#fff;font-weight:900;letter-spacing:-.02em;}
   .founder .fstat span{font-size:11.5px;color:rgba(255,255,255,.55);font-family:'JetBrains Mono',monospace;}
 
+  /* why / proof — compact mobile: CardSwap cycler replaces the 5 stacked cards (React Bits port → vanilla, reuses page's GSAP) */
+  @media(max-width:900px){#why{padding:64px 0;}}
+  .why-cardswap{display:none;position:relative;height:210px;margin:8px 0 28px;}
+  @media(max-width:900px) and (prefers-reduced-motion:no-preference){
+    .why-cards{display:none;}
+    .why-cardswap{display:block;}
+  }
+  .why-cardswap .card-swap-container{position:absolute;top:44%;left:50%;perspective:700px;}
+  .why-cardswap .card{position:absolute;top:0;left:0;width:220px;height:140px;border-radius:14px;
+    border:1px solid var(--line);background:var(--bg-2);padding:18px;box-shadow:0 10px 28px rgba(10,10,10,.10);
+    transform-style:preserve-3d;will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden;}
+
   /* book */
   .book-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:40px;margin-top:46px;align-items:start;}
   @media(max-width:900px){.book-grid{grid-template-columns:1fr;}}
@@ -404,7 +416,8 @@
     .hero{min-height:100vh;min-height:100svh;padding:104px 20px 56px;justify-content:flex-end;}
     .hero-bg .d1{opacity:.07;}
     .hero-bg .d2{opacity:.04;}
-    .h-sub{margin-top:24px;}
+    .h-sub{display:none;}
+    .svc-row{display:none;}
     .h-cta{margin-top:28px;gap:12px;flex-direction:column;align-items:stretch;}
     .h-cta .btn{width:100%;justify-content:center;padding:15px 22px;}
     .corner.tl{top:74px;left:20px;}
@@ -660,6 +673,15 @@
         <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">B</div><div class="cn">Business-first, tech-second</div><div class="cc">Every system is shaped around revenue, not features. If it doesn't earn back its cost, I won't recommend it.</div></div></div>
         <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">1</div><div class="cn">One human, one standard</div><div class="cc">No account managers, no juniors, no handoffs. You text me, you get me.</div></div></div>
         <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">✓</div><div class="cn">Honest scope, honest price</div><div class="cc">No long contracts. No surprise invoices. No upsells you didn't ask for.</div></div></div>
+      </div>
+      <div class="why-cardswap" id="whyCardSwap">
+        <div class="card-swap-container" id="whyCardSwapInner">
+          <div class="card"><div class="ci">$</div><div class="cn">Pay what works for you</div><div class="cc">Low upfront, cancel anytime.</div></div>
+          <div class="card"><div class="ci">%</div><div class="cn">Skin in the game</div><div class="cc">I win when your business does.</div></div>
+          <div class="card"><div class="ci">B</div><div class="cn">Business-first, tech-second</div><div class="cc">Shaped around revenue, not features.</div></div>
+          <div class="card"><div class="ci">1</div><div class="cn">One human, one standard</div><div class="cc">No account managers, no handoffs.</div></div>
+          <div class="card"><div class="ci">✓</div><div class="cn">Honest scope, honest price</div><div class="cc">No surprise invoices, no upsells.</div></div>
+        </div>
       </div>
       <div class="founder">
         <div class="fhead"><div class="favatar">M</div><div><div class="fn">Martin</div><div class="fr">Founder · MVS Solves</div></div></div>
@@ -1186,6 +1208,50 @@ void main(){mainImage(gl_FragColor,gl_FragCoord.xy);}`;
 })();
 
 /* hero background = drifting black diamonds (pure CSS .hero-bg) — physics chips removed */
+
+/* CardSwap — mobile-only compact "why me" reason cycler (React Bits port → vanilla, reuses page's existing GSAP) */
+(function(){
+  if(reduce)return;
+  if(!window.matchMedia('(max-width:900px)').matches)return;
+  const container=document.getElementById('whyCardSwap');if(!container)return;
+  const cards=Array.from(container.querySelectorAll('.card'));
+  if(cards.length<2)return;
+
+  const cardDistance=14,verticalDistance=18,delay=3200,skewAmount=4;
+  const ease='elastic.out(0.6,0.9)',durDrop=1.1,durMove=1.1,durReturn=1.1,promoteOverlap=0.9,returnDelay=0.05;
+
+  function makeSlot(i,total){return {x:i*cardDistance,y:-i*verticalDistance,z:-i*cardDistance*1.5,zIndex:total-i};}
+  function placeNow(el,slot){gsap.set(el,{x:slot.x,y:slot.y,z:slot.z,xPercent:-50,yPercent:-50,skewY:skewAmount,transformOrigin:'center center',zIndex:slot.zIndex,force3D:true});}
+
+  let order=cards.map((_,i)=>i);
+  cards.forEach((el,i)=>placeNow(el,makeSlot(i,cards.length)));
+
+  function swap(){
+    const [front,...rest]=order;
+    const elFront=cards[front];
+    const tl=gsap.timeline();
+    tl.to(elFront,{y:'+=220',duration:durDrop,ease});
+    tl.addLabel('promote',`-=${durDrop*promoteOverlap}`);
+    rest.forEach((idx,i)=>{
+      const el=cards[idx];
+      const slot=makeSlot(i,cards.length);
+      tl.set(el,{zIndex:slot.zIndex},'promote');
+      tl.to(el,{x:slot.x,y:slot.y,z:slot.z,duration:durMove,ease},`promote+=${i*0.15}`);
+    });
+    const backSlot=makeSlot(cards.length-1,cards.length);
+    tl.addLabel('return',`promote+=${durMove*returnDelay}`);
+    tl.call(()=>gsap.set(elFront,{zIndex:backSlot.zIndex}),undefined,'return');
+    tl.to(elFront,{x:backSlot.x,y:backSlot.y,z:backSlot.z,duration:durReturn,ease},'return');
+    tl.call(()=>{order=[...rest,front];});
+  }
+
+  swap();
+  let intervalId=setInterval(swap,delay);
+  new IntersectionObserver(es=>es.forEach(e=>{
+    clearInterval(intervalId);intervalId=null;
+    if(e.isIntersecting)intervalId=setInterval(swap,delay);
+  })).observe(container);
+})();
 
 /* pricing mode toggle: Monthly / Own outright */
 (function(){
