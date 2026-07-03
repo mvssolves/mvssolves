@@ -265,7 +265,7 @@
   /* intro veil — block wipe + centered logo, on page load (pagetrans/13 style, matches stephanie-site) */
   .intro-veil{position:fixed;inset:0;display:flex;pointer-events:none;z-index:99998;background:var(--ink);}
   .intro-veil .vb{flex:1 1 0;height:100%;background:var(--ink);transform:scaleX(1);transform-origin:left;
-    transition:transform .55s cubic-bezier(.65,0,.35,1);}
+    transition:transform .32s cubic-bezier(.65,0,.35,1);}
   .intro-veil.wipe .vb{transform:scaleX(0);transform-origin:right;}
   .intro-logo{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
     pointer-events:none;opacity:0;transform:scale(.85);transition:opacity .35s ease,transform .45s cubic-bezier(.2,1,.3,1);}
@@ -988,12 +988,12 @@ window.addEventListener('load',()=>{
   const veil=document.getElementById('introVeil'),logo=document.getElementById('introLogo');
   if(!veil||reduce)return;
   const bars=Array.from({length:18},(_,i)=>{const b=document.createElement('div');b.className='vb';
-    b.style.transitionDelay=(i*0.025)+'s';veil.appendChild(b);return b;});
+    b.style.transitionDelay=(i*0.014)+'s';veil.appendChild(b);return b;});
   requestAnimationFrame(()=>logo.classList.add('show'));
   setTimeout(()=>{
     logo.classList.remove('show');logo.classList.add('hide');
     veil.classList.add('wipe');
-    setTimeout(()=>{veil.remove();logo.remove();},650);
+    setTimeout(()=>{veil.remove();logo.remove();},580);
   },300);
 })();
 </script>
