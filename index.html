@@ -757,7 +757,10 @@ function decryptText(el,opts){
         else spans[i].textContent=chars[Math.floor(Math.random()*chars.length)];
       }
       revealed++;
-      if(revealed>total)clearInterval(iv);
+      if(revealed>total){
+        clearInterval(iv);
+        wrap.replaceWith(document.createTextNode(original));
+      }
     },speed);
   });
 }
