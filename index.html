@@ -1068,16 +1068,10 @@ void main(){mainImage(gl_FragColor,gl_FragCoord.xy);}`;
     function start(){if(running)return;running=true;raf=requestAnimationFrame(draw);}
     function stop(){running=false;if(raf)cancelAnimationFrame(raf);}
     /* fixed full-viewport layer is always "on screen" by construction — the only real
-       pause condition left is the tab itself being backgrounded. */
+       pause condition left is the tab itself being backgrounded. Keeps animating through
+       scroll on both desktop and mobile — no scroll-pause. */
     if(!document.hidden)start();
     document.addEventListener('visibilitychange',()=>{document.hidden?stop():start();});
-    if(isMobile){
-      let scrollT=null;
-      window.addEventListener('scroll',()=>{
-        stop();clearTimeout(scrollT);
-        scrollT=setTimeout(()=>{if(!document.hidden)start();},160);
-      },{passive:true});
-    }
   }catch(err){console.warn('Lightning init failed',err);}
 })();
 
