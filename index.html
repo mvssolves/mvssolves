@@ -39,14 +39,7 @@
       ]
     },
     { "@type": "WebSite", "@id": "https://mvssolves.com/#website", "url": "https://mvssolves.com/", "name": "MVS Solves", "publisher": { "@id": "https://mvssolves.com/#business" } },
-    { "@type": "Person", "@id": "https://mvssolves.com/#martin", "name": "Martin", "jobTitle": "Founder", "worksFor": { "@id": "https://mvssolves.com/#business" }, "email": "martin@mvssolves.com" },
-    { "@type": "FAQPage", "@id": "https://mvssolves.com/#faq", "mainEntity": [
-      { "@type": "Question", "name": "What does MVS Solves do?", "acceptedAnswer": { "@type": "Answer", "text": "MVS Solves builds and fixes the digital basics service businesses rely on: fast websites, online booking, Google Business Profiles, automation and AI assistants. All done by one person, end to end." } },
-      { "@type": "Question", "name": "Who actually builds the work?", "acceptedAnswer": { "@type": "Answer", "text": "Martin — one person, start to finish. No agency, no account managers, no handoffs, so you always talk to the person doing the work." } },
-      { "@type": "Question", "name": "How much does a website cost?", "acceptedAnswer": { "@type": "Answer", "text": "Packages start at R0 setup + R3,000/mo on the Launch tier, with clear ZAR pricing for every step. Every project is quoted up front in plain language before any work starts." } },
-      { "@type": "Question", "name": "How does AI booking work?", "acceptedAnswer": { "@type": "Answer", "text": "An AI assistant answers common questions and takes bookings around the clock in your tone of voice, then drops each appointment straight into your calendar." } },
-      { "@type": "Question", "name": "How do we get started?", "acceptedAnswer": { "@type": "Answer", "text": "It starts with a free 30-minute call: you explain what's broken or what you're building, and you leave with a real plan and no obligation." } }
-    ] }
+    { "@type": "Person", "@id": "https://mvssolves.com/#martin", "name": "Martin", "jobTitle": "Founder", "worksFor": { "@id": "https://mvssolves.com/#business" }, "email": "martin@mvssolves.com" }
   ]
 }
 </script>
@@ -252,16 +245,6 @@
   .founder .fstat b{display:block;font-size:22px;color:var(--ink);font-weight:900;letter-spacing:-.02em;}
   .founder .fstat span{font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
 
-  /* faq */
-  .faq{margin-top:46px;border-top:1px solid var(--line);}
-  .qa{border-bottom:1px solid var(--line);}
-  .qa q{display:flex;justify-content:space-between;gap:20px;align-items:center;padding:22px 0;font-weight:700;font-size:18px;color:var(--ink);cursor:none;quotes:none;letter-spacing:-.01em;}
-  .qa q::before,.qa q::after{content:none;}
-  .qa .plus{font-family:'JetBrains Mono',monospace;font-size:20px;color:var(--muted);transition:transform .3s;flex:none;}
-  .qa.open .plus{transform:rotate(45deg);}
-  .qa .a{max-height:0;overflow:hidden;transition:max-height .4s ease;color:var(--soft);font-size:15px;line-height:1.6;}
-  .qa .a p{padding:0 0 22px;max-width:760px;}
-
   /* book */
   .book-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:40px;margin-top:46px;align-items:start;}
   @media(max-width:900px){.book-grid{grid-template-columns:1fr;}}
@@ -318,9 +301,6 @@
   .btn:active{transform:scale(.96);}
   .btn-fill{transition:transform .12s ease,opacity .25s ease;}
   .btn-fill:hover{opacity:.88;}
-  .qa q{transition:color .25s ease;}
-  .qa q:hover{color:var(--muted);}
-  .qa q:hover .plus{color:var(--ink);}
   .marquee:hover .mtrack{animation-play-state:paused;}
   .alc-row{transition:padding-left .25s ease,color .25s ease;}
   .alc-row:hover{padding-left:8px;color:var(--ink);}
@@ -433,7 +413,7 @@
     <div class="nav-links" id="navLinks">
       <a href="#capabilities">Services</a>
       <a href="#pricing">Pricing</a>
-      <a href="#faq">FAQ</a>
+      <a href="/faq">FAQ</a>
       <a href="/join-the-team">Join the team</a>
     </div>
     <a class="navcta" href="#book">Automate your business</a>
@@ -586,25 +566,10 @@
   </div>
 </section>
 
-<!-- FAQ -->
-<section class="section" id="faq">
-  <div class="wrap">
-    <div class="lab">04 / Questions, answered straight</div>
-    <h2>No jargon.<br>Just answers.</h2>
-    <div class="faq" id="faqList">
-      <div class="qa"><q>What does MVS Solves do?<span class="plus">+</span></q><div class="a"><p>I build and fix the digital basics service businesses rely on: fast websites, online booking, Google Business Profiles, automation and AI assistants — all done by one person, end to end. Speed matters because slow sites lose customers and rankings.</p></div></div>
-      <div class="qa"><q>Who actually builds the work?<span class="plus">+</span></q><div class="a"><p>Martin — one person, start to finish. No agency, no account managers, no handoffs, so you always talk to the person doing the work.</p></div></div>
-      <div class="qa"><q>How much does a website cost?<span class="plus">+</span></q><div class="a"><p>Packages start at R0 setup + R3,000/mo on Launch, and every à-la-carte service has a clear ZAR range. You're quoted up front in plain language — what, when, and how much — before any work starts. The fastest way to get a number is a free 30-minute call.</p></div></div>
-      <div class="qa"><q>How does AI booking work?<span class="plus">+</span></q><div class="a"><p>An AI assistant answers common questions and takes bookings around the clock in your tone of voice, then drops each appointment straight into your calendar. You can try a live booking flow right here on the page.</p></div></div>
-      <div class="qa"><q>How do we get started?<span class="plus">+</span></q><div class="a"><p>It starts with a free 30-minute call: you explain what's broken or what you're building, and you leave with a real plan and no obligation. If we're not a fit, I'll say so and point you somewhere better.</p></div></div>
-    </div>
-  </div>
-</section>
-
 <!-- BOOK -->
 <section class="section" id="book" style="background:var(--bg-2)">
   <div class="wrap">
-    <div class="lab">05 / Let's connect — for free</div>
+    <div class="lab">04 / Let's connect — for free</div>
     <div class="book-grid">
       <div>
         <h2>Your business<br>deserves to<br>be found.</h2>
@@ -767,7 +732,7 @@ if(!reduce){
       scrollTrigger:{trigger:el,start:'top 88%'}});
   });
   /* batched reveal for body groups so they don't pop in flat under animated headings */
-  ['.tiers .tier','.steps .step','.pillars .pillar','#faqList .qa','.founder'].forEach(sel=>{
+  ['.tiers .tier','.steps .step','.pillars .pillar','.founder'].forEach(sel=>{
     ScrollTrigger.batch(gsap.utils.toArray(sel),{start:'top 90%',
       onEnter:b=>gsap.fromTo(b,{opacity:0},{opacity:1,duration:0.6,stagger:0.06,ease:'power2.out',overwrite:true})});
   });
@@ -981,14 +946,6 @@ void main(){
     }
   });
 })();
-
-/* FAQ accordion */
-document.querySelectorAll('#faqList .qa').forEach(qa=>{
-  const q=qa.querySelector('q'),a=qa.querySelector('.a');
-  q.addEventListener('click',()=>{const open=qa.classList.contains('open');
-    document.querySelectorAll('#faqList .qa').forEach(x=>{x.classList.remove('open');x.querySelector('.a').style.maxHeight=null;});
-    if(!open){qa.classList.add('open');a.style.maxHeight=a.scrollHeight+'px';}});
-});
 
 /* page-transition bar wipe — pagetrans/13 (in-page anchor jumps) */
 (function(){
