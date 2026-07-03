@@ -223,6 +223,16 @@
   .tier li.inh{color:var(--muted);}
   .tier li.inh::before{content:"+";color:var(--muted);}
   .tier .tcta{margin-top:auto;}
+  .tier-details{margin:2px 0 16px;font-size:12px;}
+  .tier-details summary{cursor:pointer;font-weight:700;color:var(--muted);list-style:none;display:flex;align-items:center;gap:6px;transition:color .2s ease;}
+  .tier-details summary::-webkit-details-marker{display:none;}
+  .tier-details summary::before{content:"+";font-weight:800;font-size:14px;transition:transform .2s ease;display:inline-block;}
+  .tier-details[open] summary::before{transform:rotate(45deg);}
+  .tier-details summary:hover{color:var(--ink);}
+  .tier-details dl{margin:10px 0 0;padding:10px 0 0;border-top:1px dashed var(--line);}
+  .tier-details dt{font-weight:700;color:var(--ink);margin-top:8px;}
+  .tier-details dt:first-child{margin-top:0;}
+  .tier-details dd{margin:2px 0 0;color:var(--soft);line-height:1.4;}
   .tier-hidden{display:none;max-width:520px;margin:20px auto 0;}
   .tier-hidden.open{display:block;}
   .franchise-cta{display:flex;align-items:center;justify-content:center;gap:8px;margin:34px auto 0;padding:12px 22px;
@@ -527,6 +537,14 @@
           <ul>
             <li>Premium website</li><li>Google Business Profile</li><li>Shows up on Google searches</li>
           </ul>
+          <details class="tier-details">
+            <summary>Full details</summary>
+            <dl>
+              <dt>Premium website</dt><dd>Professional site built to convert, live in about a day.</dd>
+              <dt>Google Business Profile</dt><dd>Set up and optimized so you show up in the map pack when locals search.</dd>
+              <dt>Shows up on Google searches</dt><dd>Basic on-page SEO — your site actually ranks, not just exists.</dd>
+            </dl>
+          </details>
           <a class="btn btn-ghost tcta" href="#book">Get package</a>
         </div>
       </div>
@@ -549,6 +567,15 @@
           <ul>
             <li class="inh">Everything in Launch</li><li>Online booking</li><li>Review generation</li><li>Online payments</li>
           </ul>
+          <details class="tier-details">
+            <summary>Full details</summary>
+            <dl>
+              <dt>Everything in Launch</dt><dd>Website + Google profile + basic SEO — see Launch for the full breakdown.</dd>
+              <dt>Online booking</dt><dd>Clients book themselves, synced straight to your calendar. No back-and-forth.</dd>
+              <dt>Review generation</dt><dd>Automated prompts that turn happy clients into 5-star Google reviews.</dd>
+              <dt>Online payments</dt><dd>Take deposits or full payment online — no card machine needed.</dd>
+            </dl>
+          </details>
           <a class="btn btn-fill tcta" href="#book" style="justify-content:center">Get package</a>
         </div>
       </div>
@@ -570,6 +597,15 @@
           <ul>
             <li class="inh">Everything in Growth</li><li class="own-hide">Business system / CRM</li><li>AI reply assistant</li><li>Priority support</li>
           </ul>
+          <details class="tier-details">
+            <summary>Full details</summary>
+            <dl>
+              <dt>Everything in Growth</dt><dd>Booking + reviews + payments — see Growth for the full breakdown.</dd>
+              <dt>Business system / CRM</dt><dd>A tracker for leads, clients and follow-ups — your business in one dashboard.</dd>
+              <dt>AI reply assistant</dt><dd>Auto-replies to DMs and WhatsApp messages in your voice, day or night.</dd>
+              <dt>Priority support</dt><dd>Same-day response when something needs fixing.</dd>
+            </dl>
+          </details>
           <a class="btn btn-ghost tcta" href="#book">Get package</a>
         </div>
       </div>
@@ -584,6 +620,17 @@
         <ul>
           <li class="inh">Everything in Premium</li><li>Multi-location rollout</li><li>Centralized booking across sites</li><li>AI WhatsApp booking bot</li><li>Custom automations</li><li>Dedicated support &amp; reporting</li>
         </ul>
+        <details class="tier-details">
+          <summary>Full details</summary>
+          <dl>
+            <dt>Everything in Premium</dt><dd>CRM + AI assistant + priority support — see Premium for the full breakdown.</dd>
+            <dt>Multi-location rollout</dt><dd>The same system deployed and kept in sync across every branch.</dd>
+            <dt>Centralized booking across sites</dt><dd>One booking system, every location, one calendar view.</dd>
+            <dt>AI WhatsApp booking bot</dt><dd>A full AI agent that books appointments over WhatsApp — no human needed.</dd>
+            <dt>Custom automations</dt><dd>Bespoke Make/n8n workflows scoped to how your business actually runs.</dd>
+            <dt>Dedicated support &amp; reporting</dt><dd>A direct line to me, plus regular performance reports.</dd>
+          </dl>
+        </details>
         <a class="btn btn-ghost tcta" href="#book">Book a scoping call</a>
       </div>
     </div>
