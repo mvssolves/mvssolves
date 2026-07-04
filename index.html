@@ -217,6 +217,7 @@
     animation:premSpin 6s linear infinite;will-change:transform;pointer-events:none;}
   .tier.prem::after{content:"";position:absolute;inset:1px;z-index:-1;border-radius:15px;background:var(--bg);pointer-events:none;}
   @keyframes premSpin{to{transform:rotate(360deg);}}
+  .tier.prem.spin-off::before{animation-play-state:paused;}
   .tier.prem .tcta{position:relative;overflow:hidden;z-index:1;transition:color .35s ease,border-color .35s ease;}
   .tier.prem .tcta::before{content:"";position:absolute;inset:0;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .35s cubic-bezier(.4,0,.2,1);z-index:-1;}
   .tier.prem .tcta:hover{color:#fff;border-color:var(--ink);}
@@ -728,8 +729,8 @@ const prog=document.getElementById('progress'),nav=document.getElementById('nav'
 function onScroll(y){nav.classList.toggle('scrolled',y>40);
   const h=document.documentElement.scrollHeight-window.innerHeight;
   prog.style.width=(h>0?(y/h*100):0)+'%';}
-window.addEventListener('scroll',()=>onScroll(window.scrollY));
 if(lenis) lenis.on('scroll',({scroll})=>onScroll(scroll));
+else window.addEventListener('scroll',()=>onScroll(window.scrollY),{passive:true});
 
 /* hero intro */
 /* DecryptedText (React Bits port → vanilla) — sequential scramble-to-reveal.
@@ -842,6 +843,9 @@ if(!reduce){
 /* pause hero sheen when scrolled past — kills off-screen repaint cost */
 (function(){const hero=document.getElementById('top');if(!hero)return;
   new IntersectionObserver(es=>es.forEach(en=>document.documentElement.classList.toggle('hero-off',!en.isIntersecting)),{threshold:0}).observe(hero);})();
+/* pause the Premium card's spinning gradient border off-screen — was running unconditionally forever */
+(function(){const prem=document.querySelector('.tier.prem');if(!prem)return;
+  new IntersectionObserver(es=>es.forEach(en=>prem.classList.toggle('spin-off',!en.isIntersecting)),{threshold:0}).observe(prem);})();
 
 /* CAPABILITIES converge — scroll/58 technique */
 if(!reduce){
@@ -892,27 +896,36 @@ if(!reduce&&window.matchMedia('(pointer:fine)').matches){
 /* BorderGlow (React Bits port → vanilla, no deps) on capability grid cards */
 if(window.matchMedia('(pointer:fine)').matches){
   document.querySelectorAll('.border-glow-card').forEach(card=>{
+    let pending=false,lastEvent=null;
     card.addEventListener('pointermove',e=>{
-      const rc=card.getBoundingClientRect();
-      const x=e.clientX-rc.left,y=e.clientY-rc.top;
-      const cx=rc.width/2,cy=rc.height/2;
-      const dx=x-cx,dy=y-cy;
-      let kx=Infinity,ky=Infinity;
-      if(dx!==0)kx=cx/Math.abs(dx);
-      if(dy!==0)ky=cy/Math.abs(dy);
-      const edge=Math.min(Math.max(1/Math.min(kx,ky),0),1);
-      let angle=0;
-      if(dx!==0||dy!==0){angle=Math.atan2(dy,dx)*(180/Math.PI)+90;if(angle<0)angle+=360;}
-      card.style.setProperty('--edge-proximity',(edge*100).toFixed(3));
-      card.style.setProperty('--cursor-angle',angle.toFixed(3)+'deg');
+      lastEvent=e;
+      if(pending)return;
+      pending=true;
+      requestAnimationFrame(()=>{
+        pending=false;
+        const rc=card.getBoundingClientRect();
+        const x=lastEvent.clientX-rc.left,y=lastEvent.clientY-rc.top;
+        const cx=rc.width/2,cy=rc.height/2;
+        const dx=x-cx,dy=y-cy;
+        let kx=Infinity,ky=Infinity;
+        if(dx!==0)kx=cx/Math.abs(dx);
+        if(dy!==0)ky=cy/Math.abs(dy);
+        const edge=Math.min(Math.max(1/Math.min(kx,ky),0),1);
+        let angle=0;
+        if(dx!==0||dy!==0){angle=Math.atan2(dy,dx)*(180/Math.PI)+90;if(angle<0)angle+=360;}
+        card.style.setProperty('--edge-proximity',(edge*100).toFixed(3));
+        card.style.setProperty('--cursor-angle',angle.toFixed(3)+'deg');
+      });
     });
   });
 }
 
-/* Lightning site-wide background — all viewports now (React Bits port → vanilla, raw WebGL, no deps).
-   Fixed full-viewport layer (not full page height) so cost never scales with page length. Desktop keeps
-   animating through scroll (explicit choice); mobile pauses on active scroll to save battery and avoid
-   competing with Lenis+GSAP scroll work — phones are more resource/battery constrained than desktop. */
+/* Lightning site-wide background — all viewports (React Bits port → vanilla, raw WebGL, no deps).
+   Fixed full-viewport layer (not full page height) so cost never scales with page length. Keeps
+   animating through scroll on all devices (explicit choice, see the start()/stop() comment below) —
+   only pauses when the tab itself is backgrounded. Shader octaves and render resolution kept low
+   (see OCTAVE_COUNT / MAX_RENDER_DIM / DPR cap below) since this runs continuously and competes with
+   Lenis+GSAP scroll work on the main/GPU pipeline. */
 (function(){
   if(reduce)return;
   const host=document.getElementById('siteLightning');if(!host)return;
@@ -931,7 +944,7 @@ if(window.matchMedia('(pointer:fine)').matches){
 precision mediump float;
 uniform vec2 iResolution;uniform float iTime;
 uniform float uHue;uniform float uXOffset;uniform float uSpeed;uniform float uIntensity;uniform float uSize;
-#define OCTAVE_COUNT 10
+#define OCTAVE_COUNT 6
 vec3 hsv2rgb(vec3 c){vec3 rgb=clamp(abs(mod(c.x*6.0+vec3(0.0,4.0,2.0),6.0)-3.0)-1.0,0.0,1.0);return c.z*mix(vec3(1.0),rgb,c.y);}
 float hash11(float p){p=fract(p*.1031);p*=p+33.33;p*=p+p;return fract(p);}
 float hash12(vec2 p){vec3 p3=fract(vec3(p.xyx)*.1031);p3+=dot(p3,p3.yzx+33.33);return fract((p3.x+p3.y)*p3.z);}
@@ -996,10 +1009,10 @@ void main(){mainImage(gl_FragColor,gl_FragCoord.xy);}`;
 
     /* source's original resizeCanvas() ran every frame — forces a GPU backing-store
        realloc even when nothing changed. Only resize on an actual size change. */
-    const MAX_RENDER_DIM=1920;
+    const MAX_RENDER_DIM=1280;
     function resize(){
       const w=host.clientWidth||1,h=host.clientHeight||1;
-      const baseDpr=Math.min(window.devicePixelRatio||1,2);
+      const baseDpr=Math.min(window.devicePixelRatio||1,1.5);
       const longestSide=Math.max(w,h)*baseDpr;
       const dpr=longestSide>MAX_RENDER_DIM?(baseDpr*MAX_RENDER_DIM)/longestSide:baseDpr;
       canvas.width=Math.round(w*dpr);
