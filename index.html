@@ -1080,22 +1080,10 @@ void main(){mainImage(gl_FragColor,gl_FragCoord.xy);}`;
   let order=cards.map((_,i)=>i);
   cards.forEach((el,i)=>placeNow(el,makeSlot(i,cards.length)));
 
-  /* pause the 3D-transform timeline during active scroll — running it at the same time as
-     Lenis inertia + the site-wide WebGL background caused visible stutter right as this
-     section scrolled into view. Resumes once scrolling settles. */
-  let currentTl=null,scrollIdleTimer=null;
-  function onScrollActivity(){
-    if(currentTl)currentTl.pause();
-    clearTimeout(scrollIdleTimer);
-    scrollIdleTimer=setTimeout(()=>{if(currentTl)currentTl.resume();},200);
-  }
-  if(lenis)lenis.on('scroll',onScrollActivity);else window.addEventListener('scroll',onScrollActivity,{passive:true});
-
   function swap(){
     const [front,...rest]=order;
     const elFront=cards[front];
     const tl=gsap.timeline();
-    currentTl=tl;
     tl.to(elFront,{y:'+=220',duration:durDrop,ease});
     tl.addLabel('promote',`-=${durDrop*promoteOverlap}`);
     rest.forEach((idx,i)=>{
@@ -1108,14 +1096,12 @@ void main(){mainImage(gl_FragColor,gl_FragCoord.xy);}`;
     tl.addLabel('return',`promote+=${durMove*returnDelay}`);
     tl.call(()=>gsap.set(elFront,{zIndex:backSlot.zIndex}),undefined,'return');
     tl.to(elFront,{x:backSlot.x,y:backSlot.y,z:backSlot.z,duration:durReturn,ease},'return');
-    tl.call(()=>{order=[...rest,front];if(currentTl===tl)currentTl=null;});
+    tl.call(()=>{order=[...rest,front];});
   }
 
-  let intervalId=null;
-  new IntersectionObserver(es=>es.forEach(e=>{
-    clearInterval(intervalId);intervalId=null;
-    if(e.isIntersecting){swap();intervalId=setInterval(swap,delay);}
-  })).observe(container);
+  /* runs continuously forever, on every device — never paused for scroll or visibility */
+  swap();
+  setInterval(swap,delay);
 })();
 
 /* pricing mode toggle: Monthly / Own outright */
