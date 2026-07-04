@@ -56,7 +56,8 @@
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg-glass);color:var(--text);font-family:'Inter',-apple-system,"Helvetica Neue",sans-serif;
-    font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;cursor:none;}
+    font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  body.cur-ready{cursor:none;}
   a{color:inherit;text-decoration:none;}
   .mono{font-family:'JetBrains Mono',monospace;}
   .serif{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;}
@@ -209,7 +210,6 @@
   .tier-details dt:first-child{margin-top:0;}
   .tier-details dd{margin:2px 0 0;color:var(--soft);line-height:1.4;}
   .tier-hidden{max-width:520px;margin:34px auto 0;}
-  @media(max-width:900px){.tier-hidden{display:none;}}
   @media(max-width:900px){.toggle{flex-wrap:wrap;justify-content:center;border-radius:24px;}}
   .tier.prem{position:relative;z-index:0;border-color:transparent;isolation:isolate;overflow:hidden;}
   .tier.prem::before{content:"";position:absolute;inset:-60%;z-index:-2;
@@ -367,7 +367,6 @@
   .tiers.mode-own .pm{display:none;}
   .tiers.mode-own .po{display:block;}
   .tiers.mode-own .own-hide{display:none;}
-  .tiers.mode-own .setup-badge{display:none;}
   .tiers.mode-usd .pm{display:none;}
   .tiers.mode-usd .pu{display:block;}
   .tiers.mode-usd-own .pm{display:none;}
@@ -474,6 +473,7 @@
       <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">A</div><div class="cn">Automations</div><div class="cc">Make / n8n, error-handled.</div></div></div>
       <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">AI</div><div class="cn">AI assistants</div><div class="cc">Booking &amp; replies in your voice.</div></div></div>
       <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">@</div><div class="cn">Email &amp; SMS</div><div class="cc">Lists, newsletters, payments.</div></div></div>
+      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">$</div><div class="cn">Online payments</div><div class="cc">Get paid without a card machine.</div></div></div>
       <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">SEO</div><div class="cn">SEO cleanup</div><div class="cc">Fix what's blocking search.</div></div></div>
       <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">WA</div><div class="cn">WhatsApp business</div><div class="cc">One number, always on.</div></div></div>
       <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">BR</div><div class="cn">Logo &amp; brand</div><div class="cc">Identity built to look premium.</div></div></div>
@@ -544,7 +544,7 @@
           </div>
           <div class="puo"><div class="price">$1,997 <small>once-off</small></div></div>
           <ul>
-            <li class="inh">Everything in Launch</li><li>Online booking</li><li>Reviews</li><li>Online payments</li><li>WhatsApp business</li><li>Copywriting</li>
+            <li class="inh">Everything in Launch</li><li>Online booking</li><li>Reviews</li><li>Online payments</li><li>WhatsApp business</li><li>Copywriting</li><li>Lead magnets</li><li>Invoicing &amp; quoting</li>
           </ul>
           <details class="tier-details">
             <summary>Full details</summary>
@@ -555,6 +555,8 @@
               <dt>Online payments</dt><dd>Take deposits or full payment online — no card machine needed.</dd>
               <dt>WhatsApp business</dt><dd>One dedicated business number for calls, chats and bookings — always on.</dd>
               <dt>Copywriting</dt><dd>Sales pages, ads and messaging written to convert, not just read.</dd>
+              <dt>Lead magnets</dt><dd>Exit-intent popups that turn browsers into leads, feeding straight into your booking funnel.</dd>
+              <dt>Invoicing &amp; quoting</dt><dd>Send quotes and invoices that get paid faster, with less chasing.</dd>
             </dl>
           </details>
           <a class="btn btn-fill tcta" href="#book" style="justify-content:center">Get package</a>
@@ -568,7 +570,7 @@
           <div class="tl">Run bookings, systems, and payments in one place.</div>
           <div class="pm">
             <div class="price">R3,000 <small>build fee</small></div>
-            <div class="price" style="font-size:22px;margin-top:4px">±R9,500<small>/mo</small></div>
+            <div class="price" style="font-size:22px;margin-top:4px">R9,500<small>/mo</small></div>
           </div>
           <div class="po"><div class="price">R32,000 <small>once-off</small></div></div>
           <div class="pu">
@@ -577,7 +579,7 @@
           </div>
           <div class="puo"><div class="price">$2,997 <small>once-off</small></div></div>
           <ul>
-            <li class="inh">Everything in Growth</li><li class="own-hide">Business system / CRM</li><li>AI assistants</li><li>Priority support</li><li>Automations</li><li>Email &amp; SMS</li><li>Referral programs</li>
+            <li class="inh">Everything in Growth</li><li class="own-hide">Business system / CRM</li><li>AI assistants</li><li>Priority support</li><li>Automations</li><li>Email &amp; SMS</li><li>Referral programs</li><li>Membership retention</li>
           </ul>
           <details class="tier-details">
             <summary>Full details</summary>
@@ -589,6 +591,7 @@
               <dt>Automations</dt><dd>Make/n8n workflows wired up so nothing falls through the cracks.</dd>
               <dt>Email &amp; SMS</dt><dd>Newsletters, promos and payment links straight to your list.</dd>
               <dt>Referral programs</dt><dd>A built-in system that turns happy clients into new ones.</dd>
+              <dt>Membership retention</dt><dd>Win-back and dunning flows that catch members before they cancel.</dd>
             </dl>
           </details>
           <a class="btn btn-fill tcta" href="#book" style="justify-content:center">Get package</a>
@@ -700,6 +703,7 @@ const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* cursor */
 const cur=document.getElementById('cursor');
 if(window.matchMedia('(pointer:fine)').matches){
+  document.body.classList.add('cur-ready');
   window.addEventListener('mousemove',e=>{cur.style.opacity='1';cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px';});
   const grow=()=>cur.classList.add('grow'),shrink=()=>cur.classList.remove('grow');
   document.querySelectorAll('a,button,.card').forEach(el=>{el.addEventListener('mouseenter',grow);el.addEventListener('mouseleave',shrink);});
@@ -752,7 +756,8 @@ function decryptText(el,opts){
     });
     node.replaceWith(wrap);
     const total=spans.length;
-    let revealed=0;
+    let revealed=0,done=false;
+    const finish=()=>{if(done)return;done=true;clearInterval(iv);clearTimeout(fallback);wrap.replaceWith(document.createTextNode(original));};
     const iv=setInterval(()=>{
       for(let i=0;i<total;i++){
         const ch=original[i];
@@ -761,11 +766,10 @@ function decryptText(el,opts){
         else spans[i].textContent=chars[Math.floor(Math.random()*chars.length)];
       }
       revealed++;
-      if(revealed>total){
-        clearInterval(iv);
-        wrap.replaceWith(document.createTextNode(original));
-      }
+      if(revealed>total)finish();
     },speed);
+    /* failsafe: throttled/backgrounded tabs can stall setInterval mid-reveal — force-settle so text never stays scrambled */
+    const fallback=setTimeout(finish,Math.max(total*speed*4,1500));
   });
 }
 function playHeroReveal(){
