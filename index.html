@@ -144,7 +144,7 @@
 
     .pin-statement{display:flex;position:relative;height:100vh;background:var(--bg);align-items:center;justify-content:center;overflow:hidden;}
     .ps-text{font-family:'Clash Display',sans-serif;font-weight:700;letter-spacing:-.03em;line-height:1.0;
-      font-size:clamp(34px,5.2vw,84px);color:var(--ink);text-align:center;opacity:0;}
+      font-size:clamp(34px,5.2vw,84px);color:var(--ink);text-align:center;clip-path:inset(0 100% 0 0);}
   }
   @media(prefers-reduced-motion:reduce){.letterbox-bar,.pin-statement{display:none!important;}}
 
@@ -1253,23 +1253,20 @@ if(!reduce){
   gsap.to('.h-wrap',{yPercent:-8,ease:'none',scrollTrigger:{trigger:'#top',start:'top top',end:'bottom top',scrub:true}});
 }
 
-/* hero -> pin-statement -> capabilities: subtle letterbox+zoom on hero exit, then a pinned
-   on-brand statement line. Desktop only, and only numeric transform/opacity tweens on a handful
-   of elements — no per-frame layout reads (that's what made the old capabilities "converge"
-   effect laggy). */
+/* hero -> pin-statement -> capabilities: subtle letterbox+zoom on hero exit (one scrub timeline,
+   no pin), then a plain in-flow statement line that wipes in once as it scrolls into view.
+   Desktop only. No pin:true anywhere (pin-spacers reserve/reflow layout for the rest of the
+   scroll range — real cost, not worth it for one line of text) and no per-frame layout reads
+   (that's what made the old capabilities "converge" effect laggy). */
 if(isDesktop && !reduce){
   const barTop=document.querySelector('.letterbox-bar.top'),barBottom=document.querySelector('.letterbox-bar.bottom');
-  /* letterbox bars cross the #top/#pinStatement seam via two independent ScrollTrigger scrub
-     proxies — a lower scrub value here shrinks the catch-up lag so the two proxies can't both be
-     mid-flight fighting over the same height at once during a slow/reversed scroll right at the seam */
-  gsap.timeline({scrollTrigger:{trigger:'#top',start:'top top',end:'bottom top',scrub:0.3}})
+  gsap.timeline({scrollTrigger:{trigger:'#top',start:'top top',endTrigger:'#pinStatement',end:'top top',scrub:0.3}})
     .to('.h-wrap,.h-bottom',{scale:1.08,opacity:0,ease:'power1.in'},0)
-    .to([barTop,barBottom],{height:36,ease:'power1.in'},0);
+    .to([barTop,barBottom],{height:36,duration:0.5,ease:'power1.inOut'},0)
+    .to([barTop,barBottom],{height:0,duration:0.5,ease:'power1.inOut'},0.5);
 
-  gsap.timeline({scrollTrigger:{trigger:'#pinStatement',start:'top top',end:'+=80%',scrub:0.3,pin:true}})
-    .to([barTop,barBottom],{height:0,duration:0.15,ease:'power1.out'},0)
-    .fromTo('#psText',{opacity:0,y:24},{opacity:1,y:0,duration:0.3,ease:'power2.out'},0.15)
-    .to('#psText',{opacity:0,y:-18,duration:0.3,ease:'power1.in'},0.7);
+  gsap.fromTo('#psText',{clipPath:'inset(0 100% 0 0)'},{clipPath:'inset(0 0% 0 0)',duration:1,ease:'power3.out',
+    scrollTrigger:{trigger:'#pinStatement',start:'top 65%',once:true}});
 }
 
 /* pause hero sheen when scrolled past — kills off-screen repaint cost */
