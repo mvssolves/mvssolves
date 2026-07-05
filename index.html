@@ -26,10 +26,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400;1,500&family=Cormorant:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=JetBrains+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=JetBrains+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <link rel="preload" as="style" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400;1,500&family=Cormorant:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap">
 </noscript>
 <script type="application/ld+json">
@@ -60,6 +61,13 @@
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+  /* Nohemi — freeware (personal+commercial use), self-hosted via the Tamagui project's npm
+     package on jsDelivr since it's not on Google Fonts/Fontshare */
+  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Regular.ttf') format('truetype');font-weight:400;font-display:swap;}
+  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Medium.ttf') format('truetype');font-weight:500;font-display:swap;}
+  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-SemiBold.ttf') format('truetype');font-weight:600;font-display:swap;}
+  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Bold.ttf') format('truetype');font-weight:700;font-display:swap;}
+  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-ExtraBold.ttf') format('truetype');font-weight:800;font-display:swap;}
   html.no-scroll{overflow:hidden;height:100%;}
   body{background:var(--bg-glass);color:var(--text);font-family:'General Sans',-apple-system,"Helvetica Neue",sans-serif;
     font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
@@ -71,7 +79,7 @@
   .lab{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--ink);margin-bottom:26px;display:flex;align-items:center;gap:10px;}
   .lab::before{content:'';width:24px;height:2px;background:var(--accent);}
-  h2{font-weight:700;letter-spacing:-.015em;line-height:1.05;font-size:clamp(30px,5.4vw,68px);color:var(--ink);}
+  h2{font-weight:700;letter-spacing:-.025em;line-height:1.0;font-size:clamp(30px,5.4vw,68px);color:var(--ink);}
   h2 .serif{color:var(--ink);}
   .section{padding:120px 0;position:relative;border-top:1px solid var(--line);}
   .sub{color:var(--soft);font-size:clamp(15px,1.5vw,18px);max-width:620px;margin-top:18px;line-height:1.55;}
@@ -120,7 +128,7 @@
   .scroll-arrow svg{width:26px;height:26px;display:block;}
   @keyframes scrollbob{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(7px);}}
   @media(prefers-reduced-motion:reduce){.scroll-arrow{animation:none;}}
-  h1{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-.01em;line-height:1.02;font-size:clamp(36px,8vw,128px);color:var(--ink);}
+  h1{font-family:'Nohemi',sans-serif;font-weight:700;letter-spacing:-.03em;line-height:.95;font-size:clamp(36px,8vw,128px);color:var(--ink);}
   h1 .line{display:block;}
   h1 .line>span{display:block;}
   h1 .aw{font-family:'Cormorant',serif;font-style:italic;font-weight:500;text-transform:none;letter-spacing:-.01em;line-height:1.05;padding-bottom:.14em;}
@@ -201,12 +209,12 @@
   .tier{border:1px solid var(--line);border-radius:16px;padding:28px;display:flex;flex-direction:column;background:var(--bg);}
   .tier.feat{border:2px solid var(--ink);box-shadow:0 2px 0 var(--ink);}
   .tier .badge{display:inline-block;align-self:flex-start;background:var(--accent);color:var(--accent-ink);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:4px;margin-bottom:12px;}
-  .tier .tn{font-weight:700;font-size:22px;color:var(--ink);letter-spacing:-.02em;font-family:'Fraunces',serif;}
+  .tier .tn{font-weight:700;font-size:22px;color:var(--ink);letter-spacing:-.02em;font-family:'Nohemi',sans-serif;}
   .tier .tl{color:var(--soft);font-size:13.5px;margin:6px 0 18px;min-height:38px;}
   .tier-slot{display:flex;flex-direction:column;}
   .tier-slot .tier{flex:1;}
   .tier-note{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
-  .tier .price{font-weight:700;font-size:30px;letter-spacing:-.02em;color:var(--ink);font-family:'Fraunces',serif;}
+  .tier .price{font-weight:700;font-size:30px;letter-spacing:-.02em;color:var(--ink);font-family:'Nohemi',sans-serif;}
   .tier .price small{font-size:15px;font-weight:600;color:var(--muted);}
   .tier ul{list-style:none;margin:18px 0;padding:0;font-size:14px;}
   .tier li{padding:5px 0 5px 22px;position:relative;color:var(--text);}
@@ -316,7 +324,7 @@
   .intro-type{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
     pointer-events:none;transition:opacity .3s ease,transform .3s ease;}
   .intro-type.exit{opacity:0;transform:scale(.92);}
-  .intro-type-line{font-family:'Fraunces',serif;font-weight:500;font-size:clamp(28px,4.6vw,52px);
+  .intro-type-line{font-family:'Nohemi',sans-serif;font-weight:500;font-size:clamp(28px,4.6vw,52px);
     color:#000;letter-spacing:-.01em;line-height:1.15;min-height:1.15em;}
   .intro-caret{display:inline-block;width:.06em;height:.85em;background:#000;margin-left:.05em;vertical-align:-.08em;}
   @media(prefers-reduced-motion:reduce){.intro-veil,.intro-type{display:none!important;}}
@@ -352,7 +360,7 @@
   /* film grain removed — fixed mix-blend overlay was costing scroll repaints */
 
   /* heading font — characterful display */
-  h2{font-family:'Fraunces',serif;}
+  h2{font-family:'Nohemi',sans-serif;}
 
   /* grid alignment safeguards */
   .cap-grid,.tiers,.steps{align-items:stretch;}
@@ -375,7 +383,7 @@
   /* Starter lead offer card */
   .starter{position:relative;background:var(--ink);color:#fff;border-radius:18px;padding:30px 34px;margin-top:30px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:22px;}
   .starter .s-badge{display:inline-block;background:#fff;color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;border-radius:5px;}
-  .starter .s-price{font-weight:700;font-size:clamp(36px,5vw,58px);letter-spacing:-.025em;line-height:1;margin-top:14px;font-family:'Fraunces',serif;}
+  .starter .s-price{font-weight:700;font-size:clamp(36px,5vw,58px);letter-spacing:-.025em;line-height:1;margin-top:14px;font-family:'Nohemi',sans-serif;}
   .starter .s-price small{font-size:17px;font-weight:600;color:#b9b9c2;letter-spacing:0;font-family:'General Sans',sans-serif;}
   .starter .s-feat{font-size:14px;color:#cfcfd6;margin-top:10px;max-width:520px;line-height:1.5;}
   .s-btn{background:#fff;color:var(--ink);font-weight:700;white-space:nowrap;}
