@@ -1111,6 +1111,11 @@ void main() {
 gsap.registerPlugin(ScrollTrigger);
 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const isDesktop = window.matchMedia('(min-width:901px)').matches;
+/* the desktop-only pin/scrub effects and the Premium co-tag observer are all set up once, keyed off
+   this snapshot — reload on a breakpoint crossing rather than trying to hot-swap live ScrollTriggers
+   and pin-spacers (resizing a window or rotating a tablet across 901px mid-session is rare, a reload
+   is the safe way to guarantee the new viewport gets the correct desktop/mobile behavior) */
+window.matchMedia('(min-width:901px)').addEventListener('change', () => location.reload());
 
 /* cursor */
 const cur=document.getElementById('cursor');
@@ -1268,11 +1273,14 @@ if(!reduce){
    no per-frame layout reads (that's what made the old capabilities "converge" effect laggy). */
 if(isDesktop && !reduce){
   const barTop=document.querySelector('.letterbox-bar.top'),barBottom=document.querySelector('.letterbox-bar.bottom');
-  gsap.timeline({scrollTrigger:{trigger:'#top',start:'top top',end:'bottom top',scrub:0.6}})
+  /* letterbox bars cross the #top/#pinStatement seam via two independent ScrollTrigger scrub
+     proxies — a lower scrub value here shrinks the catch-up lag so the two proxies can't both be
+     mid-flight fighting over the same height at once during a slow/reversed scroll right at the seam */
+  gsap.timeline({scrollTrigger:{trigger:'#top',start:'top top',end:'bottom top',scrub:0.3}})
     .to('.h-wrap,.h-bottom',{scale:1.12,opacity:0,ease:'power1.in'},0)
     .to([barTop,barBottom],{height:64,ease:'power1.in'},0);
 
-  gsap.timeline({scrollTrigger:{trigger:'#pinStatement',start:'top top',end:'+=100%',scrub:0.6,pin:true}})
+  gsap.timeline({scrollTrigger:{trigger:'#pinStatement',start:'top top',end:'+=100%',scrub:0.3,pin:true}})
     .to([barTop,barBottom],{height:0,duration:0.15,ease:'power1.out'},0)
     .fromTo('#psText',{opacity:0,y:36},{opacity:1,y:0,duration:0.3,ease:'power2.out'},0.15)
     .to('#psText',{opacity:0,y:-30,duration:0.3,ease:'power1.in'},0.7);
