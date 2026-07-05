@@ -296,17 +296,11 @@
   .foot-meta{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;line-height:1.8;}
   .sign{font-family:'Instrument Serif',serif;font-style:italic;font-size:26px;color:var(--ink);}
 
-  /* intro veil — white bg, typewriter reveal one word at a time, fade transition into the hero */
+  /* intro veil — white bg, plain fade transition into the hero */
   .intro-veil{position:fixed;inset:0;pointer-events:none;z-index:99998;background:#fff;
     transition:opacity .65s ease;}
   .intro-veil.curtain{opacity:0;}
-  .intro-type{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
-    pointer-events:none;transition:opacity .3s ease,transform .3s ease;}
-  .intro-type.exit{opacity:0;transform:scale(.92);}
-  .intro-type-line{font-family:'Clash Display',sans-serif;font-weight:500;font-size:clamp(28px,4.6vw,52px);
-    color:#000;text-transform:uppercase;letter-spacing:-.02em;line-height:1.15;min-height:1.15em;}
-  .intro-caret{display:inline-block;width:.06em;height:.85em;background:#000;margin-left:.05em;vertical-align:-.08em;}
-  @media(prefers-reduced-motion:reduce){.intro-veil,.intro-type{display:none!important;}}
+  @media(prefers-reduced-motion:reduce){.intro-veil{display:none!important;}}
 
   /* ===== polish pass ===== */
   /* lighter, sparser drifting diamonds */
@@ -431,9 +425,6 @@
 <div class="progress" id="progress"></div>
 <div class="cursor" id="cursor"></div>
 <div class="intro-veil" id="introVeil"></div>
-<div class="intro-type" id="introType">
-  <div class="intro-type-line" id="introLine"></div>
-</div>
 
 <nav id="nav">
   <a class="logo" href="#top"><span class="logo-mark">M</span><span class="logo-text"> MVS Solves</span></a>
@@ -1380,35 +1371,15 @@ window.addEventListener('load',()=>{
   (window.requestIdleCallback||function(cb){setTimeout(cb,400);})(()=>ScrollTrigger.refresh());
 });
 
-/* intro veil — typewriter reveal, one word at a time, then a curtain-lift into the hero. Plays once per page load. */
+/* intro veil — plain hold + fade into the hero. Plays once per page load. */
 (function(){
-  const veil=document.getElementById('introVeil'),type=document.getElementById('introType');
-  const el=document.getElementById('introLine');
+  const veil=document.getElementById('introVeil');
   if(!veil||reduce){playHeroReveal();return;}
-  const words=['Built.','To.','Convert.'];
-  const CHAR_MS=55,HOLD_MS=380,CLEAR_MS=120;
-  let t=250;
-  words.forEach((word,i)=>{
-    for(let c=1;c<=word.length;c++){
-      setTimeout(()=>{el.innerHTML=word.slice(0,c)+'<span class="intro-caret"></span>';},t);
-      t+=CHAR_MS;
-    }
-    setTimeout(()=>{el.textContent=word;},t);
-    t+=HOLD_MS;
-    if(i<words.length-1){
-      setTimeout(()=>{el.textContent='';},t);
-      t+=CLEAR_MS;
-    }
-  });
-  t+=450;
   setTimeout(()=>{
-    type.classList.add('exit');
-    setTimeout(()=>{
-      veil.classList.add('curtain');
-      playHeroReveal();
-      setTimeout(()=>{veil.remove();type.remove();},700);
-    },250);
-  },t);
+    veil.classList.add('curtain');
+    playHeroReveal();
+    setTimeout(()=>{veil.remove();},700);
+  },400);
 })();
 </script>
 </body>
