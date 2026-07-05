@@ -25,12 +25,9 @@
 <meta name="twitter:image" content="https://mvssolves.com/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-<link rel="preload" as="style" href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400;1,500;1,600&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400;1,500;1,600&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap">
 </noscript>
 <script type="application/ld+json">
 {
@@ -66,12 +63,12 @@
   body.cur-ready{cursor:none;}
   a{color:inherit;text-decoration:none;}
   .mono{font-family:'JetBrains Mono',monospace;}
-  .serif{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;}
+  .serif{font-family:'Playfair Display',serif;font-style:italic;font-weight:400;}
   .wrap{max-width:var(--maxw);margin:0 auto;padding:0 36px;width:100%;}
   .lab{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--ink);margin-bottom:26px;display:flex;align-items:center;gap:10px;}
   .lab::before{content:'';width:24px;height:2px;background:var(--accent);}
-  h2{font-weight:700;letter-spacing:-.035em;line-height:1.0;font-size:clamp(30px,5.4vw,68px);color:var(--ink);}
+  h2{font-weight:700;letter-spacing:-.015em;line-height:1.05;font-size:clamp(30px,5.4vw,68px);color:var(--ink);}
   h2 .serif{color:var(--ink);}
   .section{padding:120px 0;position:relative;border-top:1px solid var(--line);}
   .sub{color:var(--soft);font-size:clamp(15px,1.5vw,18px);max-width:620px;margin-top:18px;line-height:1.55;}
@@ -120,10 +117,10 @@
   .scroll-arrow svg{width:26px;height:26px;display:block;}
   @keyframes scrollbob{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(7px);}}
   @media(prefers-reduced-motion:reduce){.scroll-arrow{animation:none;}}
-  h1{font-family:'Clash Display',sans-serif;font-weight:700;letter-spacing:-.045em;line-height:.9;font-size:clamp(36px,8vw,128px);text-transform:uppercase;color:var(--ink);}
+  h1{font-family:'Playfair Display',serif;font-weight:700;letter-spacing:-.01em;line-height:1.02;font-size:clamp(36px,8vw,128px);color:var(--ink);}
   h1 .line{display:block;}
   h1 .line>span{display:block;}
-  h1 .aw{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;text-transform:none;letter-spacing:-.02em;line-height:1.05;padding-bottom:.14em;}
+  h1 .aw{font-family:'Playfair Display',serif;font-style:italic;font-weight:400;text-transform:none;letter-spacing:-.02em;line-height:1.05;padding-bottom:.14em;}
   .h-sub{margin:24px auto 0;max-width:560px;font-size:clamp(15px,1.5vw,18px);color:var(--soft);line-height:1.55;text-align:center;}
   .h-cta{margin-top:28px;display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;}
   .btn{display:inline-flex;align-items:center;gap:10px;padding:16px 26px;border-radius:999px;font-weight:700;font-size:15px;}
@@ -201,12 +198,12 @@
   .tier{border:1px solid var(--line);border-radius:16px;padding:28px;display:flex;flex-direction:column;background:var(--bg);}
   .tier.feat{border:2px solid var(--ink);box-shadow:0 2px 0 var(--ink);}
   .tier .badge{display:inline-block;align-self:flex-start;background:var(--accent);color:var(--accent-ink);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:4px;margin-bottom:12px;}
-  .tier .tn{font-weight:700;font-size:22px;color:var(--ink);letter-spacing:-.02em;font-family:'Clash Display',Inter,sans-serif;}
+  .tier .tn{font-weight:700;font-size:22px;color:var(--ink);letter-spacing:-.02em;font-family:'Playfair Display',serif;}
   .tier .tl{color:var(--soft);font-size:13.5px;margin:6px 0 18px;min-height:38px;}
   .tier-slot{display:flex;flex-direction:column;}
   .tier-slot .tier{flex:1;}
   .tier-note{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
-  .tier .price{font-weight:700;font-size:30px;letter-spacing:-.02em;color:var(--ink);font-family:'Clash Display',Inter,sans-serif;}
+  .tier .price{font-weight:700;font-size:30px;letter-spacing:-.02em;color:var(--ink);font-family:'Playfair Display',serif;}
   .tier .price small{font-size:15px;font-weight:600;color:var(--muted);}
   .tier ul{list-style:none;margin:18px 0;padding:0;font-size:14px;}
   .tier li{padding:5px 0 5px 22px;position:relative;color:var(--text);}
@@ -307,7 +304,7 @@
   footer{border-top:1px solid var(--line);padding:60px 36px 50px;}
   .foot-inner{max-width:var(--maxw);margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap;}
   .foot-meta{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;line-height:1.8;}
-  .sign{font-family:'Instrument Serif',serif;font-style:italic;font-size:26px;color:var(--ink);}
+  .sign{font-family:'Playfair Display',serif;font-style:italic;font-size:26px;color:var(--ink);}
 
   /* intro veil — white bg, typewriter reveal one word at a time, fade transition into the hero */
   .intro-veil{position:fixed;inset:0;pointer-events:none;z-index:99998;background:#fff;
@@ -316,8 +313,8 @@
   .intro-type{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
     pointer-events:none;transition:opacity .3s ease,transform .3s ease;}
   .intro-type.exit{opacity:0;transform:scale(.92);}
-  .intro-type-line{font-family:'Clash Display',sans-serif;font-weight:500;font-size:clamp(28px,4.6vw,52px);
-    color:#000;text-transform:uppercase;letter-spacing:-.02em;line-height:1.15;min-height:1.15em;}
+  .intro-type-line{font-family:'Playfair Display',serif;font-weight:500;font-size:clamp(28px,4.6vw,52px);
+    color:#000;letter-spacing:-.01em;line-height:1.15;min-height:1.15em;}
   .intro-caret{display:inline-block;width:.06em;height:.85em;background:#000;margin-left:.05em;vertical-align:-.08em;}
   @media(prefers-reduced-motion:reduce){.intro-veil,.intro-type{display:none!important;}}
 
@@ -352,7 +349,7 @@
   /* film grain removed — fixed mix-blend overlay was costing scroll repaints */
 
   /* heading font — characterful display */
-  h2{font-family:'Clash Display','Inter',sans-serif;}
+  h2{font-family:'Playfair Display',serif;}
 
   /* grid alignment safeguards */
   .cap-grid,.tiers,.steps{align-items:stretch;}
@@ -375,7 +372,7 @@
   /* Starter lead offer card */
   .starter{position:relative;background:var(--ink);color:#fff;border-radius:18px;padding:30px 34px;margin-top:30px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:22px;}
   .starter .s-badge{display:inline-block;background:#fff;color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;border-radius:5px;}
-  .starter .s-price{font-weight:700;font-size:clamp(36px,5vw,58px);letter-spacing:-.025em;line-height:1;margin-top:14px;font-family:'Clash Display',Inter,sans-serif;}
+  .starter .s-price{font-weight:700;font-size:clamp(36px,5vw,58px);letter-spacing:-.025em;line-height:1;margin-top:14px;font-family:'Playfair Display',serif;}
   .starter .s-price small{font-size:17px;font-weight:600;color:#b9b9c2;letter-spacing:0;font-family:'Inter',sans-serif;}
   .starter .s-feat{font-size:14px;color:#cfcfd6;margin-top:10px;max-width:520px;line-height:1.5;}
   .s-btn{background:#fff;color:var(--ink);font-weight:700;white-space:nowrap;}
