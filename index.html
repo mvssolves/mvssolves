@@ -60,6 +60,7 @@
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+  html.no-scroll{overflow:hidden;height:100%;}
   body{background:var(--bg-glass);color:var(--text);font-family:'Inter',-apple-system,"Helvetica Neue",sans-serif;
     font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
   body.cur-ready{cursor:none;}
@@ -419,11 +420,9 @@
   .eb-layers .eb-g2{position:absolute;inset:-1px;border-radius:16px;border:2px solid rgba(10,10,10,.26);filter:blur(6px);}
 
   /* === GradualBlur page edges (React Bits port) === */
-  .gblur{position:fixed;left:0;right:0;pointer-events:none;z-index:50;isolation:isolate;}
+  .gblur{position:fixed;left:0;right:0;pointer-events:none;z-index:50;
+    background:linear-gradient(to bottom,var(--bg) 0%,rgba(255,255,255,.6) 55%,transparent 100%);}
   .gblur.top{top:0;}
-  .gblur.bottom{bottom:0;}
-  .gblur-layer{position:absolute;inset:0;}
-  @media(prefers-reduced-motion:reduce){.gblur{display:none;}}
 
   @media(prefers-reduced-motion:reduce){
     h1,h1 .aw{animation:none;background:none;-webkit-text-fill-color:var(--ink);color:var(--ink);text-shadow:none;}
@@ -1227,7 +1226,9 @@ function electricBorder(host,o){
   function start(){if(running)return;running=true;last=performance.now();raf=requestAnimationFrame(draw);}
   function stop(){running=false;cancelAnimationFrame(raf);}
   size();new ResizeObserver(size).observe(host);
-  new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting?start():stop()),{threshold:0}).observe(host);
+  let inView=false;
+  new IntersectionObserver(es=>es.forEach(e=>{inView=e.isIntersecting;(inView&&!document.hidden)?start():stop();}),{threshold:0}).observe(host);
+  document.addEventListener('visibilitychange',()=>{document.hidden?stop():(inView&&start());});
 }
 if(!reduce&&window.matchMedia('(pointer:fine)').matches){const feat=document.querySelector('.tier.feat');if(feat)electricBorder(feat,{color:'#0a0a0a',chaos:0.09,speed:0.9,thickness:1.4,borderRadius:16});}
 
@@ -1273,36 +1274,15 @@ if(isDesktop&&!reduce){
   }
 }
 
-/* GradualBlur (React Bits port → vanilla, no deps) — fixed top/bottom edge blur across whole site */
-function gradualBlur(position,o){
-  o=o||{};const height=o.height||80,strength=o.strength||1.5,divCount=o.divCount||6,exponential=o.exponential!==false,opacity=o.opacity||1;
-  const curves={linear:p=>p,bezier:p=>p*p*(3-2*p),'ease-in':p=>p*p,'ease-out':p=>1-Math.pow(1-p,2)};
-  const curveFn=curves[o.curve]||curves.bezier;
-  const dir=position==='top'?'to top':'to bottom';
-  const container=document.createElement('div');
-  container.className='gblur '+position;
-  container.style.height=height+'px';
-  const increment=100/divCount;
-  for(let i=1;i<=divCount;i++){
-    const progress=curveFn(i/divCount);
-    const blurValue=exponential?Math.pow(2,progress*4)*0.0625*strength:0.0625*(progress*divCount+1)*strength;
-    const p1=Math.round((increment*i-increment)*10)/10,p2=Math.round(increment*i*10)/10,p3=Math.round((increment*i+increment)*10)/10,p4=Math.round((increment*i+increment*2)*10)/10;
-    let gradient=`transparent ${p1}%, black ${p2}%`;
-    if(p3<=100)gradient+=`, black ${p3}%`;
-    if(p4<=100)gradient+=`, transparent ${p4}%`;
-    const div=document.createElement('div');
-    div.className='gblur-layer';
-    div.style.maskImage=`linear-gradient(${dir}, ${gradient})`;
-    div.style.webkitMaskImage=div.style.maskImage;
-    div.style.backdropFilter=`blur(${blurValue.toFixed(3)}rem)`;
-    div.style.webkitBackdropFilter=div.style.backdropFilter;
-    div.style.opacity=opacity;
-    container.appendChild(div);
-  }
-  document.body.appendChild(container);
-}
-if(!reduce&&window.matchMedia('(pointer:fine)').matches){
-  gradualBlur('top',{height:84,strength:1.4,divCount:4,curve:'bezier',exponential:true,opacity:.85});
+/* top-edge fade — was 4 stacked backdrop-filter:blur() layers (GradualBlur port) sitting directly
+   above the always-animating FloatingLines canvas, forcing 4x the resample cost every frame.
+   A plain gradient-to-background div gives the same "content softens under the nav" read for
+   effectively zero per-frame cost (just alpha blending, no resample-behind-element). */
+if(!reduce){
+  const fade=document.createElement('div');
+  fade.className='gblur top';
+  fade.style.height='84px';
+  document.body.appendChild(fade);
 }
 
 /* BorderGlow (React Bits port → vanilla, no deps) on capability grid cards */
@@ -1389,7 +1369,7 @@ if(window.matchMedia('(pointer:fine)').matches){
     if(!reduce){
       const sel=mode==='own'?'.po':mode==='usd'?'.pu':mode==='usd-own'?'.puo':'.pm';
       const prices=tiers.querySelectorAll(sel+' .price');
-      gsap.fromTo(prices,{opacity:0,filter:'blur(10px)',y:-14},{opacity:1,filter:'blur(0px)',y:0,duration:0.5,stagger:0.06,ease:'power2.out',overwrite:true});
+      gsap.fromTo(prices,{opacity:0,y:-6},{opacity:1,y:0,duration:0.3,stagger:0.04,ease:'power2.out',overwrite:true});
     }
     ScrollTrigger.refresh();
   });
@@ -1431,6 +1411,8 @@ window.addEventListener('load',()=>{
   const veil=document.getElementById('introVeil'),type=document.getElementById('introType');
   const el=document.getElementById('introLine');
   if(!veil||reduce){playHeroReveal();return;}
+  document.documentElement.classList.add('no-scroll');
+  if(lenis)lenis.stop();
   const words=['Built.','To.','Convert.'];
   const CHAR_MS=55,HOLD_MS=380,CLEAR_MS=120;
   let t=250;
@@ -1451,6 +1433,8 @@ window.addEventListener('load',()=>{
     type.classList.add('exit');
     setTimeout(()=>{
       veil.classList.add('curtain');
+      document.documentElement.classList.remove('no-scroll');
+      if(lenis)lenis.start();
       playHeroReveal();
       setTimeout(()=>{veil.remove();type.remove();},700);
     },250);
