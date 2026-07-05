@@ -69,7 +69,7 @@
   @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Bold.ttf') format('truetype');font-weight:700;font-display:swap;}
   @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-ExtraBold.ttf') format('truetype');font-weight:800;font-display:swap;}
   html.no-scroll{overflow:hidden;height:100%;}
-  body{background:var(--bg-glass);color:var(--text);font-family:'General Sans',-apple-system,"Helvetica Neue",sans-serif;
+  body{background:var(--bg);color:var(--text);font-family:'General Sans',-apple-system,"Helvetica Neue",sans-serif;
     font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
   body.cur-ready{cursor:none;}
   a{color:inherit;text-decoration:none;}
@@ -81,14 +81,13 @@
   .lab::before{content:'';width:24px;height:2px;background:var(--accent);}
   h2{font-weight:700;letter-spacing:-.025em;line-height:1.0;font-size:clamp(30px,5.4vw,68px);color:var(--ink);}
   h2 .serif{color:var(--ink);}
-  .section{padding:120px 0;position:relative;border-top:1px solid var(--line);}
+  .section{padding:120px 0;position:relative;border-top:1px solid var(--line);background:var(--bg);}
   .sub{color:var(--soft);font-size:clamp(15px,1.5vw,18px);max-width:620px;margin-top:18px;line-height:1.55;}
 
   /* progress + cursor */
   .progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--accent);z-index:100;}
   .cursor{position:fixed;top:0;left:0;width:13px;height:13px;border-radius:50%;background:#fff;z-index:9999;
-    pointer-events:none;mix-blend-mode:difference;transform:translate(-50%,-50%);transition:width .25s,height .25s;}
-  .cursor.grow{width:27px;height:27px;}
+    pointer-events:none;mix-blend-mode:difference;transform:translate3d(0,0,0) translate(-50%,-50%);}
   @media(pointer:coarse){.cursor{display:none;}body{cursor:auto;}}
 
   /* persistent scroll chrome — desktop only */
@@ -121,7 +120,8 @@
   .navtoggle span{display:block;width:22px;height:2px;background:var(--ink);}
 
   /* hero */
-  .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:40px;padding:200px 36px 64px;overflow:hidden;}
+  .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:40px;padding:200px 36px 64px;overflow:hidden;
+    background:var(--bg-glass);}
   .scrolldot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:bob 1.6s ease-in-out infinite;}
   @keyframes bob{0%,100%{transform:translateY(0);opacity:1;}50%{transform:translateY(5px);opacity:.4;}}
   .scroll-arrow{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:5;color:var(--ink);animation:scrollbob 1.6s ease-in-out infinite;}
@@ -312,7 +312,7 @@
   .mailbtn{margin-top:20px;}
 
   /* footer */
-  footer{border-top:1px solid var(--line);padding:60px 36px 50px;}
+  footer{border-top:1px solid var(--line);padding:60px 36px 50px;background:var(--bg);}
   .foot-inner{max-width:var(--maxw);margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap;}
   .foot-meta{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;line-height:1.8;}
   .sign{font-family:'Cormorant',serif;font-style:italic;font-weight:500;font-size:26px;color:var(--ink);}
@@ -355,7 +355,7 @@
   .tier:active{transform:translateY(-2px);}
 
   /* loose-pixel cleanups */
-  .cursor{opacity:0;transition:width .25s,height .25s,opacity .15s;}
+  .cursor{opacity:0;transition:opacity .15s;}
 
   /* film grain removed — fixed mix-blend overlay was costing scroll repaints */
 
@@ -729,10 +729,14 @@
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}
 </script>
 <script type="module">
-/* FloatingLines (React Bits port → vanilla, three.js) — site-wide background, replaces the old
-   Lightning shader. Host div (#floatingLinesBg) is position:fixed;inset:0 (same convention the old
-   effect used) so it's always covering the current viewport regardless of scroll position — the
-   effect is visible top to bottom of the site, not just in the hero. Container stays
+/* FloatingLines (React Bits port → vanilla, three.js). Host div (#floatingLinesBg) is
+   position:fixed;inset:0 so it always covers the current viewport regardless of scroll position.
+   Only actually visible behind hero/capabilities/book — body and every other .section are opaque
+   (see CSS) so the canvas is fully occluded elsewhere. Was previously left rendering full-time
+   for the whole page behind a translucent body — that forced the compositor to alpha-blend this
+   canvas under every section for the entire scroll depth, the main real source of scroll jank.
+   Now paused via IntersectionObserver whenever none of those three regions are on screen (see
+   glassRegions below), on top of the existing tab-visibility pause. Container stays
    pointer-events:none (see CSS) so the canvas can never block clicks — that means the component's
    own pointermove/pointerleave listeners (which the upstream version binds to its own container)
    are rebound to window/document here instead. */
@@ -1080,11 +1084,25 @@ void main() {
        hands off to the hero — avoids competing with the loading-screen animation for GPU/main
        thread. The timeout is just a safety net if the veil is ever removed from the markup —
        it's set well past the veil's own ~3.2s sequence so it never fires first in the normal case. */
-    let begun = false;
-    const beginOnce = () => { if (begun) return; begun = true; if (!document.hidden) start(); };
+    let begun = false, tabVisible = !document.hidden, regionVisible = true;
+    function sync() { (begun && tabVisible && regionVisible) ? start() : stop(); }
+    const beginOnce = () => { if (begun) return; begun = true; sync(); };
     document.addEventListener('mvs:reveal', beginOnce, { once: true });
     setTimeout(beginOnce, 6000);
-    document.addEventListener('visibilitychange', () => { document.hidden ? stop() : (begun && start()); });
+    document.addEventListener('visibilitychange', () => { tabVisible = !document.hidden; sync(); });
+
+    /* pause the render loop entirely once scrolled past every region where the canvas is actually
+       visible (body/.section are opaque now — see CSS) so it doesn't keep rendering for nothing. */
+    const glassRegions = ['#top', '#capabilities', '#book'].map(s => document.querySelector(s)).filter(Boolean);
+    if (glassRegions.length) {
+      const activeRegions = new Set();
+      const regionObserver = new IntersectionObserver(es => {
+        es.forEach(e => { e.isIntersecting ? activeRegions.add(e.target) : activeRegions.delete(e.target); });
+        regionVisible = activeRegions.size > 0;
+        sync();
+      }, { threshold: 0 });
+      glassRegions.forEach(el => regionObserver.observe(el));
+    }
   } catch (err) { console.warn('FloatingLines init failed', err); }
 }
 </script>
@@ -1098,19 +1116,21 @@ const isDesktop = window.matchMedia('(min-width:901px)').matches;
    is the safe way to guarantee the new viewport gets the correct desktop/mobile behavior) */
 window.matchMedia('(min-width:901px)').addEventListener('change', () => location.reload());
 
-/* cursor — rAF-coalesced so a fast mouse doesn't force a style write on every native event */
+/* cursor — passive listener only records coords (no style write on the native event at all); one
+   rAF loop writes transform (translate3d+scale, GPU-composited) instead of left/top+width/height,
+   which forced layout on every frame this ran. */
 const cur=document.getElementById('cursor');
 if(window.matchMedia('(pointer:fine)').matches){
   document.body.classList.add('cur-ready');
-  let curPending=false,curX=0,curY=0;
-  window.addEventListener('mousemove',e=>{
-    curX=e.clientX;curY=e.clientY;
-    if(curPending)return;
-    curPending=true;
-    requestAnimationFrame(()=>{curPending=false;cur.style.opacity='1';cur.style.left=curX+'px';cur.style.top=curY+'px';});
-  });
-  const grow=()=>cur.classList.add('grow'),shrink=()=>cur.classList.remove('grow');
+  let curX=0,curY=0,curGrow=false,curScale=1;
+  window.addEventListener('mousemove',e=>{curX=e.clientX;curY=e.clientY;cur.style.opacity='1';},{passive:true});
+  const grow=()=>curGrow=true,shrink=()=>curGrow=false;
   document.querySelectorAll('a,button,.card').forEach(el=>{el.addEventListener('mouseenter',grow);el.addEventListener('mouseleave',shrink);});
+  (function cursorFrame(){
+    curScale+=((curGrow?2.08:1)-curScale)*0.25;
+    cur.style.transform=`translate3d(${curX}px,${curY}px,0) translate(-50%,-50%) scale(${curScale.toFixed(3)})`;
+    requestAnimationFrame(cursorFrame);
+  })();
 }
 
 /* Lenis + GSAP ticker (scroll/58 sync pattern) */
@@ -1215,15 +1235,16 @@ function electricBorder(host,o){
   const rnd=x=>(Math.sin(x*12.9898)*43758.5453)%1;
   const n2=(x,y)=>{const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j,a=rnd(i+j*57),b=rnd(i+1+j*57),c=rnd(i+(j+1)*57),d=rnd(i+1+(j+1)*57),ux=fx*fx*(3-2*fx),uy=fy*fy*(3-2*fy);return a*(1-ux)*(1-uy)+b*ux*(1-uy)+c*(1-ux)*uy+d*ux*uy;};
   const oct=(x,t,seed)=>{let y=0,amp=chaos,fr=10;for(let i=0;i<4;i++){y+=amp*n2(fr*x+seed*100,t*fr*0.3);fr*=1.6;amp*=0.7;}return y;};
-  const corner=(cx,cy,r,sa,al,p)=>{const a=sa+p*al;return{x:cx+r*Math.cos(a),y:cy+r*Math.sin(a)};};
+  const _pt={x:0,y:0};
+  const corner=(cx,cy,r,sa,al,p)=>{const a=sa+p*al;_pt.x=cx+r*Math.cos(a);_pt.y=cy+r*Math.sin(a);return _pt;};
   const rrp=(tt,L,T,w,h,r)=>{const sw=w-2*r,sh=h-2*r,ca=Math.PI*r/2,per=2*sw+2*sh+4*ca,dist=tt*per;let ac=0;
-    if(dist<=ac+sw)return{x:L+r+(dist-ac),y:T};ac+=sw;
+    if(dist<=ac+sw){_pt.x=L+r+(dist-ac);_pt.y=T;return _pt;}ac+=sw;
     if(dist<=ac+ca)return corner(L+w-r,T+r,r,-Math.PI/2,Math.PI/2,(dist-ac)/ca);ac+=ca;
-    if(dist<=ac+sh)return{x:L+w,y:T+r+(dist-ac)};ac+=sh;
+    if(dist<=ac+sh){_pt.x=L+w;_pt.y=T+r+(dist-ac);return _pt;}ac+=sh;
     if(dist<=ac+ca)return corner(L+w-r,T+h-r,r,0,Math.PI/2,(dist-ac)/ca);ac+=ca;
-    if(dist<=ac+sw)return{x:L+w-r-(dist-ac),y:T+h};ac+=sw;
+    if(dist<=ac+sw){_pt.x=L+w-r-(dist-ac);_pt.y=T+h;return _pt;}ac+=sw;
     if(dist<=ac+ca)return corner(L+r,T+h-r,r,Math.PI/2,Math.PI/2,(dist-ac)/ca);ac+=ca;
-    if(dist<=ac+sh)return{x:L,y:T+h-r-(dist-ac)};ac+=sh;
+    if(dist<=ac+sh){_pt.x=L;_pt.y=T+h-r-(dist-ac);return _pt;}ac+=sh;
     return corner(L+r,T+r,r,Math.PI,Math.PI/2,(dist-ac)/ca);};
   let W,H,dpr,t=0,last=0,raf=null,running=false,frameSkip=0;
   function size(){const rc=host.getBoundingClientRect();W=rc.width+off*2;H=rc.height+off*2;dpr=Math.min(window.devicePixelRatio||1,2);cvs.width=W*dpr;cvs.height=H*dpr;cvs.style.width=W+'px';cvs.style.height=H+'px';cvs.style.left=-off+'px';cvs.style.top=-off+'px';}
