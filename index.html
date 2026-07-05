@@ -1134,12 +1134,11 @@ function decryptText(el,opts){
 }
 function playHeroReveal(){
   if(reduce)return;
-  const navcta=document.querySelector('.navcta');
-  if(navcta)decryptText(navcta,{speed:28});
-  document.querySelectorAll('h1 .line>span').forEach(span=>decryptText(span,{speed:32}));
-  const hsub=document.getElementById('hsub');
-  if(hsub)setTimeout(()=>decryptText(hsub,{speed:16}),750);
-  document.querySelectorAll('#hcta .btn').forEach(btn=>setTimeout(()=>decryptText(btn,{speed:28}),1900));
+  const fadeIn=(el,delay)=>{if(!el)return;gsap.fromTo(el,{opacity:0,y:14},{opacity:1,y:0,duration:0.6,delay,ease:'power2.out'});};
+  fadeIn(document.querySelector('.navcta'),0);
+  document.querySelectorAll('h1 .line>span').forEach((span,i)=>fadeIn(span,i*0.1));
+  fadeIn(document.getElementById('hsub'),0.45);
+  document.querySelectorAll('#hcta .btn').forEach((btn,i)=>fadeIn(btn,0.7+i*0.1));
 }
 
 /* magnetic CTA */
