@@ -26,8 +26,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=bonny@500&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="preload" as="style" href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&display=swap">
+</noscript>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -88,8 +92,7 @@
 
   /* nav */
   nav{position:fixed;top:0;left:0;right:0;z-index:60;padding:20px 36px;display:flex;align-items:center;gap:16px;
-    justify-content:space-between;border-bottom:1px solid transparent;transition:border-color .3s,background .3s;
-    will-change:background-color,backdrop-filter;}
+    justify-content:space-between;border-bottom:1px solid transparent;transition:border-color .3s,background .3s;}
   nav.scrolled{border-color:var(--line);background:rgba(255,255,255,.8);backdrop-filter:blur(16px);}
   .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:17px;color:var(--ink);white-space:nowrap;flex-shrink:0;}
   .logo-mark{width:26px;height:26px;border-radius:7px;background:var(--accent);color:var(--accent-ink);
@@ -366,7 +369,7 @@
   @keyframes shine{from{left:-40%;}to{left:130%;}}
 
   /* pause hero sheen when scrolled away (perf) */
-  .hero-off h1,.hero-off h1 .aw{animation-play-state:paused;}
+  .hero-off h1,.hero-off h1 .aw,.hero-off .hero-sq,.hero-off .scroll-arrow{animation-play-state:paused;}
 
   /* Starter lead offer card */
   .starter{position:relative;background:var(--ink);color:#fff;border-radius:18px;padding:30px 34px;margin-top:30px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:22px;}
@@ -483,7 +486,7 @@
     <div class="lab">01 / Everything handled</div>
     <h2>The whole stack.</h2>
     <p class="sub">No handoffs, no juniors, no account managers. The pieces below converge into one system around your business.</p>
-    <div class="cap-grid" id="capGrid">
+    <div class="cap-grid">
       <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">W</div><div class="cn">Website &amp; funnels</div><div class="cc">Fast, conversion-built pages.</div></div></div>
       <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">B</div><div class="cn">Online booking</div><div class="cc">Self-serve, synced to your calendar.</div></div></div>
       <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">G</div><div class="cn">Google profile</div><div class="cc">Map-pack visibility, owned.</div></div></div>
@@ -1081,11 +1084,17 @@ const isDesktop = window.matchMedia('(min-width:901px)').matches;
    is the safe way to guarantee the new viewport gets the correct desktop/mobile behavior) */
 window.matchMedia('(min-width:901px)').addEventListener('change', () => location.reload());
 
-/* cursor */
+/* cursor — rAF-coalesced so a fast mouse doesn't force a style write on every native event */
 const cur=document.getElementById('cursor');
 if(window.matchMedia('(pointer:fine)').matches){
   document.body.classList.add('cur-ready');
-  window.addEventListener('mousemove',e=>{cur.style.opacity='1';cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px';});
+  let curPending=false,curX=0,curY=0;
+  window.addEventListener('mousemove',e=>{
+    curX=e.clientX;curY=e.clientY;
+    if(curPending)return;
+    curPending=true;
+    requestAnimationFrame(()=>{curPending=false;cur.style.opacity='1';cur.style.left=curX+'px';cur.style.top=curY+'px';});
+  });
   const grow=()=>cur.classList.add('grow'),shrink=()=>cur.classList.remove('grow');
   document.querySelectorAll('a,button,.card').forEach(el=>{el.addEventListener('mouseenter',grow);el.addEventListener('mouseleave',shrink);});
 }
@@ -1115,9 +1124,11 @@ if(!reduce){
 /* scroll progress + nav */
 const prog=document.getElementById('progress'),nav=document.getElementById('nav');
 const scPct=document.getElementById('scPct');
+/* document height cached instead of read every scroll tick — recomputed on resize only */
+let scrollableH=document.documentElement.scrollHeight-window.innerHeight;
+window.addEventListener('resize',()=>{scrollableH=document.documentElement.scrollHeight-window.innerHeight;},{passive:true});
 function onScroll(y){nav.classList.toggle('scrolled',y>40);
-  const h=document.documentElement.scrollHeight-window.innerHeight;
-  const pct=h>0?(y/h*100):0;
+  const pct=scrollableH>0?(y/scrollableH*100):0;
   prog.style.width=pct+'%';
   if(scPct)scPct.textContent=Math.round(pct)+'%';}
 if(lenis) lenis.on('scroll',({scroll})=>onScroll(scroll));
@@ -1166,11 +1177,16 @@ function playHeroReveal(){
   document.querySelectorAll('#hcta .btn').forEach((btn,i)=>fadeIn(btn,0.7+i*0.1));
 }
 
-/* magnetic CTA */
+/* magnetic CTA — rect cached on mouseenter (position doesn't change mid-hover), not re-read every
+   mousemove tick like the old version did (a forced layout read on every raw event) */
 function magnetize(el,sx,sy){
-  el.addEventListener('mousemove',e=>{const r=el.getBoundingClientRect();
-    gsap.to(el,{x:(e.clientX-(r.left+r.width/2))*sx,y:(e.clientY-(r.top+r.height/2))*sy,duration:0.4});});
-  el.addEventListener('mouseleave',()=>gsap.to(el,{x:0,y:0,duration:0.6,ease:'elastic.out(1,0.3)'}));
+  let r=null;
+  el.addEventListener('mouseenter',()=>{r=el.getBoundingClientRect();});
+  el.addEventListener('mousemove',e=>{
+    if(!r)r=el.getBoundingClientRect();
+    gsap.to(el,{x:(e.clientX-(r.left+r.width/2))*sx,y:(e.clientY-(r.top+r.height/2))*sy,duration:0.4});
+  });
+  el.addEventListener('mouseleave',()=>{r=null;gsap.to(el,{x:0,y:0,duration:0.6,ease:'elastic.out(1,0.3)'});});
 }
 if(!reduce&&window.matchMedia('(pointer:fine)').matches){
   document.querySelectorAll('#magnet,.navcta,.tier .btn-fill').forEach(el=>magnetize(el,0.35,0.45));
@@ -1346,9 +1362,11 @@ if(window.matchMedia('(pointer:fine)').matches){
     tl.call(()=>{order=[...rest,front];});
   }
 
-  /* runs continuously forever, on every device — never paused for scroll or visibility */
+  let inView=true;
+  new IntersectionObserver(es=>es.forEach(en=>{inView=en.isIntersecting;}),{threshold:0}).observe(container);
+
   swap();
-  setInterval(swap,delay);
+  setInterval(()=>{if(inView)swap();},delay);
 })();
 
 /* pricing mode toggle: Monthly / Own outright */
@@ -1397,6 +1415,7 @@ function initCal(){
   new IntersectionObserver((es,ob)=>{es.forEach(en=>{if(en.isIntersecting&&!done){done=true;initCal();ob.disconnect();}});},{rootMargin:'500px'}).observe(sec);})();
 
 window.addEventListener('load',()=>{
+  scrollableH=document.documentElement.scrollHeight-window.innerHeight;
   (window.requestIdleCallback||function(cb){setTimeout(cb,400);})(()=>ScrollTrigger.refresh());
 });
 
