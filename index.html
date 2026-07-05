@@ -126,7 +126,7 @@
   .floating-lines-bg canvas{display:block;width:100%;height:100%;}
   .h-wrap{position:relative;z-index:3;max-width:var(--maxw);margin:0 auto;width:100%;}
 
-  /* converge capabilities — scroll/58 */
+  /* capabilities grid */
   .cap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:46px;}
   @media(max-width:900px){.cap-grid{grid-template-columns:repeat(2,1fr);}}
   .cap{border:1px solid var(--line);border-radius:14px;padding:22px;
@@ -463,7 +463,7 @@
   </a>
 </header>
 
-<!-- CAPABILITIES — scroll/58 converge -->
+<!-- CAPABILITIES -->
 <section class="section" id="capabilities" style="background:var(--bg-2-glass)">
   <div class="wrap">
     <div class="lab">01 / Everything handled</div>
@@ -1214,20 +1214,6 @@ if(!reduce){
 /* pause the Premium card's spinning gradient border off-screen — was running unconditionally forever */
 (function(){const prem=document.querySelector('.tier.prem');if(!prem)return;
   new IntersectionObserver(es=>es.forEach(en=>prem.classList.toggle('spin-off',!en.isIntersecting)),{threshold:0}).observe(prem);})();
-
-/* CAPABILITIES converge — scroll/58 technique */
-if(!reduce){
-  const sec=document.getElementById('capabilities');
-  const inners=sec.querySelectorAll('.cap-inner');
-  inners.forEach(i=>i.parentElement.style.zIndex=String(gsap.utils.random(5,40,1)));
-  const tl=gsap.timeline({scrollTrigger:{trigger:sec,start:'top 70%',end:'top 5%',scrub:1.2,invalidateOnRefresh:true}});
-  inners.forEach((inner,i)=>{
-    const off=()=>{const w=inner.parentElement.getBoundingClientRect(),s=sec.getBoundingClientRect();
-      return{x:s.left+s.width/2-(w.left+w.width/2),y:s.top+s.height/2-(w.top+w.height/2)};};
-    tl.fromTo(inner,{x:()=>off().x,y:()=>off().y,scale:1.25,rotate:gsap.utils.random(-22,22),opacity:0},
-      {x:0,y:0,scale:1,rotate:0,opacity:1,ease:'back.inOut(1.6)'},0);
-  });
-}
 
 /* GradualBlur (React Bits port → vanilla, no deps) — fixed top/bottom edge blur across whole site */
 function gradualBlur(position,o){
