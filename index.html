@@ -203,7 +203,8 @@
   .tier li::before{content:"✓";position:absolute;left:0;font-weight:800;color:var(--ink);}
   .tier li.inh{color:var(--muted);}
   .tier li.inh::before{content:"+";color:var(--muted);}
-  .tier li.inh .inh-note{font-size:9px;letter-spacing:.04em;text-transform:uppercase;margin-left:3px;}
+  .tier li.inh .inh-note{display:none;font-size:9px;letter-spacing:.04em;text-transform:uppercase;margin-left:3px;}
+  .tiers.mode-own .tier li.inh .inh-note{display:inline;}
   .tier .tcta{margin-top:auto;}
   .tier-details{margin:2px 0 16px;font-size:12px;}
   .tier-details summary{cursor:pointer;font-weight:700;color:var(--muted);list-style:none;display:flex;align-items:center;gap:6px;transition:color .2s ease;}
@@ -579,7 +580,7 @@
             <div class="price">R0 <small>build fee</small></div>
             <div class="price" style="font-size:22px;margin-top:4px">R8,000<small>/mo</small></div>
           </div>
-          <div class="po"><div class="price">R32,000 <small>once-off</small></div></div>
+          <div class="po"><div class="price">R20,000 <small>once-off</small></div></div>
           <div class="pu">
             <div class="price">$0 <small>build fee</small></div>
             <div class="price" style="font-size:22px;margin-top:4px">$647<small>/mo</small></div>
