@@ -78,6 +78,14 @@
   .cursor.grow{width:27px;height:27px;}
   @media(pointer:coarse){.cursor{display:none;}body{cursor:auto;}}
 
+  /* persistent scroll chrome — desktop only */
+  .scroll-chrome{display:none;position:fixed;right:24px;bottom:22px;z-index:60;align-items:center;gap:8px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--muted);pointer-events:none;}
+  .scroll-chrome .sc-pct{color:var(--ink);font-weight:600;min-width:32px;text-align:right;}
+  @media(min-width:901px){.scroll-chrome{display:flex;}}
+  @media(prefers-reduced-motion:reduce){.scroll-chrome{display:none;}}
+
   /* nav */
   nav{position:fixed;top:0;left:0;right:0;z-index:60;padding:20px 36px;display:flex;align-items:center;gap:16px;
     justify-content:space-between;border-bottom:1px solid transparent;transition:border-color .3s,background .3s;
@@ -125,6 +133,23 @@
   .floating-lines-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;}
   .floating-lines-bg canvas{display:block;width:100%;height:100%;}
   .h-wrap{position:relative;z-index:3;max-width:var(--maxw);margin:0 auto;width:100%;}
+
+  /* hero->capabilities transition: letterbox zoom, pinned color-flip statement, iris wipe.
+     Desktop only — pin/scrub choreography on a page this content-dense isn't worth the mobile cost. */
+  .letterbox-bar,.pin-statement,.iris-wipe{display:none;}
+  @media(min-width:901px){
+    .letterbox-bar{display:block;position:fixed;left:0;right:0;height:0;background:#0a0a0a;z-index:55;pointer-events:none;}
+    .letterbox-bar.top{top:0;} .letterbox-bar.bottom{bottom:0;}
+
+    .pin-statement{display:flex;position:relative;height:100vh;background:#0a0a0a;align-items:center;justify-content:center;overflow:hidden;}
+    .pin-statement .ps-idx,.pin-statement .ps-tag{position:absolute;bottom:40px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:rgba(255,255,255,.4);}
+    .pin-statement .ps-idx{left:40px;} .pin-statement .ps-tag{right:40px;}
+    .ps-text{font-family:'Clash Display',sans-serif;font-weight:700;letter-spacing:-.03em;line-height:.98;
+      font-size:clamp(40px,6.4vw,110px);color:#fff;text-align:center;opacity:0;}
+
+    .iris-wipe{display:block;position:fixed;inset:0;z-index:58;background:#0a0a0a;clip-path:circle(0% at 50% 50%);pointer-events:none;}
+  }
+  @media(prefers-reduced-motion:reduce){.letterbox-bar,.pin-statement,.iris-wipe{display:none!important;}}
 
   /* capabilities grid */
   .cap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:46px;}
@@ -203,6 +228,11 @@
   .tier li.inh::before{content:"+";color:var(--muted);}
   .tier li.inh .inh-note{display:none;font-size:9px;letter-spacing:.04em;text-transform:uppercase;margin-left:3px;}
   .tier li.own-hide .mo-note{font-size:9px;letter-spacing:.04em;text-transform:uppercase;margin-left:3px;color:var(--muted);}
+  .tier li .co-tag{display:none;}
+  @media(min-width:901px){
+    .tier.prem li .co-tag{display:inline-block;margin-left:8px;padding-left:10px;border-left:1px solid var(--line-strong);
+      font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);opacity:0;}
+  }
   .tiers.mode-own .tier li.inh .inh-note{display:inline;}
   .tier .tcta{margin-top:auto;}
   .tier-details{margin:2px 0 16px;font-size:12px;}
@@ -303,6 +333,12 @@
     color:#000;text-transform:uppercase;letter-spacing:-.02em;line-height:1.15;min-height:1.15em;}
   .intro-caret{display:inline-block;width:.06em;height:.85em;background:#000;margin-left:.05em;vertical-align:-.08em;}
   @media(prefers-reduced-motion:reduce){.intro-veil,.intro-type{display:none!important;}}
+
+  /* desktop-only word-slam intro variant */
+  .intro-idx,.intro-tag{position:absolute;bottom:40px;font-family:'JetBrains Mono',monospace;font-size:11px;
+    letter-spacing:.12em;color:rgba(10,10,10,.4);}
+  .intro-idx{left:40px;} .intro-tag{right:40px;}
+  @media(min-width:901px){.intro-type.slam .intro-type-line{font-size:clamp(64px,9vw,150px);font-weight:600;}}
 
   /* ===== polish pass ===== */
 
@@ -422,9 +458,12 @@
 <div class="floating-lines-bg" id="floatingLinesBg" aria-hidden="true"></div>
 <div class="progress" id="progress"></div>
 <div class="cursor" id="cursor"></div>
+<div class="scroll-chrome" aria-hidden="true"><span>Scroll</span><span class="sc-pct" id="scPct">0%</span></div>
 <div class="intro-veil" id="introVeil"></div>
 <div class="intro-type" id="introType">
+  <span class="intro-idx" id="introIdx" hidden></span>
   <div class="intro-type-line" id="introLine"></div>
+  <span class="intro-tag" id="introTag" hidden>©2026</span>
 </div>
 
 <nav id="nav">
@@ -462,6 +501,17 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
   </a>
 </header>
+
+<div class="letterbox-bar top" aria-hidden="true"></div>
+<div class="letterbox-bar bottom" aria-hidden="true"></div>
+
+<section class="pin-statement" id="pinStatement">
+  <span class="ps-idx">002</span>
+  <span class="ps-tag">©2026</span>
+  <h2 class="ps-text" id="psText">One person.<br>Every piece.</h2>
+</section>
+
+<div class="iris-wipe" id="irisWipe" aria-hidden="true"></div>
 
 <!-- CAPABILITIES -->
 <section class="section" id="capabilities" style="background:var(--bg-2-glass)">
@@ -583,7 +633,7 @@
           </div>
           <div class="puo"><div class="price">$2,997 <small>once-off</small></div></div>
           <ul>
-            <li class="inh">Everything in Growth<span class="inh-note">*in outright</span></li><li>Priority support</li><li>Automations</li><li>Email &amp; SMS</li><li>Referral programs</li><li>Membership retention</li><li class="own-hide">Business system / CRM<span class="mo-note">- only in monthly</span></li><li class="own-hide">AI assistants<span class="mo-note">- only in monthly</span></li>
+            <li class="inh">Everything in Growth<span class="inh-note">*in outright</span></li><li>Priority support<span class="co-tag">same-day fixes</span></li><li>Automations<span class="co-tag">built for you</span></li><li>Email &amp; SMS</li><li>Referral programs</li><li>Membership retention</li><li class="own-hide">Business system / CRM<span class="mo-note">- only in monthly</span></li><li class="own-hide">AI assistants<span class="mo-note">- only in monthly</span></li>
           </ul>
           <details class="tier-details">
             <summary>Full details</summary>
@@ -1060,6 +1110,7 @@ void main() {
 <script>
 gsap.registerPlugin(ScrollTrigger);
 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isDesktop = window.matchMedia('(min-width:901px)').matches;
 
 /* cursor */
 const cur=document.getElementById('cursor');
@@ -1094,9 +1145,12 @@ if(!reduce){
 
 /* scroll progress + nav */
 const prog=document.getElementById('progress'),nav=document.getElementById('nav');
+const scPct=document.getElementById('scPct');
 function onScroll(y){nav.classList.toggle('scrolled',y>40);
   const h=document.documentElement.scrollHeight-window.innerHeight;
-  prog.style.width=(h>0?(y/h*100):0)+'%';}
+  const pct=h>0?(y/h*100):0;
+  prog.style.width=pct+'%';
+  if(scPct)scPct.textContent=Math.round(pct)+'%';}
 if(lenis) lenis.on('scroll',({scroll})=>onScroll(scroll));
 else window.addEventListener('scroll',()=>onScroll(window.scrollY),{passive:true});
 
@@ -1208,12 +1262,43 @@ if(!reduce){
   /* hero content drifts up on scroll — subtle parallax, works on touch too */
   gsap.to('.h-wrap',{yPercent:-8,ease:'none',scrollTrigger:{trigger:'#top',start:'top top',end:'bottom top',scrub:true}});
 }
+
+/* hero -> pin-statement -> capabilities: letterbox zoom, pinned color-flip text, iris wipe.
+   Desktop only, and only numeric transform/opacity/clip-path tweens on a handful of elements —
+   no per-frame layout reads (that's what made the old capabilities "converge" effect laggy). */
+if(isDesktop && !reduce){
+  const barTop=document.querySelector('.letterbox-bar.top'),barBottom=document.querySelector('.letterbox-bar.bottom');
+  gsap.timeline({scrollTrigger:{trigger:'#top',start:'top top',end:'bottom top',scrub:0.6}})
+    .to('.h-wrap,.h-bottom',{scale:1.12,opacity:0,ease:'power1.in'},0)
+    .to([barTop,barBottom],{height:64,ease:'power1.in'},0);
+
+  gsap.timeline({scrollTrigger:{trigger:'#pinStatement',start:'top top',end:'+=100%',scrub:0.6,pin:true}})
+    .to([barTop,barBottom],{height:0,duration:0.15,ease:'power1.out'},0)
+    .fromTo('#psText',{opacity:0,y:36},{opacity:1,y:0,duration:0.3,ease:'power2.out'},0.15)
+    .to('#psText',{opacity:0,y:-30,duration:0.3,ease:'power1.in'},0.7);
+
+  gsap.timeline({scrollTrigger:{trigger:'#capabilities',start:'top bottom',end:'top 15%',scrub:0.6}})
+    .fromTo('#irisWipe',{clipPath:'circle(0% at 50% 50%)'},{clipPath:'circle(150% at 50% 50%)',ease:'power1.inOut'},0)
+    .to('#irisWipe',{clipPath:'circle(0% at 50% 50%)',ease:'power1.inOut'},0.55);
+}
+
 /* pause hero sheen when scrolled past — kills off-screen repaint cost */
 (function(){const hero=document.getElementById('top');if(!hero)return;
   new IntersectionObserver(es=>es.forEach(en=>document.documentElement.classList.toggle('hero-off',!en.isIntersecting)),{threshold:0}).observe(hero);})();
 /* pause the Premium card's spinning gradient border off-screen — was running unconditionally forever */
 (function(){const prem=document.querySelector('.tier.prem');if(!prem)return;
   new IntersectionObserver(es=>es.forEach(en=>prem.classList.toggle('spin-off',!en.isIntersecting)),{threshold:0}).observe(prem);})();
+
+/* Premium feature callouts — fade in once, desktop only */
+if(isDesktop&&!reduce){
+  const prem=document.querySelector('.tier.prem');
+  const tags=prem?prem.querySelectorAll('.co-tag'):[];
+  if(tags.length){
+    new IntersectionObserver((es,ob)=>{es.forEach(en=>{if(en.isIntersecting){
+      gsap.to(tags,{opacity:1,duration:0.5,stagger:0.15,ease:'power1.out'});ob.disconnect();
+    }});},{threshold:0.4}).observe(prem);
+  }
+}
 
 /* GradualBlur (React Bits port → vanilla, no deps) — fixed top/bottom edge blur across whole site */
 function gradualBlur(position,o){
@@ -1365,35 +1450,62 @@ window.addEventListener('load',()=>{
   (window.requestIdleCallback||function(cb){setTimeout(cb,400);})(()=>ScrollTrigger.refresh());
 });
 
-/* intro veil — typewriter reveal, one word at a time, then a curtain-lift into the hero. Plays once per page load. */
+/* intro veil — desktop: kinetic word-slam (big word punches in/out, index + tag corners).
+   mobile: typewriter reveal, one word at a time. Either way, curtain-lifts into the hero once. */
 (function(){
   const veil=document.getElementById('introVeil'),type=document.getElementById('introType');
   const el=document.getElementById('introLine');
   if(!veil||reduce){playHeroReveal();return;}
   const words=['Built.','To.','Convert.'];
-  const CHAR_MS=55,HOLD_MS=380,CLEAR_MS=120;
-  let t=250;
-  words.forEach((word,i)=>{
-    for(let c=1;c<=word.length;c++){
-      setTimeout(()=>{el.innerHTML=word.slice(0,c)+'<span class="intro-caret"></span>';},t);
-      t+=CHAR_MS;
-    }
-    setTimeout(()=>{el.textContent=word;},t);
-    t+=HOLD_MS;
-    if(i<words.length-1){
-      setTimeout(()=>{el.textContent='';},t);
-      t+=CLEAR_MS;
-    }
-  });
-  t+=450;
-  setTimeout(()=>{
-    type.classList.add('exit');
+  const finish=(t)=>{
     setTimeout(()=>{
-      veil.classList.add('curtain');
-      playHeroReveal();
-      setTimeout(()=>{veil.remove();type.remove();},700);
-    },250);
-  },t);
+      type.classList.add('exit');
+      setTimeout(()=>{
+        veil.classList.add('curtain');
+        playHeroReveal();
+        setTimeout(()=>{veil.remove();type.remove();},700);
+      },250);
+    },t);
+  };
+
+  if(isDesktop){
+    type.classList.add('slam');
+    const idx=document.getElementById('introIdx'),tag=document.getElementById('introTag');
+    idx.hidden=false;tag.hidden=false;
+    const HOLD_MS=550,GAP_MS=120;
+    let t=200;
+    words.forEach((word,i)=>{
+      setTimeout(()=>{
+        idx.textContent='00'+(i+1);
+        el.textContent=word;
+        gsap.fromTo(el,{opacity:0,scale:0.85,filter:'blur(6px)'},{opacity:1,scale:1,filter:'blur(0px)',duration:0.4,ease:'power2.out'});
+      },t);
+      t+=HOLD_MS;
+      if(i<words.length-1){
+        setTimeout(()=>{gsap.to(el,{opacity:0,scale:1.06,duration:0.18,ease:'power1.in'});},t);
+        t+=GAP_MS;
+      }
+    });
+    t+=450;
+    finish(t);
+  } else {
+    const CHAR_MS=55,HOLD_MS=380,CLEAR_MS=120;
+    let t=250;
+    words.forEach((word,i)=>{
+      for(let c=1;c<=word.length;c++){
+        setTimeout(()=>{el.innerHTML=word.slice(0,c)+'<span class="intro-caret"></span>';},t);
+        t+=CHAR_MS;
+      }
+      setTimeout(()=>{el.textContent=word;},t);
+      t+=HOLD_MS;
+      if(i<words.length-1){
+        setTimeout(()=>{el.textContent='';},t);
+        t+=CLEAR_MS;
+      }
+    });
+    t+=450;
+    finish(t);
+  }
 })();
 </script>
 </body>
