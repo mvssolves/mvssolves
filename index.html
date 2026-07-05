@@ -119,13 +119,9 @@
   .btn-fill svg{width:16px;height:16px;}
   .btn-ghost{border:1px solid var(--line-strong);color:var(--ink);font-weight:600;transition:background .25s,border-color .25s;}
   .btn-ghost:hover{background:var(--surface);border-color:var(--ink);}
-  .hero-bg{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
-  .hero-bg i{position:absolute;top:0;bottom:0;left:0;width:calc(100% + 120px);background-repeat:repeat;will-change:transform;}
-  .hero-bg .d1{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='54' height='54'%3E%3Crect x='22' y='22' width='10' height='10' transform='rotate(45 27 27)' fill='%230a0a0a'/%3E%3C/svg%3E");background-size:54px 54px;opacity:.20;animation:drift1 5s linear infinite;}
-  .hero-bg .d2{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Crect x='38' y='38' width='14' height='14' transform='rotate(45 45 45)' fill='%230a0a0a'/%3E%3C/svg%3E");background-size:90px 90px;opacity:.10;animation:drift2 11s linear infinite;}
-  @keyframes drift1{from{transform:translateX(0);}to{transform:translateX(-54px);}}
-  @keyframes drift2{from{transform:translateX(0);}to{transform:translateX(-90px);}}
-  @media(prefers-reduced-motion:reduce){.hero-bg i{animation:none;}}
+  .hero-sq{position:absolute;top:20%;right:14%;width:14px;height:14px;background:var(--ink);opacity:0;transform:rotate(45deg);pointer-events:none;animation:sqFade 8s ease-in-out infinite;}
+  @keyframes sqFade{0%,100%{opacity:0;}50%{opacity:.12;}}
+  @media(prefers-reduced-motion:reduce){.hero-sq{animation:none;opacity:0;}}
   .floating-lines-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;}
   .floating-lines-bg canvas{display:block;width:100%;height:100%;}
   .h-wrap{position:relative;z-index:3;max-width:var(--maxw);margin:0 auto;width:100%;}
@@ -309,10 +305,6 @@
   @media(prefers-reduced-motion:reduce){.intro-veil,.intro-type{display:none!important;}}
 
   /* ===== polish pass ===== */
-  /* lighter, sparser drifting diamonds */
-  .hero-bg .d1{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cpath d='M80 71 L82.5 77.5 L89 80 L82.5 82.5 L80 89 L77.5 82.5 L71 80 L77.5 77.5 Z' fill='%230a0a0a'/%3E%3C/svg%3E");background-size:160px 160px;opacity:.07;animation:drift1 24s linear infinite;}
-  .hero-bg .d2{display:none;}
-  @keyframes drift1{from{transform:translateX(0);}to{transform:translateX(-160px);}}
 
   /* hero words: solid ink (sheen removed — background-clip:text conflicted with BlurText per-word spans) */
   h1{color:var(--ink);}
@@ -391,8 +383,6 @@
     .wrap{padding:0 20px;}
     nav{padding:16px 20px;}
     .hero{min-height:100vh;min-height:100svh;padding:140px 20px 56px;justify-content:center;}
-    .hero-bg .d1{opacity:.07;}
-    .hero-bg .d2{opacity:.04;}
     h1{font-size:clamp(46px,12vw,64px);}
     .h-sub{font-size:clamp(13px,3.2vw,14px);}
     .h-cta{margin-top:18px;gap:10px;flex-direction:column;align-items:stretch;}
@@ -452,6 +442,7 @@
 </nav>
 
 <header class="hero" id="top">
+  <span class="hero-sq" aria-hidden="true"></span>
   <div class="h-wrap">
     <h1>
       <span class="line"><span>Real</span></span>
@@ -1290,8 +1281,6 @@ if(window.matchMedia('(pointer:fine)').matches){
 }
 
 /* site-wide background is now FloatingLines (see module script near the CDN includes below) */
-
-/* hero background = drifting black diamonds (pure CSS .hero-bg) — physics chips removed */
 
 /* CardSwap — "why me" reason cycler, mobile and desktop (React Bits port → vanilla, reuses page's existing GSAP) */
 (function(){
