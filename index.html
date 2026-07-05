@@ -1045,8 +1045,15 @@ void main() {
     function start() { if (running) return; running = true; raf = requestAnimationFrame(renderLoop); }
     function stop() { running = false; if (raf) cancelAnimationFrame(raf); }
 
-    if (!document.hidden) start();
-    document.addEventListener('visibilitychange', () => { document.hidden ? stop() : start(); });
+    /* defer first start (and with it, the first-render shader compile) until the intro veil
+       hands off to the hero — avoids competing with the loading-screen animation for GPU/main
+       thread. The timeout is just a safety net if the veil is ever removed from the markup —
+       it's set well past the veil's own ~3.2s sequence so it never fires first in the normal case. */
+    let begun = false;
+    const beginOnce = () => { if (begun) return; begun = true; if (!document.hidden) start(); };
+    document.addEventListener('mvs:reveal', beginOnce, { once: true });
+    setTimeout(beginOnce, 6000);
+    document.addEventListener('visibilitychange', () => { document.hidden ? stop() : (begun && start()); });
   } catch (err) { console.warn('FloatingLines init failed', err); }
 }
 </script>
@@ -1127,6 +1134,7 @@ function decryptText(el,opts){
   });
 }
 function playHeroReveal(){
+  document.dispatchEvent(new Event('mvs:reveal'));
   if(reduce)return;
   const fadeIn=(el,delay)=>{if(!el)return;gsap.fromTo(el,{opacity:0,y:14},{opacity:1,y:0,duration:0.6,delay,ease:'power2.out'});};
   fadeIn(document.querySelector('.navcta'),0);
