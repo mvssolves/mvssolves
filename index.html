@@ -1040,9 +1040,17 @@ void main() {
       document.documentElement.addEventListener('mouseleave', handlePointerLeave);
     }
 
-    let raf = 0, running = false;
+    let raf = 0, running = false, frameSkip = 0;
+    /* slow ambient background — rendering it at full display refresh rate is wasted GPU budget
+       that the rest of the page (scroll, hover, everything else) has to compete with. Halving to
+       ~30fps here is visually undetectable given how slowly these waves move, and frees up the
+       other half of every second frame's budget site-wide. */
     function renderLoop() {
       if (!running) return;
+      raf = requestAnimationFrame(renderLoop);
+      frameSkip = (frameSkip + 1) % 2;
+      if (frameSkip !== 0) return;
+
       uniforms.iTime.value = clock.getElapsedTime();
 
       if (interactive) {
@@ -1057,7 +1065,6 @@ void main() {
       }
 
       renderer.render(scene, camera);
-      raf = requestAnimationFrame(renderLoop);
     }
     function start() { if (running) return; running = true; raf = requestAnimationFrame(renderLoop); }
     function stop() { running = false; if (raf) cancelAnimationFrame(raf); }
