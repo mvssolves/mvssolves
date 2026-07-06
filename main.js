@@ -363,6 +363,22 @@ window.addEventListener('load',()=>{
   scrollableH=document.documentElement.scrollHeight-window.innerHeight;
   (window.requestIdleCallback||function(cb){setTimeout(cb,400);})(()=>ScrollTrigger.refresh());
 });
+/* web fonts (Nohemi/Cormorant/JetBrains Mono/General Sans) swap in async — on slower mobile
+   connections that can land AFTER the 'load' refresh above, reflowing text and shifting every
+   'top X%' trigger point calculated against the pre-swap layout. Symptom: reveals silently skip
+   straight to their end state on mobile because ScrollTrigger thinks it's already past them. */
+if(document.fonts&&document.fonts.ready){
+  document.fonts.ready.then(()=>ScrollTrigger.refresh());
+}
+/* mobile Safari resizes the visual viewport as the address bar collapses mid-scroll, which can
+   stale the same trigger positions — debounced refresh keeps them honest without thrashing */
+(function(){
+  let t;
+  window.addEventListener('resize',()=>{
+    clearTimeout(t);
+    t=setTimeout(()=>ScrollTrigger.refresh(),200);
+  },{passive:true});
+})();
 
 /* intro veil — typewriter reveal, one word at a time, then a curtain-lift into the hero. Plays once per page load. */
 (function(){

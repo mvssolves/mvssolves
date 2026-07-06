@@ -175,18 +175,21 @@
     box-shadow:0 1px 2px rgba(10,10,10,.04);
     transition:box-shadow .3s cubic-bezier(.16,1,.3,1);}
   .int:hover{box-shadow:0 10px 26px -14px rgba(10,10,10,.22);}
+  /* real per-brand color instead of one flat monogram treatment — .ii carries the brand bg,
+     svg/glyph inside is white or brand-on-white where the mark needs contrast */
   .int .ii{width:30px;height:30px;border-radius:8px;flex-shrink:0;
-    background:linear-gradient(160deg,#333 0%,var(--accent) 65%);color:var(--accent-ink);
-    display:flex;align-items:center;justify-content:center;font-weight:800;font-family:'JetBrains Mono',monospace;font-size:11px;}
+    display:flex;align-items:center;justify-content:center;font-weight:800;
+    font-family:'JetBrains Mono',monospace;font-size:11px;overflow:hidden;}
+  .int .ii svg{width:18px;height:18px;display:block;}
   .int-carousel-wrap{perspective:1300px;height:260px;display:flex;align-items:center;justify-content:center;margin-top:56px;}
-  .int-carousel{position:relative;width:1px;height:1px;transform-style:preserve-3d;animation:intSpin 30s linear infinite;}
+  .int-carousel{position:relative;width:1px;height:1px;transform-style:preserve-3d;animation:intSpin 40s linear infinite;}
   .int-carousel:hover,.int-carousel.spin-off{animation-play-state:paused;}
   @keyframes intSpin{from{transform:rotateY(0deg);}to{transform:rotateY(360deg);}}
-  .int-item{position:absolute;top:0;left:0;width:180px;margin:-31px 0 0 -90px;
-    transform:rotateY(calc(var(--i) * 45deg)) translateZ(270px);backface-visibility:hidden;}
+  .int-item{position:absolute;top:0;left:0;width:172px;margin:-31px 0 0 -86px;
+    transform:rotateY(calc(var(--i) * 30deg)) translateZ(400px);backface-visibility:hidden;}
   @media(max-width:900px){
     .int-carousel-wrap{height:220px;}
-    .int-item{width:150px;margin:-27px 0 0 -75px;transform:rotateY(calc(var(--i) * 45deg)) translateZ(200px);}
+    .int-item{width:140px;margin:-27px 0 0 -70px;transform:rotateY(calc(var(--i) * 30deg)) translateZ(300px);}
   }
   @media(prefers-reduced-motion:reduce){.int-carousel{animation:none;}}
 
@@ -685,14 +688,18 @@
     <p class="sub">No new logins, no ripped-out systems. Everything plugs straight into the tools your business already runs on.</p>
     <div class="int-carousel-wrap">
       <div class="int-carousel">
-        <div class="int int-item" style="--i:0"><span class="ii">G</span>Google Profile</div>
-        <div class="int int-item" style="--i:1"><span class="ii">WA</span>WhatsApp</div>
-        <div class="int int-item" style="--i:2"><span class="ii">M</span>Make</div>
-        <div class="int int-item" style="--i:3"><span class="ii">N8N</span>n8n</div>
-        <div class="int int-item" style="--i:4"><span class="ii">C</span>Cal.com</div>
-        <div class="int int-item" style="--i:5"><span class="ii">IG</span>Instagram</div>
-        <div class="int int-item" style="--i:6"><span class="ii">$</span>Stripe</div>
-        <div class="int int-item" style="--i:7"><span class="ii">@</span>Email &amp; SMS</div>
+        <div class="int int-item" style="--i:0"><span class="ii" style="background:#fff;border:1px solid var(--line-strong);color:#4285F4;font-weight:800;font-size:15px;">G</span>Google Profile</div>
+        <div class="int int-item" style="--i:1"><span class="ii" style="background:#25D366;"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.38 5.07L2 22l5.05-1.32C8.51 21.5 10.2 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm5.2 14.2c-.22.62-1.28 1.19-1.77 1.24-.46.05-1 .07-1.6-.1-.37-.1-.85-.27-1.46-.53-2.57-1.11-4.24-3.71-4.37-3.88-.13-.17-1.05-1.39-1.05-2.65 0-1.26.66-1.88.9-2.14.24-.26.52-.32.7-.32h.5c.16 0 .38-.03.59.45.22.5.75 1.75.82 1.88.07.13.11.28.02.45-.09.17-.14.28-.27.43-.13.15-.28.34-.4.46-.13.13-.27.27-.11.53.15.26.68 1.12 1.46 1.82 1 .89 1.84 1.17 2.1 1.3.26.13.41.11.56-.07.15-.17.63-.73.8-.98.17-.25.34-.21.56-.13.23.09 1.44.68 1.69.8.25.13.41.19.47.3.06.11.06.62-.16 1.24z"/></svg></span>WhatsApp</div>
+        <div class="int int-item" style="--i:2"><span class="ii" style="background:#1A0826;color:#fff;font-weight:800;font-size:14px;">M</span>Make</div>
+        <div class="int int-item" style="--i:3"><span class="ii" style="background:#EA4B71;"><svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="2.4" fill="#fff"/><circle cx="5" cy="18" r="2.4" fill="#fff"/><circle cx="18" cy="12" r="2.4" fill="#fff"/><path d="M7 6.8 16 11.3M7 17.2 16 12.7" stroke="#fff" stroke-width="1.6"/></svg></span>n8n</div>
+        <div class="int int-item" style="--i:4"><span class="ii" style="background:#000;"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><path d="m9 14 2 2 4-4"/></svg></span>Cal.com</div>
+        <div class="int int-item" style="--i:5"><span class="ii" style="background:linear-gradient(45deg,#FEDA75,#FA7E1E,#D62976,#962FBF,#4F5BD5);"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#fff" stroke="none"/></svg></span>Instagram</div>
+        <div class="int int-item" style="--i:6"><span class="ii" style="background:#635BFF;color:#fff;font-weight:800;font-style:italic;font-size:15px;">S</span>Stripe</div>
+        <div class="int int-item" style="--i:7"><span class="ii" style="background:var(--accent);color:var(--accent-ink);font-weight:800;">@</span>Email &amp; SMS</div>
+        <div class="int int-item" style="--i:8"><span class="ii" style="background:#1877F2;"><svg viewBox="0 0 24 24" fill="#fff"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V8c0-.9.25-1.5 1.55-1.5H17V3.6C16.7 3.56 15.7 3.47 14.5 3.47c-2.5 0-4.2 1.5-4.2 4.3V10H7.6v3.1h2.7v8h3.2z"/></svg></span>Facebook</div>
+        <div class="int int-item" style="--i:9"><span class="ii" style="background:#fff;border:1px solid var(--line-strong);"><svg viewBox="0 0 24 24"><rect x="9" y="2" width="3" height="8" rx="1.5" fill="#36C5F0"/><rect x="2" y="9" width="8" height="3" rx="1.5" fill="#2EB67D"/><rect x="12" y="14" width="3" height="8" rx="1.5" fill="#ECB22E"/><rect x="14" y="9" width="8" height="3" rx="1.5" fill="#E01E5A"/></svg></span>Slack</div>
+        <div class="int int-item" style="--i:10"><span class="ii" style="background:#FF4A00;"><svg viewBox="0 0 24 24" fill="#fff"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg></span>Zapier</div>
+        <div class="int int-item" style="--i:11"><span class="ii" style="background:#003087;color:#fff;font-weight:800;font-size:15px;">P</span>PayPal</div>
       </div>
     </div>
   </div>
