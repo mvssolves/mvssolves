@@ -440,6 +440,14 @@
     .tier ul{margin:12px 0;}
     .tier li{padding:4px 0 4px 20px;}
     .tier-details{margin:2px 0 10px;}
+    /* "Full details" was 12px muted gray — easy to miss as a tappable control on a phone.
+       Bigger, bolder, bordered pill (matches the capabilities "Show the rest" toggle) so it
+       reads as an obvious button and gives a proper tap target. */
+    .tier-details summary{font-size:14px;color:var(--ink);font-family:'JetBrains Mono',monospace;
+      letter-spacing:.04em;border:1px solid var(--line);border-radius:10px;padding:10px 14px;
+      justify-content:center;}
+    .tier-details summary:hover{border-color:var(--ink);}
+    .tier-details[open] summary{border-color:var(--line);margin-bottom:8px;}
   }
 
 
@@ -576,7 +584,8 @@
               <dt>Logo &amp; brand</dt><dd>A logo and visual identity that reads premium, not DIY.</dd>
             </dl>
           </details>
-          <a class="btn btn-ghost tcta" href="#book">Get package</a>
+          <a class="btn btn-fill tcta" href="#book" style="justify-content:center">Get package
+            <span class="swap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></a>
         </div>
       </div>
       <div class="tier-slot">
@@ -672,7 +681,8 @@
             <dt>Dedicated support &amp; reporting</dt><dd>A direct line to me, plus regular performance reports.</dd>
           </dl>
         </details>
-        <a class="btn btn-ghost tcta" href="#book">Book a scoping call</a>
+        <a class="btn btn-fill tcta" href="#book" style="justify-content:center">Book a scoping call
+          <span class="swap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></a>
       </div>
     </div>
   </div>
