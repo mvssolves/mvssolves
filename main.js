@@ -114,19 +114,64 @@ if(!reduce&&window.matchMedia('(pointer:fine)').matches){const feat=document.que
 
 /* section heading reveals */
 if(!reduce){
-  gsap.utils.toArray('.section h2').forEach(el=>{
+  gsap.utils.toArray('.section h2:not(.h2-split)').forEach(el=>{
     gsap.from(el,{y:32,opacity:0,duration:1.05,ease:'power4.out',
       scrollTrigger:{trigger:el,start:'top 86%'}});
+  });
+  /* sections 01-03 only: per-word mask reveal instead of the flat fade above */
+  gsap.utils.toArray('.h2-split').forEach(h=>{
+    const words=h.querySelectorAll('.word>span');
+    gsap.fromTo(words,{yPercent:110,opacity:0},{yPercent:0,opacity:1,duration:0.7,stagger:0.05,
+      ease:'power3.out',scrollTrigger:{trigger:h,start:'top 86%'}});
   });
   gsap.utils.toArray('.section .sub, .lab').forEach(el=>{
     gsap.from(el,{y:30,opacity:0,duration:0.9,ease:'power3.out',
       scrollTrigger:{trigger:el,start:'top 88%'}});
   });
+  /* eyebrow labels — matrix-style scramble-to-real-text decode, seen in the reference video.
+     Layers on top of the fade above; .lab is already monospace so glyph-width stays stable. */
+  (function(){
+    const SCRAMBLE='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    function scrambleReveal(el){
+      const final=el.textContent,total=18;let frame=0;
+      const iv=setInterval(()=>{
+        frame++;
+        el.textContent=final.split('').map((c,i)=>{
+          if(c===' ')return c;
+          const revealAt=Math.floor((i/final.length)*total)+4;
+          return frame>=revealAt?c:SCRAMBLE[Math.floor(Math.random()*SCRAMBLE.length)];
+        }).join('');
+        if(frame>=total+4){el.textContent=final;clearInterval(iv);}
+      },35);
+    }
+    gsap.utils.toArray('.lab').forEach(el=>{
+      ScrollTrigger.create({trigger:el,start:'top 90%',once:true,onEnter:()=>scrambleReveal(el)});
+    });
+  })();
   /* batched reveal for body groups so they don't pop in flat under animated headings */
   ['.tiers .tier','.steps .step','.why-cards .cap','.founder'].forEach(sel=>{
     ScrollTrigger.batch(gsap.utils.toArray(sel),{start:'top 90%',
       onEnter:b=>gsap.fromTo(b,{opacity:0},{opacity:1,duration:0.6,stagger:0.06,ease:'power2.out',overwrite:true})});
   });
+  /* capabilities (01) — cards fly in from Z-depth instead of the flat fade above. Softer than the
+     first pass: less Z travel/tilt + y-drift so the motion reads as a gentle settle, not a pop */
+  ScrollTrigger.batch(gsap.utils.toArray('#capabilities .cap-grid .cap'),{start:'top 94%',
+    onEnter:b=>gsap.fromTo(b,{opacity:0,y:26,z:-70,rotateX:-6},
+      {opacity:1,y:0,z:0,rotateX:0,duration:1.1,stagger:0.08,ease:'power2.out',overwrite:true})});
+  /* integrations (02) carousel — whole assembly scales/fades in once, spin keeps going after.
+     Softer scale range + longer duration, same reasoning as above */
+  gsap.fromTo('.int-carousel-wrap',{opacity:0,scale:0.94,y:20},
+    {opacity:1,scale:1,y:0,duration:1.2,ease:'power2.out',scrollTrigger:{trigger:'.int-carousel-wrap',start:'top 88%'}});
+  /* hidden-cost (03) wheel — pops in from Z-depth to match the extrude-on-hover language */
+  gsap.fromTo('.wheel-disc',{opacity:0,z:-220},
+    {opacity:1,z:0,duration:0.9,ease:'power3.out',scrollTrigger:{trigger:'.wheel-disc',start:'top 88%'}});
+  /* ring draws itself in, same beat as the disc pop — reference video's circle-trace */
+  gsap.fromTo('.wheel-ring circle',{strokeDashoffset:309.9},
+    {strokeDashoffset:0,duration:1.3,ease:'power2.inOut',scrollTrigger:{trigger:'.wheel-disc',start:'top 88%'}});
+  /* labels pop in one at a time as the ring finishes drawing around them — video sequences the
+     chips onto the ring rather than showing them all at once */
+  gsap.fromTo('.wn',{opacity:0,scale:0.6},{opacity:1,scale:1,duration:0.5,stagger:0.15,delay:0.5,
+    ease:'back.out(2)',scrollTrigger:{trigger:'.wheel-disc',start:'top 88%'}});
   /* hero content drifts up on scroll — subtle parallax, works on touch too */
   gsap.to('.h-wrap',{yPercent:-8,ease:'none',scrollTrigger:{trigger:'#top',start:'top top',end:'bottom top',scrub:true}});
 }
@@ -137,6 +182,9 @@ if(!reduce){
 /* pause the Premium card's spinning gradient border off-screen — was running unconditionally forever */
 (function(){const prem=document.querySelector('.tier.prem');if(!prem)return;
   onVisibilityChange(prem,visible=>prem.classList.toggle('spin-off',!visible));})();
+/* pause the integrations carousel spin off-screen — same reasoning, was running forever */
+(function(){const ic=document.querySelector('.int-carousel');if(!ic)return;
+  onVisibilityChange(ic,visible=>ic.classList.toggle('spin-off',!visible));})();
 
 /* floating book-call pill: visible once past the hero, hidden again once the book section
    (which has its own CTA already on screen) is reached. Own observer — not the shared one,
@@ -239,6 +287,31 @@ if(window.matchMedia('(pointer:fine)').matches){
 
   swap();
   setInterval(()=>{if(inView)swap();},delay);
+})();
+
+/* hidden-cost wheel: click a quadrant, swap the center panel copy */
+(function(){
+  const wheel=document.querySelector('.wheel-disc');if(!wheel)return;
+  const stage=wheel.closest('.wheel-stage');
+  const segs=wheel.querySelectorAll('.wseg');
+  const labels=stage.querySelectorAll('.wn');
+  const lab=wheel.querySelector('.wc-lab'),desc=wheel.querySelector('.wc-desc');
+  segs.forEach((seg,i)=>seg.addEventListener('click',()=>{
+    segs.forEach(s=>s.classList.toggle('active',s===seg));
+    labels.forEach((l,li)=>l.classList.toggle('wn-active',li===i));
+    lab.textContent=seg.dataset.lab;
+    desc.textContent=seg.dataset.desc;
+  }));
+  /* subtle mouse-follow tilt, desktop pointer only — same proximity math already used for .border-glow-card */
+  if(window.matchMedia('(pointer:fine)').matches){
+    const wrap=wheel.closest('.wheel-wrap');
+    wrap.addEventListener('pointermove',e=>{
+      const rc=wheel.getBoundingClientRect();
+      const px=(e.clientX-rc.left)/rc.width-0.5,py=(e.clientY-rc.top)/rc.height-0.5;
+      wheel.style.transform=`rotateX(${(-py*10).toFixed(2)}deg) rotateY(${(px*10).toFixed(2)}deg)`;
+    });
+    wrap.addEventListener('pointerleave',()=>{wheel.style.transform='rotateX(0deg) rotateY(0deg)';});
+  }
 })();
 
 /* pricing mode toggle: Monthly / Own outright */

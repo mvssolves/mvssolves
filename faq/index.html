@@ -109,9 +109,18 @@
   .lab{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--ink);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
   .lab::before{content:'';width:24px;height:2px;background:var(--accent);}
-  .hero{padding:80px 0 40px;border-bottom:1px solid var(--line);}
+  .hero{padding:80px 0 40px;border-bottom:1px solid var(--line);text-align:center;}
+  .hero .lab{justify-content:center;}
   .hero h1{font-size:clamp(34px,6vw,58px);line-height:1.05;margin-bottom:18px;}
-  .hero .sub{font-size:18px;color:var(--soft);max-width:60ch;}
+  .hero .sub{font-size:18px;color:var(--soft);max-width:60ch;margin-left:auto;margin-right:auto;}
+  /* line-reveal — mirrors home hero's .line>span mask, driven by CSS since this page loads no GSAP */
+  .hero h1 .line{display:block;overflow:hidden;}
+  .hero h1 .line>span{display:inline-block;transform:translateY(110%);opacity:0;
+    animation:lineUp .8s cubic-bezier(.2,1,.3,1) forwards;}
+  .hero h1 .line:nth-child(1)>span{animation-delay:.05s;}
+  .hero h1 .line:nth-child(2)>span{animation-delay:.2s;}
+  @keyframes lineUp{to{transform:translateY(0);opacity:1;}}
+  @media(prefers-reduced-motion:reduce){.hero h1 .line>span{animation:none;transform:none;opacity:1;}}
   section{padding:52px 0;}
   section h2{font-size:26px;margin-bottom:16px;}
   footer{padding:30px 0 50px;text-align:center;color:var(--muted);font-size:13px;}
@@ -159,7 +168,10 @@
 <header class="hero">
   <div class="wrap">
     <div class="lab">FAQ</div>
-    <h1>No jargon.<br><span class="serif">Just answers.</span></h1>
+    <h1>
+      <span class="line"><span>No jargon.</span></span>
+      <span class="line"><span class="serif">Just answers.</span></span>
+    </h1>
     <p class="sub">Straight answers to the questions that come up before someone books a call.</p>
   </div>
 </header>
