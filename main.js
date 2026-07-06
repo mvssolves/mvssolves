@@ -3,7 +3,7 @@ const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const isDesktop = window.matchMedia('(min-width:901px)').matches;
 
 /* one shared IntersectionObserver (threshold:0) for the handful of independent single-element
-   visibility toggles below (ElectricBorder in-view, hero-off, prem spin-off, CardSwap in-view) —
+   visibility toggles below (ElectricBorder in-view, hero-off, prem spin-off, carousel spin-off) —
    was 4 separate observer instances doing the same threshold:0 visibility-flag pattern. */
 const _visibilityObserver=new IntersectionObserver(es=>{
   es.forEach(e=>{const cb=e.target.__onVisible;if(cb)cb(e.isIntersecting);});
@@ -149,7 +149,7 @@ if(!reduce){
     });
   })();
   /* batched reveal for body groups so they don't pop in flat under animated headings */
-  ['.tiers .tier','.steps .step','.why-cards .cap','.founder'].forEach(sel=>{
+  ['.tiers .tier','.steps .step'].forEach(sel=>{
     ScrollTrigger.batch(gsap.utils.toArray(sel),{start:'top 90%',
       onEnter:b=>gsap.fromTo(b,{opacity:0},{opacity:1,duration:0.6,stagger:0.06,ease:'power2.out',overwrite:true})});
   });
@@ -246,48 +246,6 @@ if(window.matchMedia('(pointer:fine)').matches){
     });
   });
 }
-
-/* CardSwap — "why me" reason cycler, mobile and desktop (React Bits port → vanilla, reuses page's existing GSAP) */
-(function(){
-  if(reduce)return;
-  const container=document.getElementById('whyCardSwap');if(!container)return;
-  const cards=Array.from(container.querySelectorAll('.card'));
-  if(cards.length<2)return;
-
-  const cardDistance=14,verticalDistance=18,delay=2400,skewAmount=4;
-  const ease='elastic.out(0.6,0.9)',durDrop=0.85,durMove=0.85,durReturn=0.85,promoteOverlap=0.9,returnDelay=0.05;
-
-  function makeSlot(i,total){return {x:i*cardDistance,y:-i*verticalDistance,z:-i*cardDistance*1.5,zIndex:total-i};}
-  function placeNow(el,slot){gsap.set(el,{x:slot.x,y:slot.y,z:slot.z,xPercent:-50,yPercent:-50,skewY:skewAmount,transformOrigin:'center center',zIndex:slot.zIndex,force3D:true});}
-
-  let order=cards.map((_,i)=>i);
-  cards.forEach((el,i)=>placeNow(el,makeSlot(i,cards.length)));
-
-  function swap(){
-    const [front,...rest]=order;
-    const elFront=cards[front];
-    const tl=gsap.timeline();
-    tl.to(elFront,{y:'+=220',duration:durDrop,ease});
-    tl.addLabel('promote',`-=${durDrop*promoteOverlap}`);
-    rest.forEach((idx,i)=>{
-      const el=cards[idx];
-      const slot=makeSlot(i,cards.length);
-      tl.set(el,{zIndex:slot.zIndex},'promote');
-      tl.to(el,{x:slot.x,y:slot.y,z:slot.z,duration:durMove,ease},`promote+=${i*0.15}`);
-    });
-    const backSlot=makeSlot(cards.length-1,cards.length);
-    tl.addLabel('return',`promote+=${durMove*returnDelay}`);
-    tl.call(()=>gsap.set(elFront,{zIndex:backSlot.zIndex}),undefined,'return');
-    tl.to(elFront,{x:backSlot.x,y:backSlot.y,z:backSlot.z,duration:durReturn,ease},'return');
-    tl.call(()=>{order=[...rest,front];});
-  }
-
-  let inView=true;
-  onVisibilityChange(container,visible=>{inView=visible;});
-
-  swap();
-  setInterval(()=>{if(inView)swap();},delay);
-})();
 
 /* hidden-cost wheel: click a quadrant, swap the center panel copy */
 (function(){

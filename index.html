@@ -170,9 +170,9 @@
   .cap-more .cap-grid{margin-top:14px;}
 
   /* integrations — same monogram/card treatment as .cap, arranged on a rotating 3D cylinder */
-  .int{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:14px;padding:18px 20px;
-    background:linear-gradient(180deg,#ffffff 0%,var(--bg-2) 100%);font-weight:700;font-size:14px;color:var(--ink);
-    box-shadow:0 1px 2px rgba(10,10,10,.04);
+  .int{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+    background:linear-gradient(180deg,#ffffff 0%,var(--bg-2) 100%);font-weight:700;font-size:13px;color:var(--ink);
+    box-shadow:0 1px 2px rgba(10,10,10,.04);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     transition:box-shadow .3s cubic-bezier(.16,1,.3,1);}
   .int:hover{box-shadow:0 10px 26px -14px rgba(10,10,10,.22);}
   /* real per-brand color instead of one flat monogram treatment — .ii carries the brand bg,
@@ -181,15 +181,16 @@
     display:flex;align-items:center;justify-content:center;font-weight:800;
     font-family:'JetBrains Mono',monospace;font-size:11px;overflow:hidden;}
   .int .ii svg{width:18px;height:18px;display:block;}
-  .int-carousel-wrap{perspective:1300px;height:260px;display:flex;align-items:center;justify-content:center;margin-top:56px;}
-  .int-carousel{position:relative;width:1px;height:1px;transform-style:preserve-3d;animation:intSpin 40s linear infinite;}
+  /* 23 items now (was 8) — 15.652deg apart (360/23), radius bumped so chips don't crowd */
+  .int-carousel-wrap{perspective:1600px;height:280px;display:flex;align-items:center;justify-content:center;margin-top:56px;}
+  .int-carousel{position:relative;width:1px;height:1px;transform-style:preserve-3d;animation:intSpin 60s linear infinite;}
   .int-carousel:hover,.int-carousel.spin-off{animation-play-state:paused;}
   @keyframes intSpin{from{transform:rotateY(0deg);}to{transform:rotateY(360deg);}}
-  .int-item{position:absolute;top:0;left:0;width:172px;margin:-31px 0 0 -86px;
-    transform:rotateY(calc(var(--i) * 30deg)) translateZ(400px);backface-visibility:hidden;}
+  .int-item{position:absolute;top:0;left:0;width:150px;margin:-29px 0 0 -75px;
+    transform:rotateY(calc(var(--i) * 15.652deg)) translateZ(620px);backface-visibility:hidden;}
   @media(max-width:900px){
-    .int-carousel-wrap{height:220px;}
-    .int-item{width:140px;margin:-27px 0 0 -70px;transform:rotateY(calc(var(--i) * 30deg)) translateZ(300px);}
+    .int-carousel-wrap{height:230px;}
+    .int-item{width:112px;margin:-25px 0 0 -56px;transform:rotateY(calc(var(--i) * 15.652deg)) translateZ(450px);}
   }
   @media(prefers-reduced-motion:reduce){.int-carousel{animation:none;}}
 
@@ -380,10 +381,11 @@
   .tiers.mode-own .tier li.inh .inh-note{display:inline;}
   .tier .tcta{margin-top:auto;}
   .tier-details{margin:2px 0 16px;font-size:12px;}
-  .tier-details summary{cursor:pointer;font-weight:700;color:var(--muted);list-style:none;display:flex;align-items:center;gap:6px;transition:color .2s ease;}
+  .tier-details summary{cursor:pointer;font-weight:600;color:var(--muted);list-style:none;
+    display:flex;align-items:center;gap:5px;padding:6px 0;transition:color .2s ease;}
   .tier-details summary::-webkit-details-marker{display:none;}
-  .tier-details summary::before{content:"+";font-weight:800;font-size:14px;transition:transform .2s ease;display:inline-block;}
-  .tier-details[open] summary::before{transform:rotate(45deg);}
+  .tier-details summary::before{content:"⌄";font-size:12px;line-height:1;transition:transform .25s ease;display:inline-block;}
+  .tier-details[open] summary::before{transform:rotate(180deg);}
   .tier-details summary:hover{color:var(--ink);}
   .tier-details dl{margin:10px 0 0;padding:10px 0 0;border-top:1px dashed var(--line);}
   .tier-details dt{font-weight:700;color:var(--ink);margin-top:8px;}
@@ -419,39 +421,6 @@
   .step .st{font-weight:800;font-size:20px;color:var(--ink);margin:14px 0 8px;letter-spacing:-.01em;}
   .step .sc{color:var(--soft);font-size:14.5px;line-height:1.55;}
 
-  /* why / proof */
-  .why-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:40px;margin-top:46px;align-items:start;}
-  @media(max-width:900px){.why-grid{grid-template-columns:1fr;}.founder{position:static;}}
-  .why-cards{display:flex;flex-direction:column;gap:14px;}
-  .founder{border-radius:16px;padding:28px;background:var(--ink);position:sticky;top:100px;}
-  .founder .fhead{display:flex;align-items:center;gap:14px;}
-  .founder .favatar{width:52px;height:52px;border-radius:50%;background:#fff;color:var(--ink);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;flex:none;}
-  .founder .fn{font-weight:800;color:#fff;}
-  .founder .fr{font-size:13px;color:rgba(255,255,255,.55);font-family:'JetBrains Mono',monospace;}
-  .founder .fq{margin-top:18px;font-size:15px;line-height:1.6;color:rgba(255,255,255,.88);}
-  .founder .fstats{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px;border-top:1px solid rgba(255,255,255,.14);padding-top:18px;}
-  .founder .fstat b{display:block;font-size:22px;color:#fff;font-weight:900;letter-spacing:-.02em;}
-  .founder .fstat span{font-size:11.5px;color:rgba(255,255,255,.55);font-family:'JetBrains Mono',monospace;}
-
-  /* why / proof — CardSwap cycler replaces the 5 stacked cards on mobile AND desktop (React Bits port → vanilla, reuses page's GSAP) */
-  @media(max-width:900px){#why{padding:64px 0;}}
-  .why-cardswap{display:none;position:relative;height:210px;margin:8px 0 28px;}
-  @media(prefers-reduced-motion:no-preference){
-    .why-cards{display:none;}
-    .why-cardswap{display:block;}
-  }
-  .why-cardswap .card-swap-container{position:absolute;top:44%;left:50%;perspective:700px;}
-  .why-cardswap .card{position:absolute;top:0;left:0;width:220px;height:140px;border-radius:14px;
-    border:1px solid var(--line);background:var(--bg-2);padding:18px;box-shadow:0 10px 28px rgba(10,10,10,.10);
-    transform-style:preserve-3d;will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden;}
-  .why-cardswap .card .cn{font-weight:700;font-size:16px;color:var(--ink);letter-spacing:-.01em;}
-  .why-cardswap .card .cc{color:var(--soft);font-size:13px;margin-top:6px;line-height:1.5;}
-  @media(min-width:901px){
-    .why-cardswap{height:290px;}
-    .why-cardswap .card{width:300px;height:190px;padding:24px;}
-    .why-cardswap .card .cn{font-size:19px;}
-    .why-cardswap .card .cc{font-size:14.5px;}
-  }
 
   /* book */
   .book-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:40px;margin-top:46px;align-items:start;}
@@ -570,14 +539,8 @@
     .tier ul{margin:12px 0;}
     .tier li{padding:4px 0 4px 20px;}
     .tier-details{margin:2px 0 10px;}
-    /* "Full details" was 12px muted gray — easy to miss as a tappable control on a phone.
-       Bigger, bolder, bordered pill (matches the capabilities "Show the rest" toggle) so it
-       reads as an obvious button and gives a proper tap target. */
-    .tier-details summary{font-size:14px;color:var(--ink);font-family:'JetBrains Mono',monospace;
-      letter-spacing:.04em;border:1px solid var(--line);border-radius:10px;padding:10px 14px;
-      justify-content:center;}
-    .tier-details summary:hover{border-color:var(--ink);}
-    .tier-details[open] summary{border-color:var(--line);margin-bottom:8px;}
+    /* kept subtle on mobile too — a bordered pill read as a second CTA competing with "Get
+       package" below it. Slightly bigger tap padding only (already added above), no visual bulk. */
   }
 
 
@@ -688,18 +651,29 @@
     <p class="sub">No new logins, no ripped-out systems. Everything plugs straight into the tools your business already runs on.</p>
     <div class="int-carousel-wrap">
       <div class="int-carousel">
-        <div class="int int-item" style="--i:0"><span class="ii" style="background:#fff;border:1px solid var(--line-strong);color:#4285F4;font-weight:800;font-size:15px;">G</span>Google Profile</div>
+        <div class="int int-item" style="--i:0"><span class="ii" style="background:#fff;border:1px solid var(--line-strong);color:#4285F4;font-weight:800;font-size:15px;">G</span>Google</div>
         <div class="int int-item" style="--i:1"><span class="ii" style="background:#25D366;"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.38 5.07L2 22l5.05-1.32C8.51 21.5 10.2 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm5.2 14.2c-.22.62-1.28 1.19-1.77 1.24-.46.05-1 .07-1.6-.1-.37-.1-.85-.27-1.46-.53-2.57-1.11-4.24-3.71-4.37-3.88-.13-.17-1.05-1.39-1.05-2.65 0-1.26.66-1.88.9-2.14.24-.26.52-.32.7-.32h.5c.16 0 .38-.03.59.45.22.5.75 1.75.82 1.88.07.13.11.28.02.45-.09.17-.14.28-.27.43-.13.15-.28.34-.4.46-.13.13-.27.27-.11.53.15.26.68 1.12 1.46 1.82 1 .89 1.84 1.17 2.1 1.3.26.13.41.11.56-.07.15-.17.63-.73.8-.98.17-.25.34-.21.56-.13.23.09 1.44.68 1.69.8.25.13.41.19.47.3.06.11.06.62-.16 1.24z"/></svg></span>WhatsApp</div>
         <div class="int int-item" style="--i:2"><span class="ii" style="background:#1A0826;color:#fff;font-weight:800;font-size:14px;">M</span>Make</div>
         <div class="int int-item" style="--i:3"><span class="ii" style="background:#EA4B71;"><svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="2.4" fill="#fff"/><circle cx="5" cy="18" r="2.4" fill="#fff"/><circle cx="18" cy="12" r="2.4" fill="#fff"/><path d="M7 6.8 16 11.3M7 17.2 16 12.7" stroke="#fff" stroke-width="1.6"/></svg></span>n8n</div>
         <div class="int int-item" style="--i:4"><span class="ii" style="background:#000;"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><path d="m9 14 2 2 4-4"/></svg></span>Cal.com</div>
         <div class="int int-item" style="--i:5"><span class="ii" style="background:linear-gradient(45deg,#FEDA75,#FA7E1E,#D62976,#962FBF,#4F5BD5);"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#fff" stroke="none"/></svg></span>Instagram</div>
         <div class="int int-item" style="--i:6"><span class="ii" style="background:#635BFF;color:#fff;font-weight:800;font-style:italic;font-size:15px;">S</span>Stripe</div>
-        <div class="int int-item" style="--i:7"><span class="ii" style="background:var(--accent);color:var(--accent-ink);font-weight:800;">@</span>Email &amp; SMS</div>
-        <div class="int int-item" style="--i:8"><span class="ii" style="background:#1877F2;"><svg viewBox="0 0 24 24" fill="#fff"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V8c0-.9.25-1.5 1.55-1.5H17V3.6C16.7 3.56 15.7 3.47 14.5 3.47c-2.5 0-4.2 1.5-4.2 4.3V10H7.6v3.1h2.7v8h3.2z"/></svg></span>Facebook</div>
-        <div class="int int-item" style="--i:9"><span class="ii" style="background:#fff;border:1px solid var(--line-strong);"><svg viewBox="0 0 24 24"><rect x="9" y="2" width="3" height="8" rx="1.5" fill="#36C5F0"/><rect x="2" y="9" width="8" height="3" rx="1.5" fill="#2EB67D"/><rect x="12" y="14" width="3" height="8" rx="1.5" fill="#ECB22E"/><rect x="14" y="9" width="8" height="3" rx="1.5" fill="#E01E5A"/></svg></span>Slack</div>
-        <div class="int int-item" style="--i:10"><span class="ii" style="background:#FF4A00;"><svg viewBox="0 0 24 24" fill="#fff"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg></span>Zapier</div>
-        <div class="int int-item" style="--i:11"><span class="ii" style="background:#003087;color:#fff;font-weight:800;font-size:15px;">P</span>PayPal</div>
+        <div class="int int-item" style="--i:7"><span class="ii" style="background:#fff;border:1px solid var(--line-strong);"><svg viewBox="0 0 24 24" fill="none" stroke="#EA4335" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 6 9 7 9-7"/></svg></span>Gmail</div>
+        <div class="int int-item" style="--i:8"><span class="ii" style="background:#0EA5E9;"><svg viewBox="0 0 24 24" fill="#fff"><path d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg></span>SMS</div>
+        <div class="int int-item" style="--i:9"><span class="ii" style="background:#1877F2;"><svg viewBox="0 0 24 24" fill="#fff"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V8c0-.9.25-1.5 1.55-1.5H17V3.6C16.7 3.56 15.7 3.47 14.5 3.47c-2.5 0-4.2 1.5-4.2 4.3V10H7.6v3.1h2.7v8h3.2z"/></svg></span>Facebook</div>
+        <div class="int int-item" style="--i:10"><span class="ii" style="background:#fff;border:1px solid var(--line-strong);"><svg viewBox="0 0 24 24"><rect x="9" y="2" width="3" height="8" rx="1.5" fill="#36C5F0"/><rect x="2" y="9" width="8" height="3" rx="1.5" fill="#2EB67D"/><rect x="12" y="14" width="3" height="8" rx="1.5" fill="#ECB22E"/><rect x="14" y="9" width="8" height="3" rx="1.5" fill="#E01E5A"/></svg></span>Slack</div>
+        <div class="int int-item" style="--i:11"><span class="ii" style="background:#FF4A00;"><svg viewBox="0 0 24 24" fill="#fff"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg></span>Zapier</div>
+        <div class="int int-item" style="--i:12"><span class="ii" style="background:#003087;color:#fff;font-weight:800;font-size:15px;">P</span>PayPal</div>
+        <div class="int int-item" style="--i:13"><span class="ii" style="background:#F22F46;color:#fff;font-weight:800;font-size:15px;">T</span>Twilio</div>
+        <div class="int int-item" style="--i:14"><span class="ii" style="background:#FFE01B;"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 6 9 7 9-7"/></svg></span>Mailchimp</div>
+        <div class="int int-item" style="--i:15"><span class="ii" style="background:#2CA01C;color:#fff;font-weight:800;font-size:15px;">Q</span>QuickBooks</div>
+        <div class="int int-item" style="--i:16"><span class="ii" style="background:#2D8CFF;"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3"/></svg></span>Zoom</div>
+        <div class="int int-item" style="--i:17"><span class="ii" style="background:#0A66C2;"><svg viewBox="0 0 24 24" fill="#fff"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.6c0-1.34-.02-3.06-1.87-3.06-1.87 0-2.16 1.46-2.16 2.97V21H9z"/></svg></span>LinkedIn</div>
+        <div class="int int-item" style="--i:18"><span class="ii" style="background:#000;"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 18V5l10-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/></svg></span>TikTok</div>
+        <div class="int int-item" style="--i:19"><span class="ii" style="background:#FF0000;"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span>YouTube</div>
+        <div class="int int-item" style="--i:20"><span class="ii" style="background:#FF7A59;color:#fff;font-weight:800;font-size:15px;">H</span>HubSpot</div>
+        <div class="int int-item" style="--i:21"><span class="ii" style="background:#000;color:#fff;font-weight:800;font-size:15px;">T</span>Typeform</div>
+        <div class="int int-item" style="--i:22"><span class="ii" style="background:#fff;border:1px solid var(--line-strong);"><svg viewBox="0 0 24 24" fill="none" stroke="#4285F4" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></span>Calendar</div>
       </div>
     </div>
   </div>
@@ -877,47 +851,10 @@
   </div>
 </section>
 
-<!-- WHY / PROOF -->
-<section class="section" id="why">
-  <div class="wrap">
-    <div class="lab">05 / Why me</div>
-    <h2>Built for businesses<br>big agencies ignore.</h2>
-    <p class="sub">If you've ever been quoted a fortune for a website and walked away — this is for you.</p>
-    <div class="why-grid">
-      <div class="why-cards">
-        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">$</div><div class="cn">Pay what works for you</div><div class="cc">Low upfront, flexible plans, cancel anytime. Start small, scale when it pays for itself.</div></div></div>
-        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">%</div><div class="cn">Skin in the game</div><div class="cc">The only way I win is when your business does. If I can't move the needle, I'll tell you on the first call.</div></div></div>
-        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">B</div><div class="cn">Business-first, tech-second</div><div class="cc">Every system is shaped around revenue, not features. If it doesn't earn back its cost, I won't recommend it.</div></div></div>
-        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">1</div><div class="cn">One human, one standard</div><div class="cc">No account managers, no juniors, no handoffs. You text me, you get me.</div></div></div>
-        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">✓</div><div class="cn">Honest scope, honest price</div><div class="cc">No long contracts. No surprise invoices. No upsells you didn't ask for.</div></div></div>
-      </div>
-      <div class="why-cardswap" id="whyCardSwap">
-        <div class="card-swap-container" id="whyCardSwapInner">
-          <div class="card"><div class="cn">Low upfront</div><div class="cc">Start small, scale once it pays for itself.</div></div>
-          <div class="card"><div class="cn">Results or nothing</div><div class="cc">Can't move the needle? I'll say so, first call.</div></div>
-          <div class="card"><div class="cn">Revenue over features</div><div class="cc">Won't earn back its cost? I won't build it.</div></div>
-          <div class="card"><div class="cn">No middlemen</div><div class="cc">No account managers, no handoffs. Just me.</div></div>
-          <div class="card"><div class="cn">Fixed scope</div><div class="cc">No surprise invoices, no upsells.</div></div>
-        </div>
-      </div>
-      <div class="founder">
-        <div class="fhead"><div class="favatar">M</div><div><div class="fn">Martin</div><div class="fr">Founder · MVS Solves</div></div></div>
-        <div class="fq">“I don't take on clients I can't move forward. If the numbers don't work for your business, I'll say so on the first call. If they do, I build, you grow — and the only way I get paid in full is when it's working.”</div>
-        <div class="fstats">
-          <div class="fstat"><b>24h</b><span>Launch turnaround</span></div>
-          <div class="fstat"><b>1</b><span>person, start to finish</span></div>
-          <div class="fstat"><b>Free</b><span>first intro call</span></div>
-          <div class="fstat"><b>100%</b><span>direct contact</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- BOOK -->
 <section class="section" id="book" style="background:var(--bg-2-glass)">
   <div class="wrap">
-    <div class="lab">06 / Let's connect — for free</div>
+    <div class="lab">05 / Let's connect — for free</div>
     <div class="book-grid">
       <div>
         <h2 id="bookH2">No pitch.<br>Just a plan.</h2>
