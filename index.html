@@ -9,19 +9,19 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<meta name="description" content="Real conversion for real businesses — built end-to-end by one person. No agency, no layers, no fluff.">
+<meta name="description" content="Digital work, done properly. Websites, booking systems, and AI automation for local businesses — built end-to-end by one person, no agency layers.">
 <meta name="author" content="Martin · MVS Solves">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://mvssolves.com/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="MVS Solves">
 <meta property="og:title" content="MVS Solves — Real conversion for real businesses.">
-<meta property="og:description" content="Real conversion for real businesses — built end-to-end by one person. No agency, no layers, no fluff.">
+<meta property="og:description" content="Websites, booking systems, and AI automation — built end-to-end by one person. Digital work, done properly.">
 <meta property="og:url" content="https://mvssolves.com/">
 <meta property="og:image" content="https://mvssolves.com/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="MVS Solves — Real conversion for real businesses.">
-<meta name="twitter:description" content="Real conversion for real businesses. Built end-to-end by one person.">
+<meta name="twitter:description" content="Websites, automation &amp; AI built end-to-end by one person. Digital work, done properly.">
 <meta name="twitter:image" content="https://mvssolves.com/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -159,6 +159,15 @@
   /* capabilities grid */
   .cap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:46px;}
   @media(max-width:900px){.cap-grid{grid-template-columns:repeat(2,1fr);}}
+  .cap-more{margin-top:14px;}
+  .cap-more summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:center;gap:8px;
+    font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+    padding:14px;border:1px dashed var(--line);border-radius:14px;transition:color .2s ease,border-color .2s ease;}
+  .cap-more summary::-webkit-details-marker{display:none;}
+  .cap-more summary::before{content:"+";font-weight:800;font-size:15px;transition:transform .2s ease;display:inline-block;}
+  .cap-more[open] summary::before{transform:rotate(45deg);}
+  .cap-more summary:hover{color:var(--ink);border-color:var(--ink);}
+  .cap-more .cap-grid{margin-top:14px;}
   .cap{border:1px solid var(--line);border-radius:14px;padding:22px;
     background:linear-gradient(180deg,#ffffff 0%,var(--bg-2) 100%);
     box-shadow:0 1px 2px rgba(10,10,10,.04),0 8px 20px -14px rgba(10,10,10,.14),0 20px 40px -24px rgba(10,10,10,.10);
@@ -421,12 +430,18 @@
     .h-cta .btn-fill{padding-right:60px;}
     .h-cta .btn-fill:hover{padding-left:60px;padding-right:22px;}
     footer{padding:48px 20px 40px;}
+    /* pricing cards were carrying full desktop padding/spacing straight into a stacked single
+       column — reads oversized on a phone. Tighten without touching desktop/tablet. */
+    .tiers{gap:12px;}
+    .tier{padding:20px;}
+    .tier .tn{font-size:19px;}
+    .tier .tl{min-height:0;margin:5px 0 14px;}
+    .tier .price{font-size:26px;}
+    .tier ul{margin:12px 0;}
+    .tier li{padding:4px 0 4px 20px;}
+    .tier-details{margin:2px 0 10px;}
   }
 
-  /* === BlurText hero (React Bits port) === */
-  .bw{display:inline-block;will-change:transform,filter,opacity;}
-  .dx-enc{color:var(--muted);}
-  .dx-rev{color:inherit;}
 
   /* === ElectricBorder on featured card (React Bits port) === */
   .tier.feat{position:relative;}
@@ -482,7 +497,7 @@
   <div class="h-bottom">
     <p class="h-sub" id="hsub">Websites, automation &amp; AI — built end-to-end by one person. No handoffs, no account managers, no fluff. You text me, you get me.</p>
     <div class="h-cta" id="hcta">
-      <a class="btn btn-fill" id="magnet" href="#book">Automate your business
+      <a class="btn btn-fill" href="#book">Automate your business
         <span class="swap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></a>
     </div>
   </div>
@@ -501,20 +516,25 @@
       <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">W</div><div class="cn">Website &amp; funnels</div><div class="cc">Fast, conversion-built pages.</div></div></div>
       <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">B</div><div class="cn">Online booking</div><div class="cc">Self-serve, synced to your calendar.</div></div></div>
       <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">G</div><div class="cn">Google profile</div><div class="cc">Map-pack visibility, owned.</div></div></div>
-      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">R</div><div class="cn">Reviews</div><div class="cc">Automated 5-star asks.</div></div></div>
-      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">A</div><div class="cn">Automations</div><div class="cc">Make / n8n, error-handled.</div></div></div>
-      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">AI</div><div class="cn">AI assistants</div><div class="cc">Booking &amp; replies in your voice.</div></div></div>
-      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">@</div><div class="cn">Email &amp; SMS</div><div class="cc">Lists, newsletters, payments.</div></div></div>
-      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">$</div><div class="cn">Online payments</div><div class="cc">Get paid without a card machine.</div></div></div>
       <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">SEO</div><div class="cn">SEO cleanup</div><div class="cc">Fix what's blocking search.</div></div></div>
       <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">WA</div><div class="cn">WhatsApp business</div><div class="cc">One number, always on.</div></div></div>
-      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">BR</div><div class="cn">Logo &amp; brand</div><div class="cc">Identity built to look premium.</div></div></div>
-      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">CW</div><div class="cn">Copywriting</div><div class="cc">Sales pages, ads, that convert.</div></div></div>
-      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">RF</div><div class="cn">Referral programs</div><div class="cc">Turn happy clients into new ones.</div></div></div>
-      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">LM</div><div class="cn">Lead magnets</div><div class="cc">Exit-intent capture, more leads.</div></div></div>
-      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">IQ</div><div class="cn">Invoicing &amp; quoting</div><div class="cc">Get paid faster, less chasing.</div></div></div>
-      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">MR</div><div class="cn">Membership retention</div><div class="cc">Win-back flows, stop the churn.</div></div></div>
+      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">A</div><div class="cn">Automations</div><div class="cc">Make / n8n, error-handled.</div></div></div>
+      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">AI</div><div class="cn">AI assistants</div><div class="cc">Booking &amp; replies in your voice.</div></div></div>
+      <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">R</div><div class="cn">Reviews</div><div class="cc">Automated 5-star asks.</div></div></div>
     </div>
+    <details class="cap-more">
+      <summary>Show the rest</summary>
+      <div class="cap-grid">
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">@</div><div class="cn">Email &amp; SMS</div><div class="cc">Lists, newsletters, payments.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">$</div><div class="cn">Online payments</div><div class="cc">Get paid without a card machine.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">BR</div><div class="cn">Logo &amp; brand</div><div class="cc">Identity built to look premium.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">CW</div><div class="cn">Copywriting</div><div class="cc">Sales pages, ads, that convert.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">RF</div><div class="cn">Referral programs</div><div class="cc">Turn happy clients into new ones.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">LM</div><div class="cn">Lead magnets</div><div class="cc">Exit-intent capture, more leads.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">IQ</div><div class="cn">Invoicing &amp; quoting</div><div class="cc">Get paid faster, less chasing.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">MR</div><div class="cn">Membership retention</div><div class="cc">Win-back flows, stop the churn.</div></div></div>
+      </div>
+    </details>
   </div>
 </section>
 
@@ -796,38 +816,6 @@ else{
 }
 
 /* hero intro */
-/* DecryptedText (React Bits port → vanilla) — sequential scramble-to-reveal.
-   The one text transition for the whole hero: nav CTA, H1 lines, subtitle, hero CTAs. */
-function decryptText(el,opts){
-  opts=opts||{};
-  const speed=opts.speed||32;
-  const chars=(opts.characters||'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*').split('');
-  Array.from(el.childNodes).forEach(node=>{
-    if(node.nodeType!==3||!node.textContent.trim())return;
-    const original=node.textContent.trim().replace(/\s+/g,' ');
-    const wrap=document.createElement('span');
-    const spans=original.split('').map(ch=>{
-      const s=document.createElement('span');s.className='dx-char dx-enc';s.textContent=ch;
-      wrap.appendChild(s);return s;
-    });
-    node.replaceWith(wrap);
-    const total=spans.length;
-    let revealed=0,done=false;
-    const finish=()=>{if(done)return;done=true;clearInterval(iv);clearTimeout(fallback);wrap.replaceWith(document.createTextNode(original));};
-    const iv=setInterval(()=>{
-      for(let i=0;i<total;i++){
-        const ch=original[i];
-        if(ch===' ')continue;
-        if(i<revealed){spans[i].textContent=ch;spans[i].className='dx-char dx-rev';}
-        else spans[i].textContent=chars[Math.floor(Math.random()*chars.length)];
-      }
-      revealed++;
-      if(revealed>total)finish();
-    },speed);
-    /* failsafe: throttled/backgrounded tabs can stall setInterval mid-reveal — force-settle so text never stays scrambled */
-    const fallback=setTimeout(finish,Math.max(total*speed*4,1500));
-  });
-}
 function playHeroReveal(){
   document.dispatchEvent(new Event('mvs:reveal'));
   if(reduce)return;
@@ -836,21 +824,6 @@ function playHeroReveal(){
   document.querySelectorAll('h1 .line>span').forEach((span,i)=>fadeIn(span,i*0.1));
   fadeIn(document.getElementById('hsub'),0.45);
   document.querySelectorAll('#hcta .btn').forEach((btn,i)=>fadeIn(btn,0.7+i*0.1));
-}
-
-/* magnetic CTA — rect cached on mouseenter (position doesn't change mid-hover), not re-read every
-   mousemove tick like the old version did (a forced layout read on every raw event) */
-function magnetize(el,sx,sy){
-  let r=null;
-  el.addEventListener('mouseenter',()=>{r=el.getBoundingClientRect();});
-  el.addEventListener('mousemove',e=>{
-    if(!r)r=el.getBoundingClientRect();
-    gsap.to(el,{x:(e.clientX-(r.left+r.width/2))*sx,y:(e.clientY-(r.top+r.height/2))*sy,duration:0.4});
-  });
-  el.addEventListener('mouseleave',()=>{r=null;gsap.to(el,{x:0,y:0,duration:0.6,ease:'elastic.out(1,0.3)'});});
-}
-if(!reduce&&window.matchMedia('(pointer:fine)').matches){
-  document.querySelectorAll('#magnet,.navcta,.tier .btn-fill').forEach(el=>magnetize(el,0.35,0.45));
 }
 
 /* ElectricBorder (React Bits port → vanilla canvas) on the featured card */
@@ -903,11 +876,6 @@ if(!reduce){
     gsap.from(el,{y:30,opacity:0,duration:0.9,ease:'power3.out',
       scrollTrigger:{trigger:el,start:'top 88%'}});
   });
-  /* final CTA heading — decrypt reveal in, plays once on scroll into view */
-  const bookH2=document.getElementById('bookH2');
-  if(bookH2){
-    ScrollTrigger.create({trigger:bookH2,start:'top 85%',once:true,onEnter:()=>decryptText(bookH2,{speed:28})});
-  }
   /* batched reveal for body groups so they don't pop in flat under animated headings */
   ['.tiers .tier','.steps .step','.why-cards .cap','.founder'].forEach(sel=>{
     ScrollTrigger.batch(gsap.utils.toArray(sel),{start:'top 90%',

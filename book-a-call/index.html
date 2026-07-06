@@ -33,13 +33,21 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Caveat:wght@500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Space+Grotesk:wght@500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <link rel="preload" as="style" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Caveat:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Space+Grotesk:wght@500;600;700&display=swap">
 <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap">
 </noscript>
 <style>
+  /* Nohemi — freeware (personal+commercial use), self-hosted via the Tamagui project's npm
+     package on jsDelivr since it's not on Google Fonts/Fontshare. Matches the rest of the site. */
+  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Regular.ttf') format('truetype');font-weight:400;font-display:swap;}
+  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Medium.ttf') format('truetype');font-weight:500;font-display:swap;}
+  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-SemiBold.ttf') format('truetype');font-weight:600;font-display:swap;}
+  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Bold.ttf') format('truetype');font-weight:700;font-display:swap;}
+  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-ExtraBold.ttf') format('truetype');font-weight:800;font-display:swap;}
   :root {
     --paper: #f1e9dc; --paper-2: #e8ddc8; --paper-edge: #d9c9ad;
     --espresso: #1f1813; --bean: #2e201a;
@@ -74,8 +82,6 @@
     background: radial-gradient(120% 90% at 50% 30%, transparent 55%, rgba(46,32,26,0.16) 100%);
   }
   .wrap { max-width: 1180px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 2; }
-  .serif-i { font-family: 'Cormorant', serif; font-style: italic; font-weight: 400; }
-  .hand { font-family: 'Caveat', cursive; font-weight: 600; }
   a { color: inherit; text-decoration: none; }
   ::selection { background: var(--brass); color: var(--paper); }
 
@@ -145,11 +151,11 @@
   }
 
   h1.headline {
-    font-family: 'Cormorant', serif;
+    font-family: 'Nohemi', sans-serif;
     font-size: clamp(54px, 8.5vw, 108px);
     line-height: 0.96; letter-spacing: -0.028em;
   }
-  h1.headline em { font-style: italic; color: var(--brass-deep); font-weight: 400; }
+  h1.headline em { font-family: 'Cormorant', serif; font-style: italic; color: var(--brass-deep); font-weight: 400; }
   .h-word { display: inline-block; overflow: hidden; vertical-align: bottom; }
   .h-word .char {
     display: inline-block; transform: translateY(110%);
@@ -200,12 +206,12 @@
     background: var(--mocha-soft); margin-bottom: 14px;
   }
   .expect-col h2 {
-    font-family: 'Cormorant', serif;
+    font-family: 'Space Grotesk', sans-serif;
     font-size: clamp(34px, 4.2vw, 50px);
     line-height: 1.02; letter-spacing: -0.02em;
     margin-bottom: 36px;
   }
-  .expect-col h2 em { color: var(--brass-deep); }
+  .expect-col h2 em { font-family: 'Cormorant', serif; font-style: italic; font-weight: 400; color: var(--brass-deep); }
 
   .expect-list { list-style: none; }
   .expect-list li {
@@ -217,13 +223,13 @@
   .expect-list li:last-child { border-bottom: 1px dashed var(--rule-strong); }
   .expect-list li:hover { padding-left: 8px; }
   .expect-list .n {
-    font-family: 'Cormorant', serif; font-style: italic;
+    font-family: 'Nohemi', sans-serif;
     font-size: 22px; color: var(--brass); line-height: 1.1;
     transition: transform 0.4s cubic-bezier(.2,1,.3,1), color 0.3s;
   }
   .expect-list li:hover .n { color: var(--brass-deep); transform: rotate(-8deg); }
   .expect-list h3 {
-    font-family: 'Cormorant', serif; font-weight: 400;
+    font-family: 'Nohemi', sans-serif; font-weight: 600;
     font-size: 19px; line-height: 1.15; letter-spacing: -0.01em;
   }
   .expect-list p { color: var(--ink-soft); font-size: 14px; line-height: 1.5; margin-top: 2px; }
@@ -258,10 +264,10 @@
     flex-wrap: wrap; gap: 10px;
   }
   .cal-card-head h3 {
-    font-family: 'Cormorant', serif; font-weight: 400;
+    font-family: 'Nohemi', sans-serif; font-weight: 600;
     font-size: 26px; letter-spacing: -0.015em; line-height: 1.1;
   }
-  .cal-card-head h3 em { color: var(--brass-deep); }
+  .cal-card-head h3 em { font-family: 'Cormorant', serif; font-style: italic; font-weight: 400; color: var(--brass-deep); }
   .cal-card-head .meta {
     font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
     color: var(--mocha);
@@ -287,7 +293,7 @@
     50% { transform: translateY(-6px) rotate(3deg); }
   }
   .cal-placeholder h4 {
-    font-family: 'Cormorant', serif; font-weight: 400;
+    font-family: 'Nohemi', sans-serif; font-weight: 600;
     font-size: 26px; color: var(--espresso); margin-bottom: 8px;
   }
   .cal-placeholder p { max-width: 360px; font-size: 14px; line-height: 1.5; }

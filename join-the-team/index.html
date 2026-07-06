@@ -111,14 +111,22 @@
   ul.list li::before{content:'—';position:absolute;left:0;color:var(--muted);}
   .note{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:18px 20px;font-size:14.5px;
     color:var(--soft);margin-top:8px;}
-  .btn{display:inline-flex;align-items:center;gap:10px;padding:16px 28px;border-radius:999px;font-weight:700;
-    font-size:15.5px;background:var(--accent);color:var(--accent-ink);transition:transform .15s ease,opacity .2s ease;}
-  .btn:hover{transform:translateY(-2px);opacity:.92;}
+  /* pill + slide-and-rotate icon, matching the CTA buttons on the main site */
+  .btn{position:relative;display:inline-flex;align-items:center;gap:10px;padding:16px 60px 16px 28px;
+    border-radius:999px;font-weight:700;font-size:15.5px;background:var(--accent);color:var(--accent-ink);
+    overflow:hidden;transition:padding .5s cubic-bezier(.4,0,.2,1),opacity .2s ease;}
+  .btn:hover{opacity:.92;padding-left:60px;padding-right:28px;}
+  .btn .swap-icon{position:absolute;top:4px;right:4px;width:40px;height:40px;border-radius:50%;
+    background:var(--accent-ink);color:var(--accent);display:flex;align-items:center;justify-content:center;
+    transition:right .5s cubic-bezier(.4,0,.2,1),transform .5s cubic-bezier(.4,0,.2,1);pointer-events:none;}
+  .btn .swap-icon svg{width:16px;height:16px;}
+  .btn:hover .swap-icon{right:calc(100% - 44px);transform:rotate(45deg);}
   .apply{padding:60px 0 90px;}
   .apply .box{background:var(--ink);color:#fff;border-radius:20px;padding:40px 36px;}
   .apply .box h2{color:#fff;}
   .apply .box p{color:rgba(255,255,255,.72);}
   .apply .btn{background:#fff;color:var(--ink);margin-top:18px;}
+  .apply .btn .swap-icon{background:var(--ink);color:#fff;}
   footer{padding:30px 0 50px;text-align:center;color:var(--muted);font-size:13px;}
   /* intro veil — fade to black + centered logo, on page load */
   .intro-veil{position:fixed;inset:0;pointer-events:none;z-index:99998;background:var(--ink);
@@ -207,7 +215,8 @@
       <h2>Think you're a fit?</h2>
       <p>Send me a short note — who you are, any closing/sales experience, and why this caught your eye. No CV needed.</p>
       <a class="btn" href="mailto:martin@mvssolves.com?subject=Closer%20application%20-%20MVS%20Solves&body=Hey%20Martin%2C%0A%0AA%20bit%20about%20me%3A%0A%0AMy%20sales%2Fclosing%20experience%3A%0A%0AWhy%20this%20caught%20my%20eye%3A%0A">
-        Email Martin <span aria-hidden="true">→</span>
+        Email Martin
+        <span class="swap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
       </a>
     </div>
   </div>
