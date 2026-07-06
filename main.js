@@ -172,8 +172,11 @@ if(!reduce){
      chips onto the ring rather than showing them all at once */
   gsap.fromTo('.wn',{opacity:0,scale:0.6},{opacity:1,scale:1,duration:0.5,stagger:0.15,delay:0.5,
     ease:'back.out(2)',scrollTrigger:{trigger:'.wheel-disc',start:'top 88%'}});
-  /* hero content drifts up on scroll — subtle parallax, works on touch too */
-  gsap.to('.h-wrap',{yPercent:-8,ease:'none',scrollTrigger:{trigger:'#top',start:'top top',end:'bottom top',scrub:true}});
+  /* hero content drifts up on scroll — desktop only. scrub:true recalculates every scroll tick,
+     right at the hero->01 handoff — the exact spot users felt lag on mobile. */
+  if(isDesktop){
+    gsap.to('.h-wrap',{yPercent:-8,ease:'none',scrollTrigger:{trigger:'#top',start:'top top',end:'bottom top',scrub:true}});
+  }
 }
 
 /* pause hero sheen when scrolled past — kills off-screen repaint cost */

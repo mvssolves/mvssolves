@@ -170,21 +170,21 @@
   .cap-more .cap-grid{margin-top:14px;}
 
   /* integrations — same monogram/card treatment as .cap, arranged on a rotating 3D cylinder */
-  .int{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+  /* grid, not flex — a fixed 30px icon column + 1fr text column with align-items:center gives
+     pixel-identical vertical centering for every row regardless of glyph (svg vs bare letter) or
+     font metrics; flex align-items was letting some baselines drift a px or two off. */
+  .int{display:grid;grid-template-columns:30px 1fr;align-items:center;gap:10px;
+    border:1px solid var(--line);border-radius:14px;padding:14px 16px;
     background:linear-gradient(180deg,#ffffff 0%,var(--bg-2) 100%);font-weight:700;font-size:13px;color:var(--ink);
-    box-shadow:0 1px 2px rgba(10,10,10,.04);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    line-height:1;box-shadow:0 1px 2px rgba(10,10,10,.04);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     transition:box-shadow .3s cubic-bezier(.16,1,.3,1);}
   .int:hover{box-shadow:0 10px 26px -14px rgba(10,10,10,.22);}
   /* real per-brand color instead of one flat monogram treatment — .ii carries the brand bg,
      svg/glyph inside is white or brand-on-white where the mark needs contrast */
-  .int .ii{width:30px;height:30px;border-radius:8px;flex-shrink:0;
+  .int .ii{width:30px;height:30px;border-radius:8px;
     display:flex;align-items:center;justify-content:center;font-weight:800;line-height:1;
     font-family:'JetBrains Mono',monospace;font-size:11px;overflow:hidden;text-align:center;}
-  .int .ii svg{width:18px;height:18px;display:block;flex-shrink:0;}
-  /* text-glyph chips (G/M/S/@/P/T/Q/H) sit as a bare text node in the flex box — line-height:1
-     above keeps every letter centered on the same baseline regardless of font metrics, and the
-     label text itself gets the same treatment so icon and word align on one visual row */
-  .int{line-height:1.2;}
+  .int .ii svg{width:18px;height:18px;display:block;}
   /* 23 items now (was 8) — 15.652deg apart (360/23), radius bumped so chips don't crowd */
   /* overflow:hidden here, not just on body — far-side carousel items sit hundreds of px out in
      3D space via translateZ, and that geometry can expand the page's real scrollable width on
@@ -233,6 +233,7 @@
      if clip-path hit-testing DID work everywhere: the tiny corner triangle outside the curve but
      inside the box is still tappable — harmless, still the correct quadrant. */
   .wseg{position:absolute;width:50%;height:50%;border:0;background:transparent;cursor:pointer;
+    touch-action:manipulation;-webkit-tap-highlight-color:transparent;
     padding:0;transform-style:preserve-3d;
     transition:transform .5s cubic-bezier(.16,1,.3,1),background .5s ease;}
   .wseg:nth-child(1){top:0;left:0;clip-path:polygon(100% 100%,100% 0%,74.1% 3.4%,50% 13.4%,29.3% 29.3%,13.4% 50%,3.4% 74.1%,0% 100%);}
