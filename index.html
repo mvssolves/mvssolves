@@ -71,7 +71,6 @@
   html.no-scroll{overflow:hidden;height:100%;}
   body{background:var(--bg);color:var(--text);font-family:'General Sans',-apple-system,"Helvetica Neue",sans-serif;
     font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
-  body.cur-ready{cursor:none;}
   a{color:inherit;text-decoration:none;}
   .mono{font-family:'JetBrains Mono',monospace;}
   .serif{font-family:'Cormorant',serif;font-style:italic;font-weight:500;}
@@ -84,11 +83,8 @@
   .section{padding:120px 0;position:relative;border-top:1px solid var(--line);background:var(--bg);}
   .sub{color:var(--soft);font-size:clamp(15px,1.5vw,18px);max-width:620px;margin-top:18px;line-height:1.55;}
 
-  /* progress + cursor */
+  /* progress */
   .progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--accent);z-index:100;}
-  .cursor{position:fixed;top:0;left:0;width:13px;height:13px;border-radius:50%;background:#fff;z-index:9999;
-    pointer-events:none;mix-blend-mode:difference;transform:translate3d(0,0,0) translate(-50%,-50%);}
-  @media(pointer:coarse){.cursor{display:none;}body{cursor:auto;}}
 
   /* persistent scroll chrome — desktop only */
   .scroll-chrome{display:none;position:fixed;right:24px;bottom:22px;z-index:60;align-items:center;gap:8px;
@@ -102,6 +98,9 @@
   nav{position:fixed;top:0;left:0;right:0;z-index:60;padding:20px 36px;display:flex;align-items:center;gap:16px;
     justify-content:space-between;border-bottom:1px solid transparent;transition:border-color .3s,background .3s;}
   nav.scrolled{border-color:var(--line);background:rgba(255,255,255,.8);backdrop-filter:blur(16px);}
+  /* backdrop-filter on a fixed, always-scrolling-past element resamples everything behind it
+     every frame — real cost on mobile GPUs. Solid-ish background reads the same without it. */
+  @media(max-width:768px){nav.scrolled{background:rgba(255,255,255,.96);backdrop-filter:none;-webkit-backdrop-filter:none;}}
   .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:17px;color:var(--ink);white-space:nowrap;flex-shrink:0;}
   .logo-mark{width:26px;height:26px;border-radius:7px;background:var(--accent);color:var(--accent-ink);
     display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;flex-shrink:0;}
@@ -199,7 +198,7 @@
 
   /* pricing */
   .toggle{position:relative;display:inline-flex;border:1px solid var(--line-strong);border-radius:999px;padding:4px;margin-top:30px;font-size:13px;font-weight:600;}
-  .toggle button{padding:9px 18px;border-radius:999px;border:none;background:transparent;color:var(--muted);cursor:none;font-weight:600;}
+  .toggle button{padding:9px 18px;border-radius:999px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-weight:600;}
   .toggle button.on{background:var(--accent);color:var(--accent-ink);}
   .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:34px;}
   @media(max-width:900px){.tiers{grid-template-columns:1fr;}}
@@ -351,8 +350,6 @@
   .alc-row:hover{padding-left:8px;color:var(--ink);}
   .tier:active{transform:translateY(-2px);}
 
-  /* loose-pixel cleanups */
-  .cursor{opacity:0;transition:opacity .15s;}
 
   /* film grain removed — fixed mix-blend overlay was costing scroll repaints */
 
@@ -441,7 +438,6 @@
 <body>
 <div class="floating-lines-bg" id="floatingLinesBg" aria-hidden="true"></div>
 <div class="progress" id="progress"></div>
-<div class="cursor" id="cursor"></div>
 <div class="scroll-chrome" aria-hidden="true"><span>Scroll</span><span class="sc-pct" id="scPct">0%</span></div>
 <div class="intro-veil" id="introVeil"></div>
 <div class="intro-type" id="introType">
@@ -1111,33 +1107,26 @@ void main() {
 gsap.registerPlugin(ScrollTrigger);
 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const isDesktop = window.matchMedia('(min-width:901px)').matches;
+
+/* one shared IntersectionObserver (threshold:0) for the handful of independent single-element
+   visibility toggles below (ElectricBorder in-view, hero-off, prem spin-off, CardSwap in-view) —
+   was 4 separate observer instances doing the same threshold:0 visibility-flag pattern. */
+const _visibilityObserver=new IntersectionObserver(es=>{
+  es.forEach(e=>{const cb=e.target.__onVisible;if(cb)cb(e.isIntersecting);});
+},{threshold:0});
+function onVisibilityChange(el,cb){el.__onVisible=cb;_visibilityObserver.observe(el);}
 /* the desktop-only pin/scrub effects and the Premium co-tag observer are all set up once, keyed off
    this snapshot — reload on a breakpoint crossing rather than trying to hot-swap live ScrollTriggers
    and pin-spacers (resizing a window or rotating a tablet across 901px mid-session is rare, a reload
    is the safe way to guarantee the new viewport gets the correct desktop/mobile behavior) */
 window.matchMedia('(min-width:901px)').addEventListener('change', () => location.reload());
 
-/* cursor — passive listener only records coords (no style write on the native event at all); one
-   rAF loop writes transform (translate3d+scale, GPU-composited) instead of left/top+width/height,
-   which forced layout on every frame this ran. */
-const cur=document.getElementById('cursor');
-if(window.matchMedia('(pointer:fine)').matches){
-  document.body.classList.add('cur-ready');
-  let curX=0,curY=0,curGrow=false,curScale=1;
-  window.addEventListener('mousemove',e=>{curX=e.clientX;curY=e.clientY;cur.style.opacity='1';},{passive:true});
-  const grow=()=>curGrow=true,shrink=()=>curGrow=false;
-  document.querySelectorAll('a,button,.card').forEach(el=>{el.addEventListener('mouseenter',grow);el.addEventListener('mouseleave',shrink);});
-  (function cursorFrame(){
-    curScale+=((curGrow?2.08:1)-curScale)*0.25;
-    cur.style.transform=`translate3d(${curX}px,${curY}px,0) translate(-50%,-50%) scale(${curScale.toFixed(3)})`;
-    requestAnimationFrame(cursorFrame);
-  })();
-}
-
-/* Lenis + GSAP ticker (scroll/58 sync pattern) */
+/* Lenis + GSAP ticker (scroll/58 sync pattern). syncTouch defaults to false in this Lenis version
+   (touch already gets native momentum scroll, not JS-driven smoothing) — set explicitly so intent
+   isn't left to an implicit library default. */
 let lenis;
 if(!reduce){
-  lenis=new Lenis({duration:1.2});
+  lenis=new Lenis({duration:1.2,syncTouch:false});
   gsap.ticker.add(t=>lenis.raf(t*1000));
   gsap.ticker.lagSmoothing(0);
   lenis.on('scroll',ScrollTrigger.update);
@@ -1167,7 +1156,16 @@ function onScroll(y){nav.classList.toggle('scrolled',y>40);
   prog.style.width=pct+'%';
   if(scPct)scPct.textContent=Math.round(pct)+'%';}
 if(lenis) lenis.on('scroll',({scroll})=>onScroll(scroll));
-else window.addEventListener('scroll',()=>onScroll(window.scrollY),{passive:true});
+else{
+  /* reduced-motion path only (no Lenis): rAF-coalesce so a burst of native scroll events
+     collapses to one class-toggle/style write per frame instead of running raw per event. */
+  let scrollPending=false;
+  window.addEventListener('scroll',()=>{
+    if(scrollPending)return;
+    scrollPending=true;
+    requestAnimationFrame(()=>{scrollPending=false;onScroll(window.scrollY);});
+  },{passive:true});
+}
 
 /* hero intro */
 /* DecryptedText (React Bits port → vanilla) — sequential scramble-to-reveal.
@@ -1262,7 +1260,7 @@ function electricBorder(host,o){
   function stop(){running=false;cancelAnimationFrame(raf);}
   size();new ResizeObserver(size).observe(host);
   let inView=false;
-  new IntersectionObserver(es=>es.forEach(e=>{inView=e.isIntersecting;(inView&&!document.hidden)?start():stop();}),{threshold:0}).observe(host);
+  onVisibilityChange(host,visible=>{inView=visible;(inView&&!document.hidden)?start():stop();});
   document.addEventListener('visibilitychange',()=>{document.hidden?stop():(inView&&start());});
 }
 if(!reduce&&window.matchMedia('(pointer:fine)').matches){const feat=document.querySelector('.tier.feat');if(feat)electricBorder(feat,{color:'#0a0a0a',chaos:0.09,speed:0.9,thickness:1.4,borderRadius:16});}
@@ -1293,10 +1291,10 @@ if(!reduce){
 
 /* pause hero sheen when scrolled past — kills off-screen repaint cost */
 (function(){const hero=document.getElementById('top');if(!hero)return;
-  new IntersectionObserver(es=>es.forEach(en=>document.documentElement.classList.toggle('hero-off',!en.isIntersecting)),{threshold:0}).observe(hero);})();
+  onVisibilityChange(hero,visible=>document.documentElement.classList.toggle('hero-off',!visible));})();
 /* pause the Premium card's spinning gradient border off-screen — was running unconditionally forever */
 (function(){const prem=document.querySelector('.tier.prem');if(!prem)return;
-  new IntersectionObserver(es=>es.forEach(en=>prem.classList.toggle('spin-off',!en.isIntersecting)),{threshold:0}).observe(prem);})();
+  onVisibilityChange(prem,visible=>prem.classList.toggle('spin-off',!visible));})();
 
 /* Premium feature callouts — fade in once, desktop only */
 if(isDesktop&&!reduce){
@@ -1385,7 +1383,7 @@ if(window.matchMedia('(pointer:fine)').matches){
   }
 
   let inView=true;
-  new IntersectionObserver(es=>es.forEach(en=>{inView=en.isIntersecting;}),{threshold:0}).observe(container);
+  onVisibilityChange(container,visible=>{inView=visible;});
 
   swap();
   setInterval(()=>{if(inView)swap();},delay);
