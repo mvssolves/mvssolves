@@ -60,7 +60,7 @@
     --maxw:1300px;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
-  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;overflow-x:hidden;}
   /* Nohemi — freeware (personal+commercial use), self-hosted via the Tamagui project's npm
      package on jsDelivr since it's not on Google Fonts/Fontshare */
   @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Regular.ttf') format('truetype');font-weight:400;font-display:swap;}
@@ -178,13 +178,22 @@
   /* real per-brand color instead of one flat monogram treatment — .ii carries the brand bg,
      svg/glyph inside is white or brand-on-white where the mark needs contrast */
   .int .ii{width:30px;height:30px;border-radius:8px;flex-shrink:0;
-    display:flex;align-items:center;justify-content:center;font-weight:800;
-    font-family:'JetBrains Mono',monospace;font-size:11px;overflow:hidden;}
-  .int .ii svg{width:18px;height:18px;display:block;}
+    display:flex;align-items:center;justify-content:center;font-weight:800;line-height:1;
+    font-family:'JetBrains Mono',monospace;font-size:11px;overflow:hidden;text-align:center;}
+  .int .ii svg{width:18px;height:18px;display:block;flex-shrink:0;}
+  /* text-glyph chips (G/M/S/@/P/T/Q/H) sit as a bare text node in the flex box — line-height:1
+     above keeps every letter centered on the same baseline regardless of font metrics, and the
+     label text itself gets the same treatment so icon and word align on one visual row */
+  .int{line-height:1.2;}
   /* 23 items now (was 8) — 15.652deg apart (360/23), radius bumped so chips don't crowd */
-  .int-carousel-wrap{perspective:1600px;height:280px;display:flex;align-items:center;justify-content:center;margin-top:56px;}
+  /* overflow:hidden here, not just on body — far-side carousel items sit hundreds of px out in
+     3D space via translateZ, and that geometry can expand the page's real scrollable width on
+     iOS Safari even though body already has overflow-x:hidden (a known WebKit gap with 3D
+     transforms). Clipping at the carousel's own box is what actually stops it. */
+  .int-carousel-wrap{perspective:1600px;height:280px;display:flex;align-items:center;justify-content:center;
+    margin-top:56px;overflow:hidden;}
   .int-carousel{position:relative;width:1px;height:1px;transform-style:preserve-3d;animation:intSpin 60s linear infinite;}
-  .int-carousel:hover,.int-carousel.spin-off{animation-play-state:paused;}
+  .int-carousel.spin-off{animation-play-state:paused;}
   @keyframes intSpin{from{transform:rotateY(0deg);}to{transform:rotateY(360deg);}}
   .int-item{position:absolute;top:0;left:0;width:150px;margin:-29px 0 0 -75px;
     transform:rotateY(calc(var(--i) * 15.652deg)) translateZ(620px);backface-visibility:hidden;}
@@ -217,16 +226,27 @@
     backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow:visible;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 30px 70px -40px rgba(10,10,10,.30);
     transform-style:preserve-3d;transition:transform .2s ease-out;}
-  .wseg{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;cursor:pointer;
+  /* each wseg is sized to ONLY its own quadrant (50%x50%), not the full disc — clip-path shapes
+     it into the curved wedge visually, but the tap/click target is the plain rectangle underneath.
+     Clip-path hit-testing is inconsistent on WebKit/iOS Safari (taps landing on the wrong wedge,
+     or not registering at all); a real rectangular box is bulletproof on every browser. Worst case
+     if clip-path hit-testing DID work everywhere: the tiny corner triangle outside the curve but
+     inside the box is still tappable — harmless, still the correct quadrant. */
+  .wseg{position:absolute;width:50%;height:50%;border:0;background:transparent;cursor:pointer;
     padding:0;transform-style:preserve-3d;
     transition:transform .5s cubic-bezier(.16,1,.3,1),background .5s ease;}
-  .wseg:nth-child(1){clip-path:polygon(50% 50%,50% 0%,37.05% 1.7%,25% 6.7%,14.65% 14.65%,6.7% 25%,1.7% 37.05%,0% 50%);}
-  .wseg:nth-child(2){clip-path:polygon(50% 50%,100% 50%,98.3% 37.05%,93.3% 25%,85.35% 14.65%,75% 6.7%,62.95% 1.7%,50% 0%);}
-  .wseg:nth-child(3){clip-path:polygon(50% 50%,0% 50%,1.7% 62.95%,6.7% 75%,14.65% 85.35%,25% 93.3%,37.05% 98.3%,50% 100%);}
-  .wseg:nth-child(4){clip-path:polygon(50% 50%,50% 100%,62.95% 98.3%,75% 93.3%,85.35% 85.35%,93.3% 75%,98.3% 62.95%,100% 50%);}
+  .wseg:nth-child(1){top:0;left:0;clip-path:polygon(100% 100%,100% 0%,74.1% 3.4%,50% 13.4%,29.3% 29.3%,13.4% 50%,3.4% 74.1%,0% 100%);}
+  .wseg:nth-child(2){top:0;left:50%;clip-path:polygon(0% 100%,0% 0%,25.9% 3.4%,50% 13.4%,70.7% 29.3%,86.6% 50%,96.6% 74.1%,100% 100%);}
+  .wseg:nth-child(3){top:50%;left:0;clip-path:polygon(100% 0%,100% 100%,74.1% 96.6%,50% 86.6%,29.3% 70.7%,13.4% 50%,3.4% 25.9%,0% 0%);}
+  .wseg:nth-child(4){top:50%;left:50%;clip-path:polygon(0% 0%,0% 100%,25.9% 96.6%,50% 86.6%,70.7% 70.7%,86.6% 50%,96.6% 25.9%,100% 0%);}
   .wseg:hover,.wseg.active{
     background:radial-gradient(circle at 50% 50%,rgba(10,10,10,.12) 0%,rgba(10,10,10,.05) 50%,transparent 78%);
-    transform:translateZ(22px) scale(1.02);z-index:3;}
+    transform:translateZ(22px) scale(1.02);z-index:3;
+    animation:wsegFloat 2.6s ease-in-out infinite;}
+  @keyframes wsegFloat{
+    0%,100%{transform:translateZ(22px) scale(1.02) translateY(0);}
+    50%{transform:translateZ(34px) scale(1.02) translateY(-5px);}
+  }
   /* labels live in their own flat (non-preserve-3d) overlay, not inside .wheel-disc — z-index vs.
      translateZ ordering between siblings in a shared preserve-3d context proved unreliable across
      the wedges' own translateZ pop; a flat sibling layer avoids that entirely and just paints on
@@ -259,7 +279,7 @@
     box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 8px 24px -14px rgba(10,10,10,.18);z-index:4;}
   .wc-lab{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
   .wc-desc{margin-top:8px;font-size:13px;line-height:1.45;color:var(--soft);font-weight:600;}
-  @media(prefers-reduced-motion:reduce){.wseg{transition:background .3s ease;}.wseg:hover,.wseg.active{transform:none;}}
+  @media(prefers-reduced-motion:reduce){.wseg{transition:background .3s ease;}.wseg:hover,.wseg.active{transform:none;animation:none;}}
   @media(max-width:600px){
     .wheel-stage{width:280px;height:280px;}
     .wn{font-size:12.5px;}
