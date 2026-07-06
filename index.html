@@ -168,6 +168,38 @@
   .cap-more[open] summary::before{transform:rotate(45deg);}
   .cap-more summary:hover{color:var(--ink);border-color:var(--ink);}
   .cap-more .cap-grid{margin-top:14px;}
+
+  /* integrations grid — same monogram/card treatment as .cap, on purpose */
+  .int-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:46px;}
+  @media(max-width:900px){.int-grid{grid-template-columns:repeat(2,1fr);}}
+  .int{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:14px;padding:18px 20px;
+    background:linear-gradient(180deg,#ffffff 0%,var(--bg-2) 100%);font-weight:700;font-size:14px;color:var(--ink);
+    box-shadow:0 1px 2px rgba(10,10,10,.04);
+    transition:transform .3s cubic-bezier(.16,1,.3,1),box-shadow .3s cubic-bezier(.16,1,.3,1);}
+  .int:hover{transform:translateY(-3px);box-shadow:0 8px 20px -14px rgba(10,10,10,.14);}
+  .int .ii{width:30px;height:30px;border-radius:8px;flex-shrink:0;
+    background:linear-gradient(160deg,#333 0%,var(--accent) 65%);color:var(--accent-ink);
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-family:'JetBrains Mono',monospace;font-size:11px;}
+
+  /* hero trust-stat badge */
+  .hero-stat{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+    border:1px solid var(--line);border-radius:999px;padding:7px 16px;margin-bottom:18px;}
+  .hero-stat b{color:var(--ink);font-weight:700;}
+
+  /* floating book-call pill — hidden until hero scrolls out, hidden again once the book
+     section itself is in view (no point pointing at a CTA already on screen) */
+  .float-cta{position:fixed;left:20px;bottom:20px;z-index:55;display:flex;align-items:center;gap:10px;
+    background:var(--ink);color:#fff;border-radius:999px;padding:6px 18px 6px 6px;
+    box-shadow:0 10px 30px -10px rgba(10,10,10,.4);
+    opacity:0;transform:translateY(12px);pointer-events:none;
+    transition:opacity .4s ease,transform .4s ease;}
+  .float-cta.show{opacity:1;transform:translateY(0);pointer-events:auto;}
+  .float-cta .fc-mark{width:32px;height:32px;border-radius:50%;background:#fff;color:var(--ink);flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;}
+  .float-cta .fc-text{font-weight:700;font-size:13px;white-space:nowrap;}
+  @media(max-width:600px){.float-cta{left:14px;bottom:14px;}.float-cta .fc-text{font-size:12px;}}
+  @media(prefers-reduced-motion:reduce){.float-cta{transition:none;}}
   .cap{border:1px solid var(--line);border-radius:14px;padding:22px;
     background:linear-gradient(180deg,#ffffff 0%,var(--bg-2) 100%);
     box-shadow:0 1px 2px rgba(10,10,10,.04),0 8px 20px -14px rgba(10,10,10,.14),0 20px 40px -24px rgba(10,10,10,.10);
@@ -475,6 +507,9 @@
 <body>
 <div class="progress" id="progress"></div>
 <div class="scroll-chrome" aria-hidden="true"><span>Scroll</span><span class="sc-pct" id="scPct">0%</span></div>
+<a class="float-cta" id="floatCta" href="#book" aria-label="Book a free call with Martin">
+  <span class="fc-mark">M</span><span class="fc-text">Book a free call</span>
+</a>
 <div class="intro-veil" id="introVeil"></div>
 <div class="intro-type" id="introType">
   <div class="intro-type-line" id="introLine"></div>
@@ -503,6 +538,7 @@
     </h1>
   </div>
   <div class="h-bottom">
+    <div class="hero-stat"><b>24h</b>&nbsp;launch turnaround</div>
     <p class="h-sub" id="hsub">Websites, automation &amp; AI — built end-to-end by one person. No handoffs, no account managers, no fluff. You text me, you get me.</p>
     <div class="h-cta" id="hcta">
       <a class="btn btn-fill" href="#book">Automate your business
@@ -546,10 +582,29 @@
   </div>
 </section>
 
+<!-- INTEGRATIONS -->
+<section class="section" id="integrations">
+  <div class="wrap">
+    <div class="lab">02 / Connected, not complicated</div>
+    <h2>Works with what<br>you already use.</h2>
+    <p class="sub">No new logins, no ripped-out systems. Everything plugs straight into the tools your business already runs on.</p>
+    <div class="int-grid">
+      <div class="int"><span class="ii">G</span>Google Profile</div>
+      <div class="int"><span class="ii">WA</span>WhatsApp</div>
+      <div class="int"><span class="ii">M</span>Make</div>
+      <div class="int"><span class="ii">N8N</span>n8n</div>
+      <div class="int"><span class="ii">C</span>Cal.com</div>
+      <div class="int"><span class="ii">IG</span>Instagram</div>
+      <div class="int"><span class="ii">$</span>Stripe</div>
+      <div class="int"><span class="ii">@</span>Email &amp; SMS</div>
+    </div>
+  </div>
+</section>
+
 <!-- PRICING -->
 <section class="section" id="pricing">
   <div class="wrap">
-    <div class="lab">02 / Pricing</div>
+    <div class="lab">03 / Pricing</div>
     <h2>Clear packages.</h2>
     <p class="sub">Pay monthly, low build fee — or own it outright. Your call.</p>
     <div class="toggle" id="modeToggle">
@@ -691,7 +746,7 @@
 <!-- WHY / PROOF -->
 <section class="section" id="why">
   <div class="wrap">
-    <div class="lab">03 / Why me</div>
+    <div class="lab">04 / Why me</div>
     <h2>Built for businesses<br>big agencies ignore.</h2>
     <p class="sub">If you've ever been quoted a fortune for a website and walked away — this is for you.</p>
     <div class="why-grid">
@@ -728,7 +783,7 @@
 <!-- BOOK -->
 <section class="section" id="book" style="background:var(--bg-2-glass)">
   <div class="wrap">
-    <div class="lab">04 / Let's connect — for free</div>
+    <div class="lab">05 / Let's connect — for free</div>
     <div class="book-grid">
       <div>
         <h2 id="bookH2">No pitch.<br>Just a plan.</h2>
