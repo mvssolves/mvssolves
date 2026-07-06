@@ -758,14 +758,10 @@
   </div>
 </footer>
 
-<!-- defer on all four: was 3 sequential render-blocking script loads pausing HTML parsing
-     before any content could paint, gating FCP behind the network. defer lets the browser
-     paint the page off HTML/CSS immediately while these fetch in parallel in the background,
-     executing in this same order only once parsing finishes. -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js" defer></script>
-<script defer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script>
 gsap.registerPlugin(ScrollTrigger);
 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const isDesktop = window.matchMedia('(min-width:901px)').matches;
@@ -873,7 +869,7 @@ function electricBorder(host,o){
     ctx.closePath();ctx.stroke();}
   function start(){if(running)return;running=true;last=performance.now();raf=requestAnimationFrame(draw);}
   function stop(){running=false;cancelAnimationFrame(raf);}
-  requestAnimationFrame(size);new ResizeObserver(size).observe(host);
+  size();new ResizeObserver(size).observe(host);
   let inView=false;
   onVisibilityChange(host,visible=>{inView=visible;(inView&&!document.hidden)?start():stop();});
   document.addEventListener('visibilitychange',()=>{document.hidden?stop():(inView&&start());});
