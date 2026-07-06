@@ -117,6 +117,15 @@
   .navcta{color:var(--ink)!important;font-weight:700;border-bottom:2px solid var(--accent);padding-bottom:2px;white-space:nowrap;}
   .navtoggle{display:flex;background:none;border:0;padding:6px;margin:0;cursor:pointer;flex-direction:column;gap:5px;}
   .navtoggle span{display:block;width:22px;height:2px;background:var(--ink);}
+  /* the hamburger dropdown had no desktop override at all — it rendered and opened identically on
+     a 1920px window as on a phone, stacking the nav links full-width over the page. Desktop shows
+     the links inline instead; the toggle button and dropdown behavior are mobile-only. */
+  @media(min-width:901px){
+    .navtoggle{display:none;}
+    .nav-links{position:static;display:flex;flex-direction:row;align-items:center;gap:20px;
+      max-height:none;overflow:visible;background:transparent;padding:0;border-bottom:0;}
+    .nav-links a{padding:0;border-bottom:0;}
+  }
 
   /* hero */
   .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:40px;padding:200px 36px 64px;overflow:hidden;
