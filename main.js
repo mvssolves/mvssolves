@@ -149,6 +149,9 @@ if(!reduce){
 /* pause the integrations carousel spin off-screen — same reasoning, was running forever */
 (function(){const ic=document.querySelector('.int-carousel');if(!ic)return;
   onVisibilityChange(ic,visible=>ic.classList.toggle('spin-off',!visible));})();
+/* same pause for the mobile 2D marquee replacement */
+(function(){const mq=document.querySelector('.int-marquee');if(!mq)return;
+  onVisibilityChange(mq,visible=>mq.classList.toggle('spin-off',!visible));})();
 
 /* floating book-call pill: visible once past the hero, hidden again once the book section
    (which has its own CTA already on screen) is reached. Own observer — not the shared one,
