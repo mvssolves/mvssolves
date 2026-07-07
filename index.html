@@ -198,6 +198,10 @@
   .int-item{position:absolute;top:0;left:0;width:150px;margin:-29px 0 0 -75px;
     transform:rotateY(calc(var(--i) * 15.652deg)) translateZ(620px);backface-visibility:hidden;}
   @media(max-width:900px){
+    /* 23 children continuously recomputing a 3D transform inside an animated preserve-3d parent
+       is real GPU cost — fine on desktop, too much for weaker mobile GPUs (reported crashing/lag).
+       Static on mobile: no spin, items keep their fanned layout, just don't animate. */
+    .int-carousel{animation:none;}
     .int-carousel-wrap{height:230px;perspective:1900px;}
     .int-item{width:104px;margin:-24px 0 0 -52px;padding:11px 12px;font-size:11.5px;
       grid-template-columns:24px 1fr;gap:8px;
