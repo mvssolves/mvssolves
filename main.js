@@ -298,11 +298,17 @@ window.addEventListener('load',()=>{
 if(document.fonts&&document.fonts.ready){
   document.fonts.ready.then(()=>ScrollTrigger.refresh());
 }
-/* mobile Safari resizes the visual viewport as the address bar collapses mid-scroll, which can
-   stale the same trigger positions — debounced refresh keeps them honest without thrashing */
+/* mobile Safari fires 'resize' (height-only) as the address bar collapses/expands mid-scroll.
+   ScrollTrigger.refresh() forces a layout pass across every trigger on the page — real cost,
+   and running it mid-scroll is what read as the page stalling/locking until scrolled again.
+   The address-bar case only ever changes height, never width (and 'top 88%'-style triggers
+   drift by at most the bar's ~50-100px there — imperceptible). Only refresh on a real width
+   change (resize/orientation change), where triggers can actually shift meaningfully. */
 (function(){
-  let t;
+  let t,lastW=window.innerWidth;
   window.addEventListener('resize',()=>{
+    if(window.innerWidth===lastW)return;
+    lastW=window.innerWidth;
     clearTimeout(t);
     t=setTimeout(()=>ScrollTrigger.refresh(),200);
   },{passive:true});
