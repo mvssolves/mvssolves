@@ -15,11 +15,14 @@ function onVisibilityChange(el,cb){el.__onVisible=cb;_visibilityObserver.observe
    is the safe way to guarantee the new viewport gets the correct desktop/mobile behavior) */
 window.matchMedia('(min-width:901px)').addEventListener('change', () => location.reload());
 
-/* Lenis + GSAP ticker (scroll/58 sync pattern). syncTouch defaults to false in this Lenis version
-   (touch already gets native momentum scroll, not JS-driven smoothing) — set explicitly so intent
-   isn't left to an implicit library default. */
+/* Lenis + GSAP ticker (scroll/58 sync pattern), desktop only. On mobile Safari, Lenis's virtual
+   scroll desyncs when the address bar collapses/expands mid-scroll (its resize handler recalcs
+   dimensions off a viewport that's still animating) — the page appears to stall until the user
+   scrolls again to force a resync. Known Lenis-on-iOS issue, not fixable by tuning options; native
+   scroll (the reduce-motion fallback path below) has no such desync since there's no virtual state
+   to get out of sync. */
 let lenis;
-if(!reduce){
+if(!reduce&&isDesktop){
   lenis=new Lenis({duration:1.2,syncTouch:false});
   gsap.ticker.add(t=>lenis.raf(t*1000));
   gsap.ticker.lagSmoothing(0);
@@ -51,7 +54,7 @@ function onScroll(y){nav.classList.toggle('scrolled',y>40);
   if(scPct)scPct.textContent=Math.round(pct)+'%';}
 if(lenis) lenis.on('scroll',({scroll})=>onScroll(scroll));
 else{
-  /* reduced-motion path only (no Lenis): rAF-coalesce so a burst of native scroll events
+  /* no-Lenis path (mobile or reduced-motion): rAF-coalesce so a burst of native scroll events
      collapses to one class-toggle/style write per frame instead of running raw per event. */
   let scrollPending=false;
   window.addEventListener('scroll',()=>{
