@@ -219,7 +219,32 @@
      wedge can pop forward in Z without a parent overflow:hidden clipping it. Cross-divider is a
      separate overlay, decoupled from the wedge shapes. Click swaps the center panel. */
   .wheel-wrap{display:flex;justify-content:center;margin-top:52px;}
-  .wheel-stage{position:relative;width:380px;height:380px;max-width:100%;perspective:1400px;}
+  /* orbit — bigger stage housing the disc + floating skill badges around its rim */
+  .wheel-orbit{position:relative;width:560px;height:560px;max-width:100%;}
+  .wheel-stage{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:380px;height:380px;max-width:100%;perspective:1400px;}
+  /* rim — a second, slightly larger, darker disc sitting behind at translateZ(-18px). When the
+     disc tilts (hover or resting tilt), this shows through as real edge/thickness, not a flat card. */
+  .wheel-rim{position:absolute;inset:-8px;border-radius:50%;background:var(--surface);
+    box-shadow:0 40px 90px -30px rgba(0,0,0,.5);transform:translateZ(-18px);}
+  /* floating skill badges orbiting outside the disc — flat layer (no preserve-3d), each bobs
+     independently. Reuses the .int chip language (icon + label) at a smaller scale. */
+  .wheel-skills{position:absolute;inset:0;pointer-events:none;}
+  .wskill{position:absolute;display:flex;align-items:center;gap:7px;
+    background:linear-gradient(180deg,var(--surface) 0%,var(--bg-2) 100%);
+    border:1px solid var(--line);border-radius:999px;padding:7px 14px 7px 7px;
+    font-weight:700;font-size:12px;color:var(--ink);white-space:nowrap;
+    box-shadow:0 10px 24px -16px rgba(0,0,0,.5);
+    transform:translate(-50%,-50%);animation:wskillFloat 4s ease-in-out infinite;}
+  .wskill .wi{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;
+    justify-content:center;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:800;
+    background:linear-gradient(160deg,#333 0%,var(--accent) 65%);color:var(--accent-ink);}
+  @keyframes wskillFloat{0%,100%{translate:0 0;}50%{translate:0 -8px;}}
+  @media(prefers-reduced-motion:reduce){.wskill{animation:none;}}
+  /* below 900px: drop the floating badges (decorative, extra GPU cost not worth it on mobile
+     per this session's earlier lag fixes) but keep the orbit box sized to the disc itself —
+     wheel-stage lives inside wheel-orbit now, hiding the whole orbit would've hidden the wheel too */
+  @media(max-width:900px){.wheel-orbit{width:380px;height:380px;}.wheel-skills{display:none;}}
   /* ring-trace — the circle draws itself in on scroll-enter, matching the reference video.
      Soft glow instead of a hard hairline — drop-shadow blur, no crisp edge. */
   .wheel-ring{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6;overflow:visible;}
@@ -719,23 +744,34 @@
     <h2 class="h2-split"><span class="word"><span>The</span></span> <span class="word"><span>Hidden</span></span> <span class="word"><span>Cost</span></span> <span class="word"><span>of</span></span><br><span class="word"><span>Manual</span></span> <span class="word"><span>Work.</span></span></h2>
     <p class="sub">Every manual workaround has a price — a slow site, a missed message, an automation that doesn't exist yet. Tap a piece to see where it adds up.</p>
     <div class="wheel-wrap">
-      <div class="wheel-stage">
-        <svg class="wheel-ring" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="49.3"/></svg>
-        <div class="wheel-disc">
-          <button class="wseg active" data-lab="Websites" data-desc="A slow, generic site loses the click before it ever converts."></button>
-          <button class="wseg" data-lab="Automation" data-desc="Manual admin eats hours that should be spent selling."></button>
-          <button class="wseg" data-lab="AI Systems" data-desc="Missed after-hours leads rarely come back on their own."></button>
-          <button class="wseg" data-lab="Lost Revenue" data-desc="Every week without a fix compounds — it costs more than fixing it would."></button>
-          <div class="wheel-core">
-            <div class="wc-lab mono">Websites</div>
-            <div class="wc-desc">A slow, generic site loses the click before it ever converts.</div>
+      <div class="wheel-orbit">
+        <div class="wheel-stage">
+          <div class="wheel-rim"></div>
+          <svg class="wheel-ring" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="49.3"/></svg>
+          <div class="wheel-disc">
+            <button class="wseg active" data-lab="Websites" data-desc="A slow, generic site loses the click before it ever converts."></button>
+            <button class="wseg" data-lab="Automation" data-desc="Manual admin eats hours that should be spent selling."></button>
+            <button class="wseg" data-lab="AI Systems" data-desc="Missed after-hours leads rarely come back on their own."></button>
+            <button class="wseg" data-lab="Lost Revenue" data-desc="Every week without a fix compounds — it costs more than fixing it would."></button>
+            <div class="wheel-core">
+              <div class="wc-lab mono">Websites</div>
+              <div class="wc-desc">A slow, generic site loses the click before it ever converts.</div>
+            </div>
+          </div>
+          <div class="wheel-labels">
+            <span class="wn wn-0 wn-active">Websites</span>
+            <span class="wn wn-1">Automation</span>
+            <span class="wn wn-2">AI Systems</span>
+            <span class="wn wn-3">Lost Revenue</span>
           </div>
         </div>
-        <div class="wheel-labels">
-          <span class="wn wn-0 wn-active">Websites</span>
-          <span class="wn wn-1">Automation</span>
-          <span class="wn wn-2">AI Systems</span>
-          <span class="wn wn-3">Lost Revenue</span>
+        <div class="wheel-skills">
+          <span class="wskill" style="top:3%;left:50%;animation-delay:0s"><span class="wi">SEO</span>SEO</span>
+          <span class="wskill" style="top:26.5%;left:90.7%;animation-delay:.6s"><span class="wi">R</span>Reviews</span>
+          <span class="wskill" style="top:73.5%;left:90.7%;animation-delay:1.2s"><span class="wi">B</span>Bookings</span>
+          <span class="wskill" style="top:97%;left:50%;animation-delay:1.8s"><span class="wi">BR</span>Branding</span>
+          <span class="wskill" style="top:73.5%;left:9.3%;animation-delay:2.4s"><span class="wi">CW</span>Copywriting</span>
+          <span class="wskill" style="top:26.5%;left:9.3%;animation-delay:3s"><span class="wi">$</span>Payments</span>
         </div>
       </div>
     </div>
