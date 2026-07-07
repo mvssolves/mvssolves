@@ -72,45 +72,6 @@ function playHeroReveal(){
   document.querySelectorAll('#hcta .btn').forEach((btn,i)=>fadeIn(btn,0.7+i*0.1));
 }
 
-/* ElectricBorder (React Bits port → vanilla canvas) on the featured card */
-function electricBorder(host,o){
-  o=o||{};const color=o.color||'#0a0a0a',speed=o.speed||0.9,chaos=o.chaos||0.09,thickness=o.thickness||1.4,br=o.borderRadius||16,off=30,disp=26;
-  const cvs=document.createElement('canvas');cvs.className='eb-canvas';
-  const layer=document.createElement('div');layer.className='eb-layers';layer.innerHTML='<span class="eb-g1"></span><span class="eb-g2"></span>';
-  host.appendChild(layer);host.appendChild(cvs);const ctx=cvs.getContext('2d');
-  const rnd=x=>(Math.sin(x*12.9898)*43758.5453)%1;
-  const n2=(x,y)=>{const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j,a=rnd(i+j*57),b=rnd(i+1+j*57),c=rnd(i+(j+1)*57),d=rnd(i+1+(j+1)*57),ux=fx*fx*(3-2*fx),uy=fy*fy*(3-2*fy);return a*(1-ux)*(1-uy)+b*ux*(1-uy)+c*(1-ux)*uy+d*ux*uy;};
-  const oct=(x,t,seed)=>{let y=0,amp=chaos,fr=10;for(let i=0;i<4;i++){y+=amp*n2(fr*x+seed*100,t*fr*0.3);fr*=1.6;amp*=0.7;}return y;};
-  const _pt={x:0,y:0};
-  const corner=(cx,cy,r,sa,al,p)=>{const a=sa+p*al;_pt.x=cx+r*Math.cos(a);_pt.y=cy+r*Math.sin(a);return _pt;};
-  const rrp=(tt,L,T,w,h,r)=>{const sw=w-2*r,sh=h-2*r,ca=Math.PI*r/2,per=2*sw+2*sh+4*ca,dist=tt*per;let ac=0;
-    if(dist<=ac+sw){_pt.x=L+r+(dist-ac);_pt.y=T;return _pt;}ac+=sw;
-    if(dist<=ac+ca)return corner(L+w-r,T+r,r,-Math.PI/2,Math.PI/2,(dist-ac)/ca);ac+=ca;
-    if(dist<=ac+sh){_pt.x=L+w;_pt.y=T+r+(dist-ac);return _pt;}ac+=sh;
-    if(dist<=ac+ca)return corner(L+w-r,T+h-r,r,0,Math.PI/2,(dist-ac)/ca);ac+=ca;
-    if(dist<=ac+sw){_pt.x=L+w-r-(dist-ac);_pt.y=T+h;return _pt;}ac+=sw;
-    if(dist<=ac+ca)return corner(L+r,T+h-r,r,Math.PI/2,Math.PI/2,(dist-ac)/ca);ac+=ca;
-    if(dist<=ac+sh){_pt.x=L;_pt.y=T+h-r-(dist-ac);return _pt;}ac+=sh;
-    return corner(L+r,T+r,r,Math.PI,Math.PI/2,(dist-ac)/ca);};
-  let W,H,dpr,t=0,last=0,raf=null,running=false,frameSkip=0;
-  function size(){const rc=host.getBoundingClientRect();W=rc.width+off*2;H=rc.height+off*2;dpr=Math.min(window.devicePixelRatio||1,2);cvs.width=W*dpr;cvs.height=H*dpr;cvs.style.width=W+'px';cvs.style.height=H+'px';cvs.style.left=-off+'px';cvs.style.top=-off+'px';}
-  /* redrawn from scratch every frame via canvas (no GPU compositing shortcut like transform/opacity
-     would get) — halved octaves, thinned point density, and skip every other frame so this
-     decorative border doesn't compete for budget with the rest of the pricing section */
-  function draw(now){raf=requestAnimationFrame(draw);
-    frameSkip=(frameSkip+1)%2;if(frameSkip!==0)return;
-    const dt=(now-last)/1000;t+=dt*speed;last=now;ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cvs.width,cvs.height);ctx.scale(dpr,dpr);ctx.strokeStyle=color;ctx.lineWidth=thickness;ctx.lineCap='round';ctx.lineJoin='round';
-    const bw=W-2*off,bh=H-2*off,r=Math.min(br,Math.min(bw,bh)/2),per=2*(bw+bh)+2*Math.PI*r,n=Math.floor(per/4);ctx.beginPath();
-    for(let i=0;i<=n;i++){const p=i/n,pt=rrp(p,off,off,bw,bh,r),dx=pt.x+oct(p*8,t,0)*disp,dy=pt.y+oct(p*8,t,1)*disp;i?ctx.lineTo(dx,dy):ctx.moveTo(dx,dy);}
-    ctx.closePath();ctx.stroke();}
-  function start(){if(running)return;running=true;last=performance.now();raf=requestAnimationFrame(draw);}
-  function stop(){running=false;cancelAnimationFrame(raf);}
-  size();new ResizeObserver(size).observe(host);
-  let inView=false;
-  onVisibilityChange(host,visible=>{inView=visible;(inView&&!document.hidden)?start():stop();});
-  document.addEventListener('visibilitychange',()=>{document.hidden?stop():(inView&&start());});
-}
-if(!reduce&&window.matchMedia('(pointer:fine)').matches){const feat=document.querySelector('.tier.feat');if(feat)electricBorder(feat,{color:'#0a0a0a',chaos:0.09,speed:0.9,thickness:1.4,borderRadius:16});}
 
 /* section heading reveals */
 if(!reduce){
