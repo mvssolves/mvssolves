@@ -190,8 +190,14 @@
      3D space via translateZ, and that geometry can expand the page's real scrollable width on
      iOS Safari even though body already has overflow-x:hidden (a known WebKit gap with 3D
      transforms). Clipping at the carousel's own box is what actually stops it. */
-  .int-carousel-wrap{perspective:1600px;height:280px;display:flex;align-items:center;justify-content:center;
-    margin-top:56px;overflow:hidden;}
+  .int-carousel-wrap{position:relative;perspective:1600px;height:280px;display:flex;align-items:center;
+    justify-content:center;margin-top:56px;overflow:hidden;}
+  /* blurred edge fade — items entering/leaving the visible arc soften out instead of hard-cutting
+     at the wrap's edge. Plain gradient overlays, no backdrop-filter, cheap. */
+  .int-carousel-wrap::before,.int-carousel-wrap::after{content:'';position:absolute;top:0;bottom:0;
+    width:14%;z-index:2;pointer-events:none;}
+  .int-carousel-wrap::before{left:0;background:linear-gradient(to right,var(--bg) 0%,transparent 100%);}
+  .int-carousel-wrap::after{right:0;background:linear-gradient(to left,var(--bg) 0%,transparent 100%);}
   .int-carousel{position:relative;width:1px;height:1px;transform-style:preserve-3d;animation:intSpin 60s linear infinite;}
   .int-carousel.spin-off{animation-play-state:paused;}
   @keyframes intSpin{from{transform:rotateY(0deg);}to{transform:rotateY(360deg);}}
