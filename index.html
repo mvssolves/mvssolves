@@ -204,11 +204,12 @@
   .int-item{position:absolute;top:0;left:0;width:150px;margin:-29px 0 0 -75px;
     transform:rotateY(calc(var(--i) * 15.652deg)) translateZ(620px);backface-visibility:hidden;}
   @media(max-width:900px){
-    /* 23 children continuously recomputing a 3D transform inside an animated preserve-3d parent
-       is real GPU cost — fine on desktop, too much for weaker mobile GPUs (reported crashing/lag).
-       Static on mobile: no spin, items keep their fanned layout, just don't animate. */
-    .int-carousel{animation:none;}
+    /* spin was fully disabled here (animation:none) over old GPU-crash reports — read as a
+       frozen/broken carousel on modern mobile. Re-enabled, just slower so compositing has more
+       headroom per frame. ponytail: if a weak-device crash report comes back, drop to a CSS-only
+       reduced-frame-rate trick before disabling again. */
     .int-carousel-wrap{height:230px;perspective:1900px;}
+    .int-carousel{animation-duration:100s;}
     .int-item{width:104px;margin:-24px 0 0 -52px;padding:11px 12px;font-size:11.5px;
       grid-template-columns:24px 1fr;gap:8px;
       transform:rotateY(calc(var(--i) * 15.652deg)) translateZ(520px);}
@@ -226,7 +227,10 @@
      separate overlay, decoupled from the wedge shapes. Click swaps the center panel. */
   .wheel-wrap{display:flex;justify-content:center;margin-top:52px;}
   /* orbit — bigger stage housing the disc + floating skill badges around its rim */
-  .wheel-orbit{position:relative;width:560px;height:560px;max-width:100%;}
+  /* clip at the orbit's own box — same iOS Safari gap as the carousel above: an animated/tilted
+     preserve-3d + translateZ tree can expand the page's real scrollable width even with body's
+     overflow-x:hidden. Orbit is big enough (560px) that clipping here doesn't cut the disc itself. */
+  .wheel-orbit{position:relative;width:560px;height:560px;max-width:100%;overflow:hidden;}
   .wheel-stage{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
     width:380px;height:380px;max-width:100%;perspective:1400px;}
   /* rim — a second, slightly larger, darker disc sitting behind at translateZ(-18px). When the
