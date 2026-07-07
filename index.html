@@ -173,7 +173,7 @@
   /* grid, not flex — a fixed 30px icon column + 1fr text column with align-items:center gives
      pixel-identical vertical centering for every row regardless of glyph (svg vs bare letter) or
      font metrics; flex align-items was letting some baselines drift a px or two off. */
-  .int{display:grid;grid-template-columns:30px 1fr;align-items:center;gap:10px;
+  .int{display:grid;grid-template-columns:30px minmax(0,1fr);align-items:center;gap:10px;
     border:1px solid var(--line);border-radius:14px;padding:14px 16px;
     background:linear-gradient(180deg,#ffffff 0%,var(--bg-2) 100%);font-weight:700;font-size:13px;color:var(--ink);
     line-height:1;box-shadow:0 1px 2px rgba(10,10,10,.04);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
@@ -198,8 +198,12 @@
   .int-item{position:absolute;top:0;left:0;width:150px;margin:-29px 0 0 -75px;
     transform:rotateY(calc(var(--i) * 15.652deg)) translateZ(620px);backface-visibility:hidden;}
   @media(max-width:900px){
-    .int-carousel-wrap{height:230px;}
-    .int-item{width:112px;margin:-25px 0 0 -56px;transform:rotateY(calc(var(--i) * 15.652deg)) translateZ(450px);}
+    .int-carousel-wrap{height:230px;perspective:1900px;}
+    .int-item{width:104px;margin:-24px 0 0 -52px;padding:11px 12px;font-size:11.5px;
+      grid-template-columns:24px 1fr;gap:8px;
+      transform:rotateY(calc(var(--i) * 15.652deg)) translateZ(520px);}
+    .int-item .ii{width:24px;height:24px;}
+    .int-item .ii svg{width:15px;height:15px;}
   }
   @media(prefers-reduced-motion:reduce){.int-carousel{animation:none;}}
 
@@ -221,11 +225,14 @@
   /* disc — frosted glass, reusing the site's own --bg-2-glass/backdrop-blur tokens (same material
      as the nav and hero) instead of a flat fill. No internal divider lines — quadrants are read
      by the soft glow blob under each label, not a hard geometric split. */
+  /* resting tilt, not flat-on — reads as a real 3D disc even with no pointer to hover it (mobile).
+     Desktop pointermove tilt overrides this on hover and returns to it on leave. */
   .wheel-disc{position:absolute;inset:0;border-radius:50%;
     border:1px solid rgba(255,255,255,.5);background:var(--bg-2-glass);
     backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow:visible;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 30px 70px -40px rgba(10,10,10,.30);
-    transform-style:preserve-3d;transition:transform .2s ease-out;}
+    transform-style:preserve-3d;transform:rotateX(10deg) rotateY(-6deg);
+    transition:transform .3s ease-out;}
   /* each wseg is sized to ONLY its own quadrant (50%x50%), not the full disc — clip-path shapes
      it into the curved wedge visually, but the tap/click target is the plain rectangle underneath.
      Clip-path hit-testing is inconsistent on WebKit/iOS Safari (taps landing on the wrong wedge,

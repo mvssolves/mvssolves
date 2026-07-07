@@ -153,11 +153,11 @@ if(!reduce){
     ScrollTrigger.batch(gsap.utils.toArray(sel),{start:'top 90%',
       onEnter:b=>gsap.fromTo(b,{opacity:0},{opacity:1,duration:0.6,stagger:0.06,ease:'power2.out',overwrite:true})});
   });
-  /* capabilities (01) — cards fly in from Z-depth instead of the flat fade above. Softer than the
-     first pass: less Z travel/tilt + y-drift so the motion reads as a gentle settle, not a pop */
+  /* capabilities (01) — plain opacity+y fade, no z/rotateX. The 3D version forced a compositing
+     layer per card right as Lenis hands off from the hero, which read as scroll lag. */
   ScrollTrigger.batch(gsap.utils.toArray('#capabilities .cap-grid .cap'),{start:'top 94%',
-    onEnter:b=>gsap.fromTo(b,{opacity:0,y:26,z:-70,rotateX:-6},
-      {opacity:1,y:0,z:0,rotateX:0,duration:1.1,stagger:0.08,ease:'power2.out',overwrite:true})});
+    onEnter:b=>gsap.fromTo(b,{opacity:0,y:22},
+      {opacity:1,y:0,duration:0.7,stagger:0.06,ease:'power2.out',overwrite:true})});
   /* integrations (02) carousel — whole assembly scales/fades in once, spin keeps going after.
      Softer scale range + longer duration, same reasoning as above */
   gsap.fromTo('.int-carousel-wrap',{opacity:0,scale:0.94,y:20},
@@ -269,9 +269,9 @@ if(window.matchMedia('(pointer:fine)').matches){
     wrap.addEventListener('pointermove',e=>{
       const rc=wheel.getBoundingClientRect();
       const px=(e.clientX-rc.left)/rc.width-0.5,py=(e.clientY-rc.top)/rc.height-0.5;
-      wheel.style.transform=`rotateX(${(-py*10).toFixed(2)}deg) rotateY(${(px*10).toFixed(2)}deg)`;
+      wheel.style.transform=`rotateX(${(10-py*14).toFixed(2)}deg) rotateY(${(-6+px*14).toFixed(2)}deg)`;
     });
-    wrap.addEventListener('pointerleave',()=>{wheel.style.transform='rotateX(0deg) rotateY(0deg)';});
+    wrap.addEventListener('pointerleave',()=>{wheel.style.transform='';});
   }
 })();
 
