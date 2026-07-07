@@ -342,7 +342,10 @@
        every frame — same cost nav.scrolled already avoids on mobile below. Solid-ish glass tint
        reads almost the same without the per-frame blur recompute. */
     .wheel-disc,.wheel-core{backdrop-filter:none;-webkit-backdrop-filter:none;}
-    .wheel-disc{background:rgba(250,250,250,.94);
+    /* was a near-white rgba(250,250,250,.94) — invisible against --ink:#ffffff labels/ring, and
+       nothing like the dark glass disc on desktop. Same dark tones as --bg-2-glass/--bg-glass,
+       just solid instead of blurred (backdrop-filter already stripped above). */
+    .wheel-disc{background:rgba(21,21,21,.94);
       /* resting 3D tilt (rotateX/rotateY, always-on, no hover to trigger it on touch) stacked with
          backdrop-filter + drop-shadow was the heaviest compositing spot on the page — real lag
          candidate, and a plausible source of the WebKit 3D-transform render glitches reported on

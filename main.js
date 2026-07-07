@@ -22,10 +22,10 @@ window.matchMedia('(min-width:901px)').addEventListener('change', () => location
    scroll (the reduce-motion fallback path below) has no such desync since there's no virtual state
    to get out of sync. */
 let lenis;
+if(!reduce)gsap.ticker.lagSmoothing(0);
 if(!reduce&&isDesktop){
   lenis=new Lenis({duration:1.2,syncTouch:false});
   gsap.ticker.add(t=>lenis.raf(t*1000));
-  gsap.ticker.lagSmoothing(0);
   lenis.on('scroll',ScrollTrigger.update);
 }
 
