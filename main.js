@@ -9,17 +9,6 @@ const _visibilityObserver=new IntersectionObserver(es=>{
   es.forEach(e=>{(e.target.__onVisible||[]).forEach(cb=>cb(e.isIntersecting));});
 },{threshold:0});
 function onVisibilityChange(el,cb){(el.__onVisible=el.__onVisible||[]).push(cb);_visibilityObserver.observe(el);}
-
-/* shared real bloom pass (EffectComposer + UnrealBloomPass, from three.js's own addons — the
-   same technique igloo.inc uses under the hood) instead of the fake additive-mesh glow hack.
-   One composer per scene; resize() must be called whenever the renderer resizes. */
-function makeBloom(renderer,scene,camera,{strength=1.1,radius=0.6,threshold=0.15}={}){
-  const composer=new EffectComposer(renderer);
-  composer.addPass(new RenderPass(scene,camera));
-  const bloom=new UnrealBloomPass(new THREE.Vector2(1,1),strength,radius,threshold);
-  composer.addPass(bloom);
-  return {composer,bloom,resize(w,h){composer.setSize(w,h);bloom.setSize?bloom.setSize(w,h):null;}};
-}
 /* the desktop-only pin/scrub effects and the Premium co-tag observer are all set up once, keyed off
    this snapshot — reload on a breakpoint crossing rather than trying to hot-swap live ScrollTriggers
    and pin-spacers (resizing a window or rotating a tablet across 901px mid-session is rare, a reload
@@ -100,16 +89,15 @@ function initBookPoly3D(canvas){
   camera.position.set(0,0,7);
 
   const WHITE=new THREE.Color(0xffffff),GREY=new THREE.Color(0x9a9aa2),col=new THREE.Color();
-  const mat=new THREE.MeshBasicMaterial({wireframe:true,transparent:true,opacity:0.4});
-  const poly=new THREE.Mesh(new THREE.IcosahedronGeometry(2.3,2),mat);
+  const mat=new THREE.MeshBasicMaterial({wireframe:true,transparent:true,opacity:0.26});
+  const poly=new THREE.Mesh(new THREE.IcosahedronGeometry(1.8,1),mat);
   poly.position.set(4.2,0,-1);
   scene.add(poly);
-  const coreMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0.7,blending:THREE.AdditiveBlending,depthWrite:false});
-  const core=new THREE.Mesh(new THREE.IcosahedronGeometry(0.55,1),coreMat);
+  const coreMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0.5,blending:THREE.AdditiveBlending,depthWrite:false});
+  const core=new THREE.Mesh(new THREE.IcosahedronGeometry(0.32,0),coreMat);
   core.position.copy(poly.position);
   scene.add(core);
 
-  const bloomFx=makeBloom(renderer,scene,camera,{strength:1.3,radius:0.7,threshold:0.1});
   let w=0,h=0;
   function size(){
     const r=section.getBoundingClientRect();
@@ -117,7 +105,6 @@ function initBookPoly3D(canvas){
     renderer.setSize(w,h,false);
     camera.aspect=w/Math.max(h,1);
     camera.updateProjectionMatrix();
-    bloomFx.resize(w,h);
   }
   window.addEventListener('resize',size,{passive:true});
   size();
@@ -125,21 +112,18 @@ function initBookPoly3D(canvas){
   let t=0,running=false,raf=null;
   function frame(){
     if(!running)return;
-    t+=0.012;
-    poly.rotation.y+=0.0032;
-    poly.rotation.x+=0.0016;
-    core.rotation.y-=0.005;
-    core.rotation.x+=0.003;
-    const s=1+Math.sin(t*0.6)*0.08;
+    t+=0.01;
+    poly.rotation.y+=0.0022;
+    poly.rotation.x+=0.001;
+    core.rotation.y-=0.003;
+    const s=1+Math.sin(t*0.6)*0.04;
     poly.scale.set(s,s,s);
     const pulse=(Math.sin(t*0.5)+1)/2;
     col.copy(GREY).lerp(WHITE,pulse);
     mat.color.copy(col);
     coreMat.color.copy(WHITE);
-    coreMat.opacity=0.5+pulse*0.5;
-    const cs=1+Math.sin(t*0.9)*0.25;
-    core.scale.set(cs,cs,cs);
-    bloomFx.composer.render();
+    coreMat.opacity=0.35+pulse*0.3;
+    renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
   }
   function start(){if(running)return;running=true;raf=requestAnimationFrame(frame);}
@@ -174,7 +158,7 @@ function initCapGrid3D(canvas){
   const vcount=geo.attributes.position.count;
   const colorAttr=new THREE.Float32BufferAttribute(new Float32Array(vcount*3),3);
   geo.setAttribute('color',colorAttr);
-  const mat=new THREE.MeshBasicMaterial({wireframe:true,transparent:true,opacity:0.3,vertexColors:true});
+  const mat=new THREE.MeshBasicMaterial({wireframe:true,transparent:true,opacity:0.2,vertexColors:true});
   const grid=new THREE.Mesh(geo,mat);
   grid.position.z=-2.5;
   scene.add(grid);
@@ -184,7 +168,6 @@ function initCapGrid3D(canvas){
   const base=Float32Array.from(posAttr.array);
   let t=0;
 
-  const bloomFx=makeBloom(renderer,scene,camera,{strength:0.9,radius:0.5,threshold:0.2});
   let w=0,h=0;
   function size(){
     const r=section.getBoundingClientRect();
@@ -192,7 +175,6 @@ function initCapGrid3D(canvas){
     renderer.setSize(w,h,false);
     camera.aspect=w/Math.max(h,1);
     camera.updateProjectionMatrix();
-    bloomFx.resize(w,h);
   }
   window.addEventListener('resize',size,{passive:true});
   const detailsEl=section.querySelector('.cap-more');
@@ -202,18 +184,18 @@ function initCapGrid3D(canvas){
   let running=false,raf=null;
   function frame(){
     if(!running)return;
-    t+=0.012;
+    t+=0.008;
     const arr=posAttr.array,carr=colorAttr.array;
     for(let i=0;i<arr.length;i+=3){
       const x=base[i],y=base[i+1];
-      const height=Math.sin(x*0.6+t)*0.34+Math.sin(y*0.5+t*0.8)*0.26+Math.sin((x+y)*0.3-t*1.3)*0.14;
+      const height=Math.sin(x*0.5+t)*0.22+Math.sin(y*0.4+t*0.7)*0.16;
       arr[i+2]=height;
-      mixC.copy(TROUGH).lerp(PEAK,Math.max(0,Math.min(1,height/0.5)));
+      mixC.copy(TROUGH).lerp(PEAK,Math.max(0,height/0.38));
       carr[i]=mixC.r;carr[i+1]=mixC.g;carr[i+2]=mixC.b;
     }
     posAttr.needsUpdate=true;
     colorAttr.needsUpdate=true;
-    bloomFx.composer.render();
+    renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
   }
   function start(){if(running)return;running=true;raf=requestAnimationFrame(frame);}
@@ -251,9 +233,9 @@ function initHero3D(canvas){
   const phases=Array.from({length:COUNT},()=>Math.random()*Math.PI*2);
 
   const nodeGeo=new THREE.IcosahedronGeometry(0.05,0);
-  const nodeMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0.5});
+  const nodeMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0.55});
   const nodes=new THREE.InstancedMesh(nodeGeo,nodeMat,COUNT);
-  const glowMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0.1,blending:THREE.AdditiveBlending,depthWrite:false});
+  const glowMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0.12,blending:THREE.AdditiveBlending,depthWrite:false});
   const glow=new THREE.InstancedMesh(nodeGeo,glowMat,COUNT);
   const m=new THREE.Matrix4();
   pts.forEach((p,i)=>{
@@ -272,7 +254,7 @@ function initHero3D(canvas){
   }
   const lineGeo=new THREE.BufferGeometry();
   lineGeo.setAttribute('position',new THREE.Float32BufferAttribute(linePositions,3));
-  const lineMat=new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.14});
+  const lineMat=new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.12});
   const lines=new THREE.LineSegments(lineGeo,lineMat);
   scene.add(lines);
 
@@ -280,7 +262,6 @@ function initHero3D(canvas){
   group.add(nodes,glow,lines);
   scene.add(group);
 
-  const bloomFx=makeBloom(renderer,scene,camera,{strength:1.1,radius:0.6,threshold:0.25});
   let w=0,h=0;
   function size(){
     const r=hero.getBoundingClientRect();
@@ -288,7 +269,6 @@ function initHero3D(canvas){
     renderer.setSize(w,h,false);
     camera.aspect=w/Math.max(h,1);
     camera.updateProjectionMatrix();
-    bloomFx.resize(w,h);
   }
   window.addEventListener('resize',size,{passive:true});
   size();
@@ -318,15 +298,15 @@ function initHero3D(canvas){
     camera.position.z=7-scrollT*2.2;
     group.rotation.z=scrollT*0.35;
     pts.forEach((p,i)=>{
-      const s=1+Math.sin(t*1.4+phases[i])*0.4;
+      const s=1+Math.sin(t*1.4+phases[i])*0.35;
       m.makeScale(s,s,s);m.setPosition(p);
       nodes.setMatrixAt(i,m);
-      m.makeScale(s*3,s*3,s*3);m.setPosition(p);
+      m.makeScale(s*2.6,s*2.6,s*2.6);m.setPosition(p);
       glow.setMatrixAt(i,m);
     });
     nodes.instanceMatrix.needsUpdate=true;
     glow.instanceMatrix.needsUpdate=true;
-    bloomFx.composer.render();
+    renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
   }
   function start(){if(running)return;running=true;raf=requestAnimationFrame(frame);}
