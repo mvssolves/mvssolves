@@ -502,10 +502,6 @@
   .tier.prem::after{content:"";position:absolute;inset:1px;z-index:-1;border-radius:15px;background:var(--bg);pointer-events:none;}
   @keyframes premSpin{to{transform:rotate(360deg);}}
   .tier.prem.spin-off::before{animation-play-state:paused;}
-  .tier.prem .tcta{position:relative;overflow:hidden;z-index:1;transition:color .35s ease,border-color .35s ease;}
-  .tier.prem .tcta::before{content:"";position:absolute;inset:0;background:var(--accent-ink);transform:scaleX(0);transform-origin:left;transition:transform .35s cubic-bezier(.4,0,.2,1);z-index:-1;}
-  .tier.prem .tcta:hover{color:#fff;border-color:var(--ink);}
-  .tier.prem .tcta:hover::before{transform:scaleX(1);}
   @media(prefers-reduced-motion:reduce){.tier.prem::before{animation:none;}}
   .pos{font-style:italic;color:var(--muted);font-size:13px;margin-top:10px;}
   .alc{margin-top:50px;border-top:1px solid var(--line);padding-top:30px;}
