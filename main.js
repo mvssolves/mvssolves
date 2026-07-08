@@ -99,7 +99,7 @@ function initBookPoly3D(canvas){
   const camera=new THREE.PerspectiveCamera(45,1,0.1,50);
   camera.position.set(0,0,7);
 
-  const WHITE=new THREE.Color(0xffffff),ACCENT=new THREE.Color(0xd4ff3d),col=new THREE.Color();
+  const WHITE=new THREE.Color(0xffffff),GREY=new THREE.Color(0x9a9aa2),col=new THREE.Color();
   const mat=new THREE.MeshBasicMaterial({wireframe:true,transparent:true,opacity:0.4});
   const poly=new THREE.Mesh(new THREE.IcosahedronGeometry(2.3,2),mat);
   poly.position.set(4.2,0,-1);
@@ -133,9 +133,9 @@ function initBookPoly3D(canvas){
     const s=1+Math.sin(t*0.6)*0.08;
     poly.scale.set(s,s,s);
     const pulse=(Math.sin(t*0.5)+1)/2;
-    col.copy(WHITE).lerp(ACCENT,0.35+pulse*0.65);
+    col.copy(GREY).lerp(WHITE,pulse);
     mat.color.copy(col);
-    coreMat.color.copy(ACCENT);
+    coreMat.color.copy(WHITE);
     coreMat.opacity=0.5+pulse*0.5;
     const cs=1+Math.sin(t*0.9)*0.25;
     core.scale.set(cs,cs,cs);
@@ -179,7 +179,7 @@ function initCapGrid3D(canvas){
   grid.position.z=-2.5;
   scene.add(grid);
 
-  const TROUGH=new THREE.Color(0x6a6a74),PEAK=new THREE.Color(0xd4ff3d),mixC=new THREE.Color();
+  const TROUGH=new THREE.Color(0x5a5a62),PEAK=new THREE.Color(0xffffff),mixC=new THREE.Color();
   const posAttr=geo.attributes.position;
   const base=Float32Array.from(posAttr.array);
   let t=0;
@@ -241,7 +241,6 @@ function initHero3D(canvas){
   const camera=new THREE.PerspectiveCamera(45,1,0.1,100);
   camera.position.set(0,0,7);
 
-  const ACCENT=new THREE.Color(0xd4ff3d);
   const WHITE=new THREE.Color(0xffffff);
   const COUNT=48,RADIUS=4.2;
   const pts=Array.from({length:COUNT},()=>{
@@ -250,7 +249,6 @@ function initHero3D(canvas){
     return v;
   });
   const phases=Array.from({length:COUNT},()=>Math.random()*Math.PI*2);
-  const isAccent=pts.map(()=>Math.random()<0.35);
 
   const nodeGeo=new THREE.IcosahedronGeometry(0.05,0);
   const nodeMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0.5});
@@ -261,9 +259,8 @@ function initHero3D(canvas){
   pts.forEach((p,i)=>{
     m.setPosition(p);
     nodes.setMatrixAt(i,m);
-    const c=isAccent[i]?ACCENT:WHITE;
-    nodes.setColorAt(i,c);
-    glow.setColorAt(i,c);
+    nodes.setColorAt(i,WHITE);
+    glow.setColorAt(i,WHITE);
   });
   scene.add(nodes,glow);
 
