@@ -116,79 +116,6 @@ function initBookPoly3D(canvas){
   section.classList.add('has-3d');
   start();
 }
-/* pricing 3D — orbiting ring + satellite spheres, offset into a corner behind the cards.
-   Third distinct visual language (ring/orbit vs hero's cluster vs capabilities' grid).
-   Draw calls: 1 torus + 1 instanced sphere mesh. Satellite motion is O(count) per frame. */
-function initPricingOrbit3D(canvas){
-  if(!canvas||reduce||typeof THREE==='undefined')return;
-  let gl;
-  try{gl=canvas.getContext('webgl2')||canvas.getContext('webgl');}catch(e){}
-  if(!gl)return;
-
-  const section=canvas.closest('#pricing');
-  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
-  const scene=new THREE.Scene();
-  const camera=new THREE.PerspectiveCamera(45,1,0.1,50);
-  camera.position.set(0,0,8);
-
-  const group=new THREE.Group();
-  group.position.set(3.6,1.2,-1);
-  scene.add(group);
-
-  const ringMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.16,wireframe:true});
-  const ring=new THREE.Mesh(new THREE.TorusGeometry(1.5,0.015,10,90),ringMat);
-  group.add(ring);
-  const ring2=new THREE.Mesh(new THREE.TorusGeometry(1.1,0.012,10,80),ringMat.clone());
-  ring2.rotation.x=Math.PI/3;
-  group.add(ring2);
-
-  const SAT=6;
-  const satMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.5});
-  const satGeo=new THREE.IcosahedronGeometry(0.035,0);
-  const sats=new THREE.InstancedMesh(satGeo,satMat,SAT);
-  const satData=Array.from({length:SAT},(_,i)=>({
-    r:1.1+Math.random()*0.5,speed:0.15+Math.random()*0.2,offset:Math.random()*Math.PI*2,tilt:Math.random()*Math.PI
-  }));
-  group.add(sats);
-
-  let w=0,h=0;
-  function size(){
-    const r=section.getBoundingClientRect();
-    w=r.width;h=r.height;
-    renderer.setSize(w,h,false);
-    camera.aspect=w/Math.max(h,1);
-    camera.updateProjectionMatrix();
-  }
-  window.addEventListener('resize',size,{passive:true});
-  size();
-
-  const m=new THREE.Matrix4();
-  let t=0,running=false,raf=null;
-  function frame(){
-    if(!running)return;
-    t+=0.01;
-    ring.rotation.y+=0.002;
-    ring2.rotation.y-=0.0016;
-    satData.forEach((s,i)=>{
-      const a=t*s.speed+s.offset;
-      const x=Math.cos(a)*s.r,y=Math.sin(a)*s.r*Math.cos(s.tilt),z=Math.sin(a)*s.r*Math.sin(s.tilt);
-      m.setPosition(x,y,z);
-      sats.setMatrixAt(i,m);
-    });
-    sats.instanceMatrix.needsUpdate=true;
-    renderer.render(scene,camera);
-    raf=requestAnimationFrame(frame);
-  }
-  function start(){if(running)return;running=true;raf=requestAnimationFrame(frame);}
-  function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=null;}
-
-  onVisibilityChange(section,visible=>{visible?start():stop();});
-  document.addEventListener('visibilitychange',()=>{document.hidden?stop():(section.getBoundingClientRect().bottom>0&&start());});
-
-  section.classList.add('has-3d');
-  start();
-}
 /* capabilities 3D — displaced wireframe horizon grid. One draw call (single mesh, wireframe
    material), per-frame cost is O(vertex count) sine displacement, no O(n^2) anywhere. Distinct
    language from the hero's node cluster on purpose — ambient only, no cursor/scroll reactivity. */
@@ -401,15 +328,28 @@ if(!reduce){
   /* batched reveal for body groups so they don't pop in flat under animated headings.
      fastScrollEnd here too — batch()'s onEnter fires just like any other ScrollTrigger, so a fast
      scroll past a whole card grid queued the same flash. */
-  ['.tiers .tier','.steps .step'].forEach(sel=>{
+  ['.steps .step'].forEach(sel=>{
     ScrollTrigger.batch(gsap.utils.toArray(sel),{start:'top 90%',fastScrollEnd:true,
       onEnter:b=>gsap.fromTo(b,{opacity:0},{opacity:1,duration:0.6,stagger:0.06,ease:'power2.out',overwrite:true})});
   });
-  /* capabilities (01) — plain opacity+y fade, no z/rotateX. The 3D version forced a compositing
-     layer per card right as Lenis hands off from the hero, which read as scroll lag. */
+  /* pricing tiers — each column enters from its own direction (left card from left, feat card
+     up+scale, right card from right) instead of a flat fade. Pure 2D transform, once:true. */
+  gsap.utils.toArray('.tiers .tier').forEach((tier,i)=>{
+    const from=i===0?{x:-50,opacity:0}:i===gsap.utils.toArray('.tiers .tier').length-1?{x:50,opacity:0}:{y:36,opacity:0,scale:0.96};
+    gsap.fromTo(tier,from,{x:0,y:0,scale:1,opacity:1,duration:0.8,ease:'power3.out',
+      scrollTrigger:{trigger:tier,start:'top 90%',once:true,fastScrollEnd:true}});
+  });
+  /* capabilities (01) — alternating left/right slide by column, 2D translate only (no
+     rotateX/perspective — that's what forced a compositing layer per card right as Lenis hands
+     off from the hero and read as scroll lag; plain translateX doesn't have that cost). */
   ScrollTrigger.batch(gsap.utils.toArray('#capabilities .cap-grid .cap'),{start:'top 94%',fastScrollEnd:true,
-    onEnter:b=>gsap.fromTo(b,{opacity:0,y:22},
-      {opacity:1,y:0,duration:0.7,stagger:0.06,ease:'power2.out',overwrite:true})});
+    onEnter:b=>b.forEach((el,i)=>gsap.fromTo(el,{opacity:0,x:i%2===0?-26:26},
+      {opacity:1,x:0,duration:0.7,delay:i*0.05,ease:'power2.out',overwrite:true}))});
+  /* book/closing (05) — copy and calendar converge from opposite sides */
+  gsap.fromTo('.book-grid>div:first-child',{opacity:0,x:-40},
+    {opacity:1,x:0,duration:0.9,ease:'power3.out',scrollTrigger:{trigger:'.book-grid',start:'top 85%',once:true,fastScrollEnd:true}});
+  gsap.fromTo('.book-grid>div:last-child',{opacity:0,x:40},
+    {opacity:1,x:0,duration:0.9,ease:'power3.out',scrollTrigger:{trigger:'.book-grid',start:'top 85%',once:true,fastScrollEnd:true}});
   /* integrations (02) carousel — whole assembly scales/fades in once, spin keeps going after.
      Softer scale range + longer duration, same reasoning as above */
   gsap.fromTo('.int-carousel-wrap',{opacity:0,scale:0.94,y:20},
@@ -501,32 +441,6 @@ if(window.matchMedia('(pointer:fine)').matches){
         card.style.setProperty('--edge-proximity',(edge*100).toFixed(3));
         card.style.setProperty('--cursor-angle',angle.toFixed(3)+'deg');
       });
-    });
-  });
-}
-
-/* pricing card 3D tilt — pure CSS transform (perspective+rotateX/Y via custom props), no WebGL.
-   Same rAF-batched pointermove pattern as border-glow-card above. */
-if(window.matchMedia('(pointer:fine)').matches&&!reduce){
-  document.querySelectorAll('.tier').forEach(card=>{
-    let pending=false,lastEvent=null;
-    const MAX_TILT=6;
-    card.addEventListener('pointermove',e=>{
-      lastEvent=e;
-      if(pending)return;
-      pending=true;
-      requestAnimationFrame(()=>{
-        pending=false;
-        const rc=card.getBoundingClientRect();
-        const nx=((lastEvent.clientX-rc.left)/rc.width-0.5)*2;
-        const ny=((lastEvent.clientY-rc.top)/rc.height-0.5)*2;
-        card.style.setProperty('--tilt-x',(-ny*MAX_TILT).toFixed(2)+'deg');
-        card.style.setProperty('--tilt-y',(nx*MAX_TILT).toFixed(2)+'deg');
-      });
-    });
-    card.addEventListener('pointerleave',()=>{
-      card.style.setProperty('--tilt-x','0deg');
-      card.style.setProperty('--tilt-y','0deg');
     });
   });
 }
@@ -689,5 +603,4 @@ if(document.fonts&&document.fonts.ready){
 })();
 initHero3D(document.getElementById('hero3d'));
 initCapGrid3D(document.getElementById('cap3d'));
-initPricingOrbit3D(document.getElementById('pricing3d'));
 initBookPoly3D(document.getElementById('book3d'));

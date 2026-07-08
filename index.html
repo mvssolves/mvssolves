@@ -142,10 +142,6 @@
   #capabilities .wrap{position:relative;z-index:2;}
   .cap-3d{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease;}
   #capabilities.has-3d .cap-3d{opacity:1;}
-  #pricing{overflow:hidden;}
-  #pricing .wrap{position:relative;z-index:2;}
-  .pricing-3d{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease;}
-  #pricing.has-3d .pricing-3d{opacity:1;}
   #book{overflow:hidden;}
   #book .wrap{position:relative;z-index:2;}
   .book-3d{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease;}
@@ -459,10 +455,9 @@
   .toggle{position:relative;display:inline-flex;border:1px solid var(--line-strong);border-radius:999px;padding:4px;margin-top:30px;font-size:13px;font-weight:600;}
   .toggle button{padding:9px 18px;border-radius:999px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-weight:600;}
   .toggle button.on{background:var(--accent);color:var(--accent-ink);}
-  .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:34px;perspective:1000px;}
+  .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:34px;}
   @media(max-width:900px){.tiers{grid-template-columns:1fr;}}
-  .tier{border:1px solid var(--line);border-radius:16px;padding:28px;display:flex;flex-direction:column;background:var(--bg);
-    transform:perspective(1000px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg)) translateY(var(--tilt-lift,0px));}
+  .tier{border:1px solid var(--line);border-radius:16px;padding:28px;display:flex;flex-direction:column;background:var(--bg);}
   .tier.feat{border:2px solid var(--ink);box-shadow:0 2px 0 var(--ink);}
   .tier .badge{display:inline-block;align-self:flex-start;background:var(--accent);color:var(--accent-ink);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:4px;margin-bottom:12px;}
   .tier .tn{font-weight:700;font-size:22px;color:var(--ink);letter-spacing:-.02em;font-family:'Nohemi',sans-serif;}
@@ -568,8 +563,8 @@
   /* missing transitions: toggle, tier hover, buttons, faq */
   .toggle button{transition:background .3s ease,color .3s ease;}
   .tier{transition:transform .3s cubic-bezier(.4,0,.2,1),border-color .3s ease,box-shadow .3s ease;}
-  .tier:not(.feat):hover{--tilt-lift:-4px;border-color:var(--ink);box-shadow:0 8px 24px rgba(10,10,10,.06);}
-  .tier.feat:hover{--tilt-lift:-4px;box-shadow:0 10px 28px rgba(10,10,10,.10),0 2px 0 var(--ink);}
+  .tier:not(.feat):hover{transform:translateY(-4px);border-color:var(--ink);box-shadow:0 8px 24px rgba(10,10,10,.06);}
+  .tier.feat:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(10,10,10,.10),0 2px 0 var(--ink);}
   .btn{transition:transform .12s ease;}
   .btn:active{transform:scale(.96);}
   .btn-fill{transition:transform .12s ease,opacity .25s ease,padding .5s cubic-bezier(.4,0,.2,1);}
@@ -890,7 +885,6 @@
 
 <!-- PRICING -->
 <section class="section" id="pricing">
-  <canvas class="pricing-3d" id="pricing3d" aria-hidden="true"></canvas>
   <div class="wrap">
     <div class="lab">04 / Pricing</div>
     <h2>Professional packages.</h2>
@@ -1075,6 +1069,6 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js';
 window.THREE = THREE;
 </script>
-<script src="/main.js?v=6" defer></script>
+<script src="/main.js?v=7" defer></script>
 </body>
 </html>
