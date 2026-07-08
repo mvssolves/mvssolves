@@ -64,6 +64,58 @@ else{
   },{passive:true});
 }
 
+/* book/closing 3D — single large rotating faceted polyhedron, slow pulse. Fourth distinct
+   visual language (network / grid / orbit / solid) — deliberately the quietest and simplest,
+   matching "no pitch, just a plan" copy. One mesh, one draw call, trivial per-frame cost. */
+function initBookPoly3D(canvas){
+  if(!canvas||reduce||typeof THREE==='undefined')return;
+  let gl;
+  try{gl=canvas.getContext('webgl2')||canvas.getContext('webgl');}catch(e){}
+  if(!gl)return;
+
+  const section=canvas.closest('#book');
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(45,1,0.1,50);
+  camera.position.set(0,0,7);
+
+  const mat=new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true,transparent:true,opacity:0.22});
+  const poly=new THREE.Mesh(new THREE.IcosahedronGeometry(1.8,1),mat);
+  poly.position.set(4.2,0,-1);
+  scene.add(poly);
+
+  let w=0,h=0;
+  function size(){
+    const r=section.getBoundingClientRect();
+    w=r.width;h=r.height;
+    renderer.setSize(w,h,false);
+    camera.aspect=w/Math.max(h,1);
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize',size,{passive:true});
+  size();
+
+  let t=0,running=false,raf=null;
+  function frame(){
+    if(!running)return;
+    t+=0.01;
+    poly.rotation.y+=0.0022;
+    poly.rotation.x+=0.001;
+    const s=1+Math.sin(t*0.6)*0.04;
+    poly.scale.set(s,s,s);
+    renderer.render(scene,camera);
+    raf=requestAnimationFrame(frame);
+  }
+  function start(){if(running)return;running=true;raf=requestAnimationFrame(frame);}
+  function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=null;}
+
+  onVisibilityChange(section,visible=>{visible?start():stop();});
+  document.addEventListener('visibilitychange',()=>{document.hidden?stop():(section.getBoundingClientRect().bottom>0&&start());});
+
+  section.classList.add('has-3d');
+  start();
+}
 /* pricing 3D — orbiting ring + satellite spheres, offset into a corner behind the cards.
    Third distinct visual language (ring/orbit vs hero's cluster vs capabilities' grid).
    Draw calls: 1 torus + 1 instanced sphere mesh. Satellite motion is O(count) per frame. */
@@ -613,3 +665,4 @@ if(document.fonts&&document.fonts.ready){
 initHero3D(document.getElementById('hero3d'));
 initCapGrid3D(document.getElementById('cap3d'));
 initPricingOrbit3D(document.getElementById('pricing3d'));
+initBookPoly3D(document.getElementById('book3d'));

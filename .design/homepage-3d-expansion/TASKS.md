@@ -6,9 +6,9 @@ Ground rule carried over from the hero scene (non-negotiable per section): rende
 
 ## Tasks
 
-- [ ] 1. Capabilities section (`#capabilities`) — displaced wireframe grid/horizon plane behind headline. Distinct from hero (planar grid distortion, not a node cluster). Reinforces "workflow/systems" copy.
-- [ ] 2. Pricing section (`#pricing`) — cursor-tilt 3D on tier cards (CSS 3D transform, no extra WebGL canvas — keeps total concurrent scene count low) + small ambient orbiting-ring accent in section background.
-- [ ] 3. Book/closing section (`#book`) — orbiting ring + satellite spheres accent next to the copy, reinforcing "let's connect" literally (orbit = connection).
+- [x] 1. Capabilities section (`#capabilities`) — displaced wireframe grid/horizon plane behind headline. Shipped `2ee1718`.
+- [x] 2. Pricing section (`#pricing`) — cursor-tilt 3D on tier cards (CSS transform, no extra canvas) + orbiting-ring accent. Shipped `b74a4d0`.
+- [ ] 3. Book/closing section (`#book`) — single large rotating faceted polyhedron (wireframe icosahedron, detail 1), slow pulse. 4th distinct language (network / grid / orbit / solid) — "no pitch, just a plan" = one clean shape, not a busy field.
 - [ ] 4. UI sound effects (Web Audio API, procedural, no asset files) — subtle tick on primary CTA hover/click, pricing toggle, hidden-cost wheel click. No scroll sound, no music. Shared AudioContext, resumes on first gesture (browser autoplay policy).
 
 Each task: build → verify locally (console clean, effect toggles correctly, screenshot) → commit + push (bump `main.js?v=N`) → confirm live → next task.

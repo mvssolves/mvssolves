@@ -146,6 +146,10 @@
   #pricing .wrap{position:relative;z-index:2;}
   .pricing-3d{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease;}
   #pricing.has-3d .pricing-3d{opacity:1;}
+  #book{overflow:hidden;}
+  #book .wrap{position:relative;z-index:2;}
+  .book-3d{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease;}
+  #book.has-3d .book-3d{opacity:1;}
   .hero.has-3d .hero-field{opacity:0;}
   .scrolldot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:bob 1.6s ease-in-out infinite;}
   @keyframes bob{0%,100%{transform:translateY(0);opacity:1;}50%{transform:translateY(5px);opacity:.4;}}
@@ -1029,6 +1033,7 @@
 
 <!-- BOOK -->
 <section class="section" id="book" style="background:var(--bg-2-glass)">
+  <canvas class="book-3d" id="book3d" aria-hidden="true"></canvas>
   <div class="wrap">
     <div class="lab">05 / Let's connect — for free</div>
     <div class="book-grid">
@@ -1070,6 +1075,6 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js';
 window.THREE = THREE;
 </script>
-<script src="/main.js?v=4" defer></script>
+<script src="/main.js?v=5" defer></script>
 </body>
 </html>
