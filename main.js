@@ -64,6 +64,70 @@ else{
   },{passive:true});
 }
 
+/* capabilities 3D — displaced wireframe horizon grid. One draw call (single mesh, wireframe
+   material), per-frame cost is O(vertex count) sine displacement, no O(n^2) anywhere. Distinct
+   language from the hero's node cluster on purpose — ambient only, no cursor/scroll reactivity. */
+function initCapGrid3D(canvas){
+  if(!canvas||reduce||typeof THREE==='undefined')return;
+  let gl;
+  try{gl=canvas.getContext('webgl2')||canvas.getContext('webgl');}catch(e){}
+  if(!gl)return;
+
+  const section=canvas.closest('#capabilities');
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(50,1,0.1,50);
+  camera.position.set(0,2.4,4.2);
+  camera.lookAt(0,-0.6,-4);
+
+  const SEGX=44,SEGY=28;
+  const geo=new THREE.PlaneGeometry(16,11,SEGX,SEGY);
+  geo.rotateX(-Math.PI/2.15);
+  const mat=new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true,transparent:true,opacity:0.14});
+  const grid=new THREE.Mesh(geo,mat);
+  grid.position.z=-2.5;
+  scene.add(grid);
+
+  const posAttr=geo.attributes.position;
+  const base=Float32Array.from(posAttr.array);
+  let t=0;
+
+  let w=0,h=0;
+  function size(){
+    const r=section.getBoundingClientRect();
+    w=r.width;h=r.height;
+    renderer.setSize(w,h,false);
+    camera.aspect=w/Math.max(h,1);
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize',size,{passive:true});
+  const detailsEl=section.querySelector('.cap-more');
+  if(detailsEl)detailsEl.addEventListener('toggle',size);
+  size();
+
+  let running=false,raf=null;
+  function frame(){
+    if(!running)return;
+    t+=0.008;
+    const arr=posAttr.array;
+    for(let i=0;i<arr.length;i+=3){
+      const x=base[i],y=base[i+1];
+      arr[i+2]=Math.sin(x*0.5+t)*0.22+Math.sin(y*0.4+t*0.7)*0.16;
+    }
+    posAttr.needsUpdate=true;
+    renderer.render(scene,camera);
+    raf=requestAnimationFrame(frame);
+  }
+  function start(){if(running)return;running=true;raf=requestAnimationFrame(frame);}
+  function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=null;}
+
+  onVisibilityChange(section,visible=>{visible?start():stop();});
+  document.addEventListener('visibilitychange',()=>{document.hidden?stop():(section.getBoundingClientRect().bottom>0&&start());});
+
+  section.classList.add('has-3d');
+  start();
+}
 /* hero 3D — node cluster + precomputed connection lines, single group rotation per frame.
    Draw calls: 1 instanced mesh + 1 line segments, regardless of node count. Pauses via the
    shared visibility observer (hero off-screen) and on tab-hidden — never renders unseen. */
@@ -448,3 +512,4 @@ if(document.fonts&&document.fonts.ready){
   },t);
 })();
 initHero3D(document.getElementById('hero3d'));
+initCapGrid3D(document.getElementById('cap3d'));
