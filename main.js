@@ -85,17 +85,17 @@ function playHeroReveal(){
 if(!reduce){
   gsap.utils.toArray('.section h2:not(.h2-split)').forEach(el=>{
     gsap.from(el,{y:32,opacity:0,duration:1.05,ease:'power4.out',
-      scrollTrigger:{trigger:el,start:'top 86%',once:true}});
+      scrollTrigger:{trigger:el,start:'top 86%',once:true,fastScrollEnd:true}});
   });
   /* sections 01-03 only: per-word mask reveal instead of the flat fade above */
   gsap.utils.toArray('.h2-split').forEach(h=>{
     const words=h.querySelectorAll('.word>span');
     gsap.fromTo(words,{yPercent:110,opacity:0},{yPercent:0,opacity:1,duration:0.7,stagger:0.05,
-      ease:'power3.out',scrollTrigger:{trigger:h,start:'top 86%',once:true}});
+      ease:'power3.out',scrollTrigger:{trigger:h,start:'top 86%',once:true,fastScrollEnd:true}});
   });
   gsap.utils.toArray('.section .sub, .lab').forEach(el=>{
     gsap.from(el,{y:30,opacity:0,duration:0.9,ease:'power3.out',
-      scrollTrigger:{trigger:el,start:'top 88%',once:true}});
+      scrollTrigger:{trigger:el,start:'top 88%',once:true,fastScrollEnd:true}});
   });
   /* eyebrow labels — matrix-style scramble-to-real-text decode, seen in the reference video.
      Layers on top of the fade above; .lab is already monospace so glyph-width stays stable. */
@@ -117,30 +117,32 @@ if(!reduce){
       ScrollTrigger.create({trigger:el,start:'top 90%',once:true,onEnter:()=>scrambleReveal(el)});
     });
   })();
-  /* batched reveal for body groups so they don't pop in flat under animated headings */
+  /* batched reveal for body groups so they don't pop in flat under animated headings.
+     fastScrollEnd here too — batch()'s onEnter fires just like any other ScrollTrigger, so a fast
+     scroll past a whole card grid queued the same flash. */
   ['.tiers .tier','.steps .step'].forEach(sel=>{
-    ScrollTrigger.batch(gsap.utils.toArray(sel),{start:'top 90%',
+    ScrollTrigger.batch(gsap.utils.toArray(sel),{start:'top 90%',fastScrollEnd:true,
       onEnter:b=>gsap.fromTo(b,{opacity:0},{opacity:1,duration:0.6,stagger:0.06,ease:'power2.out',overwrite:true})});
   });
   /* capabilities (01) — plain opacity+y fade, no z/rotateX. The 3D version forced a compositing
      layer per card right as Lenis hands off from the hero, which read as scroll lag. */
-  ScrollTrigger.batch(gsap.utils.toArray('#capabilities .cap-grid .cap'),{start:'top 94%',
+  ScrollTrigger.batch(gsap.utils.toArray('#capabilities .cap-grid .cap'),{start:'top 94%',fastScrollEnd:true,
     onEnter:b=>gsap.fromTo(b,{opacity:0,y:22},
       {opacity:1,y:0,duration:0.7,stagger:0.06,ease:'power2.out',overwrite:true})});
   /* integrations (02) carousel — whole assembly scales/fades in once, spin keeps going after.
      Softer scale range + longer duration, same reasoning as above */
   gsap.fromTo('.int-carousel-wrap',{opacity:0,scale:0.94,y:20},
-    {opacity:1,scale:1,y:0,duration:1.2,ease:'power2.out',scrollTrigger:{trigger:'.int-carousel-wrap',start:'top 88%',once:true}});
+    {opacity:1,scale:1,y:0,duration:1.2,ease:'power2.out',scrollTrigger:{trigger:'.int-carousel-wrap',start:'top 88%',once:true,fastScrollEnd:true}});
   /* hidden-cost (03) wheel — pops in from Z-depth to match the extrude-on-hover language */
   gsap.fromTo('.wheel-disc',{opacity:0,z:-220},
-    {opacity:1,z:0,duration:0.9,ease:'power3.out',scrollTrigger:{trigger:'.wheel-disc',start:'top 88%',once:true}});
+    {opacity:1,z:0,duration:0.9,ease:'power3.out',scrollTrigger:{trigger:'.wheel-disc',start:'top 88%',once:true,fastScrollEnd:true}});
   /* ring draws itself in, same beat as the disc pop — reference video's circle-trace */
   gsap.fromTo('.wheel-ring circle',{strokeDashoffset:309.9},
-    {strokeDashoffset:0,duration:1.3,ease:'power2.inOut',scrollTrigger:{trigger:'.wheel-disc',start:'top 88%',once:true}});
+    {strokeDashoffset:0,duration:1.3,ease:'power2.inOut',scrollTrigger:{trigger:'.wheel-disc',start:'top 88%',once:true,fastScrollEnd:true}});
   /* labels pop in one at a time as the ring finishes drawing around them — video sequences the
      chips onto the ring rather than showing them all at once */
   gsap.fromTo('.wn',{opacity:0,scale:0.6},{opacity:1,scale:1,duration:0.5,stagger:0.15,delay:0.5,
-    ease:'back.out(2)',scrollTrigger:{trigger:'.wheel-disc',start:'top 88%',once:true}});
+    ease:'back.out(2)',scrollTrigger:{trigger:'.wheel-disc',start:'top 88%',once:true,fastScrollEnd:true}});
   /* hero content drifts up on scroll — desktop only. scrub:true recalculates every scroll tick,
      right at the hero->01 handoff — the exact spot users felt lag on mobile. */
   if(isDesktop){
