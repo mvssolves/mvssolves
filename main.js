@@ -64,6 +64,79 @@ else{
   },{passive:true});
 }
 
+/* pricing 3D — orbiting ring + satellite spheres, offset into a corner behind the cards.
+   Third distinct visual language (ring/orbit vs hero's cluster vs capabilities' grid).
+   Draw calls: 1 torus + 1 instanced sphere mesh. Satellite motion is O(count) per frame. */
+function initPricingOrbit3D(canvas){
+  if(!canvas||reduce||typeof THREE==='undefined')return;
+  let gl;
+  try{gl=canvas.getContext('webgl2')||canvas.getContext('webgl');}catch(e){}
+  if(!gl)return;
+
+  const section=canvas.closest('#pricing');
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(45,1,0.1,50);
+  camera.position.set(0,0,8);
+
+  const group=new THREE.Group();
+  group.position.set(3.6,1.2,-1);
+  scene.add(group);
+
+  const ringMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.16,wireframe:true});
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(1.5,0.015,10,90),ringMat);
+  group.add(ring);
+  const ring2=new THREE.Mesh(new THREE.TorusGeometry(1.1,0.012,10,80),ringMat.clone());
+  ring2.rotation.x=Math.PI/3;
+  group.add(ring2);
+
+  const SAT=6;
+  const satMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.5});
+  const satGeo=new THREE.IcosahedronGeometry(0.035,0);
+  const sats=new THREE.InstancedMesh(satGeo,satMat,SAT);
+  const satData=Array.from({length:SAT},(_,i)=>({
+    r:1.1+Math.random()*0.5,speed:0.15+Math.random()*0.2,offset:Math.random()*Math.PI*2,tilt:Math.random()*Math.PI
+  }));
+  group.add(sats);
+
+  let w=0,h=0;
+  function size(){
+    const r=section.getBoundingClientRect();
+    w=r.width;h=r.height;
+    renderer.setSize(w,h,false);
+    camera.aspect=w/Math.max(h,1);
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize',size,{passive:true});
+  size();
+
+  const m=new THREE.Matrix4();
+  let t=0,running=false,raf=null;
+  function frame(){
+    if(!running)return;
+    t+=0.01;
+    ring.rotation.y+=0.002;
+    ring2.rotation.y-=0.0016;
+    satData.forEach((s,i)=>{
+      const a=t*s.speed+s.offset;
+      const x=Math.cos(a)*s.r,y=Math.sin(a)*s.r*Math.cos(s.tilt),z=Math.sin(a)*s.r*Math.sin(s.tilt);
+      m.setPosition(x,y,z);
+      sats.setMatrixAt(i,m);
+    });
+    sats.instanceMatrix.needsUpdate=true;
+    renderer.render(scene,camera);
+    raf=requestAnimationFrame(frame);
+  }
+  function start(){if(running)return;running=true;raf=requestAnimationFrame(frame);}
+  function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=null;}
+
+  onVisibilityChange(section,visible=>{visible?start():stop();});
+  document.addEventListener('visibilitychange',()=>{document.hidden?stop():(section.getBoundingClientRect().bottom>0&&start());});
+
+  section.classList.add('has-3d');
+  start();
+}
 /* capabilities 3D — displaced wireframe horizon grid. One draw call (single mesh, wireframe
    material), per-frame cost is O(vertex count) sine displacement, no O(n^2) anywhere. Distinct
    language from the hero's node cluster on purpose — ambient only, no cursor/scroll reactivity. */
@@ -380,6 +453,32 @@ if(window.matchMedia('(pointer:fine)').matches){
   });
 }
 
+/* pricing card 3D tilt — pure CSS transform (perspective+rotateX/Y via custom props), no WebGL.
+   Same rAF-batched pointermove pattern as border-glow-card above. */
+if(window.matchMedia('(pointer:fine)').matches&&!reduce){
+  document.querySelectorAll('.tier').forEach(card=>{
+    let pending=false,lastEvent=null;
+    const MAX_TILT=6;
+    card.addEventListener('pointermove',e=>{
+      lastEvent=e;
+      if(pending)return;
+      pending=true;
+      requestAnimationFrame(()=>{
+        pending=false;
+        const rc=card.getBoundingClientRect();
+        const nx=((lastEvent.clientX-rc.left)/rc.width-0.5)*2;
+        const ny=((lastEvent.clientY-rc.top)/rc.height-0.5)*2;
+        card.style.setProperty('--tilt-x',(-ny*MAX_TILT).toFixed(2)+'deg');
+        card.style.setProperty('--tilt-y',(nx*MAX_TILT).toFixed(2)+'deg');
+      });
+    });
+    card.addEventListener('pointerleave',()=>{
+      card.style.setProperty('--tilt-x','0deg');
+      card.style.setProperty('--tilt-y','0deg');
+    });
+  });
+}
+
 /* hidden-cost wheel: click a quadrant, swap the center panel copy */
 (function(){
   const wheel=document.querySelector('.wheel-disc');if(!wheel)return;
@@ -513,3 +612,4 @@ if(document.fonts&&document.fonts.ready){
 })();
 initHero3D(document.getElementById('hero3d'));
 initCapGrid3D(document.getElementById('cap3d'));
+initPricingOrbit3D(document.getElementById('pricing3d'));
