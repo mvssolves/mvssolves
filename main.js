@@ -91,13 +91,14 @@ function initBookPoly3D(canvas){
   const WHITE=new THREE.Color(0xffffff),GREY=new THREE.Color(0x9a9aa2),col=new THREE.Color();
   const mat=new THREE.MeshBasicMaterial({wireframe:true,transparent:true,opacity:0.26});
   const poly=new THREE.Mesh(new THREE.IcosahedronGeometry(1.8,1),mat);
-  poly.position.set(4.2,0,-1);
   scene.add(poly);
   const coreMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0.5,blending:THREE.AdditiveBlending,depthWrite:false});
   const core=new THREE.Mesh(new THREE.IcosahedronGeometry(0.32,0),coreMat);
-  core.position.copy(poly.position);
   scene.add(core);
 
+  /* mobile: narrow viewport gets a much narrower horizontal FOV at the same world distance, so
+     a fixed x-offset that reads as "off to the side" on desktop reads as "half cropped off-screen,
+     way too big" on mobile. Push the camera back and pull the shape toward center proportionally. */
   let w=0,h=0;
   function size(){
     const r=section.getBoundingClientRect();
@@ -105,6 +106,11 @@ function initBookPoly3D(canvas){
     renderer.setSize(w,h,false);
     camera.aspect=w/Math.max(h,1);
     camera.updateProjectionMatrix();
+    const narrow=w<700;
+    camera.position.z=narrow?10:7;
+    const pos=new THREE.Vector3(narrow?1.6:4.2,0,-1);
+    poly.position.copy(pos);
+    core.position.copy(pos);
   }
   window.addEventListener('resize',size,{passive:true});
   size();
@@ -175,6 +181,9 @@ function initCapGrid3D(canvas){
     renderer.setSize(w,h,false);
     camera.aspect=w/Math.max(h,1);
     camera.updateProjectionMatrix();
+    const narrow=w<700;
+    camera.position.set(0,narrow?3.4:2.4,narrow?6:4.2);
+    camera.lookAt(0,-0.6,-4);
   }
   window.addEventListener('resize',size,{passive:true});
   const detailsEl=section.querySelector('.cap-more');
@@ -262,13 +271,16 @@ function initHero3D(canvas){
   group.add(nodes,glow,lines);
   scene.add(group);
 
-  let w=0,h=0;
+  let w=0,h=0,baseZ=7;
   function size(){
     const r=hero.getBoundingClientRect();
     w=r.width;h=r.height;
     renderer.setSize(w,h,false);
     camera.aspect=w/Math.max(h,1);
     camera.updateProjectionMatrix();
+    /* narrow aspect = much less horizontal FOV at the same distance, so the same world-space
+       cluster reads as "too big/cropped" on mobile — pull the camera back to compensate. */
+    baseZ=w<700?10.5:7;
   }
   window.addEventListener('resize',size,{passive:true});
   size();
@@ -295,7 +307,7 @@ function initHero3D(canvas){
     group.rotation.y+=0.0016;
     group.rotation.x+=(mouseY*0.25-group.rotation.x)*0.04;
     group.rotation.y+=(mouseX*0.15)*0.002;
-    camera.position.z=7-scrollT*2.2;
+    camera.position.z=baseZ-scrollT*2.2;
     group.rotation.z=scrollT*0.35;
     pts.forEach((p,i)=>{
       const s=1+Math.sin(t*1.4+phases[i])*0.35;
