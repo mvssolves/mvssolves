@@ -45,9 +45,17 @@ if(!reduce&&isDesktop){
 /* scroll progress + nav */
 const prog=document.getElementById('progress'),nav=document.getElementById('nav');
 const scPct=document.getElementById('scPct');
-/* document height cached instead of read every scroll tick — recomputed on resize only */
+/* document height cached instead of read every scroll tick. Recomputed on resize AND via
+   ResizeObserver on <body> (debounced) — catches every height-changing cause (details expanding,
+   Cal embed lazy-load, fonts, whatever) instead of drifting stale like the window-resize-only
+   version did, which is why the tracker read wrong once page content grew after initial paint. */
 let scrollableH=document.documentElement.scrollHeight-window.innerHeight;
-window.addEventListener('resize',()=>{scrollableH=document.documentElement.scrollHeight-window.innerHeight;},{passive:true});
+function recalcScrollable(){scrollableH=document.documentElement.scrollHeight-window.innerHeight;}
+window.addEventListener('resize',recalcScrollable,{passive:true});
+(function(){
+  let roT=null;
+  new ResizeObserver(()=>{clearTimeout(roT);roT=setTimeout(recalcScrollable,120);}).observe(document.body);
+})();
 function onScroll(y){nav.classList.toggle('scrolled',y>40);
   const pct=scrollableH>0?(y/scrollableH*100):0;
   prog.style.width=pct+'%';
@@ -80,10 +88,15 @@ function initBookPoly3D(canvas){
   const camera=new THREE.PerspectiveCamera(45,1,0.1,50);
   camera.position.set(0,0,7);
 
-  const mat=new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true,transparent:true,opacity:0.22});
+  const WHITE=new THREE.Color(0xffffff),ACCENT=new THREE.Color(0xd4ff3d),col=new THREE.Color();
+  const mat=new THREE.MeshBasicMaterial({wireframe:true,transparent:true,opacity:0.26});
   const poly=new THREE.Mesh(new THREE.IcosahedronGeometry(1.8,1),mat);
   poly.position.set(4.2,0,-1);
   scene.add(poly);
+  const coreMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0.5,blending:THREE.AdditiveBlending,depthWrite:false});
+  const core=new THREE.Mesh(new THREE.IcosahedronGeometry(0.32,0),coreMat);
+  core.position.copy(poly.position);
+  scene.add(core);
 
   let w=0,h=0;
   function size(){
@@ -102,8 +115,14 @@ function initBookPoly3D(canvas){
     t+=0.01;
     poly.rotation.y+=0.0022;
     poly.rotation.x+=0.001;
+    core.rotation.y-=0.003;
     const s=1+Math.sin(t*0.6)*0.04;
     poly.scale.set(s,s,s);
+    const pulse=(Math.sin(t*0.5)+1)/2;
+    col.copy(WHITE).lerp(ACCENT,pulse*0.6);
+    mat.color.copy(col);
+    coreMat.color.copy(ACCENT);
+    coreMat.opacity=0.35+pulse*0.3;
     renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
   }
@@ -136,11 +155,15 @@ function initCapGrid3D(canvas){
   const SEGX=44,SEGY=28;
   const geo=new THREE.PlaneGeometry(16,11,SEGX,SEGY);
   geo.rotateX(-Math.PI/2.15);
-  const mat=new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true,transparent:true,opacity:0.14});
+  const vcount=geo.attributes.position.count;
+  const colorAttr=new THREE.Float32BufferAttribute(new Float32Array(vcount*3),3);
+  geo.setAttribute('color',colorAttr);
+  const mat=new THREE.MeshBasicMaterial({wireframe:true,transparent:true,opacity:0.2,vertexColors:true});
   const grid=new THREE.Mesh(geo,mat);
   grid.position.z=-2.5;
   scene.add(grid);
 
+  const TROUGH=new THREE.Color(0x8a8a92),PEAK=new THREE.Color(0xd4ff3d),mixC=new THREE.Color();
   const posAttr=geo.attributes.position;
   const base=Float32Array.from(posAttr.array);
   let t=0;
@@ -162,12 +185,16 @@ function initCapGrid3D(canvas){
   function frame(){
     if(!running)return;
     t+=0.008;
-    const arr=posAttr.array;
+    const arr=posAttr.array,carr=colorAttr.array;
     for(let i=0;i<arr.length;i+=3){
       const x=base[i],y=base[i+1];
-      arr[i+2]=Math.sin(x*0.5+t)*0.22+Math.sin(y*0.4+t*0.7)*0.16;
+      const height=Math.sin(x*0.5+t)*0.22+Math.sin(y*0.4+t*0.7)*0.16;
+      arr[i+2]=height;
+      mixC.copy(TROUGH).lerp(PEAK,Math.max(0,height/0.38));
+      carr[i]=mixC.r;carr[i+1]=mixC.g;carr[i+2]=mixC.b;
     }
     posAttr.needsUpdate=true;
+    colorAttr.needsUpdate=true;
     renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
   }
@@ -196,19 +223,31 @@ function initHero3D(canvas){
   const camera=new THREE.PerspectiveCamera(45,1,0.1,100);
   camera.position.set(0,0,7);
 
+  const ACCENT=new THREE.Color(0xd4ff3d);
+  const WHITE=new THREE.Color(0xffffff);
   const COUNT=30,RADIUS=3.6;
   const pts=Array.from({length:COUNT},()=>{
     const v=new THREE.Vector3(Math.random()-0.5,Math.random()-0.5,Math.random()-0.5).normalize();
     v.multiplyScalar(RADIUS*(0.55+Math.random()*0.45));
     return v;
   });
+  const phases=Array.from({length:COUNT},()=>Math.random()*Math.PI*2);
+  const isAccent=pts.map(()=>Math.random()<0.2);
 
   const nodeGeo=new THREE.IcosahedronGeometry(0.045,0);
-  const nodeMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.38});
+  const nodeMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0.5});
   const nodes=new THREE.InstancedMesh(nodeGeo,nodeMat,COUNT);
+  const glowMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0.06,blending:THREE.AdditiveBlending,depthWrite:false});
+  const glow=new THREE.InstancedMesh(nodeGeo,glowMat,COUNT);
   const m=new THREE.Matrix4();
-  pts.forEach((p,i)=>{m.setPosition(p);nodes.setMatrixAt(i,m);});
-  scene.add(nodes);
+  pts.forEach((p,i)=>{
+    m.setPosition(p);
+    nodes.setMatrixAt(i,m);
+    const c=isAccent[i]?ACCENT:WHITE;
+    nodes.setColorAt(i,c);
+    glow.setColorAt(i,c);
+  });
+  scene.add(nodes,glow);
 
   const linePositions=[];
   for(let i=0;i<pts.length;i++){
@@ -223,7 +262,7 @@ function initHero3D(canvas){
   scene.add(lines);
 
   const group=new THREE.Group();
-  group.add(nodes,lines);
+  group.add(nodes,glow,lines);
   scene.add(group);
 
   let w=0,h=0;
@@ -252,14 +291,24 @@ function initHero3D(canvas){
   window.addEventListener('scroll',updateScroll,{passive:true});
   updateScroll();
 
-  let running=false,raf=null;
+  let running=false,raf=null,t=0;
   function frame(){
     if(!running)return;
+    t+=0.016;
     group.rotation.y+=0.0016;
     group.rotation.x+=(mouseY*0.25-group.rotation.x)*0.04;
     group.rotation.y+=(mouseX*0.15)*0.002;
     camera.position.z=7-scrollT*2.2;
     group.rotation.z=scrollT*0.35;
+    pts.forEach((p,i)=>{
+      const s=1+Math.sin(t*1.4+phases[i])*0.35;
+      m.makeScale(s,s,s);m.setPosition(p);
+      nodes.setMatrixAt(i,m);
+      m.makeScale(s*2.6,s*2.6,s*2.6);m.setPosition(p);
+      glow.setMatrixAt(i,m);
+    });
+    nodes.instanceMatrix.needsUpdate=true;
+    glow.instanceMatrix.needsUpdate=true;
     renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
   }
