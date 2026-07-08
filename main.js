@@ -531,6 +531,31 @@ if(window.matchMedia('(pointer:fine)').matches&&!reduce){
   });
 }
 
+/* UI click ticks — procedural Web Audio, no asset files, no autoplay (only ever plays inside a
+   click handler, which is itself a user gesture). One shared, lazily-created AudioContext. */
+if(!reduce){
+  let actx=null;
+  function tickCtx(){
+    if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state==='suspended')actx.resume();
+    return actx;
+  }
+  function tick(freq,dur,vol){
+    const ctx=tickCtx();
+    const osc=ctx.createOscillator(),gain=ctx.createGain();
+    osc.type='sine';osc.frequency.value=freq;
+    gain.gain.setValueAtTime(vol,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+dur);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();osc.stop(ctx.currentTime+dur+0.02);
+  }
+  document.addEventListener('click',e=>{
+    if(e.target.closest('.btn-fill,.navcta')){tick(880,0.05,0.045);}
+    else if(e.target.closest('#modeToggle button')){tick(660,0.045,0.04);}
+    else if(e.target.closest('.wseg')){tick(740,0.04,0.04);}
+  });
+}
+
 /* hidden-cost wheel: click a quadrant, swap the center panel copy */
 (function(){
   const wheel=document.querySelector('.wheel-disc');if(!wheel)return;

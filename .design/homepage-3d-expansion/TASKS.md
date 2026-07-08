@@ -8,7 +8,7 @@ Ground rule carried over from the hero scene (non-negotiable per section): rende
 
 - [x] 1. Capabilities section (`#capabilities`) — displaced wireframe grid/horizon plane behind headline. Shipped `2ee1718`.
 - [x] 2. Pricing section (`#pricing`) — cursor-tilt 3D on tier cards (CSS transform, no extra canvas) + orbiting-ring accent. Shipped `b74a4d0`.
-- [ ] 3. Book/closing section (`#book`) — single large rotating faceted polyhedron (wireframe icosahedron, detail 1), slow pulse. 4th distinct language (network / grid / orbit / solid) — "no pitch, just a plan" = one clean shape, not a busy field.
-- [ ] 4. UI sound effects (Web Audio API, procedural, no asset files) — subtle tick on primary CTA hover/click, pricing toggle, hidden-cost wheel click. No scroll sound, no music. Shared AudioContext, resumes on first gesture (browser autoplay policy).
+- [x] 3. Book/closing section (`#book`) — single large rotating faceted polyhedron. Shipped `4ef6cbd`.
+- [x] 4. UI sound effects (Web Audio API, procedural, no asset files) — click tick on primary CTAs, pricing toggle, hidden-cost wheel. Click-only (no hover — avoids trackpad-pass-through spam). Shared AudioContext, lazily created + resumed inside the click handler (satisfies autoplay policy). Shipped next commit.
 
 Each task: build → verify locally (console clean, effect toggles correctly, screenshot) → commit + push (bump `main.js?v=N`) → confirm live → next task.
