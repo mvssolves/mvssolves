@@ -6,9 +6,9 @@ const isDesktop = window.matchMedia('(min-width:901px)').matches;
    visibility toggles below (ElectricBorder in-view, hero-off, prem spin-off, carousel spin-off) —
    was 4 separate observer instances doing the same threshold:0 visibility-flag pattern. */
 const _visibilityObserver=new IntersectionObserver(es=>{
-  es.forEach(e=>{const cb=e.target.__onVisible;if(cb)cb(e.isIntersecting);});
+  es.forEach(e=>{(e.target.__onVisible||[]).forEach(cb=>cb(e.isIntersecting));});
 },{threshold:0});
-function onVisibilityChange(el,cb){el.__onVisible=cb;_visibilityObserver.observe(el);}
+function onVisibilityChange(el,cb){(el.__onVisible=el.__onVisible||[]).push(cb);_visibilityObserver.observe(el);}
 /* the desktop-only pin/scrub effects and the Premium co-tag observer are all set up once, keyed off
    this snapshot — reload on a breakpoint crossing rather than trying to hot-swap live ScrollTriggers
    and pin-spacers (resizing a window or rotating a tablet across 901px mid-session is rare, a reload
@@ -64,6 +64,98 @@ else{
   },{passive:true});
 }
 
+/* hero 3D — node cluster + precomputed connection lines, single group rotation per frame.
+   Draw calls: 1 instanced mesh + 1 line segments, regardless of node count. Pauses via the
+   shared visibility observer (hero off-screen) and on tab-hidden — never renders unseen. */
+function initHero3D(canvas){
+  if(!canvas||reduce||typeof THREE==='undefined')return;
+  let gl;
+  try{gl=canvas.getContext('webgl2')||canvas.getContext('webgl');}catch(e){}
+  if(!gl)return;
+
+  const hero=canvas.closest('.hero');
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(45,1,0.1,100);
+  camera.position.set(0,0,7);
+
+  const COUNT=30,RADIUS=3.6;
+  const pts=Array.from({length:COUNT},()=>{
+    const v=new THREE.Vector3(Math.random()-0.5,Math.random()-0.5,Math.random()-0.5).normalize();
+    v.multiplyScalar(RADIUS*(0.55+Math.random()*0.45));
+    return v;
+  });
+
+  const nodeGeo=new THREE.IcosahedronGeometry(0.045,0);
+  const nodeMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.38});
+  const nodes=new THREE.InstancedMesh(nodeGeo,nodeMat,COUNT);
+  const m=new THREE.Matrix4();
+  pts.forEach((p,i)=>{m.setPosition(p);nodes.setMatrixAt(i,m);});
+  scene.add(nodes);
+
+  const linePositions=[];
+  for(let i=0;i<pts.length;i++){
+    for(let j=i+1;j<pts.length;j++){
+      if(pts[i].distanceTo(pts[j])<1.5)linePositions.push(pts[i].x,pts[i].y,pts[i].z,pts[j].x,pts[j].y,pts[j].z);
+    }
+  }
+  const lineGeo=new THREE.BufferGeometry();
+  lineGeo.setAttribute('position',new THREE.Float32BufferAttribute(linePositions,3));
+  const lineMat=new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.08});
+  const lines=new THREE.LineSegments(lineGeo,lineMat);
+  scene.add(lines);
+
+  const group=new THREE.Group();
+  group.add(nodes,lines);
+  scene.add(group);
+
+  let w=0,h=0;
+  function size(){
+    const r=hero.getBoundingClientRect();
+    w=r.width;h=r.height;
+    renderer.setSize(w,h,false);
+    camera.aspect=w/Math.max(h,1);
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize',size,{passive:true});
+  size();
+
+  let mouseX=0,mouseY=0;
+  hero.addEventListener('mousemove',e=>{
+    const r=hero.getBoundingClientRect();
+    mouseX=((e.clientX-r.left)/w-0.5)*2;
+    mouseY=((e.clientY-r.top)/h-0.5)*2;
+  },{passive:true});
+
+  let scrollT=0;
+  function updateScroll(){
+    const r=hero.getBoundingClientRect();
+    scrollT=Math.min(Math.max(-r.top/Math.max(r.height,1),0),1);
+  }
+  window.addEventListener('scroll',updateScroll,{passive:true});
+  updateScroll();
+
+  let running=false,raf=null;
+  function frame(){
+    if(!running)return;
+    group.rotation.y+=0.0016;
+    group.rotation.x+=(mouseY*0.25-group.rotation.x)*0.04;
+    group.rotation.y+=(mouseX*0.15)*0.002;
+    camera.position.z=7-scrollT*2.2;
+    group.rotation.z=scrollT*0.35;
+    renderer.render(scene,camera);
+    raf=requestAnimationFrame(frame);
+  }
+  function start(){if(running)return;running=true;raf=requestAnimationFrame(frame);}
+  function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=null;}
+
+  onVisibilityChange(hero,visible=>{visible?start():stop();});
+  document.addEventListener('visibilitychange',()=>{document.hidden?stop():(hero.getBoundingClientRect().bottom>0&&start());});
+
+  hero.classList.add('has-3d');
+  start();
+}
 /* hero intro */
 function playHeroReveal(){
   document.dispatchEvent(new Event('mvs:reveal'));
@@ -355,3 +447,4 @@ if(document.fonts&&document.fonts.ready){
     },250);
   },t);
 })();
+initHero3D(document.getElementById('hero3d'));
