@@ -232,43 +232,28 @@ function initHero3D(canvas){
   const camera=new THREE.PerspectiveCamera(45,1,0.1,100);
   camera.position.set(0,0,7);
 
-  const WHITE=new THREE.Color(0xffffff);
-  const COUNT=48,RADIUS=4.2;
-  const pts=Array.from({length:COUNT},()=>{
-    const v=new THREE.Vector3(Math.random()-0.5,Math.random()-0.5,Math.random()-0.5).normalize();
-    v.multiplyScalar(RADIUS*(0.75+Math.random()*0.35));
-    return v;
-  });
-  const phases=Array.from({length:COUNT},()=>Math.random()*Math.PI*2);
-
-  const nodeGeo=new THREE.IcosahedronGeometry(0.05,0);
-  const nodeMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0.55});
-  const nodes=new THREE.InstancedMesh(nodeGeo,nodeMat,COUNT);
-  const glowMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0.12,blending:THREE.AdditiveBlending,depthWrite:false});
-  const glow=new THREE.InstancedMesh(nodeGeo,glowMat,COUNT);
-  const m=new THREE.Matrix4();
-  pts.forEach((p,i)=>{
-    m.setPosition(p);
-    nodes.setMatrixAt(i,m);
-    nodes.setColorAt(i,WHITE);
-    glow.setColorAt(i,WHITE);
-  });
-  scene.add(nodes,glow);
-
-  const linePositions=[];
-  for(let i=0;i<pts.length;i++){
-    for(let j=i+1;j<pts.length;j++){
-      if(pts[i].distanceTo(pts[j])<1.5)linePositions.push(pts[i].x,pts[i].y,pts[i].z,pts[j].x,pts[j].y,pts[j].z);
-    }
+  /* single breathing wireframe form instead of the old scattered node-cluster —
+     distinct from book section's static low-poly + core dot: this one ripples
+     continuously across the surface, dependency-free (sine-stack stand-in for noise). */
+  const geo=new THREE.IcosahedronGeometry(2.3,3);
+  const posAttr=geo.attributes.position;
+  const base=Float32Array.from(posAttr.array);
+  const count=posAttr.count;
+  const dirs=new Float32Array(count*3);
+  for(let i=0;i<count;i++){
+    const x=base[i*3],y=base[i*3+1],z=base[i*3+2];
+    const len=Math.hypot(x,y,z)||1;
+    dirs[i*3]=x/len;dirs[i*3+1]=y/len;dirs[i*3+2]=z/len;
   }
-  const lineGeo=new THREE.BufferGeometry();
-  lineGeo.setAttribute('position',new THREE.Float32BufferAttribute(linePositions,3));
-  const lineMat=new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.12});
-  const lines=new THREE.LineSegments(lineGeo,lineMat);
-  scene.add(lines);
+
+  const mat=new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true,transparent:true,opacity:0.5});
+  const mesh=new THREE.Mesh(geo,mat);
+  const glowMat=new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true,transparent:true,opacity:0.1,blending:THREE.AdditiveBlending,depthWrite:false});
+  const glow=new THREE.Mesh(geo,glowMat);
+  glow.scale.setScalar(1.05);
 
   const group=new THREE.Group();
-  group.add(nodes,glow,lines);
+  group.add(glow,mesh);
   scene.add(group);
 
   let w=0,h=0,baseZ=7;
@@ -279,7 +264,7 @@ function initHero3D(canvas){
     camera.aspect=w/Math.max(h,1);
     camera.updateProjectionMatrix();
     /* narrow aspect = much less horizontal FOV at the same distance, so the same world-space
-       cluster reads as "too big/cropped" on mobile — pull the camera back to compensate. */
+       shape reads as "too big/cropped" on mobile — pull the camera back to compensate. */
     baseZ=w<700?10.5:7;
   }
   window.addEventListener('resize',size,{passive:true});
@@ -300,24 +285,25 @@ function initHero3D(canvas){
   window.addEventListener('scroll',updateScroll,{passive:true});
   updateScroll();
 
+  const posArr=posAttr.array;
   let running=false,raf=null,t=0;
   function frame(){
     if(!running)return;
-    t+=0.016;
-    group.rotation.y+=0.0016;
-    group.rotation.x+=(mouseY*0.25-group.rotation.x)*0.04;
-    group.rotation.y+=(mouseX*0.15)*0.002;
+    t+=0.012;
+    group.rotation.y+=0.0018;
+    group.rotation.x+=(mouseY*0.22-group.rotation.x)*0.04;
+    group.rotation.y+=(mouseX*0.14)*0.002;
     camera.position.z=baseZ-scrollT*2.2;
-    group.rotation.z=scrollT*0.35;
-    pts.forEach((p,i)=>{
-      const s=1+Math.sin(t*1.4+phases[i])*0.35;
-      m.makeScale(s,s,s);m.setPosition(p);
-      nodes.setMatrixAt(i,m);
-      m.makeScale(s*2.6,s*2.6,s*2.6);m.setPosition(p);
-      glow.setMatrixAt(i,m);
-    });
-    nodes.instanceMatrix.needsUpdate=true;
-    glow.instanceMatrix.needsUpdate=true;
+    group.rotation.z=scrollT*0.3;
+    for(let i=0;i<count;i++){
+      const dx=dirs[i*3],dy=dirs[i*3+1],dz=dirs[i*3+2];
+      const ripple=Math.sin(dx*2.4+t*1.1)+Math.sin(dy*2.4+t*0.9)+Math.sin(dz*2.4+t*1.3);
+      const amp=1+ripple*0.045;
+      posArr[i*3]=base[i*3]*amp;
+      posArr[i*3+1]=base[i*3+1]*amp;
+      posArr[i*3+2]=base[i*3+2]*amp;
+    }
+    posAttr.needsUpdate=true;
     renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
   }
