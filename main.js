@@ -527,9 +527,37 @@ if(!reduce){
 /* pause the integrations carousel spin off-screen — same reasoning, was running forever */
 (function(){const ic=document.querySelector('.int-carousel');if(!ic)return;
   onVisibilityChange(ic,visible=>ic.classList.toggle('spin-off',!visible));})();
-/* same pause for the mobile 2D marquee replacement */
-(function(){const mq=document.querySelector('.int-marquee');if(!mq)return;
-  onVisibilityChange(mq,visible=>mq.classList.toggle('spin-off',!visible));})();
+/* mobile logo timeline — ported from Eldora UI's logo-timeline concept (several rows,
+   each own speed/direction, instead of one flat marquee). Built from the single canonical
+   logo list (the desktop carousel's .int-item nodes) instead of hand-duplicating markup
+   per row — one source of truth for the 23 logos, same as before. */
+(function(){
+  const wrap=document.getElementById('intTimeline');
+  const items=document.querySelectorAll('.int-carousel .int-item');
+  if(!wrap||!items.length)return;
+  const ROWS=4,durations=[38,52,44,60];
+  const rows=Array.from({length:ROWS},()=>[]);
+  items.forEach((el,i)=>rows[i%ROWS].push(el));
+  rows.forEach((rowItems,i)=>{
+    if(!rowItems.length)return;
+    const row=document.createElement('div');
+    row.className='int-timeline-row'+(i%2?' rev':'');
+    row.style.setProperty('--row-dur',durations[i%durations.length]+'s');
+    /* duplicated once for a seamless -50% loop, same trick the old single marquee used.
+       Strip .int-item/--i — that class is position:absolute for the desktop 3D ring
+       layout, which zeroed every clone's height once dropped into this flex row. */
+    [rowItems,rowItems].forEach(set=>set.forEach(el=>{
+      const clone=el.cloneNode(true);
+      clone.classList.remove('int-item');
+      clone.style.removeProperty('--i');
+      row.appendChild(clone);
+    }));
+    wrap.appendChild(row);
+  });
+  onVisibilityChange(wrap,visible=>{
+    wrap.querySelectorAll('.int-timeline-row').forEach(r=>r.classList.toggle('spin-off',!visible));
+  });
+})();
 
 /* floating book-call pill: visible once past the hero, hidden again once the book section
    (which has its own CTA already on screen) is reached. Own observer — not the shared one,
@@ -960,11 +988,13 @@ function initPriceRise3D(canvas){
   function frame(){
     if(!running)return;
     t+=0.01;
-    const rise=1+scrollImpulse*3;
+    /* falls same direction as hidden-cost's leak now, not rising — was the inverse on
+       purpose, changed on request to move the same way on scroll. */
+    const fall=1+scrollImpulse*3;
     for(let i=0;i<N;i++){
-      posArr[i*3+1]+=speed[i]*rise;
+      posArr[i*3+1]-=speed[i]*fall;
       posArr[i*3]+=Math.sin(t+phase[i])*0.0012;
-      if(posArr[i*3+1]>4.5)posArr[i*3+1]=-4.5;
+      if(posArr[i*3+1]<-4.5)posArr[i*3+1]=4.5;
     }
     geo.attributes.position.needsUpdate=true;
     mat.opacity=0.26+scrollImpulse*0.3;
