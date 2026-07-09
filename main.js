@@ -256,7 +256,7 @@ function initHero3D(canvas){
   group.add(glow,mesh);
   scene.add(group);
 
-  let w=0,h=0,baseZ=7;
+  let w=0,h=0,baseZ=7,zoomDepth=2.2;
   function size(){
     const r=hero.getBoundingClientRect();
     w=r.width;h=r.height;
@@ -267,6 +267,9 @@ function initHero3D(canvas){
        shape reads as "too big/cropped" on mobile — pull the camera back to compensate. */
     baseZ=w<700?10.5:7;
     group.scale.setScalar(w<700?0.62:1);
+    /* mobile starts farther back (baseZ 10.5 vs 7) and scaled down 0.62x, so the same scroll-zoom
+       distance reads as barely-there — push the zoom travel out so it's felt at the same intensity. */
+    zoomDepth=w<700?4.4:2.2;
   }
   window.addEventListener('resize',size,{passive:true});
   size();
@@ -283,7 +286,14 @@ function initHero3D(canvas){
     const r=hero.getBoundingClientRect();
     scrollT=Math.min(Math.max(-r.top/Math.max(r.height,1),0),1);
   }
-  window.addEventListener('scroll',updateScroll,{passive:true});
+  /* rAF-coalesced: raw 'scroll' events can fire many times per frame (momentum/trackpad),
+     each running getBoundingClientRect (forced layout read) — collapse to one read+write per frame. */
+  let scrollPending=false;
+  window.addEventListener('scroll',()=>{
+    if(scrollPending)return;
+    scrollPending=true;
+    requestAnimationFrame(()=>{scrollPending=false;updateScroll();});
+  },{passive:true});
   updateScroll();
 
   const posArr=posAttr.array;
@@ -294,7 +304,7 @@ function initHero3D(canvas){
     group.rotation.y+=0.0018;
     group.rotation.x+=(mouseY*0.22-group.rotation.x)*0.04;
     group.rotation.y+=(mouseX*0.14)*0.002;
-    camera.position.z=baseZ-scrollT*2.2;
+    camera.position.z=baseZ-scrollT*zoomDepth;
     group.rotation.z=scrollT*0.3;
     for(let i=0;i<count;i++){
       const dx=dirs[i*3],dy=dirs[i*3+1],dz=dirs[i*3+2];
