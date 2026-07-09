@@ -617,7 +617,6 @@ function playHeroReveal(){
   const fadeIn=(el,delay)=>{if(!el)return;gsap.fromTo(el,{opacity:0,y:14},{opacity:1,y:0,duration:0.6,delay,ease:'power2.out'});};
   fadeIn(document.querySelector('.navcta'),0);
   document.querySelectorAll('h1 .line').forEach((span,i)=>fadeIn(span,i*0.1));
-  fadeIn(document.getElementById('hsub'),0.45);
   document.querySelectorAll('#hcta .btn').forEach((btn,i)=>fadeIn(btn,0.7+i*0.1));
 }
 
