@@ -324,80 +324,82 @@ function initHero3D(canvas){
   const camera=new THREE.PerspectiveCamera(45,1,0.1,100);
   camera.position.set(0,0,7);
 
-  /* dimensional "M" — after 9 rejected attempts (every abstract primitive: network, sphere,
-     knot, points-globe, gem, ribbon, dithered sphere, mirror sphere, faceted solid), the
-     pattern pointed at the category, not the shape: "not shapes, something creative and
-     clean". A generic geometric primitive will never read as bespoke to this brand — an
-     extruded version of the brand's own logomark (the "M" already used in the nav/logo box)
-     is not a generic shape, it's identity made dimensional. Flat lambert shading (same
-     reasoning as the faceted attempt: needs a real light, no wireframe/gradient-texture/
-     reflection tricks).
-
-     Hand-built via THREE.Shape + ExtrudeGeometry (both core three.js) instead of TextGeometry —
-     a real font-loading attempt here broke the entire page: FontLoader/TextGeometry are addon
-     modules that internally `import ... from 'three'` (a bare specifier), which requires an
-     import map; adding one didn't resolve reliably in this environment and silently killed the
-     whole THREE setup (every section's 3D, not just the hero). Same "the clever addon-based
-     approach isn't worth the risk" lesson as the bloom postprocessing pass earlier this
-     session — this path only touches the core module already proven working all session. */
-  const light=new THREE.DirectionalLight(0xffffff,2.6);
+  /* full "MVS" wordmark, not just the M — hand-built the same way as before (core THREE.Shape +
+     ExtrudeGeometry only, no FontLoader/addons; that path broke the entire page earlier this
+     session). M and V are single-outline polygons with a notch (same trick, straight edges
+     only); S is a blocky pixel-grid S (3-wide/5-tall block pattern, traced as one outline) rather
+     than a curvy script S — keeps the same hard-edged geometric language as M/V instead of
+     mixing in smooth bezier curves, and is something I can get exactly right without live visual
+     iteration on curve control points. Metallic material (real metalness/roughness, no envMap —
+     reflection/render-target tricks are the banned category, not metalness itself) instead of
+     the flatter monochrome-plastic look the single M used, per the reference render. */
+  const light=new THREE.DirectionalLight(0xffffff,3.0);
   light.position.set(2.4,3,2.5);
-  /* fill light from the opposite side — a single key light left the far-side facets going
-     fully black partway through the spin, reading flat/2D at those angles. Dimmer counterpart,
-     still pure white (no color introduced), just enough to keep the form legible all the way
-     around the rotation instead of only from the front. */
-  const fill=new THREE.DirectionalLight(0xffffff,0.4);
+  const fill=new THREE.DirectionalLight(0xffffff,0.6);
   fill.position.set(-3,-1.8,1.6);
-  /* ambient bumped up — directional-lit flat-shaded facets always read grey wherever they face
-     away from both lights, which is what "looks grey not white" was pointing at. More ambient
-     lifts that floor toward white without flattening the facet contrast that sells the 3D. */
-  scene.add(light,fill,new THREE.AmbientLight(0xffffff,0.55));
+  scene.add(light,fill,new THREE.AmbientLight(0xffffff,0.4));
   const group=new THREE.Group();
   scene.add(group);
+  const word=new THREE.Group();
+  group.add(word);
+
+  const mat=new THREE.MeshStandardMaterial({color:0xffffff,flatShading:true,roughness:0.32,metalness:0.55,transparent:true});
+  /* soft white glow shell per letter — same geometry, no extra memory, drawn from the inside
+     (BackSide) with additive blending so it reads as a faint aura rather than a second solid
+     object. No EffectComposer/bloom (banned — real GPU-compat bug hit earlier with that route). */
+  const glowMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.16,
+    side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false});
+
+  function letterMesh(shape){
+    const geo=new THREE.ExtrudeGeometry(shape,{depth:3.4,bevelEnabled:true,bevelThickness:0.4,bevelSize:0.26,bevelSegments:4,curveSegments:1});
+    geo.computeBoundingBox();
+    const bb=geo.boundingBox;
+    geo.translate(-(bb.max.x+bb.min.x)/2,-(bb.max.y+bb.min.y)/2,-(bb.max.z+bb.min.z)/2);
+    const mesh=new THREE.Mesh(geo,mat);
+    const glow=new THREE.Mesh(geo,glowMat);
+    glow.scale.setScalar(1.1);
+    mesh.add(glow);
+    return mesh;
+  }
 
   const mShape=new THREE.Shape();
-  mShape.moveTo(0,0);
-  mShape.lineTo(0,12);
-  mShape.lineTo(2.4,12);
-  mShape.lineTo(5,4.5);
-  mShape.lineTo(7.6,12);
-  mShape.lineTo(10,12);
-  mShape.lineTo(10,0);
-  mShape.lineTo(0,0);
-  /* deeper extrude + bigger bevel than the first pass — the side facets barely read at the old
-     depth/bevel, so the rotation looked like a flat card swiveling rather than a real 3D object. */
-  const mGeo=new THREE.ExtrudeGeometry(mShape,{depth:3.4,bevelEnabled:true,bevelThickness:0.4,bevelSize:0.26,bevelSegments:4,curveSegments:1});
-  mGeo.computeBoundingBox();
-  const mbb=mGeo.boundingBox;
-  mGeo.translate(-(mbb.max.x+mbb.min.x)/2,-(mbb.max.y+mbb.min.y)/2,-(mbb.max.z+mbb.min.z)/2);
-  /* bigger than the first pass (0.16) — was reading too small/easy to miss. */
-  mGeo.scale(0.205,0.205,0.205);
-  /* standard material instead of Lambert — roughness-based specular gives the facets a bit of
-     premium sheen as they catch the key light. Still flat-shaded/monochrome/no envMap (no
-     reflection trick, just direct-light specular on one mesh — negligible extra cost).
-     emissive white keeps every facet's floor near-white instead of going grey wherever it faces
-     away from both lights — transparent:true so it can fade out during the scroll fly-through
-     below without a separate material swap. */
-  const mMat=new THREE.MeshStandardMaterial({color:0xffffff,flatShading:true,roughness:0.36,metalness:0.04,
-    emissive:0xffffff,emissiveIntensity:0.24,transparent:true});
-  const mesh=new THREE.Mesh(mGeo,mMat);
-  /* subtle tilt, not a hard angle — the M's zigzag profile only reads as a letter close to
-     face-on; a big initial rotation turned it into an unrecognizable rounded blob before the
-     spin brought it back around. Just enough tilt to hint at the bevel/depth immediately. */
-  mesh.rotation.set(-0.08,0.22,0);
-  group.add(mesh);
-  /* soft white glow shell — same geometry, no extra memory, drawn from the inside (BackSide) with
-     additive blending so it reads as a faint aura around the silhouette rather than a second
-     solid object. No EffectComposer/bloom pass (banned — real GPU-compat bug hit earlier with
-     that route), just one cheap unlit mesh. Child of mesh so it automatically tracks every
-     rotation/scale change below for free. */
-  const glowMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.22,
-    side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false});
-  const glow=new THREE.Mesh(mGeo,glowMat);
-  glow.scale.setScalar(1.14);
-  mesh.add(glow);
+  mShape.moveTo(0,0);mShape.lineTo(0,12);mShape.lineTo(2.4,12);mShape.lineTo(5,4.5);
+  mShape.lineTo(7.6,12);mShape.lineTo(10,12);mShape.lineTo(10,0);mShape.lineTo(0,0);
 
-  let w=0,h=0,baseZ=7;
+  const vShape=new THREE.Shape();
+  vShape.moveTo(0,12);vShape.lineTo(4.7,0);vShape.lineTo(9.4,12);vShape.lineTo(6.8,12);
+  vShape.lineTo(4.7,3.5);vShape.lineTo(2.6,12);vShape.lineTo(0,12);
+
+  /* "S" as a blocky 3x5 pixel-grid glyph (# = filled):
+       # # #
+       # . .
+       # # #
+       . . #
+       # # #
+     traced as one outline polygon — same one-piece-silhouette approach as M/V, just with two
+     notches instead of one. */
+  const sShape=new THREE.Shape();
+  sShape.moveTo(0,0);sShape.lineTo(8.4,0);sShape.lineTo(8.4,7.2);sShape.lineTo(2.8,7.2);
+  sShape.lineTo(2.8,9.6);sShape.lineTo(8.4,9.6);sShape.lineTo(8.4,12);sShape.lineTo(0,12);
+  sShape.lineTo(0,4.8);sShape.lineTo(5.6,4.8);sShape.lineTo(5.6,2.4);sShape.lineTo(0,2.4);sShape.lineTo(0,0);
+
+  const mMesh=letterMesh(mShape);
+  const vMesh=letterMesh(vShape);
+  const sMesh=letterMesh(sShape);
+  /* laid out so the V sits exactly at word-local x=0 — the scroll fly-through below drifts the
+     whole wordmark toward screen-center as it approaches the camera, so the moment it's biggest/
+     closest lines up with the V's own gap passing through center, not an arbitrary point. */
+  const GAP=1.4;
+  mMesh.position.x=-(4.7+GAP+5);
+  sMesh.position.x=4.7+GAP+4.2;
+  word.add(mMesh,vMesh,sMesh);
+
+  /* real bounding sphere of the whole wordmark (not a hand-guessed number) — M is wider than S,
+     so the sphere's center isn't exactly at the V/word origin; used as-is (center + radius) below
+     so the frustum-safe clamp is correct instead of assuming false symmetry. */
+  const wordSphere=new THREE.Box3().setFromObject(word).getBoundingSphere(new THREE.Sphere());
+
+  let w=0,h=0,baseZ=7,wordScale=0.1,restX=0,restY=0;
   function size(){
     const r=hero.getBoundingClientRect();
     w=r.width;h=r.height;
@@ -405,33 +407,21 @@ function initHero3D(canvas){
     const aspect=w/Math.max(h,1);
     camera.aspect=aspect;
     camera.updateProjectionMatrix();
-    /* narrow aspect = much less horizontal FOV at the same distance, so the same world-space
-       shape reads as "too big/cropped" on mobile — pull the camera back to compensate. */
-    /* pulled back slightly vs the first pass (7→7.6, 10.5→11.2) — the deeper extrude/bigger
-       bevel needs a touch more room to avoid crowding the same screen footprint as before. */
     const narrow=w<700;
-    baseZ=narrow?12.4:8.4;
-    const scaleF=narrow?0.62:1;
-    group.scale.setScalar(scaleF);
-    /* position derived from the actual frustum at this aspect/baseZ, not a fixed world-unit
-       guess — a fixed (1.3,-1.4) position was only ever verified at one narrow test-window size
-       that happened to land on the mobile code path. At real desktop widths it overlapped "for
-       your business"/the CTA (confirmed against the unmodified original — same bug, not
-       introduced by this pass), and a plain width breakpoint alone still clipped the shape
-       clean off the right edge on any "desktop" window between 700-900px (laptop/split-screen
-       sizes use the same tuning as 1280+, but have far less horizontal frustum at the same
-       zoom). Clamping x to the frustum's actual safe edge — using the mesh's real bounding-
-       sphere radius (~1.72, measured via geometry.computeBoundingSphere) — fits any window
-       shape instead of just the one size it was eyeballed against. */
-    const halfW=baseZ*Math.tan(45*Math.PI/360)*aspect;
-    const R=1.72,margin=0.3;
-    const xMax=(halfW-margin)/scaleF-R;
-    const xPreferred=narrow?1.3:3.15;
-    mesh.position.set(Math.max(narrow?0.9:1.0,Math.min(xPreferred,xMax)),narrow?-2.0:-0.3,0);
-    /* camera sits at a fixed distance now — the scroll effect moves the MESH toward camera
-       instead of dollying the camera in (see frame() below), so this just needs to track baseZ
-       whenever it changes on resize. */
+    baseZ=narrow?13.5:9.2;
+    wordScale=narrow?0.072:0.115;
+    word.scale.setScalar(wordScale);
     camera.position.z=baseZ;
+    /* frustum-safe rest position — same reasoning/method as the single-M pass: derive the safe
+       edge from the actual aspect/baseZ/bounding-sphere instead of a fixed world-unit guess, so
+       it doesn't clip off-screen on in-between "desktop" window widths (700-900px). */
+    const halfW=baseZ*Math.tan(45*Math.PI/360)*aspect;
+    const margin=0.3;
+    const R=wordSphere.radius*wordScale,cx=wordSphere.center.x*wordScale;
+    const xMax=halfW-margin-R-cx;
+    const xPreferred=narrow?1.1:3.4;
+    restX=Math.max(narrow?0.6:1.0,Math.min(xPreferred,xMax));
+    restY=narrow?-2.0:-0.3;
   }
   onWidthResize(size);
   size();
@@ -465,23 +455,28 @@ function initHero3D(canvas){
   function frame(){
     if(!running)return;
     t+=0.014;
-    mesh.rotation.y+=0.0022;
-    mesh.rotation.x+=0.0013;
-    /* scroll fly-through — eased (scrollT²) so it starts slow and rushes at the very end, the M
-       moving toward the camera and growing instead of the camera doing a subtle dolly-in. Fades
-       out over the last 40% of travel so it doesn't just clip through the near plane. */
+    word.rotation.y+=0.0016;
+    word.rotation.x+=0.0009;
+    /* scroll fly-through — eased (scrollT²) so it starts slow and rushes at the very end. The
+       wordmark drifts from its rest corner toward dead-center (reaching center at ~77% of the
+       hero's scroll range) WHILE growing and approaching the camera, so the moment it's biggest/
+       closest is also the moment the V's gap is centered on the camera's own axis — "flying
+       through the V" rather than just a shape growing in place. Fades out over the last 40% of
+       travel so it doesn't just clip through the near plane. */
     const st=scrollT*scrollT;
-    mesh.position.z=st*baseZ*0.88;
-    mesh.scale.setScalar((1+scrollImpulse*0.06)*(1+st*4));
+    const centerT=Math.min(1,scrollT*1.3);
+    word.position.x=restX*(1-centerT);
+    word.position.y=restY*(1-centerT);
+    word.position.z=st*baseZ*0.9;
+    word.scale.setScalar(wordScale*(1+scrollImpulse*0.05)*(1+st*3.2));
     const fadeStart=0.6;
     const op=scrollT>fadeStart?Math.max(0,1-(scrollT-fadeStart)/(1-fadeStart)):1;
-    mMat.opacity=op;
-    glowMat.opacity=0.22*op;
-    group.rotation.x+=(mouseY*0.22-group.rotation.x)*0.04;
-    group.rotation.y+=(mouseX*0.14)*0.002;
-    group.rotation.z=scrollT*0.3;
-    light.intensity=2.6+scrollImpulse*1.4;
-    fill.intensity=0.4+scrollImpulse*0.3;
+    mat.opacity=op;
+    glowMat.opacity=0.16*op;
+    group.rotation.x+=(mouseY*0.18-group.rotation.x)*0.04;
+    group.rotation.y+=(mouseX*0.12)*0.002;
+    light.intensity=3.0+scrollImpulse*1.2;
+    fill.intensity=0.6+scrollImpulse*0.3;
     renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
   }
