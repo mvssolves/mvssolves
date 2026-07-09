@@ -505,12 +505,16 @@ if(!reduce){
     ScrollTrigger.batch(gsap.utils.toArray(sel),{start:'top 90%',fastScrollEnd:true,
       onEnter:b=>gsap.fromTo(b,{opacity:0},{opacity:1,duration:0.6,stagger:0.06,ease:'power2.out',overwrite:true})});
   });
-  /* pricing tiers — each column enters from its own direction (left card from left, feat card
-     up+scale, right card from right) instead of a flat fade. Pure 2D transform, once:true. */
+  /* pricing tiers — staggered "cards rising off a stacked deck" cascade (inspired by a
+     3D-stack pack reference), but 2D-only: translate/scale/opacity, no rotate3d/perspective.
+     That combo already bit capabilities once this session (forced a compositing layer per
+     card right at the Lenis scroll-handoff point, read as lag) — same risk here, not worth it
+     for a pricing-card entrance. Single shared trigger + per-card delay gives the cascade
+     timing instead of each card's own independent threshold-cross. */
   gsap.utils.toArray('.tiers .tier').forEach((tier,i)=>{
-    const from=i===0?{x:-50,opacity:0}:i===gsap.utils.toArray('.tiers .tier').length-1?{x:50,opacity:0}:{y:36,opacity:0,scale:0.96};
-    gsap.fromTo(tier,from,{x:0,y:0,scale:1,opacity:1,duration:0.8,ease:'power3.out',
-      scrollTrigger:{trigger:tier,start:'top 90%',once:true,fastScrollEnd:true}});
+    gsap.fromTo(tier,{y:46-i*6,scale:0.92,opacity:0},
+      {y:0,scale:1,opacity:1,duration:0.85,delay:i*0.12,ease:'power3.out',
+        scrollTrigger:{trigger:'.tiers',start:'top 88%',once:true,fastScrollEnd:true}});
   });
   /* capabilities (01) — alternating left/right slide by column, 2D translate only (no
      rotateX/perspective — that's what forced a compositing layer per card right as Lenis hands
