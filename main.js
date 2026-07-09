@@ -698,6 +698,145 @@ if(document.fonts&&document.fonts.ready){
     },250);
   },t);
 })();
+/* integrations backdrop — sparse node network reclaims the "connected systems" motif the
+   hero used to use (now free since hero moved to the torus knot). Kept faint/ambient since
+   the colorful brand-logo marquee sits on top of it and must stay the visual focus. */
+function initIntegNodes3D(canvas){
+  if(!canvas||reduce||typeof THREE==='undefined')return;
+  let gl;
+  try{gl=canvas.getContext('webgl2')||canvas.getContext('webgl');}catch(e){}
+  if(!gl)return;
+
+  const section=canvas.closest('#integrations');
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(45,1,0.1,100);
+  camera.position.set(0,0,7);
+
+  const COUNT=32,RADIUS=4.6;
+  const pts=[];
+  for(let i=0;i<COUNT;i++){
+    const v=new THREE.Vector3(Math.random()-0.5,Math.random()-0.5,Math.random()-0.5).normalize();
+    v.multiplyScalar(RADIUS*(0.7+Math.random()*0.4));
+    pts.push(v);
+  }
+  const nodeGeo=new THREE.IcosahedronGeometry(0.045,0);
+  const nodeMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.35});
+  const nodes=new THREE.InstancedMesh(nodeGeo,nodeMat,COUNT);
+  const m=new THREE.Matrix4();
+  pts.forEach((p,i)=>{m.setPosition(p);nodes.setMatrixAt(i,m);});
+
+  const linePositions=[];
+  for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)
+    if(pts[i].distanceTo(pts[j])<2.1)linePositions.push(pts[i].x,pts[i].y,pts[i].z,pts[j].x,pts[j].y,pts[j].z);
+  const lineGeo=new THREE.BufferGeometry();
+  lineGeo.setAttribute('position',new THREE.Float32BufferAttribute(linePositions,3));
+  const lineMat=new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.1});
+  const lines=new THREE.LineSegments(lineGeo,lineMat);
+
+  const group=new THREE.Group();
+  group.add(nodes,lines);
+  scene.add(group);
+
+  let w=0,h=0;
+  function size(){
+    const r=section.getBoundingClientRect();
+    w=r.width;h=r.height;
+    renderer.setSize(w,h,false);
+    camera.aspect=w/Math.max(h,1);
+    camera.updateProjectionMatrix();
+    camera.position.z=w<700?9.5:7;
+  }
+  onWidthResize(size);
+  size();
+
+  let running=false,raf=null,t=0;
+  function frame(){
+    if(!running)return;
+    t+=0.01;
+    group.rotation.y+=0.0012;
+    group.rotation.x=Math.sin(t*0.2)*0.08;
+    nodeMat.opacity=0.35+scrollImpulse*0.4;
+    lineMat.opacity=0.1+scrollImpulse*0.25;
+    renderer.render(scene,camera);
+    raf=requestAnimationFrame(frame);
+  }
+  function start(){if(running)return;running=true;raf=requestAnimationFrame(frame);}
+  function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=null;}
+
+  onVisibilityChange(section,visible=>{visible?start():stop();});
+  document.addEventListener('visibilitychange',()=>{document.hidden?stop():(section.getBoundingClientRect().bottom>0&&start());});
+
+  section.classList.add('has-3d');
+  start();
+}
+/* hidden-cost backdrop — concentric rings expanding outward on a loop, "cost compounding the
+   longer you wait" motif. Distinct shape language from every other section (rings, not
+   network/terrain/knot/polyhedron). Kept faint behind the interactive wheel in front. */
+function initCostRings3D(canvas){
+  if(!canvas||reduce||typeof THREE==='undefined')return;
+  let gl;
+  try{gl=canvas.getContext('webgl2')||canvas.getContext('webgl');}catch(e){}
+  if(!gl)return;
+
+  const section=canvas.closest('#hidden-cost');
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(45,1,0.1,50);
+  camera.position.set(0,0,6);
+
+  const RING_N=4;
+  const group=new THREE.Group();
+  group.rotation.x=-0.5;
+  const rings=[];
+  for(let i=0;i<RING_N;i++){
+    const geo=new THREE.RingGeometry(0.94,0.965,64);
+    const mat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,side:THREE.DoubleSide});
+    const ring=new THREE.Mesh(geo,mat);
+    group.add(ring);
+    rings.push({mesh:ring,mat,phase:i/RING_N});
+  }
+  scene.add(group);
+
+  let w=0,h=0;
+  function size(){
+    const r=section.getBoundingClientRect();
+    w=r.width;h=r.height;
+    renderer.setSize(w,h,false);
+    camera.aspect=w/Math.max(h,1);
+    camera.updateProjectionMatrix();
+    camera.position.z=w<700?8:6;
+  }
+  onWidthResize(size);
+  size();
+
+  let running=false,raf=null,t=0;
+  function frame(){
+    if(!running)return;
+    t+=0.006;
+    group.rotation.z+=0.0008;
+    rings.forEach(r=>{
+      const lt=(t+r.phase)%1;
+      const s=0.4+lt*3.6;
+      r.mesh.scale.setScalar(s);
+      r.mat.opacity=(1-lt)*0.14+scrollImpulse*0.3;
+    });
+    renderer.render(scene,camera);
+    raf=requestAnimationFrame(frame);
+  }
+  function start(){if(running)return;running=true;raf=requestAnimationFrame(frame);}
+  function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=null;}
+
+  onVisibilityChange(section,visible=>{visible?start():stop();});
+  document.addEventListener('visibilitychange',()=>{document.hidden?stop():(section.getBoundingClientRect().bottom>0&&start());});
+
+  section.classList.add('has-3d');
+  start();
+}
 initHero3D(document.getElementById('hero3d'));
 initCapGrid3D(document.getElementById('cap3d'));
 initBookPoly3D(document.getElementById('book3d'));
+initIntegNodes3D(document.getElementById('integ3d'));
+initCostRings3D(document.getElementById('cost3d'));
