@@ -504,8 +504,13 @@ function initHero3D(canvas){
   function frame(){
     if(!running)return;
     t+=0.014;
-    word.rotation.y+=0.0016;
-    word.rotation.x+=0.0009;
+    /* bounded wobble, not a continuous spin — a spinning ABSTRACT shape reads fine from any
+       angle, but real letterforms only read as "MVS" within a narrow angle near face-on. A
+       continuous accumulating rotation was drifting it through wide angles where it stopped
+       looking like the wordmark at all (confirmed against a real screenshot, not just theory).
+       Slow sine oscillation keeps it always within a legible range while still feeling alive. */
+    word.rotation.y=Math.sin(t*0.15)*0.14;
+    word.rotation.x=Math.sin(t*0.11+1.3)*0.07;
     /* scroll fly-through — eased (scrollT²) so it starts slow and rushes at the very end. The
        wordmark drifts from its rest corner toward dead-center (reaching center at ~77% of the
        hero's scroll range) WHILE growing and approaching the camera, so the moment it's biggest/
