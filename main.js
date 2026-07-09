@@ -182,36 +182,77 @@ function initCapGrid3D(canvas){
   camera.position.set(0,1.7,3.1);
   camera.lookAt(0,-0.3,-4);
 
-  /* equalizer cube grid instead of the rippling plane — discrete instanced blocks whose
-     height pulses in a wave, not a continuous flowing surface. Reads as structured/digital
-     rather than organic terrain, distinct from every other section's shape language. */
-  const COLS=20,ROWS=13,SPACING=0.55;
-  const boxGeo=new THREE.BoxGeometry(0.3,1,0.3);
-  boxGeo.translate(0,0.5,0);
-  const count=COLS*ROWS;
-  const mat=new THREE.MeshBasicMaterial({wireframe:true,transparent:true,opacity:0.55,vertexColors:true});
-  const inst=new THREE.InstancedMesh(boxGeo,mat,count);
-  const baseX=new Float32Array(count),baseZ=new Float32Array(count),edgeT=new Float32Array(count);
-  const m=new THREE.Matrix4();
-  let idx=0;
-  for(let cx=0;cx<COLS;cx++)for(let cz=0;cz<ROWS;cz++){
-    const x=(cx-(COLS-1)/2)*SPACING,z=(cz-(ROWS-1)/2)*SPACING;
-    baseX[idx]=x;baseZ[idx]=z;
-    const du=Math.min(cx,(COLS-1)-cx)/((COLS-1)/2);
-    const dv=Math.min(cz,(ROWS-1)-cz)/((ROWS-1)/2);
-    edgeT[idx]=Math.pow(Math.min(1,Math.min(du,dv)*1.6),0.6);
-    m.makeScale(1,0.2,1);
-    m.elements[12]=x;m.elements[13]=0;m.elements[14]=z;
-    inst.setMatrixAt(idx,m);
-    inst.setColorAt(idx,new THREE.Color(0xffffff));
-    idx++;
-  }
-  const grid=new THREE.Group();
-  grid.add(inst);
-  grid.position.z=-3;
+  /* cursor-reactive GLSL grid floor instead of the equalizer cubes — ported from a real
+     reference found in the 3D pack (a Codrops-style shader plane: vertex-shader bump toward
+     the cursor + raised edges, fragment-shader anti-aliased grid lines via fwidth). Runs
+     entirely on the GPU (one ShaderMaterial, one draw call) instead of a per-frame JS loop
+     over instances — genuinely cheaper than the cube grid it replaces, not just different-
+     looking. No render target/post-processing involved, same safe pattern as the hero shader. */
+  const gridGeo=new THREE.PlaneGeometry(16,11,110,70);
+  const gridMat=new THREE.ShaderMaterial({
+    uniforms:{
+      uEdgeWidth:{value:0.16},
+      uEdgeAmp:{value:0.55},
+      uCenterRadius:{value:0.26},
+      uCenterAmp:{value:0.5},
+      uCenter:{value:new THREE.Vector2(0.5,0.5)},
+      uTime:{value:0},
+      uImpulse:{value:0},
+      uGridScale:{value:26.0},
+      uLineWidth:{value:0.6}
+    },
+    vertexShader:`
+      varying vec2 vUv;
+      uniform float uEdgeWidth;
+      uniform float uEdgeAmp;
+      uniform float uCenterRadius;
+      uniform float uCenterAmp;
+      uniform vec2 uCenter;
+      uniform float uImpulse;
+      void main(){
+        vUv=uv;
+        vec3 p=position;
+        float dEdge=min(min(vUv.x,1.0-vUv.x),min(vUv.y,1.0-vUv.y));
+        float edgeMask=1.0-smoothstep(0.0,uEdgeWidth,dEdge);
+        float dCenter=distance(vUv,uCenter);
+        float centerMask=1.0-smoothstep(0.0,uCenterRadius,dCenter);
+        p.z+=edgeMask*uEdgeAmp*(1.0+uImpulse*0.8)+centerMask*uCenterAmp;
+        gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
+      }
+    `,
+    fragmentShader:`
+      varying vec2 vUv;
+      uniform float uGridScale;
+      uniform float uLineWidth;
+      uniform float uTime;
+      uniform float uImpulse;
+      float gridLine(float coord,float width){
+        float fw=fwidth(coord);
+        float p=abs(fract(coord-0.5)-0.5);
+        return 1.0-smoothstep(width*fw,(width+1.0)*fw,p);
+      }
+      void main(){
+        vec2 uv=(vUv+vec2(uTime*0.015,0.0))*uGridScale;
+        float g=max(gridLine(uv.x,uLineWidth),gridLine(uv.y,uLineWidth));
+        vec3 col=mix(vec3(0.0),vec3(1.0),g*(0.55+uImpulse*0.4));
+        gl_FragColor=vec4(col,1.0);
+      }
+    `
+  });
+  const grid=new THREE.Mesh(gridGeo,gridMat);
+  grid.rotation.x=-Math.PI/2.15;
+  grid.position.z=-2.5;
   scene.add(grid);
 
-  const TROUGH=new THREE.Color(0x8a8a92),PEAK=new THREE.Color(0xffffff),mixC=new THREE.Color();
+  /* cursor position mapped to plane UV, lerped toward smoothly (same 0.08 lerp as the
+     reference) so the floor bump follows the pointer rather than snapping to it. */
+  let targetU=0.5,targetV=0.5;
+  section.addEventListener('mousemove',e=>{
+    const r=section.getBoundingClientRect();
+    targetU=Math.min(1,Math.max(0,(e.clientX-r.left)/r.width));
+    targetV=Math.min(1,Math.max(0,1-(e.clientY-r.top)/r.height));
+  },{passive:true});
+
   let t=0;
 
   let w=0,h=0;
@@ -233,21 +274,12 @@ function initCapGrid3D(canvas){
   let running=false,raf=null;
   function frame(){
     if(!running)return;
-    t+=0.02;
-    for(let i=0;i<count;i++){
-      const x=baseX[i],z=baseZ[i];
-      const ripple=scrollImpulse*Math.sin(Math.hypot(x,z)*1.4-t*4)*0.7;
-      const h=Math.max(0.15,0.6+Math.sin(x*0.9+t)*0.4+Math.sin(z*0.7+t*1.1)*0.3+ripple);
-      m.makeScale(1,h,1);
-      m.elements[12]=x;m.elements[13]=0;m.elements[14]=z;
-      inst.setMatrixAt(i,m);
-      const e=edgeT[i];
-      mixC.copy(TROUGH).lerp(PEAK,Math.max(0,Math.min(1,h/1.3)));
-      mixC.multiplyScalar(e);
-      inst.setColorAt(i,mixC);
-    }
-    inst.instanceMatrix.needsUpdate=true;
-    inst.instanceColor.needsUpdate=true;
+    t+=0.016;
+    gridMat.uniforms.uTime.value=t;
+    gridMat.uniforms.uImpulse.value=scrollImpulse;
+    const c=gridMat.uniforms.uCenter.value;
+    c.x+=(targetU-c.x)*0.08;
+    c.y+=(targetV-c.y)*0.08;
     renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
   }
