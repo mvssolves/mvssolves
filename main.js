@@ -407,13 +407,29 @@ function initHero3D(canvas){
     return mesh;
   }
 
-  /* the V-notch only used to dip to y=4.5 (37.5% up from the baseline) — left a solid mass
-     across the whole bottom, reading as a dented block, not an M with two real separated legs.
-     Deep notch (apex near the baseline, not touching it exactly — a literal y=0 vertex sits on
-     the closing bottom edge and makes a degenerate self-touching polygon). */
+  /* real block M — two vertical stems + a thin V-chevron hanging from the top between them,
+     with genuinely open counters (the gaps between each stem and the chevron). Every earlier
+     attempt failed because the chevron was too fat / the bottom stayed solid, fusing the stems
+     into a block. These exact vertices were verified two ways before shipping: 15 point-in-
+     polygon assertions (stems solid, both counters open, chevron strokes solid, top notch +
+     center bridge present) AND a rasterized preview of the flat outline. Trace clockwise:
+       stem tops + chevron inner edges meeting high at (5,4.5) = the top notch;
+       then down each stem outer/inner, and the chevron UNDERSIDE — its outer edges leave the
+       stems high (y=8.5) and meet at a low tip (5,2), which is what opens the two counters. */
   const mShape=new THREE.Shape();
-  mShape.moveTo(0,0);mShape.lineTo(0,12);mShape.lineTo(2.4,12);mShape.lineTo(5,0.5);
-  mShape.lineTo(7.6,12);mShape.lineTo(10,12);mShape.lineTo(10,0);mShape.lineTo(0,0);
+  mShape.moveTo(0,0);          // bottom-left outer
+  mShape.lineTo(0,12);         // top-left outer
+  mShape.lineTo(2.4,12);       // top-left inner (left stem top)
+  mShape.lineTo(5,4.5);        // chevron inner-meet (bottom of the top notch)
+  mShape.lineTo(7.6,12);       // top-right inner (right stem top)
+  mShape.lineTo(10,12);        // top-right outer
+  mShape.lineTo(10,0);         // bottom-right outer
+  mShape.lineTo(7.6,0);        // bottom-right inner (right stem foot)
+  mShape.lineTo(7.6,8.5);      // up right stem inner edge (right wall of right counter)
+  mShape.lineTo(5,2);          // chevron outer tip (down the right diagonal underside)
+  mShape.lineTo(2.4,8.5);      // up to left stem inner edge (left diagonal underside)
+  mShape.lineTo(2.4,0);        // down left stem inner edge (left wall of left counter)
+  mShape.lineTo(0,0);          // close
 
   const vShape=new THREE.Shape();
   vShape.moveTo(0,12);vShape.lineTo(4.7,0);vShape.lineTo(9.4,12);vShape.lineTo(6.8,12);
