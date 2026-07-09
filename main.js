@@ -807,7 +807,7 @@ function initCostLeak3D(canvas){
   const phase=new Float32Array(N);
   for(let i=0;i<N;i++){
     pos[i*3]=(Math.random()-0.5)*11;
-    pos[i*3+1]=(Math.random()-0.5)*13;
+    pos[i*3+1]=(Math.random()-0.5)*9;
     pos[i*3+2]=(Math.random()-0.5)*4;
     speed[i]=0.006+Math.random()*0.014;
     phase[i]=Math.random()*Math.PI*2;
@@ -818,12 +818,9 @@ function initCostLeak3D(canvas){
   const points=new THREE.Points(geo,mat);
   scene.add(points);
 
-  /* canvas now bleeds well past its own section (see CSS) so it visually overlaps pricing's
-     bled canvas at the seam — measure the canvas's own rect, not the section's, or the
-     renderer's internal resolution would mismatch the larger CSS box and stretch/blur. */
   let w=0,h=0;
   function size(){
-    const r=canvas.getBoundingClientRect();
+    const r=section.getBoundingClientRect();
     w=r.width;h=r.height;
     renderer.setSize(w,h,false);
     camera.aspect=w/Math.max(h,1);
@@ -842,7 +839,7 @@ function initCostLeak3D(canvas){
     for(let i=0;i<N;i++){
       posArr[i*3+1]-=speed[i]*fall;
       posArr[i*3]+=Math.sin(t+phase[i])*0.0015;
-      if(posArr[i*3+1]<-6.5)posArr[i*3+1]=6.5;
+      if(posArr[i*3+1]<-4.5)posArr[i*3+1]=4.5;
     }
     geo.attributes.position.needsUpdate=true;
     mat.opacity=0.32+scrollImpulse*0.35;
@@ -880,7 +877,7 @@ function initPriceRise3D(canvas){
   const phase=new Float32Array(N);
   for(let i=0;i<N;i++){
     pos[i*3]=(Math.random()-0.5)*11;
-    pos[i*3+1]=(Math.random()-0.5)*13;
+    pos[i*3+1]=(Math.random()-0.5)*9;
     pos[i*3+2]=(Math.random()-0.5)*4;
     speed[i]=0.004+Math.random()*0.008;
     phase[i]=Math.random()*Math.PI*2;
@@ -891,12 +888,9 @@ function initPriceRise3D(canvas){
   const points=new THREE.Points(geo,mat);
   scene.add(points);
 
-  /* canvas bleeds up past its own section into hidden-cost's space (see CSS) — measure the
-     canvas's own rect, matching the fall scene's fix, so the renderer resolution isn't
-     stretched against the taller bled CSS box. */
   let w=0,h=0;
   function size(){
-    const r=canvas.getBoundingClientRect();
+    const r=section.getBoundingClientRect();
     w=r.width;h=r.height;
     renderer.setSize(w,h,false);
     camera.aspect=w/Math.max(h,1);
@@ -915,7 +909,7 @@ function initPriceRise3D(canvas){
     for(let i=0;i<N;i++){
       posArr[i*3+1]+=speed[i]*rise;
       posArr[i*3]+=Math.sin(t+phase[i])*0.0012;
-      if(posArr[i*3+1]>6.5)posArr[i*3+1]=-6.5;
+      if(posArr[i*3+1]>4.5)posArr[i*3+1]=-4.5;
     }
     geo.attributes.position.needsUpdate=true;
     mat.opacity=0.26+scrollImpulse*0.3;
