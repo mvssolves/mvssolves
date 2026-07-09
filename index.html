@@ -157,7 +157,7 @@
   h1 .line{display:block;}
   h1 .line>span{display:block;}
   h1 .aw{font-family:'Cormorant',serif;font-style:italic;font-weight:500;text-transform:none;letter-spacing:-.01em;line-height:1.05;padding-bottom:.14em;}
-  .h-sub{margin:24px auto 0;max-width:560px;font-size:clamp(15px,1.5vw,18px);color:var(--soft);line-height:1.55;text-align:center;}
+  .h-sub{margin:24px auto 0;max-width:560px;font-size:clamp(15px,1.5vw,18px);color:var(--text);line-height:1.55;text-align:center;text-shadow:0 2px 16px rgba(0,0,0,.7);}
   .h-cta{margin-top:28px;display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;}
   .btn{display:inline-flex;align-items:center;gap:10px;padding:16px 26px;border-radius:999px;font-weight:700;font-size:15px;}
   .btn-fill{background:var(--accent);color:var(--accent-ink);will-change:transform;padding-right:60px;}
@@ -375,8 +375,9 @@
 
   /* hero trust-stat badge */
   .hero-stat{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;
-    font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
-    border:1px solid var(--line);border-radius:999px;padding:7px 16px;margin-bottom:18px;}
+    font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);
+    border:1px solid var(--line);border-radius:999px;padding:7px 16px;margin-bottom:18px;
+    background:rgba(10,10,10,.5);backdrop-filter:blur(2px);}
   .hero-stat b{color:var(--ink);font-weight:700;}
 
   /* floating book-call pill — hidden until hero scrolls out, hidden again once the book
