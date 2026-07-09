@@ -97,14 +97,35 @@ if(!reduce&&isDesktop){
   check();
 })();
 
-/* hero headline auto-morph — swap phrases every 2s (gooey blur crossfade via CSS .alt) */
+/* hero headline neon flicker — split into letters, dip 1-2 random letters' opacity in snappy ticks */
 (function(){
-  const h1=document.querySelector('h1.morph');
-  if(!h1||reduce)return;
-  let id=setInterval(()=>h1.classList.toggle('alt'),2000);
+  const root=document.querySelector('h1.flick');
+  if(!root||reduce)return;
+  const chars=[];
+  root.querySelectorAll('.ft').forEach(ft=>{
+    const txt=ft.textContent;ft.textContent='';
+    [...txt].forEach(c=>{
+      const s=document.createElement('span');s.className='ch';s.textContent=c;
+      if(c===' ')s.style.whiteSpace='pre';
+      ft.appendChild(s);if(c.trim())chars.push(s);
+    });
+  });
+  if(!chars.length)return;
+  const CYCLE=240,SUB=80,DIM='0.25';
+  let cur=[],id;
+  const tick=()=>{
+    cur.forEach(s=>s.style.opacity='1');
+    const n=1+Math.floor(Math.random()*2);cur=[];
+    for(let i=0;i<n;i++)cur.push(chars[Math.floor(Math.random()*chars.length)]);
+    cur.forEach(s=>s.style.opacity=DIM);
+    setTimeout(()=>cur.forEach(s=>s.style.opacity='1'),SUB);
+    setTimeout(()=>cur.forEach(s=>s.style.opacity=DIM),SUB*2);
+  };
+  const start=()=>{id=setInterval(tick,CYCLE);};
+  start();
   document.addEventListener('visibilitychange',()=>{
-    clearInterval(id);
-    if(!document.hidden)id=setInterval(()=>h1.classList.toggle('alt'),2000);
+    clearInterval(id);cur.forEach(s=>s.style.opacity='1');cur=[];
+    if(!document.hidden)start();
   });
 })();
 

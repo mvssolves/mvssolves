@@ -202,14 +202,8 @@
   h1 .line{display:block;position:relative;}
   h1 .line>span{display:block;}
   h1 .aw{font-family:'Cormorant',serif;font-style:italic;font-weight:500;text-transform:none;letter-spacing:-.01em;line-height:1.05;padding-bottom:.14em;}
-  /* auto text-morph: .ma (source) ⇄ .mb (target) swap every 2s, gooey-blur crossfade. .mb stacks
-     over .ma; toggling .alt on the h1 (JS timer) drives the morph. */
-  h1.morph .ma,h1.morph .mb{transition:opacity .7s ease,transform .7s ease;will-change:opacity,transform;}
-  h1.morph .ma{opacity:1;transform:scale(1);}
-  h1.morph .mb{position:absolute;left:0;right:0;top:0;opacity:0;transform:scale(.92);}
-  h1.morph.alt .ma{opacity:0;transform:scale(1.06);}
-  h1.morph.alt .mb{opacity:1;transform:scale(1);}
-  @media(prefers-reduced-motion:reduce){h1.morph .mb{display:none;}}
+  /* neon flicker — random letters dip opacity in snappy ticks, like a flickering sign (JS-driven) */
+  h1.flick .ch{display:inline-block;}
   .h-sub{margin:24px auto 0;max-width:560px;font-size:clamp(15px,1.5vw,18px);color:var(--text);line-height:1.55;text-align:center;text-shadow:0 2px 16px rgba(0,0,0,.7);}
   .h-cta{margin-top:28px;display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;}
   .btn{display:inline-flex;align-items:center;gap:10px;padding:16px 26px;border-radius:999px;font-weight:700;font-size:15px;}
@@ -816,10 +810,10 @@
   </div>
   <canvas class="hero-3d" id="hero3d" aria-hidden="true"></canvas>
   <div class="h-wrap">
-    <h1 class="morph">
-      <span class="line"><span class="ma">Real</span><span class="mb">Digital work</span></span>
-      <span class="line"><span class="ma">Conversion</span><span class="mb">done</span></span>
-      <span class="line"><span class="ma aw">for your business</span><span class="mb aw">properly</span></span>
+    <h1 class="flick">
+      <span class="line"><span class="ft">Real</span></span>
+      <span class="line"><span class="ft">Conversion</span></span>
+      <span class="line"><span class="ft aw">for your business</span></span>
     </h1>
   </div>
   <div class="h-bottom">
