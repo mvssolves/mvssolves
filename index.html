@@ -960,6 +960,18 @@
   #hidden-cost .domino:last-child::after{display:none;}
   #hidden-cost .domino.fall::after{background:linear-gradient(var(--accent),transparent);}
   @media(max-width:600px){#hidden-cost .drail{transform:rotateX(20deg);gap:48px;}}
+  /* desktop: bigger slabs, tilted a touch more toward the viewer (lower rotateX) */
+  @media(min-width:901px){
+    #hidden-cost .dstage{max-width:900px;perspective:1500px;}
+    #hidden-cost .drail{transform:rotateX(21deg);gap:78px;}
+    #hidden-cost .domino{width:min(74%,580px);min-height:188px;}
+    #hidden-cost .dface{padding:32px 42px;}
+    #hidden-cost .dface h3{font-size:27px;}
+    #hidden-cost .dface p{font-size:15.5px;max-width:38ch;}
+    #hidden-cost .didx{width:34px;height:34px;font-size:13px;top:20px;right:24px;}
+    #hidden-cost .rand{font-size:58px;}
+    #hidden-cost .dcalc{font-size:13.5px;}
+  }
   @media(prefers-reduced-motion:reduce){#hidden-cost .domino{opacity:1!important;transform:rotateX(0)!important;}}
 </style>
 <section class="section" id="hidden-cost">
