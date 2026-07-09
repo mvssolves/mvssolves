@@ -131,7 +131,14 @@
   .nav-links.open{clip-path:circle(150% at calc(100% - 34px) 0%);border-color:var(--line);pointer-events:auto;}
   @media(prefers-reduced-motion:reduce){.nav-links{transition:none;}}
   .nav-r a:hover{color:var(--ink);}
-  .navcta{color:var(--ink)!important;font-weight:700;border-bottom:2px solid var(--accent);padding-bottom:2px;white-space:nowrap;}
+  .navcta{color:var(--ink)!important;font-weight:700;border-bottom:2px solid var(--ink);padding-bottom:2px;white-space:nowrap;}
+  /* mobile: the top-right CTA text crowded the hamburger. Hide it up top (top-right is just the
+     hamburger, like the clean desktop bar) and surface it as the last item in the dropdown menu. */
+  .nl-cta{display:none;}
+  @media(max-width:900px){
+    .navcta{display:none;}
+    .nav-links .nl-cta{display:block;color:var(--ink)!important;font-weight:700;}
+  }
   .navtoggle{display:flex;background:none;border:0;padding:6px;margin:0;cursor:pointer;flex-direction:column;gap:5px;}
   .navtoggle span{display:block;width:22px;height:2px;background:var(--ink);}
   /* the hamburger dropdown had no desktop override at all — it rendered and opened identically on
@@ -156,20 +163,17 @@
     .nav-links:hover .nav-hl{opacity:1;}
   }
 
-  /* scroll paint-wipe — brushed paint that RISES from the bottom of the hero upward as you scroll,
-     and is confined to the hero (absolute inside it, behind the headline) so it never covers the
-     nav or any section below. --paint is the whole look; swap it to recolour. Brush texture is an
-     inline feTurbulence SVG mask (streaky, thins in patches = dry-brush). */
-  :root{ --paint:linear-gradient(180deg,#2b2f36 0%,#3a3f47 42%,#23262c 100%); }
+  /* smooth hero veil — a soft dark gradient that RISES from the hero's bottom edge as you scroll,
+     its top edge feathered (mask fade) so there's no hard line, just a gentle darkening that lifts
+     the hero away. Confined to the hero, behind the headline; never touches the nav or sections
+     below. --paint swaps the colour. Smooth, not a textured brush. */
+  :root{ --paint:linear-gradient(180deg,rgba(18,20,24,0) 0%,#13161b 55%,#0a0c0f 100%); }
   .paint-wipe{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden;}
-  /* anchored to the bottom; its height is driven by scroll (--ph 0→100%) so the paint grows up
-     from the hero's bottom edge. behind .h-wrap (z3), above the contour field (z1). */
-  .paint-fill{position:absolute;left:-3%;width:106%;bottom:0;height:var(--ph,0%);
+  .paint-fill{position:absolute;left:0;width:100%;bottom:0;height:var(--ph,0%);
     will-change:height;background:var(--paint);
-    -webkit-mask-image:var(--paint-brush);mask-image:var(--paint-brush);
-    -webkit-mask-size:100% 300px;mask-size:100% 300px;-webkit-mask-repeat:repeat-y;mask-repeat:repeat-y;}
-  /* brush texture: white-alpha fractal noise stretched into horizontal streaks (dry-brush) */
-  :root{ --paint-brush:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014 0.13' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.6 -0.28'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23b)'/%3E%3C/svg%3E"); }
+    /* feather the very top edge so the rising veil dissolves in instead of showing a seam */
+    -webkit-mask-image:linear-gradient(to top,#000 78%,transparent 100%);
+    mask-image:linear-gradient(to top,#000 78%,transparent 100%);}
   @media(prefers-reduced-motion:reduce){.paint-wipe{display:none;}}
 
   /* hero */
@@ -535,7 +539,15 @@
   .toggle button{padding:9px 18px;border-radius:999px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-weight:600;}
   .toggle button.on{background:var(--accent);color:var(--accent-ink);}
   .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:34px;}
-  @media(max-width:900px){.tiers{grid-template-columns:1fr;}}
+  /* mobile: packages swipe horizontally (scroll-snap carousel) instead of stacking vertically —
+     each card snaps centre, peeking the next so it reads as swipeable. */
+  @media(max-width:900px){
+    .tiers{display:flex;grid-template-columns:none;overflow-x:auto;scroll-snap-type:x mandatory;
+      gap:14px;margin-left:-20px;margin-right:-20px;padding:0 20px 10px;
+      -webkit-overflow-scrolling:touch;scrollbar-width:none;}
+    .tiers::-webkit-scrollbar{display:none;}
+    .tier-slot{flex:0 0 84%;scroll-snap-align:center;}
+  }
   .tier{border:1px solid var(--line);border-radius:16px;padding:28px;display:flex;flex-direction:column;background:var(--bg);}
   .tier.feat{border:2px solid var(--ink);box-shadow:0 2px 0 var(--ink);}
   .tier .badge{display:inline-block;align-self:flex-start;background:var(--accent);color:var(--accent-ink);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:4px;margin-bottom:12px;}
@@ -646,8 +658,9 @@
 
   /* nav: underline-grow + hover */
   .nav-r a:not(.navcta){position:relative;transition:color .25s ease;}
-  .nav-r a:not(.navcta)::after{content:'';position:absolute;left:0;bottom:-3px;width:100%;height:1px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .3s cubic-bezier(.4,0,.2,1);}
-  .nav-r a:not(.navcta):hover::after{transform:scaleX(1);}
+  /* amber underline-grow removed — the pill highlight already marks the hovered link, and the
+     yellow lines under the menu items were unwanted. */
+  .nav-r a:not(.navcta)::after{content:none;}
   .navcta{transition:opacity .25s ease;}.navcta:hover{opacity:.7;}
 
   /* missing transitions: toggle, tier hover, buttons, faq */
@@ -785,6 +798,7 @@
       <a href="#pricing">Pricing</a>
       <a href="/faq">FAQ</a>
       <a href="/join-the-team">Join the team</a>
+      <a class="nl-cta" href="#book">Automate your business</a>
     </div>
     <a class="navcta" href="#book">Automate your business</a>
     <button class="navtoggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>

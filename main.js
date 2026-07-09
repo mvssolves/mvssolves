@@ -1261,15 +1261,19 @@ function initPriceRise3D(canvas){
 (function(){
   const hero=document.getElementById('top');
   const fill=document.querySelector('.paint-fill');
+  const content=[hero&&hero.querySelector('.h-wrap'),hero&&hero.querySelector('.h-bottom')].filter(Boolean);
   if(!hero||!fill||reduce)return;
   let pending=false;
   function upd(){
     const h=hero.offsetHeight||window.innerHeight;
     const p=Math.min(Math.max(window.scrollY/h,0),1);
-    /* paint RISES from the hero's bottom edge upward — height grows 0→~115% of the hero as you
-       scroll through it (slightly over 100% so it fully fills before the hero leaves). Confined
-       to the hero, behind the headline, so it never covers the nav or the sections below. */
+    /* veil RISES from the hero's bottom edge — height grows 0→~115% of the hero as you scroll.
+       Confined to the hero, behind the headline. */
     fill.style.setProperty('--ph',(p*115)+'%');
+    /* smooth: the hero content lifts and fades as the veil rises, so the whole hero glides away
+       rather than the copy just sitting there while a band climbs over it. */
+    const op=Math.max(0,1-p*1.35);
+    content.forEach(el=>{el.style.opacity=op;el.style.transform=`translateY(${-p*36}px)`;});
   }
   window.addEventListener('scroll',()=>{
     if(pending)return;pending=true;
