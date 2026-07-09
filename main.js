@@ -839,16 +839,7 @@ if(!reduce){
     lab.textContent=seg.dataset.lab;
     desc.textContent=seg.dataset.desc;
   }));
-  /* subtle mouse-follow tilt, desktop pointer only — same proximity math already used for .border-glow-card */
-  if(window.matchMedia('(pointer:fine)').matches){
-    const wrap=wheel.closest('.wheel-wrap');
-    wrap.addEventListener('pointermove',e=>{
-      const rc=wheel.getBoundingClientRect();
-      const px=(e.clientX-rc.left)/rc.width-0.5,py=(e.clientY-rc.top)/rc.height-0.5;
-      wheel.style.transform=`rotateX(${(10-py*14).toFixed(2)}deg) rotateY(${(-6+px*14).toFixed(2)}deg)`;
-    });
-    wrap.addEventListener('pointerleave',()=>{wheel.style.transform='';});
-  }
+  /* cursor-follow tilt removed — read as the disc "lifting"/leaning. Wheel stays flat. */
 })();
 
 /* pricing mode toggle: Monthly / Own outright */
@@ -1199,9 +1190,41 @@ function initPriceRise3D(canvas){
   section.classList.add('has-3d');
   start();
 }
-initHero3D(document.getElementById('hero3d'));
+/* floating 3D "MVS" wordmark scrapped — replaced by the scroll paint-wipe (see paint IIFE below).
+   Not initialising it: the hero keeps its animated contour-line field (which was hidden only while
+   has-3d was set) as a calm static backdrop, and the paint sweep is the hero's scroll moment now. */
+// initHero3D(document.getElementById('hero3d'));
 initCapGrid3D(document.getElementById('cap3d'));
 initBookPoly3D(document.getElementById('book3d'));
-initIntegNodes3D(document.getElementById('integ3d'));
+/* integrations 3D node backdrop removed — it was a whole extra WebGL scene rendering behind the
+   scrolling logo marquee, the source of that section's lag, and the section reads cleaner without
+   the faint node cloud competing with the logos. */
+// initIntegNodes3D(document.getElementById('integ3d'));
 initPriceRise3D(document.getElementById('price3d'));
 initCostLeak3D(document.getElementById('cost3d'));
+
+/* scroll paint-wipe — replaces the floating MVS. A tall (200vh) brushed-paint band sits fixed over
+   the fold; as you scroll through the hero it sweeps straight down (enters from the top, fully
+   covers the screen mid-scroll, exits past the bottom), wiping the hero into section 01. Pure CSS
+   transform driven by one rAF-coalesced scroll read — no WebGL, no per-frame render, so it's far
+   cheaper than the 3D hero it replaces. Colour/texture live entirely in CSS (var --paint), so the
+   look is a one-line swap. */
+(function(){
+  const hero=document.getElementById('top');
+  const fill=document.querySelector('.paint-fill');
+  if(!hero||!fill||reduce)return;
+  let pending=false;
+  function upd(){
+    const h=hero.offsetHeight||window.innerHeight;
+    const p=Math.min(Math.max(window.scrollY/h,0),1);
+    /* band height 200vh, top:0 — translateY -200vh = fully above the viewport, +100vh = fully
+       below it. Screen is fully covered while translateY is in ~[-100vh,0], i.e. the middle third
+       of the hero scroll, giving a real "covered" beat rather than an instant flick. */
+    fill.style.setProperty('--py',(-200+300*p)+'vh');
+  }
+  window.addEventListener('scroll',()=>{
+    if(pending)return;pending=true;
+    requestAnimationFrame(()=>{pending=false;upd();});
+  },{passive:true});
+  upd();
+})();

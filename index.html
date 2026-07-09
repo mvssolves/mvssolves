@@ -110,7 +110,7 @@
      immediately. Was mobile-only before; the cost isn't mobile-specific, so solid everywhere. */
   nav.scrolled{border-color:var(--line);background:rgba(10,10,10,.94);}
   .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:17px;color:var(--ink);white-space:nowrap;flex-shrink:0;}
-  .logo-mark{width:26px;height:26px;border-radius:7px;background:var(--accent);color:var(--accent-ink);
+  .logo-mark{width:26px;height:26px;border-radius:7px;background:var(--ink);color:var(--accent-ink);
     display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;flex-shrink:0;}
   .logo-text{display:inline-block;max-width:0;opacity:0;overflow:hidden;white-space:nowrap;
     transition:max-width .35s ease,opacity .25s ease;}
@@ -140,6 +140,25 @@
       clip-path:none;pointer-events:auto;}
     .nav-links a{padding:0;border-bottom:0;}
   }
+
+  /* scroll paint-wipe — a tall brushed-paint band, fixed over the fold, swept top→bottom by
+     main.js as you scroll through the hero. --paint is the whole look; swap it to recolour.
+     The brush texture is an inline feTurbulence SVG used as a mask (streaky, thins in patches =
+     dry-brush), so the band reads as painted, not a solid rectangle. Sits below the nav (z60) and
+     the top gblur (z50) but above hero + section content, so it genuinely covers as it passes. */
+  :root{ --paint:linear-gradient(180deg,#2b2f36 0%,#3a3f47 42%,#23262c 100%); }
+  .paint-wipe{position:fixed;inset:0;z-index:45;pointer-events:none;overflow:hidden;}
+  .paint-fill{position:absolute;left:-3%;width:106%;height:200vh;top:0;
+    transform:translateY(var(--py,-200vh));will-change:transform;
+    background:var(--paint);
+    -webkit-mask-image:var(--paint-brush);mask-image:var(--paint-brush);
+    /* stretch the tile to full width (no horizontal repeat → no centre seam), repeat only
+       vertically down the 200vh band; stitchTiles makes that vertical repeat seamless. */
+    -webkit-mask-size:100% 300px;mask-size:100% 300px;-webkit-mask-repeat:repeat-y;mask-repeat:repeat-y;
+    box-shadow:0 0 60px 10px rgba(0,0,0,.4);}
+  /* brush texture: white-alpha fractal noise stretched into horizontal streaks (dry-brush) */
+  :root{ --paint-brush:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014 0.13' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.6 -0.28'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23b)'/%3E%3C/svg%3E"); }
+  @media(prefers-reduced-motion:reduce){.paint-wipe{display:none;}}
 
   /* hero */
   .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:40px;padding:200px 36px 64px;overflow:hidden;
@@ -176,7 +195,7 @@
      underneath — pure wasted compositor work once the 3D hero takes over. */
   .hero.has-3d .hero-field{opacity:0;}
   .hero.has-3d .hero-field svg{animation-play-state:paused;}
-  .scrolldot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:bob 1.6s ease-in-out infinite;}
+  .scrolldot{width:6px;height:6px;border-radius:50%;background:var(--ink);animation:bob 1.6s ease-in-out infinite;}
   @keyframes bob{0%,100%{transform:translateY(0);opacity:1;}50%{transform:translateY(5px);opacity:.4;}}
   .scroll-arrow{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:5;color:var(--ink);animation:scrollbob 1.6s ease-in-out infinite;}
   .scroll-arrow svg{width:26px;height:26px;display:block;}
@@ -189,12 +208,15 @@
   .h-sub{margin:24px auto 0;max-width:560px;font-size:clamp(15px,1.5vw,18px);color:var(--text);line-height:1.55;text-align:center;text-shadow:0 2px 16px rgba(0,0,0,.7);}
   .h-cta{margin-top:28px;display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;}
   .btn{display:inline-flex;align-items:center;gap:10px;padding:16px 26px;border-radius:999px;font-weight:700;font-size:15px;}
-  .btn-fill{background:var(--accent);color:var(--accent-ink);will-change:transform;padding-right:60px;}
+  /* CTAs are white now, not amber — "too much yellow" again. Amber is pared back to a rare accent
+     (progress bar, nav underline, ★ badges, active toggle) and the tcta ghost-button hover only.
+     Primary fill CTAs read as clean white-on-dark. */
+  .btn-fill{background:var(--ink);color:var(--accent-ink);will-change:transform;padding-right:60px;}
   /* swap-icon: circle glides from the button's right edge to its left edge and rotates on hover.
      Only the circle's own position/transform animates (compositor-friendly), not the button's
      own padding/layout — kept isolated to this one small overflow:hidden box either way. */
   .btn-fill .swap-icon{position:absolute;top:4px;right:4px;width:40px;height:40px;border-radius:50%;
-    background:var(--accent-ink);color:var(--accent);display:flex;align-items:center;justify-content:center;
+    background:var(--accent-ink);color:var(--ink);display:flex;align-items:center;justify-content:center;
     transition:right .5s cubic-bezier(.4,0,.2,1),transform .5s cubic-bezier(.4,0,.2,1);pointer-events:none;}
   .btn-fill .swap-icon svg{width:16px;height:16px;}
   .btn-fill:hover .swap-icon{right:calc(100% - 44px);transform:rotate(45deg);}
@@ -303,7 +325,7 @@
     border:1px solid var(--line);border-radius:999px;padding:7px 14px 7px 7px;
     font-weight:700;font-size:12px;color:var(--ink);white-space:nowrap;
     box-shadow:0 10px 24px -16px rgba(0,0,0,.5);
-    transform:translate(-50%,-50%);animation:wskillFloat 4s ease-in-out infinite;}
+    transform:translate(-50%,-50%);}
   /* neutral steel gradient, not amber — six amber badges round the wheel was a big chunk of the
      "too much yellow". Brand accent stays on the real CTAs/badges, not decorative label icons. */
   .wskill .wi{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;
@@ -324,14 +346,14 @@
   /* disc — frosted glass, reusing the site's own --bg-2-glass/backdrop-blur tokens (same material
      as the nav and hero) instead of a flat fill. No internal divider lines — quadrants are read
      by the soft glow blob under each label, not a hard geometric split. */
-  /* resting tilt, not flat-on — reads as a real 3D disc even with no pointer to hover it (mobile).
-     Desktop pointermove tilt overrides this on hover and returns to it on leave. */
+  /* flat, no tilt — the cursor-follow tilt read as the whole disc "lifting"/leaning, which the
+     client disliked. Disc sits flat-on now; depth comes only from the rim/shadow, and selection
+     from the wedge glow. preserve-3d kept so the rim's translateZ still reads. */
   .wheel-disc{position:absolute;inset:0;border-radius:50%;
     border:1px solid rgba(255,255,255,.5);background:var(--bg-2-glass);
     backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow:visible;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 30px 70px -40px rgba(10,10,10,.30);
-    transform-style:preserve-3d;transform:rotateX(10deg) rotateY(-6deg);
-    transition:transform .3s ease-out;}
+    transform-style:preserve-3d;}
   /* each wseg is sized to ONLY its own quadrant (50%x50%), not the full disc — clip-path shapes
      it into the curved wedge visually, but the tap/click target is the plain rectangle underneath.
      Clip-path hit-testing is inconsistent on WebKit/iOS Safari (taps landing on the wrong wedge,
@@ -430,7 +452,7 @@
     opacity:0;transform:translateY(12px);pointer-events:none;
     transition:opacity .4s ease,transform .4s ease;}
   .float-cta.show{opacity:1;transform:translateY(0);pointer-events:auto;}
-  .float-cta .fc-mark{width:32px;height:32px;border-radius:50%;background:var(--accent-ink);color:var(--accent);flex-shrink:0;
+  .float-cta .fc-mark{width:32px;height:32px;border-radius:50%;background:var(--accent-ink);color:var(--ink);flex-shrink:0;
     display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;}
   .float-cta .fc-text{font-weight:700;font-size:13px;white-space:nowrap;}
   @media(max-width:600px){.float-cta{left:14px;bottom:14px;}.float-cta .fc-text{font-size:12px;}}
@@ -744,6 +766,9 @@
     <button class="navtoggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
   </div>
 </nav>
+
+<!-- scroll paint-wipe — brushed band that sweeps down over the fold as you leave the hero (driven from main.js) -->
+<div class="paint-wipe" aria-hidden="true"><div class="paint-fill"></div></div>
 
 <header class="hero" id="top">
   <div class="hero-field" aria-hidden="true">
