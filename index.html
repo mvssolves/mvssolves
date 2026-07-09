@@ -922,42 +922,70 @@
 </section>
 
 <!-- HIDDEN COST -->
+<style>
+  /* 3D domino chain — real perspective slabs that topple on scroll; cost flickers live */
+  #hidden-cost .dstage{perspective:1300px;perspective-origin:50% 32%;margin:56px auto 0;max-width:760px;}
+  #hidden-cost .drail{transform-style:preserve-3d;transform:rotateX(28deg);display:flex;flex-direction:column;align-items:center;gap:62px;}
+  #hidden-cost .domino{transform-style:preserve-3d;position:relative;width:min(88%,440px);min-height:148px;
+    transform-origin:50% 100%;transform:rotateX(0);opacity:.22;
+    transition:transform 1.05s cubic-bezier(.34,1.2,.5,1),opacity .6s ease;}
+  #hidden-cost .domino.fall{opacity:1;transform:rotateX(-74deg);}
+  #hidden-cost .domino.cost.fall{transform:rotateX(-58deg);}
+  #hidden-cost .dface{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;
+    background:linear-gradient(155deg,#141414,#0e0e0e);border:1px solid rgba(255,255,255,.18);
+    box-shadow:0 26px 50px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.05);
+    display:flex;flex-direction:column;justify-content:center;padding:22px 30px;text-align:left;}
+  #hidden-cost .dedge{position:absolute;left:0;right:0;top:100%;height:34px;transform-origin:top;
+    transform:rotateX(-90deg);background:linear-gradient(#0b0d10,#050607);
+    border:1px solid var(--line);border-top:0;border-radius:0 0 14px 14px;}
+  #hidden-cost .dshadow{position:absolute;left:6%;right:6%;bottom:-14px;height:26px;border-radius:50%;
+    background:radial-gradient(closest-side,rgba(0,0,0,.6),transparent);transform:translateZ(-2px);opacity:.5;transition:opacity 1s;}
+  #hidden-cost .domino.fall .dshadow{opacity:.9;}
+  #hidden-cost .didx{position:absolute;top:16px;right:20px;width:30px;height:30px;border-radius:50%;
+    border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:700;color:var(--muted);transition:.5s;}
+  #hidden-cost .domino.fall .didx{border-color:var(--accent);color:var(--accent);box-shadow:0 0 18px rgba(232,169,75,.4);}
+  #hidden-cost .dface h3{color:var(--ink);font-size:clamp(17px,2.4vw,22px);font-weight:700;letter-spacing:-.02em;}
+  #hidden-cost .dface p{color:var(--soft);font-size:14px;margin-top:5px;max-width:34ch;}
+  #hidden-cost .domino.cost .dface{background:linear-gradient(155deg,rgba(232,169,75,.14),#0e0e0e);
+    border-color:rgba(232,169,75,.42);box-shadow:0 26px 60px rgba(232,169,75,.18),0 26px 50px rgba(0,0,0,.5);}
+  #hidden-cost .rand{color:var(--accent);font-weight:800;font-size:clamp(30px,5vw,44px);letter-spacing:-.03em;
+    margin-top:4px;font-variant-numeric:tabular-nums;text-shadow:0 0 32px rgba(232,169,75,.4);}
+  #hidden-cost .rand .per{font-size:.4em;font-weight:700;color:var(--soft);margin-left:4px;}
+  #hidden-cost .dcalc{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-top:12px;font-size:12.5px;color:var(--soft);}
+  #hidden-cost .dcalc span{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:7px;padding:5px 9px;}
+  #hidden-cost .dcalc span.x{background:none;border:0;padding:0 1px;color:var(--muted);}
+  #hidden-cost .domino::after{content:"";position:absolute;left:37px;bottom:-40px;width:1px;height:40px;
+    background:linear-gradient(rgba(255,255,255,.18),transparent);}
+  #hidden-cost .domino:last-child::after{display:none;}
+  #hidden-cost .domino.fall::after{background:linear-gradient(var(--accent),transparent);}
+  @media(max-width:600px){#hidden-cost .drail{transform:rotateX(20deg);gap:48px;}}
+  @media(prefers-reduced-motion:reduce){#hidden-cost .domino{opacity:1!important;transform:rotateX(0)!important;}}
+</style>
 <section class="section" id="hidden-cost">
-  <canvas class="cost-3d" id="cost3d" aria-hidden="true"></canvas>
   <div class="wrap">
     <div class="lab">03 / The real cost of doing it yourself</div>
-    <h2 class="h2-split"><span class="word"><span>The</span></span> <span class="word"><span>Hidden</span></span> <span class="word"><span>Cost</span></span> <span class="word"><span>of</span></span><br><span class="word"><span>Manual</span></span> <span class="word"><span>Work.</span></span></h2>
-    <p class="sub">Every manual workaround has a price — a slow site, a missed message, an automation that doesn't exist yet. Tap a piece to see where it adds up.</p>
-    <div class="wheel-wrap">
-      <div class="wheel-orbit">
-        <div class="wheel-stage">
-          <div class="wheel-rim"></div>
-          <svg class="wheel-ring" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="49.3"/></svg>
-          <div class="wheel-disc">
-            <button class="wseg active" data-lab="Websites" data-desc="A slow, generic site loses the click before it ever converts."></button>
-            <button class="wseg" data-lab="Automation" data-desc="Manual admin eats hours that should be spent selling."></button>
-            <button class="wseg" data-lab="AI Systems" data-desc="Missed after-hours leads rarely come back on their own."></button>
-            <button class="wseg" data-lab="Lost Revenue" data-desc="Every week without a fix compounds — it costs more than fixing it would."></button>
-            <div class="wheel-core">
-              <div class="wc-lab mono">Websites</div>
-              <div class="wc-desc">A slow, generic site loses the click before it ever converts.</div>
-            </div>
-          </div>
-          <div class="wheel-labels">
-            <span class="wn wn-0 wn-active">Websites</span>
-            <span class="wn wn-1">Automation</span>
-            <span class="wn wn-2">AI Systems</span>
-            <span class="wn wn-3">Lost Revenue</span>
-          </div>
-        </div>
-        <div class="wheel-skills">
-          <span class="wskill" style="top:3%;left:50%;animation-delay:0s"><span class="wi">SEO</span>SEO</span>
-          <span class="wskill" style="top:26.5%;left:90.7%;animation-delay:.6s"><span class="wi">R</span>Reviews</span>
-          <span class="wskill" style="top:73.5%;left:90.7%;animation-delay:1.2s"><span class="wi">B</span>Bookings</span>
-          <span class="wskill" style="top:97%;left:50%;animation-delay:1.8s"><span class="wi">BR</span>Branding</span>
-          <span class="wskill" style="top:73.5%;left:9.3%;animation-delay:2.4s"><span class="wi">CW</span>Copywriting</span>
-          <span class="wskill" style="top:26.5%;left:9.3%;animation-delay:3s"><span class="wi">$</span>Payments</span>
-        </div>
+    <h2 class="h2-split"><span class="word"><span>One</span></span> <span class="word"><span>skipped</span></span> <span class="word"><span>step</span></span><br><span class="word"><span>topples</span></span> <span class="word"><span>the</span></span> <span class="word"><span>rest.</span></span></h2>
+    <p class="sub">Every manual gap knocks into the next — a missed message, a cold lead, a quote never sent. Scroll and watch where it lands.</p>
+    <div class="dstage">
+      <div class="drail" id="drail">
+        <div class="domino"><div class="dface"><span class="didx">1</span>
+          <h3>A lead messages at 8pm</h3><p>You're closed. No auto-reply, no booking link.</p>
+          </div><div class="dedge"></div><div class="dshadow"></div></div>
+
+        <div class="domino"><div class="dface"><span class="didx">2</span>
+          <h3>By morning it's cold</h3><p>They messaged two competitors while they waited.</p>
+          </div><div class="dedge"></div><div class="dshadow"></div></div>
+
+        <div class="domino"><div class="dface"><span class="didx">3</span>
+          <h3>The quote never gets sent</h3><p>Buried under admin you're doing by hand.</p>
+          </div><div class="dedge"></div><div class="dshadow"></div></div>
+
+        <div class="domino cost"><div class="dface"><span class="didx">4</span>
+          <h3>That adds up — every month</h3>
+          <div class="rand">R<span id="dcost">1,847</span><span class="per">/mo</span></div>
+          <div class="dcalc"><span>missed leads</span><span class="x">×</span><span>avg job value</span><span class="x">×</span><span>every week</span></div>
+          </div><div class="dedge"></div><div class="dshadow"></div></div>
       </div>
     </div>
   </div>

@@ -871,6 +871,22 @@ if(!reduce){
   });
 }
 
+/* hidden-cost 3D domino chain — slabs topple on scroll; cost number flickers live */
+(function(){
+  const rail=document.getElementById('drail');if(!rail)return;
+  const ds=[...rail.querySelectorAll('.domino')];
+  const el=document.getElementById('dcost');
+  if(el){
+    const oddRand=()=>2*Math.floor(Math.random()*1000)+1001; // 1001..2999 odd
+    setInterval(()=>{el.textContent=oddRand().toLocaleString('en-ZA');},260);
+  }
+  if(reduce){ds.forEach(d=>d.classList.add('fall'));return;}
+  const io=new IntersectionObserver(es=>{
+    es.forEach(e=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('fall'),90);io.unobserve(e.target);}});
+  },{threshold:.55});
+  ds.forEach(d=>io.observe(d));
+})();
+
 /* hidden-cost wheel: click a quadrant, swap the center panel copy */
 (function(){
   const wheel=document.querySelector('.wheel-disc');if(!wheel)return;
