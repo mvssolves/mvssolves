@@ -204,14 +204,12 @@
   h1 .aw{font-family:'Cormorant',serif;font-style:italic;font-weight:500;text-transform:none;letter-spacing:-.01em;line-height:1.05;padding-bottom:.14em;}
   /* auto text-morph: .ma (source) ⇄ .mb (target) swap every 2s, gooey-blur crossfade. .mb stacks
      over .ma; toggling .alt on the h1 (JS timer) drives the morph. */
-  .goo-def{position:absolute;}
-  h1.morph{filter:url(#heroGoo);}
-  h1.morph .ma,h1.morph .mb{transition:opacity .7s ease,filter .7s ease,transform .7s ease;will-change:opacity,filter,transform;}
-  h1.morph .ma{opacity:1;filter:blur(0);transform:scale(1);}
-  h1.morph .mb{position:absolute;left:0;right:0;top:0;opacity:0;filter:blur(10px);transform:scale(.86);}
-  h1.morph.alt .ma{opacity:0;filter:blur(10px);transform:scale(1.12);}
-  h1.morph.alt .mb{opacity:1;filter:blur(0);transform:scale(1);}
-  @media(prefers-reduced-motion:reduce){h1.morph{filter:none;}h1.morph .mb{display:none;}}
+  h1.morph .ma,h1.morph .mb{transition:opacity .7s ease,transform .7s ease;will-change:opacity,transform;}
+  h1.morph .ma{opacity:1;transform:scale(1);}
+  h1.morph .mb{position:absolute;left:0;right:0;top:0;opacity:0;transform:scale(.92);}
+  h1.morph.alt .ma{opacity:0;transform:scale(1.06);}
+  h1.morph.alt .mb{opacity:1;transform:scale(1);}
+  @media(prefers-reduced-motion:reduce){h1.morph .mb{display:none;}}
   .h-sub{margin:24px auto 0;max-width:560px;font-size:clamp(15px,1.5vw,18px);color:var(--text);line-height:1.55;text-align:center;text-shadow:0 2px 16px rgba(0,0,0,.7);}
   .h-cta{margin-top:28px;display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;}
   .btn{display:inline-flex;align-items:center;gap:10px;padding:16px 26px;border-radius:999px;font-weight:700;font-size:15px;}
@@ -808,10 +806,6 @@
   </div>
   <canvas class="hero-3d" id="hero3d" aria-hidden="true"></canvas>
   <div class="h-wrap">
-    <svg class="goo-def" aria-hidden="true" width="0" height="0"><defs>
-      <filter id="heroGoo"><feGaussianBlur in="SourceGraphic" stdDeviation="6" result="b"/>
-        <feColorMatrix in="b" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9" result="g"/>
-        <feComposite in="SourceGraphic" in2="g" operator="atop"/></filter></defs></svg>
     <h1 class="morph">
       <span class="line"><span class="ma">Real</span><span class="mb">The best</span></span>
       <span class="line"><span class="ma">Conversion</span><span class="mb">in</span></span>
