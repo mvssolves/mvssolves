@@ -927,10 +927,8 @@
   #hidden-cost .dstage{perspective:1300px;perspective-origin:50% 32%;margin:56px auto 0;max-width:760px;}
   #hidden-cost .drail{transform-style:preserve-3d;transform:rotateX(28deg);display:flex;flex-direction:column;align-items:center;gap:62px;}
   #hidden-cost .domino{transform-style:preserve-3d;position:relative;width:min(88%,440px);min-height:148px;
-    transform-origin:50% 100%;transform:rotateX(0);opacity:.22;
-    transition:transform 1.05s cubic-bezier(.34,1.2,.5,1),opacity .6s ease;}
-  #hidden-cost .domino.fall{opacity:1;transform:rotateX(-74deg);}
-  #hidden-cost .domino.cost.fall{transform:rotateX(-58deg);}
+    transform-origin:50% 100%;transform:rotateX(0);opacity:1;will-change:transform,filter,opacity;
+    transition:transform .18s linear,filter .18s linear,opacity .18s linear;}
   #hidden-cost .dface{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;
     background:linear-gradient(155deg,#141414,#0e0e0e);border:1px solid rgba(255,255,255,.18);
     box-shadow:0 26px 50px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.05);
@@ -940,11 +938,11 @@
     border:1px solid var(--line);border-top:0;border-radius:0 0 14px 14px;}
   #hidden-cost .dshadow{position:absolute;left:6%;right:6%;bottom:-14px;height:26px;border-radius:50%;
     background:radial-gradient(closest-side,rgba(0,0,0,.6),transparent);transform:translateZ(-2px);opacity:.5;transition:opacity 1s;}
-  #hidden-cost .domino.fall .dshadow{opacity:.9;}
+  #hidden-cost .domino.active .dshadow{opacity:.9;}
   #hidden-cost .didx{position:absolute;top:16px;right:20px;width:30px;height:30px;border-radius:50%;
     border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;
     font-size:12px;font-weight:700;color:var(--muted);transition:.5s;}
-  #hidden-cost .domino.fall .didx{border-color:var(--accent);color:var(--accent);box-shadow:0 0 18px rgba(232,169,75,.4);}
+  #hidden-cost .domino.active .didx{border-color:var(--accent);color:var(--accent);box-shadow:0 0 18px rgba(232,169,75,.4);}
   #hidden-cost .dface h3{color:var(--ink);font-size:clamp(17px,2.4vw,22px);font-weight:700;letter-spacing:-.02em;}
   #hidden-cost .dface p{color:var(--soft);font-size:14px;margin-top:5px;max-width:34ch;}
   #hidden-cost .domino.cost .dface{background:linear-gradient(155deg,rgba(232,169,75,.14),#0e0e0e);
@@ -958,7 +956,7 @@
   #hidden-cost .domino::after{content:"";position:absolute;left:37px;bottom:-40px;width:1px;height:40px;
     background:linear-gradient(rgba(255,255,255,.18),transparent);}
   #hidden-cost .domino:last-child::after{display:none;}
-  #hidden-cost .domino.fall::after{background:linear-gradient(var(--accent),transparent);}
+  #hidden-cost .domino.active::after{background:linear-gradient(var(--accent),transparent);}
   @media(max-width:600px){#hidden-cost .drail{transform:rotateX(20deg);gap:48px;}}
   /* desktop: bigger slabs, tilted a touch more toward the viewer (lower rotateX) */
   @media(min-width:901px){

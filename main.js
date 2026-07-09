@@ -871,7 +871,8 @@ if(!reduce){
   });
 }
 
-/* hidden-cost 3D domino chain — slabs topple on scroll; cost number flickers live */
+/* hidden-cost 3D domino chain — scroll-linked: each slab is sharp + active at screen centre,
+   blurs as it drifts off-centre, and flips backward once scrolled past. Cost flickers live. */
 (function(){
   const rail=document.getElementById('drail');if(!rail)return;
   const ds=[...rail.querySelectorAll('.domino')];
@@ -880,11 +881,26 @@ if(!reduce){
     const oddRand=()=>2*Math.floor(Math.random()*1000)+1001; // 1001..2999 odd
     setInterval(()=>{el.textContent=oddRand().toLocaleString('en-ZA');},260);
   }
-  if(reduce){ds.forEach(d=>d.classList.add('fall'));return;}
-  const io=new IntersectionObserver(es=>{
-    es.forEach(e=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('fall'),90);io.unobserve(e.target);}});
-  },{threshold:.55});
-  ds.forEach(d=>io.observe(d));
+  if(reduce){ds.forEach(d=>d.classList.add('active'));return;}
+  let pending=false;
+  function upd(){
+    const vc=window.innerHeight/2;
+    ds.forEach(d=>{
+      const r=d.getBoundingClientRect();
+      const dd=((r.top+r.height/2)-vc)/window.innerHeight; // <0 above centre (past), >0 below (incoming)
+      const ab=Math.abs(dd);
+      d.style.filter='blur('+Math.min(ab*13,7).toFixed(2)+'px)';
+      d.style.opacity=(1-Math.min(ab*1.15,0.6)).toFixed(3);
+      // past centre → flip backward (+deg); incoming → slight forward lean; centred → flat/sharp
+      d.style.transform='rotateX('+Math.max(-16,Math.min(90,-dd*185)).toFixed(1)+'deg)';
+      d.classList.toggle('active',ab<0.16);
+    });
+  }
+  const onScroll=()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;upd();});};
+  window.addEventListener('scroll',onScroll,{passive:true});
+  window.addEventListener('resize',onScroll,{passive:true});
+  if(lenis&&lenis.on)lenis.on('scroll',onScroll);
+  upd();
 })();
 
 /* hidden-cost wheel: click a quadrant, swap the center panel copy */
