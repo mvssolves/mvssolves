@@ -751,12 +751,28 @@ function initIntegNodes3D(canvas){
   onWidthResize(size);
   size();
 
+  /* sideways scroll-pan: track how far this section has scrolled through the viewport and
+     slide the whole network across x for it, rAF-coalesced same as the hero's scroll tracker. */
+  let scrollT=0;
+  function updateScroll(){
+    const r=section.getBoundingClientRect();
+    scrollT=Math.min(Math.max(1-(r.top+r.height*0.5)/(window.innerHeight*0.5+r.height*0.5),0),1);
+  }
+  let scrollPending=false;
+  window.addEventListener('scroll',()=>{
+    if(scrollPending)return;
+    scrollPending=true;
+    requestAnimationFrame(()=>{scrollPending=false;updateScroll();});
+  },{passive:true});
+  updateScroll();
+
   let running=false,raf=null,t=0;
   function frame(){
     if(!running)return;
     t+=0.01;
     group.rotation.y+=0.0012;
     group.rotation.x=Math.sin(t*0.2)*0.08;
+    group.position.x=(scrollT-0.5)*6.5;
     nodeMat.opacity=0.35+scrollImpulse*0.4;
     lineMat.opacity=0.1+scrollImpulse*0.25;
     renderer.render(scene,camera);
@@ -774,7 +790,7 @@ function initIntegNodes3D(canvas){
 /* hidden-cost backdrop — concentric rings expanding outward on a loop, "cost compounding the
    longer you wait" motif. Distinct shape language from every other section (rings, not
    network/terrain/knot/polyhedron). Kept faint behind the interactive wheel in front. */
-function initCostRings3D(canvas){
+function initCostLeak3D(canvas){
   if(!canvas||reduce||typeof THREE==='undefined')return;
   let gl;
   try{gl=canvas.getContext('webgl2')||canvas.getContext('webgl');}catch(e){}
@@ -785,20 +801,27 @@ function initCostRings3D(canvas){
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
   const scene=new THREE.Scene();
   const camera=new THREE.PerspectiveCamera(45,1,0.1,50);
-  camera.position.set(0,0,6);
+  camera.position.set(0,0,7);
 
-  const RING_N=4;
-  const group=new THREE.Group();
-  group.rotation.x=-0.5;
-  const rings=[];
-  for(let i=0;i<RING_N;i++){
-    const geo=new THREE.RingGeometry(0.94,0.965,64);
-    const mat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,side:THREE.DoubleSide});
-    const ring=new THREE.Mesh(geo,mat);
-    group.add(ring);
-    rings.push({mesh:ring,mat,phase:i/RING_N});
+  /* leaking particles — "cost draining away the longer you wait", swapped in after the
+     expanding-rings version didn't land well. Falling points instead of a rotating solid,
+     distinct from every other section on the page. */
+  const N=200;
+  const pos=new Float32Array(N*3);
+  const speed=new Float32Array(N);
+  const phase=new Float32Array(N);
+  for(let i=0;i<N;i++){
+    pos[i*3]=(Math.random()-0.5)*11;
+    pos[i*3+1]=(Math.random()-0.5)*9;
+    pos[i*3+2]=(Math.random()-0.5)*4;
+    speed[i]=0.006+Math.random()*0.014;
+    phase[i]=Math.random()*Math.PI*2;
   }
-  scene.add(group);
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const mat=new THREE.PointsMaterial({color:0xffffff,size:0.05,transparent:true,opacity:0.32,sizeAttenuation:true,blending:THREE.AdditiveBlending,depthWrite:false});
+  const points=new THREE.Points(geo,mat);
+  scene.add(points);
 
   let w=0,h=0;
   function size(){
@@ -807,22 +830,24 @@ function initCostRings3D(canvas){
     renderer.setSize(w,h,false);
     camera.aspect=w/Math.max(h,1);
     camera.updateProjectionMatrix();
-    camera.position.z=w<700?8:6;
+    camera.position.z=w<700?9:7;
   }
   onWidthResize(size);
   size();
 
+  const posArr=geo.attributes.position.array;
   let running=false,raf=null,t=0;
   function frame(){
     if(!running)return;
-    t+=0.006;
-    group.rotation.z+=0.0008;
-    rings.forEach(r=>{
-      const lt=(t+r.phase)%1;
-      const s=0.4+lt*3.6;
-      r.mesh.scale.setScalar(s);
-      r.mat.opacity=(1-lt)*0.14+scrollImpulse*0.3;
-    });
+    t+=0.01;
+    const fall=1+scrollImpulse*3;
+    for(let i=0;i<N;i++){
+      posArr[i*3+1]-=speed[i]*fall;
+      posArr[i*3]+=Math.sin(t+phase[i])*0.0015;
+      if(posArr[i*3+1]<-4.5)posArr[i*3+1]=4.5;
+    }
+    geo.attributes.position.needsUpdate=true;
+    mat.opacity=0.32+scrollImpulse*0.35;
     renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
   }
@@ -839,4 +864,4 @@ initHero3D(document.getElementById('hero3d'));
 initCapGrid3D(document.getElementById('cap3d'));
 initBookPoly3D(document.getElementById('book3d'));
 initIntegNodes3D(document.getElementById('integ3d'));
-initCostRings3D(document.getElementById('cost3d'));
+initCostLeak3D(document.getElementById('cost3d'));
