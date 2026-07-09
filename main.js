@@ -308,29 +308,48 @@ function initHero3D(canvas){
   const camera=new THREE.PerspectiveCamera(45,1,0.1,100);
   camera.position.set(0,0,7);
 
-  /* solid faceted graphic — per .design/hero-faceted-graphic/DESIGN_BRIEF.md, resolved via
-     /designflow grill-me after 8 rejected attempts. Explicit hard no from that session:
-     "I dont want wires I want something creative, a clean graphic." Opaque, flat-shaded
-     low-poly solid — each facet is one flat tone (flatShading:true means each triangle gets
-     its own uniform normal, no gradient across a face), hard edges between facets, no
-     wireframe overlay, no translucency, no reflection, no shader texture. Reads like a bold
-     printed-poster graphic; the 3D-ness comes from facets catching/losing light as it rotates,
-     not from shading detail within a facet. First hero needing a real light (every earlier one
-     used unlit MeshBasicMaterial) — flat shading has nothing to show without one. */
+  /* dimensional "M" — after 9 rejected attempts (every abstract primitive: network, sphere,
+     knot, points-globe, gem, ribbon, dithered sphere, mirror sphere, faceted solid), the
+     pattern pointed at the category, not the shape: "not shapes, something creative and
+     clean". A generic geometric primitive will never read as bespoke to this brand — an
+     extruded version of the brand's own logomark (the "M" already used in the nav/logo box)
+     is not a generic shape, it's identity made dimensional. Flat lambert shading (same
+     reasoning as the faceted attempt: needs a real light, no wireframe/gradient-texture/
+     reflection tricks).
+
+     Hand-built via THREE.Shape + ExtrudeGeometry (both core three.js) instead of TextGeometry —
+     a real font-loading attempt here broke the entire page: FontLoader/TextGeometry are addon
+     modules that internally `import ... from 'three'` (a bare specifier), which requires an
+     import map; adding one didn't resolve reliably in this environment and silently killed the
+     whole THREE setup (every section's 3D, not just the hero). Same "the clever addon-based
+     approach isn't worth the risk" lesson as the bloom postprocessing pass earlier this
+     session — this path only touches the core module already proven working all session. */
   const light=new THREE.DirectionalLight(0xffffff,2.4);
   light.position.set(2.4,3,2.5);
   scene.add(light,new THREE.AmbientLight(0xffffff,0.3));
-  const facetGeo=new THREE.IcosahedronGeometry(2.3,1);
-  const facetMat=new THREE.MeshLambertMaterial({color:0xffffff,flatShading:true});
-  const sphere=new THREE.Mesh(facetGeo,facetMat);
-  /* opaque per brief (no glass/translucency) — so unlike every earlier translucent/wireframe
-     hero, this one can genuinely block content behind it. Offset off-center (lower-right dead
-     space) instead of adding transparency, so it clears the centered headline/CTA column. */
-  sphere.position.set(1.9,-1.1,0);
-
   const group=new THREE.Group();
-  group.add(sphere);
   scene.add(group);
+
+  const mShape=new THREE.Shape();
+  mShape.moveTo(0,0);
+  mShape.lineTo(0,12);
+  mShape.lineTo(2.4,12);
+  mShape.lineTo(5,4.5);
+  mShape.lineTo(7.6,12);
+  mShape.lineTo(10,12);
+  mShape.lineTo(10,0);
+  mShape.lineTo(0,0);
+  const mGeo=new THREE.ExtrudeGeometry(mShape,{depth:2.6,bevelEnabled:true,bevelThickness:0.3,bevelSize:0.2,bevelSegments:3,curveSegments:1});
+  mGeo.computeBoundingBox();
+  const mbb=mGeo.boundingBox;
+  mGeo.translate(-(mbb.max.x+mbb.min.x)/2,-(mbb.max.y+mbb.min.y)/2,-(mbb.max.z+mbb.min.z)/2);
+  mGeo.scale(0.16,0.16,0.16);
+  const mMat=new THREE.MeshLambertMaterial({color:0xffffff,flatShading:true});
+  const mesh=new THREE.Mesh(mGeo,mMat);
+  /* opaque (no glass/translucency, same call as the faceted attempt) — offset off-center so it
+     clears the centered headline/CTA column instead of blocking it. */
+  mesh.position.set(1.3,-1.4,0);
+  group.add(mesh);
 
   let w=0,h=0,baseZ=7,zoomDepth=2.2;
   function size(){
@@ -376,14 +395,13 @@ function initHero3D(canvas){
   function frame(){
     if(!running)return;
     t+=0.014;
-    sphere.rotation.y+=0.0018;
-    sphere.rotation.x+=0.001;
+    mesh.rotation.y+=0.0018;
+    mesh.rotation.x+=0.001;
+    mesh.scale.setScalar(1+scrollImpulse*0.06);
     group.rotation.x+=(mouseY*0.22-group.rotation.x)*0.04;
     group.rotation.y+=(mouseX*0.14)*0.002;
     camera.position.z=baseZ-scrollT*zoomDepth;
     group.rotation.z=scrollT*0.3;
-    const ps=1+scrollImpulse*0.06;
-    sphere.scale.setScalar(ps);
     light.intensity=2.4+scrollImpulse*1.3;
     renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
