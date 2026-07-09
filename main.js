@@ -259,9 +259,9 @@ function initHero3D(canvas){
     dirs[i*3]=x/len;dirs[i*3+1]=y/len;dirs[i*3+2]=z/len;
   }
 
-  const mat=new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true,transparent:true,opacity:0.5});
+  const mat=new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true,transparent:true,opacity:0.35});
   const mesh=new THREE.Mesh(geo,mat);
-  const glowMat=new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true,transparent:true,opacity:0.1,blending:THREE.AdditiveBlending,depthWrite:false});
+  const glowMat=new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true,transparent:true,opacity:0.07,blending:THREE.AdditiveBlending,depthWrite:false});
   const glow=new THREE.Mesh(geo,glowMat);
   glow.scale.setScalar(1.05);
 
