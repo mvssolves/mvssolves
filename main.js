@@ -185,6 +185,17 @@ function initCapGrid3D(canvas){
   const TROUGH=new THREE.Color(0x5a5a62),PEAK=new THREE.Color(0xffffff),mixC=new THREE.Color();
   const posAttr=geo.attributes.position;
   const base=Float32Array.from(posAttr.array);
+  /* the mesh is a hard-edged rectangle — without this it just stops mid-air with a visible
+     straight cutoff. Fade every vertex toward black as it nears the plane's original UV
+     boundary (stable regardless of the rotateX bake above) so it dissolves into the
+     black background instead of cutting off. */
+  const uvAttr=geo.attributes.uv;
+  const edgeT=new Float32Array(vcount);
+  for(let i=0;i<vcount;i++){
+    const u=uvAttr.array[i*2],v=uvAttr.array[i*2+1];
+    const d=Math.min(Math.min(u,1-u),Math.min(v,1-v));
+    edgeT[i]=Math.pow(Math.min(1,d*3.2),0.6);
+  }
   let t=0;
 
   let w=0,h=0;
@@ -212,8 +223,9 @@ function initCapGrid3D(canvas){
       const x=base[i],y=base[i+1];
       const height=Math.sin(x*0.5+t)*0.36+Math.sin(y*0.4+t*0.8)*0.26;
       arr[i+2]=height;
+      const e=edgeT[i/3];
       mixC.copy(TROUGH).lerp(PEAK,Math.max(0,height/0.6));
-      carr[i]=mixC.r;carr[i+1]=mixC.g;carr[i+2]=mixC.b;
+      carr[i]=mixC.r*e;carr[i+1]=mixC.g*e;carr[i+2]=mixC.b*e;
     }
     posAttr.needsUpdate=true;
     colorAttr.needsUpdate=true;
@@ -245,25 +257,30 @@ function initHero3D(canvas){
   const camera=new THREE.PerspectiveCamera(45,1,0.1,100);
   camera.position.set(0,0,7);
 
-  /* single breathing wireframe form instead of the old scattered node-cluster —
-     distinct from book section's static low-poly + core dot: this one ripples
-     continuously across the surface, dependency-free (sine-stack stand-in for noise). */
-  const geo=new THREE.IcosahedronGeometry(2.3,3);
+  /* wireframe torus knot instead of the old sphere — distinct silhouette (ribbon-like knot,
+     not another ball) with a baked top-lit gradient + an animated shimmer traveling along the
+     tube, done via vertex colors so shading reads as real depth instead of flat uniform lines.
+     No per-vertex displacement needed (unlike the old sphere) — cheaper per frame, not more. */
+  const geo=new THREE.TorusKnotGeometry(1.9,0.55,120,10,2,3);
   const posAttr=geo.attributes.position;
-  const base=Float32Array.from(posAttr.array);
   const count=posAttr.count;
-  const dirs=new Float32Array(count*3);
+  const phase=new Float32Array(count);
+  const topT=new Float32Array(count);
+  let minY=Infinity,maxY=-Infinity;
+  for(let i=0;i<count;i++){const y=posAttr.array[i*3+1];if(y<minY)minY=y;if(y>maxY)maxY=y;}
   for(let i=0;i<count;i++){
-    const x=base[i*3],y=base[i*3+1],z=base[i*3+2];
-    const len=Math.hypot(x,y,z)||1;
-    dirs[i*3]=x/len;dirs[i*3+1]=y/len;dirs[i*3+2]=z/len;
+    const x=posAttr.array[i*3],y=posAttr.array[i*3+1],z=posAttr.array[i*3+2];
+    phase[i]=Math.atan2(z,x)*2+y*0.6;
+    topT[i]=(y-minY)/((maxY-minY)||1);
   }
+  const colorAttr=new THREE.Float32BufferAttribute(new Float32Array(count*3),3);
+  geo.setAttribute('color',colorAttr);
 
-  const mat=new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true,transparent:true,opacity:0.35});
+  const mat=new THREE.MeshBasicMaterial({wireframe:true,transparent:true,opacity:0.6,vertexColors:true});
   const mesh=new THREE.Mesh(geo,mat);
-  const glowMat=new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true,transparent:true,opacity:0.07,blending:THREE.AdditiveBlending,depthWrite:false});
+  const glowMat=new THREE.MeshBasicMaterial({wireframe:true,transparent:true,opacity:0.14,vertexColors:true,blending:THREE.AdditiveBlending,depthWrite:false});
   const glow=new THREE.Mesh(geo,glowMat);
-  glow.scale.setScalar(1.05);
+  glow.scale.setScalar(1.04);
 
   const group=new THREE.Group();
   group.add(glow,mesh);
@@ -309,25 +326,22 @@ function initHero3D(canvas){
   },{passive:true});
   updateScroll();
 
-  const posArr=posAttr.array;
+  const carr=colorAttr.array;
   let running=false,raf=null,t=0;
   function frame(){
     if(!running)return;
-    t+=0.012;
+    t+=0.014;
     group.rotation.y+=0.0018;
     group.rotation.x+=(mouseY*0.22-group.rotation.x)*0.04;
     group.rotation.y+=(mouseX*0.14)*0.002;
     camera.position.z=baseZ-scrollT*zoomDepth;
     group.rotation.z=scrollT*0.3;
     for(let i=0;i<count;i++){
-      const dx=dirs[i*3],dy=dirs[i*3+1],dz=dirs[i*3+2];
-      const ripple=Math.sin(dx*2.4+t*1.1)+Math.sin(dy*2.4+t*0.9)+Math.sin(dz*2.4+t*1.3);
-      const amp=1+ripple*0.045;
-      posArr[i*3]=base[i*3]*amp;
-      posArr[i*3+1]=base[i*3+1]*amp;
-      posArr[i*3+2]=base[i*3+2]*amp;
+      const wave=(Math.sin(phase[i]+t)+1)*0.5;
+      const b=0.2+topT[i]*0.35+wave*0.45;
+      carr[i*3]=b;carr[i*3+1]=b;carr[i*3+2]=b;
     }
-    posAttr.needsUpdate=true;
+    colorAttr.needsUpdate=true;
     renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
   }
