@@ -108,11 +108,16 @@
     transition:max-width .35s ease,opacity .25s ease;}
   .logo:hover .logo-text,.logo:focus-visible .logo-text{max-width:160px;opacity:1;}
   .nav-r{display:flex;gap:20px;align-items:center;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+  /* ink-blot reveal instead of a flat max-height accordion slide — a circle spreads from the
+     toggle button's position instead of the panel just sliding down. Pointer-events gated on
+     .open since a clipped-away circle can still be hit-testable in some engines. */
   .nav-links{position:absolute;top:100%;left:0;right:0;display:flex;flex-direction:column;align-items:stretch;gap:0;
-    background:var(--bg);padding:0 20px;max-height:0;overflow:hidden;border-bottom:1px solid transparent;
-    transition:max-height .3s ease,border-color .3s ease;}
+    background:var(--bg);padding:0 20px;overflow:hidden;border-bottom:1px solid transparent;
+    clip-path:circle(0px at calc(100% - 34px) 0%);pointer-events:none;
+    transition:clip-path .55s cubic-bezier(.4,0,.2,1),border-color .3s ease;}
   .nav-links a{padding:14px 0;border-bottom:1px solid var(--line);}
-  .nav-links.open{max-height:320px;border-color:var(--line);}
+  .nav-links.open{clip-path:circle(150% at calc(100% - 34px) 0%);border-color:var(--line);pointer-events:auto;}
+  @media(prefers-reduced-motion:reduce){.nav-links{transition:none;}}
   .nav-r a:hover{color:var(--ink);}
   .navcta{color:var(--ink)!important;font-weight:700;border-bottom:2px solid var(--accent);padding-bottom:2px;white-space:nowrap;}
   .navtoggle{display:flex;background:none;border:0;padding:6px;margin:0;cursor:pointer;flex-direction:column;gap:5px;}
@@ -123,7 +128,8 @@
   @media(min-width:901px){
     .navtoggle{display:none;}
     .nav-links{position:static;display:flex;flex-direction:row;align-items:center;gap:20px;
-      max-height:none;overflow:visible;background:transparent;padding:0;border-bottom:0;}
+      overflow:visible;background:transparent;padding:0;border-bottom:0;
+      clip-path:none;pointer-events:auto;}
     .nav-links a{padding:0;border-bottom:0;}
   }
 
