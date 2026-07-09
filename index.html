@@ -245,27 +245,26 @@
      "frozen", re-enabling the spin read as "laggy"). Swapped for a flat 2D marquee below instead
      of tuning the 3D version further — no preserve-3d, no per-frame 3D matrix recompute, just one
      GPU-cheap translateX loop. Desktop keeps the 3D carousel unchanged. */
-  /* logo timeline (mobile) — ported from Eldora UI's logo-timeline component concept:
-     several rows of logos, each its own scroll speed + direction, instead of one flat
-     marquee. Rows are built in JS from the single canonical logo list (the desktop
-     carousel's .int-item nodes) rather than hand-duplicating markup per row. */
-  .int-timeline-wrap{display:none;}
-  @media(max-width:900px){
-    .int-carousel-wrap{display:none;}
-    .int-timeline-wrap{display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden;margin-top:56px;}
-    .int-timeline-wrap::before,.int-timeline-wrap::after{content:'';position:absolute;top:0;bottom:0;
-      width:14%;z-index:2;pointer-events:none;}
-    .int-timeline-wrap::before{left:0;background:linear-gradient(to right,var(--bg) 0%,transparent 100%);}
-    .int-timeline-wrap::after{right:0;background:linear-gradient(to left,var(--bg) 0%,transparent 100%);}
-    .int-timeline-row{display:flex;gap:10px;width:max-content;animation:mqScroll linear infinite;
-      animation-duration:var(--row-dur,40s);}
-    .int-timeline-row.rev{animation-direction:reverse;}
-    .int-timeline-row.spin-off{animation-play-state:paused;}
-    .int-timeline-row .int{flex:0 0 auto;padding:11px 14px;font-size:11.5px;grid-template-columns:22px 1fr;gap:8px;}
-    .int-timeline-row .ii{width:22px;height:22px;}
-    .int-timeline-row .ii svg{width:14px;height:14px;}
-    @keyframes mqScroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
-  }
+  /* logo timeline — ported from Eldora UI's logo-timeline component concept: several rows of
+     logos, each its own scroll speed + direction, instead of one flat marquee. Rows are built in
+     JS from the single canonical logo list (the desktop carousel's .int-item nodes) rather than
+     hand-duplicating markup per row. Was mobile-only with the 3D ring carousel kept for desktop;
+     now universal — same timeline treatment on every width, ring carousel just stays dormant in
+     the DOM (still the source list the JS builder reads from, just never shown). */
+  .int-carousel-wrap{display:none;}
+  .int-timeline-wrap{display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden;margin-top:56px;}
+  .int-timeline-wrap::before,.int-timeline-wrap::after{content:'';position:absolute;top:0;bottom:0;
+    width:14%;z-index:2;pointer-events:none;}
+  .int-timeline-wrap::before{left:0;background:linear-gradient(to right,var(--bg) 0%,transparent 100%);}
+  .int-timeline-wrap::after{right:0;background:linear-gradient(to left,var(--bg) 0%,transparent 100%);}
+  .int-timeline-row{display:flex;gap:10px;width:max-content;animation:mqScroll linear infinite;
+    animation-duration:var(--row-dur,40s);}
+  .int-timeline-row.rev{animation-direction:reverse;}
+  .int-timeline-row.spin-off{animation-play-state:paused;}
+  .int-timeline-row .int{flex:0 0 auto;padding:11px 14px;font-size:11.5px;grid-template-columns:22px 1fr;gap:8px;}
+  .int-timeline-row .ii{width:22px;height:22px;}
+  .int-timeline-row .ii svg{width:14px;height:14px;}
+  @keyframes mqScroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
   @media(prefers-reduced-motion:reduce){.int-timeline-row{animation:none;}}
   @media(prefers-reduced-motion:reduce){.int-carousel{animation:none;}}
 
