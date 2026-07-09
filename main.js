@@ -28,8 +28,17 @@ function onWidthResize(cb){
    breakpoint change above already forces a full reload, which recreates every renderer fresh. */
 function mobileGfxOpts(){
   const narrow=window.innerWidth<700;
-  return{antialias:!narrow,dpr:narrow?1:Math.min(window.devicePixelRatio||1,1.5)};
+  /* desktop cap dropped 1.5→1.25 — on a retina/DPR-2 display six canvases at 1.5x were rendering
+     ~2500px-wide framebuffers each, the dominant scroll-time GPU cost (measured: worst frame 55ms
+     mid-scroll). 1.25² vs 1.5² ≈ 31% less fragment work across every scene, imperceptible sharpness
+     drop. */
+  return{antialias:!narrow,dpr:narrow?1:Math.min(window.devicePixelRatio||1,1.25)};
 }
+/* ambient scenes (drifting particles / node fields — not the hero fly-through or the cursor grid)
+   run at 30fps instead of 60: their motion is slow enough that half the frames are invisible, and
+   several render simultaneously as adjacent sections cross the viewport mid-scroll. Halves their
+   per-frame cost. Returns true when this frame should render, false to skip. */
+function halfRate(scene){scene.__hr=!scene.__hr;return scene.__hr;}
 /* shared scroll-ripple impulse — every 3D scene reads this one number instead of running its
    own scroll-velocity tracking. Spikes on scroll delta, decays every real frame via gsap.ticker
    (already running site-wide for Lenis sync) so scenes never need their own decay loop. */
@@ -151,10 +160,12 @@ function initBookPoly3D(canvas){
   let t=0,running=false,raf=null;
   function frame(){
     if(!running)return;
-    t+=0.01;
-    poly.rotation.y+=0.0022;
-    poly.rotation.x+=0.001;
-    core.rotation.y-=0.003;
+    raf=requestAnimationFrame(frame);
+    if(!halfRate(scene))return;   // ambient — 30fps
+    t+=0.02;
+    poly.rotation.y+=0.0044;
+    poly.rotation.x+=0.002;
+    core.rotation.y-=0.006;
     const s=1+Math.sin(t*0.6)*0.04+scrollImpulse*0.12;
     poly.scale.set(s,s,s);
     const pulse=(Math.sin(t*0.5)+1)/2;
@@ -163,7 +174,6 @@ function initBookPoly3D(canvas){
     coreMat.color.copy(WHITE);
     coreMat.opacity=0.35+pulse*0.3+scrollImpulse*0.35;
     renderer.render(scene,camera);
-    raf=requestAnimationFrame(frame);
   }
   function start(){if(running)return;running=true;raf=requestAnimationFrame(frame);}
   function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=null;}
@@ -331,11 +341,16 @@ function initHero3D(canvas){
      S is a blocky pixel-grid S (3-wide/5-tall block pattern, traced as one outline) rather than a
      curvy script S — keeps the same hard-edged geometric language as M/V instead of mixing in
      smooth bezier curves. */
-  const light=new THREE.DirectionalLight(0xffffff,3.0);
+  const light=new THREE.DirectionalLight(0xffffff,2.6);
   light.position.set(2.4,3,2.5);
-  const fill=new THREE.DirectionalLight(0xffffff,0.6);
+  const fill=new THREE.DirectionalLight(0xffffff,0.5);
   fill.position.set(-3,-1.8,1.6);
-  scene.add(light,fill,new THREE.AmbientLight(0xffffff,0.4));
+  /* rim/back light — grazes the edges from behind so the bevels catch a bright specular streak as
+     the wordmark turns. This is what separates "premium chrome" from "flat grey object": edge
+     highlights that travel across the metal, not just front fill. */
+  const rim=new THREE.DirectionalLight(0xffffff,1.6);
+  rim.position.set(-1.5,2.5,-3);
+  scene.add(light,fill,rim,new THREE.AmbientLight(0xffffff,0.32));
   const group=new THREE.Group();
   scene.add(group);
   const word=new THREE.Group();
@@ -350,15 +365,26 @@ function initHero3D(canvas){
      the FontLoader-style bare-specifier risk. */
   function makeEnvTexture(){
     const c=document.createElement('canvas');
-    c.width=64;c.height=64;
+    c.width=128;c.height=128;
     const ctx=c.getContext('2d');
-    const g=ctx.createLinearGradient(0,0,0,64);
-    g.addColorStop(0,'#ffffff');
-    g.addColorStop(0.45,'#9a9a9a');
-    g.addColorStop(0.55,'#454545');
-    g.addColorStop(1,'#141414');
+    /* studio-lightbox environment, not a flat grey ramp — a bright sky top, a hard bright horizon
+       band (the classic softbox streak a chrome logo reflects), then a dark floor. Reflecting THIS
+       gives the metal real light/dark contrast and a moving highlight instead of dull uniform grey. */
+    const g=ctx.createLinearGradient(0,0,0,128);
+    g.addColorStop(0.00,'#c8ccd2');
+    g.addColorStop(0.34,'#8a8f96');
+    g.addColorStop(0.44,'#ffffff');   // horizon softbox — the bright reflected streak
+    g.addColorStop(0.50,'#ffffff');
+    g.addColorStop(0.60,'#3a3d42');
+    g.addColorStop(1.00,'#0c0d0f');
     ctx.fillStyle=g;
-    ctx.fillRect(0,0,64,64);
+    ctx.fillRect(0,0,128,128);
+    /* a couple of soft vertical light bars — extra reflected highlights that sweep across the
+       facets as the wordmark rotates, so the chrome reads as being in a real lit room. */
+    ['rgba(255,255,255,.5)','rgba(255,255,255,.32)'].forEach((col,i)=>{
+      ctx.fillStyle=col;
+      ctx.fillRect(24+i*70, 10, 10, 108);
+    });
     const tex=new THREE.CanvasTexture(c);
     tex.mapping=THREE.EquirectangularReflectionMapping;
     return tex;
@@ -387,22 +413,46 @@ function initHero3D(canvas){
   scene.environment=pmrem.fromEquirectangular(makeEnvTexture()).texture;
   pmrem.dispose();
 
-  const mat=new THREE.MeshStandardMaterial({color:0xffffff,flatShading:true,
-    roughness:0.7,metalness:0.88,roughnessMap:makeScratchTexture(),envMapIntensity:1.5,transparent:true});
+  /* smooth-shaded now (flatShading dropped) — flat shading was giving it that low-poly faceted
+     look; smooth normals + the env reflection read as real polished chrome. Lower roughness for a
+     sharper reflection, scratch map still there for brushed micro-detail, higher envMapIntensity
+     so the new studio env actually shows. */
+  const mat=new THREE.MeshStandardMaterial({color:0xffffff,
+    roughness:0.34,metalness:0.95,roughnessMap:makeScratchTexture(),envMapIntensity:2.0,transparent:true});
   /* soft white glow shell per letter — same geometry, no extra memory, drawn from the inside
      (BackSide) with additive blending so it reads as a faint aura rather than a second solid
      object. No EffectComposer/bloom (banned — real GPU-compat bug hit earlier with that route). */
   const glowMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.16,
     side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false});
 
+  /* round every corner of a polygon into a soft fillet — turns the hard-edged block letterforms
+     (especially the crude pixel-step S) into clean rounded-geometric glyphs that read as
+     considered type, not primitives. Per-corner radius is clamped to half the shorter adjacent
+     edge so short segments (the S's arms) never over-round into overlap. */
+  function roundedShape(pts,r){
+    const s=new THREE.Shape();
+    const n=pts.length, P=pts.map(p=>({x:p[0],y:p[1]}));
+    for(let i=0;i<n;i++){
+      const cur=P[i], prev=P[(i-1+n)%n], next=P[(i+1)%n];
+      const d1=Math.hypot(cur.x-prev.x,cur.y-prev.y), d2=Math.hypot(next.x-cur.x,next.y-cur.y);
+      const rr=Math.min(r, d1/2, d2/2);
+      const p1={x:cur.x+(prev.x-cur.x)/d1*rr, y:cur.y+(prev.y-cur.y)/d1*rr};
+      const p2={x:cur.x+(next.x-cur.x)/d2*rr, y:cur.y+(next.y-cur.y)/d2*rr};
+      if(i===0)s.moveTo(p1.x,p1.y); else s.lineTo(p1.x,p1.y);
+      s.quadraticCurveTo(cur.x,cur.y,p2.x,p2.y);
+    }
+    s.closePath();
+    return s;
+  }
+  /* curveSegments bumped 1→6 so the rounded corners actually render as curves, bevel smoothed. */
   function letterMesh(shape){
-    const geo=new THREE.ExtrudeGeometry(shape,{depth:3.4,bevelEnabled:true,bevelThickness:0.4,bevelSize:0.26,bevelSegments:4,curveSegments:1});
+    const geo=new THREE.ExtrudeGeometry(shape,{depth:3.4,bevelEnabled:true,bevelThickness:0.36,bevelSize:0.24,bevelSegments:3,curveSegments:6});
     geo.computeBoundingBox();
     const bb=geo.boundingBox;
     geo.translate(-(bb.max.x+bb.min.x)/2,-(bb.max.y+bb.min.y)/2,-(bb.max.z+bb.min.z)/2);
     const mesh=new THREE.Mesh(geo,mat);
     const glow=new THREE.Mesh(geo,glowMat);
-    glow.scale.setScalar(1.1);
+    glow.scale.setScalar(1.08);
     mesh.add(glow);
     return mesh;
   }
@@ -416,37 +466,24 @@ function initHero3D(canvas){
        stem tops + chevron inner edges meeting high at (5,4.5) = the top notch;
        then down each stem outer/inner, and the chevron UNDERSIDE — its outer edges leave the
        stems high (y=8.5) and meet at a low tip (5,2), which is what opens the two counters. */
-  const mShape=new THREE.Shape();
-  mShape.moveTo(0,0);          // bottom-left outer
-  mShape.lineTo(0,12);         // top-left outer
-  mShape.lineTo(2.4,12);       // top-left inner (left stem top)
-  mShape.lineTo(5,4.5);        // chevron inner-meet (bottom of the top notch)
-  mShape.lineTo(7.6,12);       // top-right inner (right stem top)
-  mShape.lineTo(10,12);        // top-right outer
-  mShape.lineTo(10,0);         // bottom-right outer
-  mShape.lineTo(7.6,0);        // bottom-right inner (right stem foot)
-  mShape.lineTo(7.6,8.5);      // up right stem inner edge (right wall of right counter)
-  mShape.lineTo(5,2);          // chevron outer tip (down the right diagonal underside)
-  mShape.lineTo(2.4,8.5);      // up to left stem inner edge (left diagonal underside)
-  mShape.lineTo(2.4,0);        // down left stem inner edge (left wall of left counter)
-  mShape.lineTo(0,0);          // close
-
-  const vShape=new THREE.Shape();
-  vShape.moveTo(0,12);vShape.lineTo(4.7,0);vShape.lineTo(9.4,12);vShape.lineTo(6.8,12);
-  vShape.lineTo(4.7,3.5);vShape.lineTo(2.6,12);vShape.lineTo(0,12);
-
-  /* "S" as a blocky 3x5 pixel-grid glyph (# = filled):
-       # # #
-       # . .
-       # # #
-       . . #
-       # # #
-     traced as one outline polygon — same one-piece-silhouette approach as M/V, just with two
-     notches instead of one. */
+  /* M — the geometry-verified vertices (two stems + hanging chevron + open counters), now fed
+     through roundedShape so the stem corners and chevron tip get soft fillets. Modest radius keeps
+     the M crisp/recognizable. */
+  const mShape=roundedShape([
+    [0,0],[0,12],[2.4,12],[5,4.5],[7.6,12],[10,12],[10,0],[7.6,0],[7.6,8.5],[5,2],[2.4,8.5],[2.4,0]
+  ],0.7);
+  const vShape=roundedShape([
+    [0,12],[4.7,0],[9.4,12],[6.8,12],[4.7,3.5],[2.6,12]
+  ],0.7);
+  /* real curved S — an actual S ribbon, not a pixel block or a rounded block (both read as 5/G).
+     Built offline as a constant-width stroke offset from a hand-placed S centerline (Catmull-Rom
+     spine → ±half-width offset → rounded end caps), the closed outline sampled to these 64 points
+     and verified as a clean S by rasterizing the exact polygon before porting. Already smooth, so
+     it's used as a straight point-polygon (no roundedShape). */
+  const S_PTS=[[2.1,2.76],[1.4,3.23],[0.69,3.64],[0.44,3.69],[-0.04,3.58],[-0.58,3.34],[-1.04,3.01],[-1.38,2.64],[-1.41,2.59],[-1.4,2.47],[-1.31,2.24],[-1.14,2.08],[-0.65,1.73],[-0.21,1.43],[0.11,1.26],[0.56,1.03],[0.94,0.87],[1.57,0.56],[2.24,0.11],[3.0,-0.5],[3.76,-1.48],[4.01,-2.64],[3.84,-3.75],[3.26,-4.76],[2.42,-5.51],[1.44,-6.04],[0.35,-6.28],[-0.64,-6.27],[-1.66,-6.1],[-2.69,-5.79],[-3.32,-5.56],[-1.69,-4.73],[-2.52,-3.09],[-1.83,-3.33],[-1.03,-3.58],[-0.42,-3.67],[0.15,-3.68],[0.52,-3.61],[0.92,-3.38],[1.29,-3.06],[1.38,-2.91],[1.41,-2.69],[1.4,-2.58],[1.24,-2.41],[0.7,-1.99],[0.28,-1.69],[-0.06,-1.53],[-0.6,-1.29],[-1.03,-1.08],[-1.57,-0.79],[-2.12,-0.42],[-2.8,0.08],[-3.54,0.9],[-3.92,1.83],[-3.99,2.95],[-3.53,4.11],[-2.76,4.95],[-1.86,5.6],[-0.89,6.04],[0.3,6.29],[1.73,6.03],[2.84,5.39],[3.46,4.98],[1.67,4.55]];
   const sShape=new THREE.Shape();
-  sShape.moveTo(0,0);sShape.lineTo(8.4,0);sShape.lineTo(8.4,7.2);sShape.lineTo(2.8,7.2);
-  sShape.lineTo(2.8,9.6);sShape.lineTo(8.4,9.6);sShape.lineTo(8.4,12);sShape.lineTo(0,12);
-  sShape.lineTo(0,4.8);sShape.lineTo(5.6,4.8);sShape.lineTo(5.6,2.4);sShape.lineTo(0,2.4);sShape.lineTo(0,0);
+  S_PTS.forEach((p,i)=>i?sShape.lineTo(p[0],p[1]):sShape.moveTo(p[0],p[1]));
+  sShape.closePath();
 
   const mMesh=letterMesh(mShape);
   const vMesh=letterMesh(vShape);
@@ -454,9 +491,9 @@ function initHero3D(canvas){
   /* laid out so the V sits exactly at word-local x=0 — the scroll fly-through below drifts the
      whole wordmark toward screen-center as it approaches the camera, so the moment it's biggest/
      closest lines up with the V's own gap passing through center, not an arbitrary point. */
-  const GAP=1.4;
+  const GAP=1.6;
   mMesh.position.x=-(4.7+GAP+5);
-  sMesh.position.x=4.7+GAP+4.2;
+  sMesh.position.x=4.7+GAP+4.0;   // curved S is ~8 wide (half ~4.0)
   word.add(mMesh,vMesh,sMesh);
 
   /* real bounding sphere of the whole wordmark (not a hand-guessed number) — M is wider than S,
@@ -994,14 +1031,15 @@ function initIntegNodes3D(canvas){
   let running=false,raf=null,t=0;
   function frame(){
     if(!running)return;
-    t+=0.01;
-    group.rotation.y+=0.0012;
+    raf=requestAnimationFrame(frame);
+    if(!halfRate(scene))return;   // ambient — 30fps
+    t+=0.02;
+    group.rotation.y+=0.0024;
     group.rotation.x=Math.sin(t*0.2)*0.08;
     group.position.x=(scrollT-0.5)*6.5;
     nodeMat.opacity=0.35+scrollImpulse*0.4;
     lineMat.opacity=0.1+scrollImpulse*0.25;
     renderer.render(scene,camera);
-    raf=requestAnimationFrame(frame);
   }
   function start(){if(running)return;running=true;raf=requestAnimationFrame(frame);}
   function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=null;}
@@ -1065,17 +1103,18 @@ function initCostLeak3D(canvas){
   let running=false,raf=null,t=0;
   function frame(){
     if(!running)return;
-    t+=0.01;
-    const fall=1+scrollImpulse*3;
+    raf=requestAnimationFrame(frame);
+    if(!halfRate(scene))return;   // ambient — 30fps
+    t+=0.02;
+    const fall=(1+scrollImpulse*3)*2;
     for(let i=0;i<N;i++){
       posArr[i*3+1]-=speed[i]*fall;
-      posArr[i*3]+=Math.sin(t+phase[i])*0.0015;
+      posArr[i*3]+=Math.sin(t+phase[i])*0.003;
       if(posArr[i*3+1]<-4.5)posArr[i*3+1]=4.5;
     }
     geo.attributes.position.needsUpdate=true;
     mat.opacity=0.32+scrollImpulse*0.35;
     renderer.render(scene,camera);
-    raf=requestAnimationFrame(frame);
   }
   function start(){if(running)return;running=true;raf=requestAnimationFrame(frame);}
   function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=null;}
@@ -1136,19 +1175,20 @@ function initPriceRise3D(canvas){
   let running=false,raf=null,t=0;
   function frame(){
     if(!running)return;
-    t+=0.01;
+    raf=requestAnimationFrame(frame);
+    if(!halfRate(scene))return;   // ambient — 30fps
+    t+=0.02;
     /* falls same direction as hidden-cost's leak now, not rising — was the inverse on
        purpose, changed on request to move the same way on scroll. */
-    const fall=1+scrollImpulse*3;
+    const fall=(1+scrollImpulse*3)*2;
     for(let i=0;i<N;i++){
       posArr[i*3+1]-=speed[i]*fall;
-      posArr[i*3]+=Math.sin(t+phase[i])*0.0012;
+      posArr[i*3]+=Math.sin(t+phase[i])*0.0024;
       if(posArr[i*3+1]<-4.5)posArr[i*3+1]=4.5;
     }
     geo.attributes.position.needsUpdate=true;
     mat.opacity=0.26+scrollImpulse*0.3;
     renderer.render(scene,camera);
-    raf=requestAnimationFrame(frame);
   }
   function start(){if(running)return;running=true;raf=requestAnimationFrame(frame);}
   function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=null;}

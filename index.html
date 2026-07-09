@@ -304,9 +304,11 @@
     font-weight:700;font-size:12px;color:var(--ink);white-space:nowrap;
     box-shadow:0 10px 24px -16px rgba(0,0,0,.5);
     transform:translate(-50%,-50%);animation:wskillFloat 4s ease-in-out infinite;}
+  /* neutral steel gradient, not amber — six amber badges round the wheel was a big chunk of the
+     "too much yellow". Brand accent stays on the real CTAs/badges, not decorative label icons. */
   .wskill .wi{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;
     justify-content:center;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:800;
-    background:linear-gradient(160deg,#333 0%,var(--accent) 65%);color:var(--accent-ink);}
+    background:linear-gradient(160deg,#3a3a3a 0%,#8a8a8a 90%);color:#0a0a0a;}
   @keyframes wskillFloat{0%,100%{translate:0 0;}50%{translate:0 -8px;}}
   @media(prefers-reduced-motion:reduce){.wskill{animation:none;}}
   /* below 900px: drop the floating badges (decorative, extra GPU cost not worth it on mobile
@@ -346,16 +348,11 @@
   .wseg:nth-child(2){top:0;left:50%;clip-path:polygon(0% 100%,0% 0%,25.9% 3.4%,50% 13.4%,70.7% 29.3%,86.6% 50%,96.6% 74.1%,100% 100%);}
   .wseg:nth-child(3){top:50%;left:0;clip-path:polygon(100% 0%,100% 100%,74.1% 96.6%,50% 86.6%,29.3% 70.7%,13.4% 50%,3.4% 25.9%,0% 0%);}
   .wseg:nth-child(4){top:50%;left:50%;clip-path:polygon(0% 0%,0% 100%,25.9% 96.6%,50% 86.6%,70.7% 70.7%,86.6% 50%,96.6% 25.9%,100% 0%);}
-  /* bigger pop than before (22px→46px, 1.02→1.1 scale) — the old amount barely read against the
-     disc at all, especially on top of the resting tilt. */
+  /* no lift/float on select — the translateZ pop + bobbing animation read as gimmicky. Selection
+     is now shown by the glow highlight alone; the active quadrant just brightens in place. */
   .wseg:hover,.wseg.active{
-    background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.28) 0%,rgba(255,255,255,.1) 50%,transparent 78%);
-    transform:translateZ(46px) scale(1.1);z-index:3;
-    animation:wsegFloat 2.6s ease-in-out infinite;}
-  @keyframes wsegFloat{
-    0%,100%{transform:translateZ(46px) scale(1.1) translateY(0);}
-    50%{transform:translateZ(64px) scale(1.1) translateY(-8px);}
-  }
+    background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.24) 0%,rgba(255,255,255,.09) 50%,transparent 78%);
+    z-index:3;}
   /* labels live in their own flat (non-preserve-3d) overlay, not inside .wheel-disc — z-index vs.
      translateZ ordering between siblings in a shared preserve-3d context proved unreliable across
      the wedges' own translateZ pop; a flat sibling layer avoids that entirely and just paints on
@@ -453,7 +450,9 @@
   #capabilities .cap-grid, #capabilities .cap-more .cap-grid{perspective:1200px;}
   #capabilities .cap:hover{transform:translateY(-6px) translateZ(14px) rotateX(5deg) rotateY(-5deg);}
   @media(prefers-reduced-motion:reduce){#capabilities .cap:hover{transform:translateY(-3px);}}
-  .cap .ci{width:30px;height:30px;border-radius:8px;background:linear-gradient(160deg,#333 0%,var(--accent) 65%);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;font-weight:800;font-family:'JetBrains Mono',monospace;font-size:13px;box-shadow:0 2px 5px rgba(10,10,10,.28),inset 0 1px 0 rgba(255,255,255,.10);}
+  /* neutral steel gradient, not amber — 16 capability-card icons in amber was another big yellow
+     block. Kept to the same non-brand steel as the wheel skill icons. */
+  .cap .ci{width:30px;height:30px;border-radius:8px;background:linear-gradient(160deg,#333 0%,#8a8a8a 90%);color:#0a0a0a;display:flex;align-items:center;justify-content:center;font-weight:800;font-family:'JetBrains Mono',monospace;font-size:13px;box-shadow:0 2px 5px rgba(10,10,10,.28),inset 0 1px 0 rgba(255,255,255,.10);}
 
   /* === BorderGlow (React Bits port) — grayscale, on-brand === */
   .cap.border-glow-card{
@@ -527,6 +526,15 @@
   }
   .tiers.mode-own .tier li.inh .inh-note{display:inline;}
   .tier .tcta{margin-top:auto;}
+  /* package buttons are ghost, not amber fill — three stacked solid-amber buttons was the bulk of
+     "too many yellow buttons". They read as clear buttons via the outline and fill amber on hover
+     (brand on intent), while the primary hero + book CTAs keep the standing amber fill. */
+  .btn-fill.tcta{background:transparent;color:var(--ink);border:1px solid var(--line-strong);}
+  .btn-fill.tcta .swap-icon{background:var(--ink);color:var(--accent-ink);}
+  .btn-fill.tcta:hover{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);opacity:1;}
+  .btn-fill.tcta:hover .swap-icon{background:var(--accent-ink);color:var(--accent);}
+  /* the ghost tcta has no light fill for the shine sweep to read against — drop it here only. */
+  .btn-fill.tcta::after{display:none;}
   .tier-details{margin:2px 0 16px;font-size:12px;}
   .tier-details summary{cursor:pointer;font-weight:600;color:var(--muted);list-style:none;
     display:flex;align-items:center;gap:5px;padding:6px 0;transition:color .2s ease;}
