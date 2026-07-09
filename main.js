@@ -276,26 +276,74 @@ function initHero3D(canvas){
   const camera=new THREE.PerspectiveCamera(45,1,0.1,100);
   camera.position.set(0,0,7);
 
-  /* flowing ribbon instead of the faceted gem — a single smooth closed curve extruded into a
-     tube, not a polyhedron/points at all. Reads as one continuous abstract line-art stroke,
-     matching the site's serif/italic editorial touches more than a hard geometric form. */
-  const CTRL=8,CR=1.9;
-  const ctrlPts=[];
-  for(let i=0;i<CTRL;i++){
-    const v=new THREE.Vector3(Math.random()-0.5,Math.random()-0.5,Math.random()-0.5).normalize();
-    v.multiplyScalar(CR*(0.7+Math.random()*0.5));
-    ctrlPts.push(v);
-  }
-  const curve=new THREE.CatmullRomCurve3(ctrlPts,true,'catmullrom',0.6);
-  const tubeGeo=new THREE.TubeGeometry(curve,220,0.075,8,true);
-  const mat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.5,side:THREE.DoubleSide});
-  const ribbon=new THREE.Mesh(tubeGeo,mat);
-  const glowGeo=new THREE.TubeGeometry(curve,220,0.16,8,true);
-  const glowMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.1,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false});
-  const glow=new THREE.Mesh(glowGeo,glowMat);
+  /* dithered-halftone sphere — ported from a real reference (a React Three Fiber ordered-
+     dithering shader demo, 4x4 Bayer matrix from shadertoy.com/view/ltSSzW). The original
+     applies it as a full-screen post-process (EffectComposer + render target), which risks
+     the same GPU/driver incompatibility that killed the bloom pass earlier this session
+     (HalfFloatType render targets failing silently on some hardware). Ported the dither math
+     onto the object's own fragment shader instead — renders straight to the canvas like any
+     other mesh, no render target at all, none of that risk. First hero pass using a custom
+     shader rather than a built-in material; solid lit surface, not wireframe/points/translucent. */
+  const sphereGeo=new THREE.SphereGeometry(2.3,64,64);
+  const ditherMat=new THREE.ShaderMaterial({
+    transparent:true,
+    uniforms:{
+      lightDir:{value:new THREE.Vector3(0.5,0.6,1.0).normalize()},
+      gridSize:{value:3.0},
+      uImpulse:{value:0}
+    },
+    vertexShader:`
+      varying vec3 vNormal;
+      void main(){
+        vNormal=normalize(normalMatrix*normal);
+        gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);
+      }
+    `,
+    fragmentShader:`
+      uniform vec3 lightDir;
+      uniform float gridSize;
+      uniform float uImpulse;
+      varying vec3 vNormal;
+      bool ditherTest(float brightness, vec2 pos){
+        if(brightness>16.0/17.0)return false;
+        if(brightness<1.0/17.0)return true;
+        vec2 pixel=floor(mod(pos.xy/gridSize,4.0));
+        int x=int(pixel.x);int y=int(pixel.y);
+        if(x==0){
+          if(y==0)return brightness<16.0/17.0;
+          if(y==1)return brightness<5.0/17.0;
+          if(y==2)return brightness<13.0/17.0;
+          return brightness<1.0/17.0;
+        }else if(x==1){
+          if(y==0)return brightness<8.0/17.0;
+          if(y==1)return brightness<12.0/17.0;
+          if(y==2)return brightness<4.0/17.0;
+          return brightness<9.0/17.0;
+        }else if(x==2){
+          if(y==0)return brightness<14.0/17.0;
+          if(y==1)return brightness<2.0/17.0;
+          if(y==2)return brightness<15.0/17.0;
+          return brightness<3.0/17.0;
+        }else{
+          if(y==0)return brightness<6.0/17.0;
+          if(y==1)return brightness<10.0/17.0;
+          if(y==2)return brightness<7.0/17.0;
+          return brightness<11.0/17.0;
+        }
+      }
+      void main(){
+        float lambert=max(dot(normalize(vNormal),normalize(lightDir)),0.0);
+        float rim=pow(1.0-abs(vNormal.z),2.0);
+        float brightness=clamp(lambert*0.75+rim*0.3+uImpulse*0.35,0.0,1.0);
+        bool dark=ditherTest(brightness,gl_FragCoord.xy);
+        gl_FragColor=dark?vec4(0.0):vec4(1.0,1.0,1.0,0.9);
+      }
+    `
+  });
+  const sphere=new THREE.Mesh(sphereGeo,ditherMat);
 
   const group=new THREE.Group();
-  group.add(glow,ribbon);
+  group.add(sphere);
   scene.add(group);
 
   let w=0,h=0,baseZ=7,zoomDepth=2.2;
@@ -312,6 +360,10 @@ function initHero3D(canvas){
     /* mobile starts farther back (baseZ 10.5 vs 7) and scaled down 0.62x, so the same scroll-zoom
        distance reads as barely-there — push the zoom travel out so it's felt at the same intensity. */
     zoomDepth=w<700?4.4:2.2;
+    /* dither pattern is read in real framebuffer pixels (gl_FragCoord) — scale the grid cell
+       size with devicePixelRatio so the halftone dots look the same physical size on retina
+       screens instead of shrinking to a quarter their size. */
+    ditherMat.uniforms.gridSize.value=3.0*Math.min(window.devicePixelRatio||1,1.5);
   }
   onWidthResize(size);
   size();
@@ -347,11 +399,8 @@ function initHero3D(canvas){
     group.rotation.y+=(mouseX*0.14)*0.002;
     camera.position.z=baseZ-scrollT*zoomDepth;
     group.rotation.z=scrollT*0.3;
-    const ps=1+scrollImpulse*0.08;
-    ribbon.scale.setScalar(ps);
-    glow.scale.setScalar(ps);
-    mat.opacity=0.5+scrollImpulse*0.3;
-    glowMat.opacity=0.1+scrollImpulse*0.25;
+    sphere.scale.setScalar(1+scrollImpulse*0.06);
+    ditherMat.uniforms.uImpulse.value=scrollImpulse;
     renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
   }
