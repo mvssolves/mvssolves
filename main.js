@@ -882,23 +882,35 @@ if(!reduce){
     setInterval(()=>{el.textContent=oddRand().toLocaleString('en-ZA');},260);
   }
   if(reduce){ds.forEach(d=>d.classList.add('active'));return;}
-  let pending=false;
+  let pending=false, ih=window.innerHeight;
+  const mob=window.matchMedia('(max-width:900px)').matches;
+  const MAXBLUR=mob?3:7;               // blur is the priciest filter on mobile — cap it low
+  const prev=new Map();                // last written values per slab, so we skip redundant style writes
   function upd(){
-    const vc=window.innerHeight/2;
+    const railR=rail.getBoundingClientRect();
+    if(railR.bottom<-120||railR.top>ih+120)return; // section off-screen — do nothing
+    const vc=ih/2;
     ds.forEach(d=>{
       const r=d.getBoundingClientRect();
-      const dd=((r.top+r.height/2)-vc)/window.innerHeight; // <0 above centre (past), >0 below (incoming)
+      const dd=((r.top+r.height/2)-vc)/ih;           // <0 above centre (past), >0 below (incoming)
       const ab=Math.abs(dd);
-      d.style.filter='blur('+Math.min(ab*13,7).toFixed(2)+'px)';
-      d.style.opacity=(1-Math.min(ab*1.15,0.6)).toFixed(3);
-      // past centre → flip backward (+deg); incoming → slight forward lean; centred → flat/sharp
-      d.style.transform='rotateX('+Math.max(-16,Math.min(90,-dd*185)).toFixed(1)+'deg)';
+      // quantize so we only touch the DOM when a value actually changes (kills mobile repaint churn)
+      const blur=Math.round(Math.min(ab*13,MAXBLUR)*2)/2;                 // .5px steps
+      const rot=Math.round(Math.max(-16,Math.min(90,-dd*185)));          // 1deg steps
+      const op=Math.round((1-Math.min(ab*1.15,0.6))*20)/20;             // .05 steps
+      const p=prev.get(d);
+      if(!p||p.b!==blur||p.r!==rot||p.o!==op){
+        d.style.filter=blur?('blur('+blur+'px)'):'none';
+        d.style.transform='rotateX('+rot+'deg)';
+        d.style.opacity=op;
+        prev.set(d,{b:blur,r:rot,o:op});
+      }
       d.classList.toggle('active',ab<0.16);
     });
   }
   const onScroll=()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;upd();});};
   window.addEventListener('scroll',onScroll,{passive:true});
-  window.addEventListener('resize',onScroll,{passive:true});
+  window.addEventListener('resize',()=>{ih=window.innerHeight;onScroll();},{passive:true});
   if(lenis&&lenis.on)lenis.on('scroll',onScroll);
   upd();
 })();
