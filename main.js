@@ -83,6 +83,17 @@ if(!reduce&&isDesktop){
   }));
 })();
 
+/* desktop dynamic nav — sliding highlight follows the hovered link */
+(function(){
+  const links=document.getElementById('navLinks'),hl=document.getElementById('navHl');
+  if(!links||!hl)return;
+  const anchors=[...links.querySelectorAll('a')];
+  function move(el){if(!el)return;hl.style.transform=`translateX(${el.offsetLeft}px)`;hl.style.width=el.offsetWidth+'px';}
+  anchors.forEach(a=>a.addEventListener('mouseenter',()=>move(a)));
+  requestAnimationFrame(()=>move(anchors[0]));
+  window.addEventListener('resize',()=>move(anchors[0]),{passive:true});
+})();
+
 /* scroll progress + nav */
 const prog=document.getElementById('progress'),nav=document.getElementById('nav');
 const scPct=document.getElementById('scPct');
@@ -914,39 +925,32 @@ if(document.fonts&&document.fonts.ready){
   },{passive:true});
 })();
 
-/* intro veil — typewriter reveal, one word at a time, then a curtain-lift into the hero. Plays once per page load. */
+/* intro loader — cinematic: brand mark tracks in, a progress bar counts 0→100%, then the veil
+   wipes upward to reveal the site. Plays once per page load. */
 (function(){
-  const veil=document.getElementById('introVeil'),type=document.getElementById('introType');
-  const el=document.getElementById('introLine');
+  const veil=document.getElementById('introVeil');
+  const fill=document.getElementById('introFill'),pct=document.getElementById('introPct');
   if(!veil||reduce){playHeroReveal();return;}
   document.documentElement.classList.add('no-scroll');
   if(lenis)lenis.stop();
-  const words=['Built.','To.','Convert.'];
-  const CHAR_MS=55,HOLD_MS=380,CLEAR_MS=120;
-  let t=250;
-  words.forEach((word,i)=>{
-    for(let c=1;c<=word.length;c++){
-      setTimeout(()=>{el.innerHTML=word.slice(0,c)+'<span class="intro-caret"></span>';},t);
-      t+=CHAR_MS;
-    }
-    setTimeout(()=>{el.textContent=word;},t);
-    t+=HOLD_MS;
-    if(i<words.length-1){
-      setTimeout(()=>{el.textContent='';},t);
-      t+=CLEAR_MS;
-    }
-  });
-  t+=450;
-  setTimeout(()=>{
-    type.classList.add('exit');
+  const DUR=1400,start=performance.now();
+  function tick(now){
+    const p=Math.min((now-start)/DUR,1);
+    /* ease-out so it rushes then settles, like a real load bar */
+    const e=1-Math.pow(1-p,2.2);
+    const v=Math.round(e*100);
+    if(fill)fill.style.width=v+'%';
+    if(pct)pct.textContent=v+'%';
+    if(p<1){requestAnimationFrame(tick);return;}
     setTimeout(()=>{
-      veil.classList.add('curtain');
+      veil.classList.add('lift');
       document.documentElement.classList.remove('no-scroll');
       if(lenis)lenis.start();
       playHeroReveal();
-      setTimeout(()=>{veil.remove();type.remove();},700);
-    },250);
-  },t);
+      setTimeout(()=>veil.remove(),900);
+    },220);
+  }
+  requestAnimationFrame(tick);
 })();
 /* integrations backdrop — sparse node network reclaims the "connected systems" motif the
    hero used to use (now free since hero moved to the torus knot). Kept faint/ambient since
@@ -1193,15 +1197,60 @@ function initPriceRise3D(canvas){
 /* floating 3D "MVS" wordmark scrapped — replaced by the scroll paint-wipe (see paint IIFE below).
    Not initialising it: the hero keeps its animated contour-line field (which was hidden only while
    has-3d was set) as a calm static backdrop, and the paint sweep is the hero's scroll moment now. */
+/* every per-section 3D backdrop is retired — the whole site now shares ONE background canvas
+   (#bgfx, the sparkle field below) as requested, so the sections are transparent and this single
+   drifting field shows through all of them. Cheaper (one canvas, not six) and unified. */
 // initHero3D(document.getElementById('hero3d'));
-initCapGrid3D(document.getElementById('cap3d'));
-initBookPoly3D(document.getElementById('book3d'));
-/* integrations 3D node backdrop removed — it was a whole extra WebGL scene rendering behind the
-   scrolling logo marquee, the source of that section's lag, and the section reads cleaner without
-   the faint node cloud competing with the logos. */
+// initCapGrid3D(document.getElementById('cap3d'));
+// initBookPoly3D(document.getElementById('book3d'));
 // initIntegNodes3D(document.getElementById('integ3d'));
-initPriceRise3D(document.getElementById('price3d'));
-initCostLeak3D(document.getElementById('cost3d'));
+// initPriceRise3D(document.getElementById('price3d'));
+// initCostLeak3D(document.getElementById('cost3d'));
+
+/* one global background — a drifting, twinkling sparkle field on a single fixed canvas behind the
+   whole site (equivalent to the tsparticles "Sparkle Particles" look, hand-written in vanilla so
+   there's no external engine to load/break). DPR-capped, pauses when the tab is hidden. */
+(function(){
+  const cv=document.getElementById('bgfx');
+  if(!cv||reduce)return;
+  const ctx=cv.getContext('2d');
+  const dpr=Math.min(window.devicePixelRatio||1,1.5);
+  let w=0,h=0,pts=[];
+  function resize(){
+    w=window.innerWidth;h=window.innerHeight;
+    cv.width=w*dpr;cv.height=h*dpr;cv.style.width=w+'px';cv.style.height=h+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const n=Math.round(w*h/14000);   // density scales with viewport
+    pts=Array.from({length:n},()=>({
+      x:Math.random()*w,y:Math.random()*h,
+      r:Math.random()*1.3+0.3,
+      vx:(Math.random()-0.5)*0.12,vy:(Math.random()-0.5)*0.12,
+      tw:Math.random()*Math.PI*2,ts:0.6+Math.random()*1.4,
+      amber:Math.random()<0.14
+    }));
+  }
+  window.addEventListener('resize',resize,{passive:true});
+  resize();
+  let running=true,t=0;
+  function frame(){
+    if(!running)return;
+    t+=0.016;
+    ctx.clearRect(0,0,w,h);
+    for(const p of pts){
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x+=w;else if(p.x>w)p.x-=w;
+      if(p.y<0)p.y+=h;else if(p.y>h)p.y-=h;
+      const a=(Math.sin(t*p.ts+p.tw)*0.5+0.5)*0.6+0.08;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,6.283);
+      ctx.fillStyle=p.amber?`rgba(232,169,75,${a})`:`rgba(255,255,255,${a})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  document.addEventListener('visibilitychange',()=>{running=!document.hidden;if(running)requestAnimationFrame(frame);});
+})();
 
 /* scroll paint-wipe — replaces the floating MVS. A tall (200vh) brushed-paint band sits fixed over
    the fold; as you scroll through the hero it sweeps straight down (enters from the top, fully
@@ -1217,10 +1266,10 @@ initCostLeak3D(document.getElementById('cost3d'));
   function upd(){
     const h=hero.offsetHeight||window.innerHeight;
     const p=Math.min(Math.max(window.scrollY/h,0),1);
-    /* band height 200vh, top:0 — translateY -200vh = fully above the viewport, +100vh = fully
-       below it. Screen is fully covered while translateY is in ~[-100vh,0], i.e. the middle third
-       of the hero scroll, giving a real "covered" beat rather than an instant flick. */
-    fill.style.setProperty('--py',(-200+300*p)+'vh');
+    /* paint RISES from the hero's bottom edge upward — height grows 0→~115% of the hero as you
+       scroll through it (slightly over 100% so it fully fills before the hero leaves). Confined
+       to the hero, behind the headline, so it never covers the nav or the sections below. */
+    fill.style.setProperty('--ph',(p*115)+'%');
   }
   window.addEventListener('scroll',()=>{
     if(pending)return;pending=true;
