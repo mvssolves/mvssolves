@@ -326,13 +326,11 @@ function initHero3D(canvas){
 
   /* full "MVS" wordmark, not just the M — hand-built the same way as before (core THREE.Shape +
      ExtrudeGeometry only, no FontLoader/addons; that path broke the entire page earlier this
-     session). M and V are single-outline polygons with a notch (same trick, straight edges
-     only); S is a blocky pixel-grid S (3-wide/5-tall block pattern, traced as one outline) rather
-     than a curvy script S — keeps the same hard-edged geometric language as M/V instead of
-     mixing in smooth bezier curves, and is something I can get exactly right without live visual
-     iteration on curve control points. Metallic material (real metalness/roughness, no envMap —
-     reflection/render-target tricks are the banned category, not metalness itself) instead of
-     the flatter monochrome-plastic look the single M used, per the reference render. */
+     session, every section's 3D, not just the hero — not worth retrying blind for typography
+     alone). M and V are single-outline polygons with a notch (same trick, straight edges only);
+     S is a blocky pixel-grid S (3-wide/5-tall block pattern, traced as one outline) rather than a
+     curvy script S — keeps the same hard-edged geometric language as M/V instead of mixing in
+     smooth bezier curves. */
   const light=new THREE.DirectionalLight(0xffffff,3.0);
   light.position.set(2.4,3,2.5);
   const fill=new THREE.DirectionalLight(0xffffff,0.6);
@@ -343,7 +341,54 @@ function initHero3D(canvas){
   const word=new THREE.Group();
   group.add(word);
 
-  const mat=new THREE.MeshStandardMaterial({color:0xffffff,flatShading:true,roughness:0.32,metalness:0.55,transparent:true});
+  /* real reflections + brushed-metal surface detail — a tiny canvas-drawn gradient run through
+     PMREMGenerator for the environment (so metal actually reflects something instead of just
+     scattering two directional lights), and a canvas-drawn scratch pattern for the roughness map
+     (so it reads as brushed/imperfect, not uniformly smooth plastic). No external HDRI/texture
+     file fetched — both textures are generated locally. PMREMGenerator/CanvasTexture are core
+     three.js (same module already proven safe all session), not examples/jsm addons — none of
+     the FontLoader-style bare-specifier risk. */
+  function makeEnvTexture(){
+    const c=document.createElement('canvas');
+    c.width=64;c.height=64;
+    const ctx=c.getContext('2d');
+    const g=ctx.createLinearGradient(0,0,0,64);
+    g.addColorStop(0,'#ffffff');
+    g.addColorStop(0.45,'#9a9a9a');
+    g.addColorStop(0.55,'#454545');
+    g.addColorStop(1,'#141414');
+    ctx.fillStyle=g;
+    ctx.fillRect(0,0,64,64);
+    const tex=new THREE.CanvasTexture(c);
+    tex.mapping=THREE.EquirectangularReflectionMapping;
+    return tex;
+  }
+  function makeScratchTexture(){
+    const c=document.createElement('canvas');
+    c.width=256;c.height=256;
+    const ctx=c.getContext('2d');
+    ctx.fillStyle='#707070';
+    ctx.fillRect(0,0,256,256);
+    for(let i=0;i<140;i++){
+      const y=Math.random()*256,x=Math.random()*256,len=20+Math.random()*90;
+      ctx.strokeStyle=`rgba(255,255,255,${(0.06+Math.random()*0.16).toFixed(3)})`;
+      ctx.lineWidth=Math.random()*1.1+0.2;
+      ctx.beginPath();
+      ctx.moveTo(x,y);
+      ctx.lineTo(x+len,y+(Math.random()-0.5)*10);
+      ctx.stroke();
+    }
+    const tex=new THREE.CanvasTexture(c);
+    tex.wrapS=tex.wrapT=THREE.RepeatWrapping;
+    tex.repeat.set(2,1.5);
+    return tex;
+  }
+  const pmrem=new THREE.PMREMGenerator(renderer);
+  scene.environment=pmrem.fromEquirectangular(makeEnvTexture()).texture;
+  pmrem.dispose();
+
+  const mat=new THREE.MeshStandardMaterial({color:0xffffff,flatShading:true,
+    roughness:0.7,metalness:0.88,roughnessMap:makeScratchTexture(),envMapIntensity:1.5,transparent:true});
   /* soft white glow shell per letter — same geometry, no extra memory, drawn from the inside
      (BackSide) with additive blending so it reads as a faint aura rather than a second solid
      object. No EffectComposer/bloom (banned — real GPU-compat bug hit earlier with that route). */
