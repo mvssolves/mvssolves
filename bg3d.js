@@ -38,8 +38,12 @@
     if(!gl)return;
 
     const section=canvas.closest('section')||canvas.parentElement;
-    const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
+    /* same mobile GPU cost cut as the homepage's main.js: MSAA + high pixel-ratio fragment
+       cost is what narrow viewports pay hardest for, skip both below the same <700 breakpoint
+       every scene's own resize() uses for camera tuning. */
+    const narrow=window.innerWidth<700;
+    const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:!narrow});
+    renderer.setPixelRatio(narrow?1:Math.min(window.devicePixelRatio||1,1.5));
     const scene=new THREE.Scene();
     const camera=new THREE.PerspectiveCamera(45,1,0.1,100);
 

@@ -22,6 +22,14 @@ function onWidthResize(cb){
     cb();
   },{passive:true});
 }
+/* mobile GPUs pay hard for MSAA + high pixel-ratio fragment cost — narrow viewports skip both.
+   Read once at renderer-creation time (matches the same <700 breakpoint every scene's own
+   size() already uses for camera/geometry tuning), not re-evaluated on resize: the 901px
+   breakpoint change above already forces a full reload, which recreates every renderer fresh. */
+function mobileGfxOpts(){
+  const narrow=window.innerWidth<700;
+  return{antialias:!narrow,dpr:narrow?1:Math.min(window.devicePixelRatio||1,1.5)};
+}
 /* shared scroll-ripple impulse — every 3D scene reads this one number instead of running its
    own scroll-velocity tracking. Spikes on scroll delta, decays every real frame via gsap.ticker
    (already running site-wide for Lenis sync) so scenes never need their own decay loop. */
@@ -106,8 +114,9 @@ function initBookPoly3D(canvas){
   if(!gl)return;
 
   const section=canvas.closest('#book');
-  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
+  const gfx=mobileGfxOpts();
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:gfx.antialias});
+  renderer.setPixelRatio(gfx.dpr);
   const scene=new THREE.Scene();
   const camera=new THREE.PerspectiveCamera(45,1,0.1,50);
   camera.position.set(0,0,7);
@@ -175,8 +184,9 @@ function initCapGrid3D(canvas){
   if(!gl)return;
 
   const section=canvas.closest('#capabilities');
-  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
+  const gfx=mobileGfxOpts();
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:gfx.antialias});
+  renderer.setPixelRatio(gfx.dpr);
   const scene=new THREE.Scene();
   const camera=new THREE.PerspectiveCamera(50,1,0.1,50);
   camera.position.set(0,1.7,3.1);
@@ -307,8 +317,9 @@ function initHero3D(canvas){
   if(!gl)return;
 
   const hero=canvas.closest('.hero');
-  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
+  const gfx=mobileGfxOpts();
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:gfx.antialias});
+  renderer.setPixelRatio(gfx.dpr);
   const scene=new THREE.Scene();
   const camera=new THREE.PerspectiveCamera(45,1,0.1,100);
   camera.position.set(0,0,7);
@@ -329,9 +340,15 @@ function initHero3D(canvas){
      whole THREE setup (every section's 3D, not just the hero). Same "the clever addon-based
      approach isn't worth the risk" lesson as the bloom postprocessing pass earlier this
      session — this path only touches the core module already proven working all session. */
-  const light=new THREE.DirectionalLight(0xffffff,2.4);
+  const light=new THREE.DirectionalLight(0xffffff,2.6);
   light.position.set(2.4,3,2.5);
-  scene.add(light,new THREE.AmbientLight(0xffffff,0.3));
+  /* fill light from the opposite side — a single key light left the far-side facets going
+     fully black partway through the spin, reading flat/2D at those angles. Dimmer counterpart,
+     still pure white (no color introduced), just enough to keep the form legible all the way
+     around the rotation instead of only from the front. */
+  const fill=new THREE.DirectionalLight(0xffffff,0.4);
+  fill.position.set(-3,-1.8,1.6);
+  scene.add(light,fill,new THREE.AmbientLight(0xffffff,0.34));
   const group=new THREE.Group();
   scene.add(group);
 
@@ -344,16 +361,23 @@ function initHero3D(canvas){
   mShape.lineTo(10,12);
   mShape.lineTo(10,0);
   mShape.lineTo(0,0);
-  const mGeo=new THREE.ExtrudeGeometry(mShape,{depth:2.6,bevelEnabled:true,bevelThickness:0.3,bevelSize:0.2,bevelSegments:3,curveSegments:1});
+  /* deeper extrude + bigger bevel than the first pass — the side facets barely read at the old
+     depth/bevel, so the rotation looked like a flat card swiveling rather than a real 3D object. */
+  const mGeo=new THREE.ExtrudeGeometry(mShape,{depth:3.4,bevelEnabled:true,bevelThickness:0.4,bevelSize:0.26,bevelSegments:4,curveSegments:1});
   mGeo.computeBoundingBox();
   const mbb=mGeo.boundingBox;
   mGeo.translate(-(mbb.max.x+mbb.min.x)/2,-(mbb.max.y+mbb.min.y)/2,-(mbb.max.z+mbb.min.z)/2);
-  mGeo.scale(0.16,0.16,0.16);
-  const mMat=new THREE.MeshLambertMaterial({color:0xffffff,flatShading:true});
+  /* bigger than the first pass (0.16) — was reading too small/easy to miss. */
+  mGeo.scale(0.205,0.205,0.205);
+  /* standard material instead of Lambert — roughness-based specular gives the facets a bit of
+     premium sheen as they catch the key light. Still flat-shaded/monochrome/no envMap (no
+     reflection trick, just direct-light specular on one mesh — negligible extra cost). */
+  const mMat=new THREE.MeshStandardMaterial({color:0xffffff,flatShading:true,roughness:0.42,metalness:0.06});
   const mesh=new THREE.Mesh(mGeo,mMat);
-  /* opaque (no glass/translucency, same call as the faceted attempt) — offset off-center so it
-     clears the centered headline/CTA column instead of blocking it. */
-  mesh.position.set(1.3,-1.4,0);
+  /* subtle tilt, not a hard angle — the M's zigzag profile only reads as a letter close to
+     face-on; a big initial rotation turned it into an unrecognizable rounded blob before the
+     spin brought it back around. Just enough tilt to hint at the bevel/depth immediately. */
+  mesh.rotation.set(-0.08,0.22,0);
   group.add(mesh);
 
   let w=0,h=0,baseZ=7,zoomDepth=2.2;
@@ -361,12 +385,32 @@ function initHero3D(canvas){
     const r=hero.getBoundingClientRect();
     w=r.width;h=r.height;
     renderer.setSize(w,h,false);
-    camera.aspect=w/Math.max(h,1);
+    const aspect=w/Math.max(h,1);
+    camera.aspect=aspect;
     camera.updateProjectionMatrix();
     /* narrow aspect = much less horizontal FOV at the same distance, so the same world-space
        shape reads as "too big/cropped" on mobile — pull the camera back to compensate. */
-    baseZ=w<700?10.5:7;
-    group.scale.setScalar(w<700?0.62:1);
+    /* pulled back slightly vs the first pass (7→7.6, 10.5→11.2) — the deeper extrude/bigger
+       bevel needs a touch more room to avoid crowding the same screen footprint as before. */
+    const narrow=w<700;
+    baseZ=narrow?12.4:8.4;
+    const scaleF=narrow?0.62:1;
+    group.scale.setScalar(scaleF);
+    /* position derived from the actual frustum at this aspect/baseZ, not a fixed world-unit
+       guess — a fixed (1.3,-1.4) position was only ever verified at one narrow test-window size
+       that happened to land on the mobile code path. At real desktop widths it overlapped "for
+       your business"/the CTA (confirmed against the unmodified original — same bug, not
+       introduced by this pass), and a plain width breakpoint alone still clipped the shape
+       clean off the right edge on any "desktop" window between 700-900px (laptop/split-screen
+       sizes use the same tuning as 1280+, but have far less horizontal frustum at the same
+       zoom). Clamping x to the frustum's actual safe edge — using the mesh's real bounding-
+       sphere radius (~1.72, measured via geometry.computeBoundingSphere) — fits any window
+       shape instead of just the one size it was eyeballed against. */
+    const halfW=baseZ*Math.tan(45*Math.PI/360)*aspect;
+    const R=1.72,margin=0.3;
+    const xMax=(halfW-margin)/scaleF-R;
+    const xPreferred=narrow?1.3:3.15;
+    mesh.position.set(Math.max(narrow?0.9:1.0,Math.min(xPreferred,xMax)),narrow?-2.0:-0.3,0);
     /* mobile starts farther back (baseZ 10.5 vs 7) and scaled down 0.62x, so the same scroll-zoom
        distance reads as barely-there — push the zoom travel out so it's felt at the same intensity. */
     zoomDepth=w<700?4.4:2.2;
@@ -381,16 +425,19 @@ function initHero3D(canvas){
     mouseY=((e.clientY-r.top)/h-0.5)*2;
   },{passive:true});
 
-  let scrollT=0;
+  let scrollT=0,heroVisible=true;
   function updateScroll(){
     const r=hero.getBoundingClientRect();
     scrollT=Math.min(Math.max(-r.top/Math.max(r.height,1),0),1);
   }
   /* rAF-coalesced: raw 'scroll' events can fire many times per frame (momentum/trackpad),
-     each running getBoundingClientRect (forced layout read) — collapse to one read+write per frame. */
+     each running getBoundingClientRect (forced layout read) — collapse to one read+write per
+     frame. Also skip entirely once the hero has scrolled off-screen — this listener never got
+     torn down, so it was running a forced layout read on every scroll anywhere on the page
+     (footer, pricing, wherever) for the rest of the visit. */
   let scrollPending=false;
   window.addEventListener('scroll',()=>{
-    if(scrollPending)return;
+    if(scrollPending||!heroVisible)return;
     scrollPending=true;
     requestAnimationFrame(()=>{scrollPending=false;updateScroll();});
   },{passive:true});
@@ -400,21 +447,22 @@ function initHero3D(canvas){
   function frame(){
     if(!running)return;
     t+=0.014;
-    mesh.rotation.y+=0.0018;
-    mesh.rotation.x+=0.001;
+    mesh.rotation.y+=0.0022;
+    mesh.rotation.x+=0.0013;
     mesh.scale.setScalar(1+scrollImpulse*0.06);
     group.rotation.x+=(mouseY*0.22-group.rotation.x)*0.04;
     group.rotation.y+=(mouseX*0.14)*0.002;
     camera.position.z=baseZ-scrollT*zoomDepth;
     group.rotation.z=scrollT*0.3;
-    light.intensity=2.4+scrollImpulse*1.3;
+    light.intensity=2.6+scrollImpulse*1.4;
+    fill.intensity=0.4+scrollImpulse*0.3;
     renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
   }
   function start(){if(running)return;running=true;raf=requestAnimationFrame(frame);}
   function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=null;}
 
-  onVisibilityChange(hero,visible=>{visible?start():stop();});
+  onVisibilityChange(hero,visible=>{heroVisible=visible;visible?start():stop();});
   document.addEventListener('visibilitychange',()=>{document.hidden?stop():(hero.getBoundingClientRect().bottom>0&&start());});
 
   hero.classList.add('has-3d');
@@ -791,8 +839,9 @@ function initIntegNodes3D(canvas){
   if(!gl)return;
 
   const section=canvas.closest('#integrations');
-  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
+  const gfx=mobileGfxOpts();
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:gfx.antialias});
+  renderer.setPixelRatio(gfx.dpr);
   const scene=new THREE.Scene();
   const camera=new THREE.PerspectiveCamera(45,1,0.1,100);
   camera.position.set(0,0,7);
@@ -835,15 +884,17 @@ function initIntegNodes3D(canvas){
   size();
 
   /* sideways scroll-pan: track how far this section has scrolled through the viewport and
-     slide the whole network across x for it, rAF-coalesced same as the hero's scroll tracker. */
-  let scrollT=0;
+     slide the whole network across x for it, rAF-coalesced same as the hero's scroll tracker.
+     Also skipped once off-screen — same fix as the hero's tracker, this listener never got
+     torn down so it ran a forced layout read on every scroll anywhere on the page, forever. */
+  let scrollT=0,sectionVisible=true;
   function updateScroll(){
     const r=section.getBoundingClientRect();
     scrollT=Math.min(Math.max(1-(r.top+r.height*0.5)/(window.innerHeight*0.5+r.height*0.5),0),1);
   }
   let scrollPending=false;
   window.addEventListener('scroll',()=>{
-    if(scrollPending)return;
+    if(scrollPending||!sectionVisible)return;
     scrollPending=true;
     requestAnimationFrame(()=>{scrollPending=false;updateScroll();});
   },{passive:true});
@@ -864,7 +915,7 @@ function initIntegNodes3D(canvas){
   function start(){if(running)return;running=true;raf=requestAnimationFrame(frame);}
   function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=null;}
 
-  onVisibilityChange(section,visible=>{visible?start():stop();});
+  onVisibilityChange(section,visible=>{sectionVisible=visible;visible?start():stop();});
   document.addEventListener('visibilitychange',()=>{document.hidden?stop():(section.getBoundingClientRect().bottom>0&&start());});
 
   section.classList.add('has-3d');
@@ -880,8 +931,9 @@ function initCostLeak3D(canvas){
   if(!gl)return;
 
   const section=canvas.closest('#hidden-cost');
-  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
+  const gfx=mobileGfxOpts();
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:gfx.antialias});
+  renderer.setPixelRatio(gfx.dpr);
   const scene=new THREE.Scene();
   const camera=new THREE.PerspectiveCamera(45,1,0.1,50);
   camera.position.set(0,0,7);
@@ -953,8 +1005,9 @@ function initPriceRise3D(canvas){
   if(!gl)return;
 
   const section=canvas.closest('#pricing');
-  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
+  const gfx=mobileGfxOpts();
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:gfx.antialias});
+  renderer.setPixelRatio(gfx.dpr);
   const scene=new THREE.Scene();
   const camera=new THREE.PerspectiveCamera(45,1,0.1,50);
   camera.position.set(0,0,7);

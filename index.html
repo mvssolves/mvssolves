@@ -164,7 +164,10 @@
   #pricing .wrap{position:relative;z-index:2;}
   .price-3d{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease;}
   #pricing.has-3d .price-3d{opacity:1;}
+  /* opacity:0 makes it invisible but the 60s transform animation kept running forever
+     underneath — pure wasted compositor work once the 3D hero takes over. */
   .hero.has-3d .hero-field{opacity:0;}
+  .hero.has-3d .hero-field svg{animation-play-state:paused;}
   .scrolldot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:bob 1.6s ease-in-out infinite;}
   @keyframes bob{0%,100%{transform:translateY(0);opacity:1;}50%{transform:translateY(5px);opacity:.4;}}
   .scroll-arrow{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:5;color:var(--ink);animation:scrollbob 1.6s ease-in-out infinite;}
@@ -375,13 +378,12 @@
   .wc-lab{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
   .wc-desc{margin-top:8px;font-size:13px;line-height:1.45;color:var(--soft);font-weight:600;}
   @media(prefers-reduced-motion:reduce){.wseg{transition:background .3s ease;}.wseg:hover,.wseg.active{transform:none;animation:none;}}
-  @media(max-width:600px){
-    .wheel-stage{width:280px;height:280px;}
-    .wn{font-size:12.5px;}
-    .wc-desc{font-size:11.5px;}
-    /* backdrop-filter over an element that's animating/scrolling resamples everything behind it
-       every frame — same cost nav.scrolled already avoids on mobile below. Solid-ish glass tint
-       reads almost the same without the per-frame blur recompute. */
+  /* backdrop-filter over an element that's animating/scrolling resamples everything behind it
+     every frame — same cost nav.scrolled already avoids on mobile below. Solid-ish glass tint
+     reads almost the same without the per-frame blur recompute. Matches .wheel-orbit's own
+     900px shrink breakpoint above — was only cut at 600px before, leaving larger phones
+     (601-900px, e.g. landscape or plus-size) still paying full backdrop-filter + 3D-tilt cost. */
+  @media(max-width:900px){
     .wheel-disc,.wheel-core{backdrop-filter:none;-webkit-backdrop-filter:none;}
     /* was a near-white rgba(250,250,250,.94) — invisible against --ink:#ffffff labels/ring, and
        nothing like the dark glass disc on desktop. Same dark tones as --bg-2-glass/--bg-glass,
@@ -396,12 +398,19 @@
     .wheel-core{background:rgba(10,10,10,.94);}
     .wheel-ring circle{filter:none;}
   }
+  @media(max-width:600px){
+    .wheel-stage{width:280px;height:280px;}
+    .wn{font-size:12.5px;}
+    .wc-desc{font-size:11.5px;}
+  }
 
-  /* hero trust-stat badge */
+  /* hero trust-stat badge — sits over the continuously-rendering hero-3d canvas the whole time
+     the hero is on screen; backdrop-filter there resamples the canvas behind it every frame,
+     same real cost nav.scrolled's blur was already cut for. Solid tint instead. */
   .hero-stat{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;
     font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);
     border:1px solid var(--line);border-radius:999px;padding:7px 16px;margin-bottom:18px;
-    background:rgba(10,10,10,.5);backdrop-filter:blur(2px);}
+    background:rgba(10,10,10,.72);}
   .hero-stat b{color:var(--ink);font-weight:700;}
 
   /* floating book-call pill — hidden until hero scrolls out, hidden again once the book
