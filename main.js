@@ -308,28 +308,25 @@ function initHero3D(canvas){
   const camera=new THREE.PerspectiveCamera(45,1,0.1,100);
   camera.position.set(0,0,7);
 
-  /* chrome/mirror sphere — a real environment-reflection technique (WebGLCubeRenderTarget +
-     CubeCamera), ported from a mirror-physics-text reference found in the 3D pack review.
-     Everything it reflects is already black/white (the page itself), so it's monochrome by
-     construction rather than by tuning a color value — same principle as the dither shader,
-     different technique. This is the first hero to use a genuine reflective material rather
-     than wireframe/points/translucent-fill/custom-fragment-shading. Standard, universally-
-     supported feature (unlike the HalfFloatType bloom target that failed earlier) — but it
-     is a real extra render pass, so the cube camera updates every 3rd frame at low (128px)
-     resolution instead of every frame, keeping the added cost small. */
-  const cubeRT=new THREE.WebGLCubeRenderTarget(128,{generateMipmaps:true,minFilter:THREE.LinearMipmapLinearFilter});
-  const cubeCam=new THREE.CubeCamera(0.1,50,cubeRT);
-  scene.add(cubeCam);
-  const light=new THREE.DirectionalLight(0xffffff,2.2);
-  light.position.set(2,3,4);
-  scene.add(light,new THREE.AmbientLight(0xffffff,0.35));
-  const sphereGeo=new THREE.SphereGeometry(2.2,64,64);
-  /* every prior hero material was translucent/wireframe/alpha-gapped, so the CTA button
-     underneath always showed through — a fully opaque chrome surface doesn't, and blocked the
-     button icon outright. Slight transparency keeps the metal look while letting content
-     underneath still show through. */
-  const chromeMat=new THREE.MeshStandardMaterial({color:0xffffff,metalness:1,roughness:0.06,envMap:cubeRT.texture,transparent:true,opacity:0.85});
-  const sphere=new THREE.Mesh(sphereGeo,chromeMat);
+  /* solid faceted graphic — per .design/hero-faceted-graphic/DESIGN_BRIEF.md, resolved via
+     /designflow grill-me after 8 rejected attempts. Explicit hard no from that session:
+     "I dont want wires I want something creative, a clean graphic." Opaque, flat-shaded
+     low-poly solid — each facet is one flat tone (flatShading:true means each triangle gets
+     its own uniform normal, no gradient across a face), hard edges between facets, no
+     wireframe overlay, no translucency, no reflection, no shader texture. Reads like a bold
+     printed-poster graphic; the 3D-ness comes from facets catching/losing light as it rotates,
+     not from shading detail within a facet. First hero needing a real light (every earlier one
+     used unlit MeshBasicMaterial) — flat shading has nothing to show without one. */
+  const light=new THREE.DirectionalLight(0xffffff,2.4);
+  light.position.set(2.4,3,2.5);
+  scene.add(light,new THREE.AmbientLight(0xffffff,0.3));
+  const facetGeo=new THREE.IcosahedronGeometry(2.3,1);
+  const facetMat=new THREE.MeshLambertMaterial({color:0xffffff,flatShading:true});
+  const sphere=new THREE.Mesh(facetGeo,facetMat);
+  /* opaque per brief (no glass/translucency) — so unlike every earlier translucent/wireframe
+     hero, this one can genuinely block content behind it. Offset off-center (lower-right dead
+     space) instead of adding transparency, so it clears the centered headline/CTA column. */
+  sphere.position.set(1.9,-1.1,0);
 
   const group=new THREE.Group();
   group.add(sphere);
@@ -375,23 +372,19 @@ function initHero3D(canvas){
   },{passive:true});
   updateScroll();
 
-  let running=false,raf=null,t=0,frameN=0;
+  let running=false,raf=null,t=0;
   function frame(){
     if(!running)return;
     t+=0.014;
-    group.rotation.y+=0.0018;
+    sphere.rotation.y+=0.0018;
+    sphere.rotation.x+=0.001;
     group.rotation.x+=(mouseY*0.22-group.rotation.x)*0.04;
     group.rotation.y+=(mouseX*0.14)*0.002;
     camera.position.z=baseZ-scrollT*zoomDepth;
     group.rotation.z=scrollT*0.3;
-    sphere.scale.setScalar(1+scrollImpulse*0.06);
-    frameN++;
-    if(frameN%3===0){
-      sphere.visible=false;
-      cubeCam.position.copy(sphere.position);
-      cubeCam.update(renderer,scene);
-      sphere.visible=true;
-    }
+    const ps=1+scrollImpulse*0.06;
+    sphere.scale.setScalar(ps);
+    light.intensity=2.4+scrollImpulse*1.3;
     renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
   }
