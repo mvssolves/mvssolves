@@ -266,6 +266,7 @@ function initHero3D(canvas){
     /* narrow aspect = much less horizontal FOV at the same distance, so the same world-space
        shape reads as "too big/cropped" on mobile — pull the camera back to compensate. */
     baseZ=w<700?10.5:7;
+    group.scale.setScalar(w<700?0.62:1);
   }
   window.addEventListener('resize',size,{passive:true});
   size();
