@@ -70,28 +70,20 @@ if(!reduce&&isDesktop){
   lenis.on('scroll',ScrollTrigger.update);
 }
 
-/* mobile nav toggle */
-(function(){
-  const btn=document.getElementById('navToggle'),links=document.getElementById('navLinks');
-  if(!btn||!links)return;
-  btn.addEventListener('click',()=>{
-    const open=links.classList.toggle('open');
-    btn.setAttribute('aria-expanded',open);
-  });
-  links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
-    links.classList.remove('open');btn.setAttribute('aria-expanded','false');
-  }));
-})();
-
-/* desktop dynamic nav — sliding highlight follows the hovered link */
+/* dynamic pill nav — sliding highlight follows hover (desktop) / tap (touch), rests on active link */
 (function(){
   const links=document.getElementById('navLinks'),hl=document.getElementById('navHl');
   if(!links||!hl)return;
   const anchors=[...links.querySelectorAll('a')];
-  function move(el){if(!el)return;hl.style.transform=`translateX(${el.offsetLeft}px)`;hl.style.width=el.offsetWidth+'px';}
-  anchors.forEach(a=>a.addEventListener('mouseenter',()=>move(a)));
-  requestAnimationFrame(()=>move(anchors[0]));
-  window.addEventListener('resize',()=>move(anchors[0]),{passive:true});
+  let active=anchors[0];
+  function move(el){if(!el)return;hl.style.opacity='1';hl.style.transform=`translateX(${el.offsetLeft}px)`;hl.style.width=el.offsetWidth+'px';}
+  anchors.forEach(a=>{
+    a.addEventListener('mouseenter',()=>move(a));
+    a.addEventListener('click',()=>{active=a;move(a);});
+  });
+  links.addEventListener('mouseleave',()=>move(active));
+  requestAnimationFrame(()=>move(active));
+  window.addEventListener('resize',()=>move(active),{passive:true});
 })();
 
 /* scroll progress + nav */
@@ -613,7 +605,7 @@ function playHeroReveal(){
   if(reduce)return;
   const fadeIn=(el,delay)=>{if(!el)return;gsap.fromTo(el,{opacity:0,y:14},{opacity:1,y:0,duration:0.6,delay,ease:'power2.out'});};
   fadeIn(document.querySelector('.navcta'),0);
-  document.querySelectorAll('h1 .line>span').forEach((span,i)=>fadeIn(span,i*0.1));
+  document.querySelectorAll('h1 .line>.ma').forEach((span,i)=>fadeIn(span,i*0.1));
   fadeIn(document.getElementById('hsub'),0.45);
   document.querySelectorAll('#hcta .btn').forEach((btn,i)=>fadeIn(btn,0.7+i*0.1));
 }
@@ -1261,19 +1253,25 @@ function initPriceRise3D(canvas){
 (function(){
   const hero=document.getElementById('top');
   const fill=document.querySelector('.paint-fill');
-  const content=[hero&&hero.querySelector('.h-wrap'),hero&&hero.querySelector('.h-bottom')].filter(Boolean);
+  const wrap=hero&&hero.querySelector('.h-wrap');
+  const bottom=hero&&hero.querySelector('.h-bottom');
+  const ma=[...(hero?hero.querySelectorAll('h1.morph .ma'):[])];
+  const mb=[...(hero?hero.querySelectorAll('h1.morph .mb'):[])];
   if(!hero||!fill||reduce)return;
   let pending=false;
   function upd(){
     const h=hero.offsetHeight||window.innerHeight;
     const p=Math.min(Math.max(window.scrollY/h,0),1);
-    /* veil RISES from the hero's bottom edge — height grows 0→~115% of the hero as you scroll.
-       Confined to the hero, behind the headline. */
+    /* veil RISES from the hero's bottom edge — height grows 0→~115% of the hero as you scroll. */
     fill.style.setProperty('--ph',(p*115)+'%');
-    /* smooth: the hero content lifts and fades as the veil rises, so the whole hero glides away
-       rather than the copy just sitting there while a band climbs over it. */
-    const op=Math.max(0,1-p*1.35);
-    content.forEach(el=>{el.style.opacity=op;el.style.transform=`translateY(${-p*36}px)`;});
+    /* text-morph: "Real/Conversion/for your business" → "The best/in/the industry" as you scroll
+       through the hero. gooey feColorMatrix (CSS) merges the blurred blobs across the crossover. */
+    const mp=Math.min(Math.max(p/0.55,0),1);
+    ma.forEach(el=>{el.style.opacity=(1-mp);el.style.filter=`blur(${mp*10}px)`;el.style.transform=`scale(${1+mp*0.12})`;});
+    mb.forEach(el=>{el.style.opacity=mp;el.style.filter=`blur(${(1-mp)*10}px)`;el.style.transform=`scale(${0.86+mp*0.14})`;});
+    /* headline lifts (no opacity fade — morph owns its alpha); the lower block lifts + fades out. */
+    if(wrap)wrap.style.transform=`translateY(${-p*36}px)`;
+    if(bottom){bottom.style.opacity=Math.max(0,1-p*1.35);bottom.style.transform=`translateY(${-p*36}px)`;}
   }
   window.addEventListener('scroll',()=>{
     if(pending)return;pending=true;

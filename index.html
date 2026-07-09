@@ -119,48 +119,29 @@
   .logo-text{display:inline-block;max-width:0;opacity:0;overflow:hidden;white-space:nowrap;
     transition:max-width .35s ease,opacity .25s ease;}
   .logo:hover .logo-text,.logo:focus-visible .logo-text{max-width:160px;opacity:1;}
-  .nav-r{display:flex;gap:20px;align-items:center;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
-  /* ink-blot reveal instead of a flat max-height accordion slide — a circle spreads from the
-     toggle button's position instead of the panel just sliding down. Pointer-events gated on
-     .open since a clipped-away circle can still be hit-testable in some engines. */
-  .nav-links{position:absolute;top:100%;left:0;right:0;display:flex;flex-direction:column;align-items:stretch;gap:0;
-    background:var(--bg);padding:0 20px;overflow:hidden;border-bottom:1px solid transparent;
-    clip-path:circle(0px at calc(100% - 34px) 0%);pointer-events:none;
-    transition:clip-path .55s cubic-bezier(.4,0,.2,1),border-color .3s ease;}
-  .nav-links a{padding:14px 0;border-bottom:1px solid var(--line);}
-  .nav-links.open{clip-path:circle(150% at calc(100% - 34px) 0%);border-color:var(--line);pointer-events:auto;}
-  @media(prefers-reduced-motion:reduce){.nav-links{transition:none;}}
-  .nav-r a:hover{color:var(--ink);}
-  .navcta{color:var(--ink)!important;font-weight:700;border-bottom:2px solid var(--ink);padding-bottom:2px;white-space:nowrap;}
-  /* mobile: the top-right CTA text crowded the hamburger. Hide it up top (top-right is just the
-     hamburger, like the clean desktop bar) and surface it as the last item in the dropdown menu. */
+  .nav-r{display:flex;gap:16px;align-items:center;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+  /* one sliding-pill nav on every width. Links live in a rounded pill; a single absolutely-positioned
+     highlight chip (JS-driven left/width) eases to the hovered link on desktop and the tapped/active
+     link on touch. Narrow screens scroll the pill horizontally instead of collapsing to a hamburger. */
+  .nav-links{position:relative;display:flex;flex-direction:row;align-items:center;gap:4px;
+    padding:5px;pointer-events:auto;max-width:100%;overflow-x:auto;
+    background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:999px;
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    scrollbar-width:none;-ms-overflow-style:none;}
+  .nav-links::-webkit-scrollbar{display:none;}
+  .nav-links a{padding:7px 15px;border-radius:999px;position:relative;z-index:1;white-space:nowrap;
+    flex-shrink:0;transition:color .25s ease;color:var(--muted);}
+  .nav-links a:hover{color:var(--ink);}
+  .nav-hl{position:absolute;top:5px;height:calc(100% - 10px);left:0;width:0;
+    border-radius:999px;background:rgba(255,255,255,.1);pointer-events:none;z-index:0;opacity:0;
+    transition:transform .32s cubic-bezier(.25,1,.5,1),width .32s cubic-bezier(.25,1,.5,1),opacity .25s ease;}
+  .navcta{color:var(--ink)!important;font-weight:700;padding:7px 6px;white-space:nowrap;}
+  .navcta:hover{opacity:.7;}
   .nl-cta{display:none;}
   @media(max-width:900px){
+    nav{padding:14px 16px;gap:10px;}
+    .nav-links a{padding:6px 11px;font-size:11px;}
     .navcta{display:none;}
-    .nav-links .nl-cta{display:block;color:var(--ink)!important;font-weight:700;}
-  }
-  .navtoggle{display:flex;background:none;border:0;padding:6px;margin:0;cursor:pointer;flex-direction:column;gap:5px;}
-  .navtoggle span{display:block;width:22px;height:2px;background:var(--ink);}
-  /* the hamburger dropdown had no desktop override at all — it rendered and opened identically on
-     a 1920px window as on a phone, stacking the nav links full-width over the page. Desktop shows
-     the links inline instead; the toggle button and dropdown behavior are mobile-only. */
-  /* desktop: nav links live in a rounded pill with a sliding highlight that follows the hovered
-     link (dynamic-navigation style). The highlight is one absolutely-positioned rounded chip whose
-     left/width are set from JS on hover; it eases between links. */
-  .nav-hl{display:none;}
-  @media(min-width:901px){
-    .navtoggle{display:none;}
-    .nav-links{position:relative;display:flex;flex-direction:row;align-items:center;gap:4px;
-      overflow:visible;padding:5px;border-bottom:0;clip-path:none;pointer-events:auto;
-      background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:999px;
-      backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
-    .nav-links a{padding:7px 15px;border-bottom:0;border-radius:999px;position:relative;z-index:1;
-      transition:color .25s ease;color:var(--muted);}
-    .nav-links a:hover{color:var(--ink);}
-    .nav-hl{display:block;position:absolute;top:5px;height:calc(100% - 10px);left:0;width:0;
-      border-radius:999px;background:rgba(255,255,255,.1);pointer-events:none;z-index:0;opacity:0;
-      transition:transform .32s cubic-bezier(.25,1,.5,1),width .32s cubic-bezier(.25,1,.5,1),opacity .25s ease;}
-    .nav-links:hover .nav-hl{opacity:1;}
   }
 
   /* smooth hero veil — a soft dark gradient that RISES from the hero's bottom edge as you scroll,
@@ -218,9 +199,15 @@
   @keyframes scrollbob{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(7px);}}
   @media(prefers-reduced-motion:reduce){.scroll-arrow{animation:none;}}
   h1{font-family:'Nohemi',sans-serif;font-weight:700;letter-spacing:-.03em;line-height:.95;font-size:clamp(36px,8vw,128px);color:var(--ink);}
-  h1 .line{display:block;}
+  h1 .line{display:block;position:relative;}
   h1 .line>span{display:block;}
   h1 .aw{font-family:'Cormorant',serif;font-style:italic;font-weight:500;text-transform:none;letter-spacing:-.01em;line-height:1.05;padding-bottom:.14em;}
+  /* scroll text-morph: .mb (target phrase) stacks over .ma (source), gooey-blur crossfade on scroll */
+  .goo-def{position:absolute;}
+  h1.morph{filter:url(#heroGoo);}
+  h1.morph .mb{position:absolute;left:0;right:0;top:0;opacity:0;transform:scale(.86);will-change:opacity,filter,transform;}
+  h1.morph .ma{will-change:opacity,filter,transform;}
+  @media(prefers-reduced-motion:reduce){h1.morph{filter:none;}h1.morph .mb{display:none;}}
   .h-sub{margin:24px auto 0;max-width:560px;font-size:clamp(15px,1.5vw,18px);color:var(--text);line-height:1.55;text-align:center;text-shadow:0 2px 16px rgba(0,0,0,.7);}
   .h-cta{margin-top:28px;display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;}
   .btn{display:inline-flex;align-items:center;gap:10px;padding:16px 26px;border-radius:999px;font-weight:700;font-size:15px;}
@@ -798,10 +785,8 @@
       <a href="#pricing">Pricing</a>
       <a href="/faq">FAQ</a>
       <a href="/join-the-team">Join the team</a>
-      <a class="nl-cta" href="#book">Automate your business</a>
     </div>
     <a class="navcta" href="#book">Automate your business</a>
-    <button class="navtoggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
   </div>
 </nav>
 
@@ -819,15 +804,19 @@
   </div>
   <canvas class="hero-3d" id="hero3d" aria-hidden="true"></canvas>
   <div class="h-wrap">
-    <h1>
-      <span class="line"><span>Real</span></span>
-      <span class="line"><span>Conversion</span></span>
-      <span class="line"><span class="aw">for your business</span></span>
+    <svg class="goo-def" aria-hidden="true" width="0" height="0"><defs>
+      <filter id="heroGoo"><feGaussianBlur in="SourceGraphic" stdDeviation="6" result="b"/>
+        <feColorMatrix in="b" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9" result="g"/>
+        <feComposite in="SourceGraphic" in2="g" operator="atop"/></filter></defs></svg>
+    <h1 class="morph">
+      <span class="line"><span class="ma">Real</span><span class="mb">The best</span></span>
+      <span class="line"><span class="ma">Conversion</span><span class="mb">in</span></span>
+      <span class="line"><span class="ma aw">for your business</span><span class="mb aw">the industry</span></span>
     </h1>
   </div>
   <div class="h-bottom">
     <div class="hero-stat"><b>24h</b>&nbsp;launch turnaround</div>
-    <p class="h-sub" id="hsub">Websites, automation &amp; AI — built end-to-end by one person. No handoffs, no account managers, no fluff. You text me, you get me.</p>
+    <p class="h-sub" id="hsub">Websites, automation &amp; AI — built end-to-end by one person. No handoffs, no account managers. You text me, you get me.</p>
     <div class="h-cta" id="hcta">
       <a class="btn btn-fill" href="#book">Automate your business
         <span class="swap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></a>
@@ -844,7 +833,7 @@
   <div class="wrap">
     <div class="lab">01 / Everything handled</div>
     <h2 class="h2-split"><span class="word"><span>Your</span></span> <span class="word"><span>entire</span></span> <span class="word"><span>workflow.</span></span></h2>
-    <p class="sub">Get the results you deserve.</p>
+    <p class="sub">Your whole dashboard covered.</p>
     <div class="cap-grid">
       <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">W</div><div class="cn">Website &amp; funnels</div><div class="cc">Fast, conversion-built pages.</div></div></div>
       <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">B</div><div class="cn">Online booking</div><div class="cc">Self-serve, synced to your calendar.</div></div></div>
@@ -1124,7 +1113,7 @@
     <div class="book-grid">
       <div>
         <h2 id="bookH2">No pitch.<br>Just a plan.</h2>
-        <p class="sub">Tell me what you're working with. I'll tell you exactly what I can do — and whether it's worth it. No pitch, no fluff. Just a straight conversation and a clear plan.</p>
+        <p class="sub">Tell me what you're working with. I'll tell you exactly what I can do — and whether it's worth it. No pitch. Just a straight conversation and a clear plan.</p>
         <a class="btn btn-fill mailbtn" href="mailto:martin@mvssolves.com">Email martin@mvssolves.com
           <span class="swap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></a>
         <div class="book-note">Same-day reply. Always. → book a free 30-minute call:</div>
