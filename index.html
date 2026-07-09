@@ -54,9 +54,17 @@
   :root{
     --bg:#0a0a0a; --bg-2:#151515; --surface:#1e1e1e;
     --bg-glass:rgba(10,10,10,.85); --bg-2-glass:rgba(21,21,21,.85);
-    --ink:#ffffff; --text:#f0f1f5; --soft:#c5c5cb; --muted:#95959c;
+    /* neutrals biased a hair warm to match the amber accent — cool-grey neutrals against a warm
+       accent read as "unfinished". --ink kept pure white as the clean ground. */
+    --ink:#ffffff; --text:#f2efe9; --soft:#c8c3ba; --muted:#98938a;
     --line:rgba(255,255,255,0.12); --line-strong:rgba(255,255,255,0.24);
-    --accent:#ffffff; --accent-ink:#0a0a0a;
+    /* one ownable accent — Signal Amber. Unifies with the brass on the book-a-call page instead
+       of the generic automation-agency tech-blue. Light accent, so --accent-ink stays near-black
+       for legible button text. 3D scenes stay pure white (hardcoded 0xffffff), so the chrome
+       wordmark reads as metal while the flat UI carries the brand colour. */
+    --accent:#e8a94b; --accent-ink:#160d02;
+    /* semantic state colours — separate from the accent hue, for form/booking/reply states. */
+    --ok:#5aa576; --warn:#e0913a; --err:#d16155;
     --maxw:1300px;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
