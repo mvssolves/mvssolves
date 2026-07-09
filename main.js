@@ -407,8 +407,12 @@ function initHero3D(canvas){
     return mesh;
   }
 
+  /* the V-notch only used to dip to y=4.5 (37.5% up from the baseline) — left a solid mass
+     across the whole bottom, reading as a dented block, not an M with two real separated legs.
+     Deep notch (apex near the baseline, not touching it exactly — a literal y=0 vertex sits on
+     the closing bottom edge and makes a degenerate self-touching polygon). */
   const mShape=new THREE.Shape();
-  mShape.moveTo(0,0);mShape.lineTo(0,12);mShape.lineTo(2.4,12);mShape.lineTo(5,4.5);
+  mShape.moveTo(0,0);mShape.lineTo(0,12);mShape.lineTo(2.4,12);mShape.lineTo(5,0.5);
   mShape.lineTo(7.6,12);mShape.lineTo(10,12);mShape.lineTo(10,0);mShape.lineTo(0,0);
 
   const vShape=new THREE.Shape();
