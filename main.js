@@ -9,6 +9,19 @@ const _visibilityObserver=new IntersectionObserver(es=>{
   es.forEach(e=>{(e.target.__onVisible||[]).forEach(cb=>cb(e.isIntersecting));});
 },{threshold:0});
 function onVisibilityChange(el,cb){(el.__onVisible=el.__onVisible||[]).push(cb);_visibilityObserver.observe(el);}
+/* mobile browser chrome (address bar) collapsing/expanding on scroll fires resize events that
+   only ever change height, never width — the 3D scenes below were recomputing full renderer
+   size + camera matrices on every one of those, which is what read as a frame hop tied to
+   scroll. Same guard already used for ScrollTrigger.refresh further down: only act on a real
+   width change. */
+function onWidthResize(cb){
+  let lastW=window.innerWidth;
+  window.addEventListener('resize',()=>{
+    if(window.innerWidth===lastW)return;
+    lastW=window.innerWidth;
+    cb();
+  },{passive:true});
+}
 /* the desktop-only pin/scrub effects and the Premium co-tag observer are all set up once, keyed off
    this snapshot — reload on a breakpoint crossing rather than trying to hot-swap live ScrollTriggers
    and pin-spacers (resizing a window or rotating a tablet across 901px mid-session is rare, a reload
@@ -112,7 +125,7 @@ function initBookPoly3D(canvas){
     poly.position.copy(pos);
     core.position.copy(pos);
   }
-  window.addEventListener('resize',size,{passive:true});
+  onWidthResize(size);
   size();
 
   let t=0,running=false,raf=null;
@@ -185,7 +198,7 @@ function initCapGrid3D(canvas){
     camera.position.set(0,narrow?3.4:2.4,narrow?6:4.2);
     camera.lookAt(0,-0.6,-4);
   }
-  window.addEventListener('resize',size,{passive:true});
+  onWidthResize(size);
   const detailsEl=section.querySelector('.cap-more');
   if(detailsEl)detailsEl.addEventListener('toggle',size);
   size();
@@ -271,7 +284,7 @@ function initHero3D(canvas){
        distance reads as barely-there — push the zoom travel out so it's felt at the same intensity. */
     zoomDepth=w<700?4.4:2.2;
   }
-  window.addEventListener('resize',size,{passive:true});
+  onWidthResize(size);
   size();
 
   let mouseX=0,mouseY=0;
