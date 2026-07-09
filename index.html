@@ -119,12 +119,12 @@
   .logo-text{display:inline-block;max-width:0;opacity:0;overflow:hidden;white-space:nowrap;
     transition:max-width .35s ease,opacity .25s ease;}
   .logo:hover .logo-text,.logo:focus-visible .logo-text{max-width:160px;opacity:1;}
-  .nav-r{display:flex;gap:16px;align-items:center;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+  .nav-r{display:flex;gap:16px;align-items:center;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);min-width:0;}
   /* one sliding-pill nav on every width. Links live in a rounded pill; a single absolutely-positioned
      highlight chip (JS-driven left/width) eases to the hovered link on desktop and the tapped/active
      link on touch. Narrow screens scroll the pill horizontally instead of collapsing to a hamburger. */
   .nav-links{position:relative;display:flex;flex-direction:row;align-items:center;gap:4px;
-    padding:5px;pointer-events:auto;max-width:100%;overflow-x:auto;
+    padding:5px;pointer-events:auto;max-width:100%;min-width:0;overflow-x:auto;
     background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:999px;
     backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
     scrollbar-width:none;-ms-overflow-style:none;}
@@ -791,7 +791,7 @@
       <a href="#capabilities">Services</a>
       <a href="#pricing">Pricing</a>
       <a href="/faq">FAQ</a>
-      <a href="/join-the-team">Join the team</a>
+      <a href="/join-the-team">Join</a>
     </div>
   </div>
 </nav>
