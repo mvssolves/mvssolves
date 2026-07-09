@@ -22,6 +22,17 @@ function onWidthResize(cb){
     cb();
   },{passive:true});
 }
+/* shared scroll-ripple impulse — every 3D scene reads this one number instead of running its
+   own scroll-velocity tracking. Spikes on scroll delta, decays every real frame via gsap.ticker
+   (already running site-wide for Lenis sync) so scenes never need their own decay loop. */
+let scrollImpulse=0,_lastImpulseY=window.scrollY;
+window.addEventListener('scroll',()=>{
+  const y=window.scrollY;
+  scrollImpulse=Math.min(1,scrollImpulse+Math.abs(y-_lastImpulseY)*0.025);
+  _lastImpulseY=y;
+},{passive:true});
+gsap.ticker.add(()=>{scrollImpulse*=0.92;});
+
 /* the desktop-only pin/scrub effects and the Premium co-tag observer are all set up once, keyed off
    this snapshot — reload on a breakpoint crossing rather than trying to hot-swap live ScrollTriggers
    and pin-spacers (resizing a window or rotating a tablet across 901px mid-session is rare, a reload
@@ -135,13 +146,13 @@ function initBookPoly3D(canvas){
     poly.rotation.y+=0.0022;
     poly.rotation.x+=0.001;
     core.rotation.y-=0.003;
-    const s=1+Math.sin(t*0.6)*0.04;
+    const s=1+Math.sin(t*0.6)*0.04+scrollImpulse*0.12;
     poly.scale.set(s,s,s);
     const pulse=(Math.sin(t*0.5)+1)/2;
     col.copy(GREY).lerp(WHITE,pulse);
     mat.color.copy(col);
     coreMat.color.copy(WHITE);
-    coreMat.opacity=0.35+pulse*0.3;
+    coreMat.opacity=0.35+pulse*0.3+scrollImpulse*0.35;
     renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
   }
@@ -221,7 +232,8 @@ function initCapGrid3D(canvas){
     const arr=posAttr.array,carr=colorAttr.array;
     for(let i=0;i<arr.length;i+=3){
       const x=base[i],y=base[i+1];
-      const height=Math.sin(x*0.5+t)*0.36+Math.sin(y*0.4+t*0.8)*0.26;
+      const ripple=scrollImpulse*Math.sin(Math.abs(x)*1.3-t*5)*0.5;
+      const height=Math.sin(x*0.5+t)*0.36+Math.sin(y*0.4+t*0.8)*0.26+ripple;
       arr[i+2]=height;
       const e=edgeT[i/3];
       mixC.copy(TROUGH).lerp(PEAK,Math.max(0,height/0.6));
@@ -336,9 +348,12 @@ function initHero3D(canvas){
     group.rotation.y+=(mouseX*0.14)*0.002;
     camera.position.z=baseZ-scrollT*zoomDepth;
     group.rotation.z=scrollT*0.3;
+    const ps=1+scrollImpulse*0.1;
+    mesh.scale.setScalar(ps);
+    glow.scale.setScalar(1.04*ps);
     for(let i=0;i<count;i++){
       const wave=(Math.sin(phase[i]+t)+1)*0.5;
-      const b=0.2+topT[i]*0.35+wave*0.45;
+      const b=0.2+topT[i]*0.35+wave*0.45+scrollImpulse*0.3;
       carr[i*3]=b;carr[i*3+1]=b;carr[i*3+2]=b;
     }
     colorAttr.needsUpdate=true;
