@@ -348,7 +348,10 @@ function initHero3D(canvas){
      around the rotation instead of only from the front. */
   const fill=new THREE.DirectionalLight(0xffffff,0.4);
   fill.position.set(-3,-1.8,1.6);
-  scene.add(light,fill,new THREE.AmbientLight(0xffffff,0.34));
+  /* ambient bumped up — directional-lit flat-shaded facets always read grey wherever they face
+     away from both lights, which is what "looks grey not white" was pointing at. More ambient
+     lifts that floor toward white without flattening the facet contrast that sells the 3D. */
+  scene.add(light,fill,new THREE.AmbientLight(0xffffff,0.55));
   const group=new THREE.Group();
   scene.add(group);
 
@@ -371,16 +374,30 @@ function initHero3D(canvas){
   mGeo.scale(0.205,0.205,0.205);
   /* standard material instead of Lambert — roughness-based specular gives the facets a bit of
      premium sheen as they catch the key light. Still flat-shaded/monochrome/no envMap (no
-     reflection trick, just direct-light specular on one mesh — negligible extra cost). */
-  const mMat=new THREE.MeshStandardMaterial({color:0xffffff,flatShading:true,roughness:0.42,metalness:0.06});
+     reflection trick, just direct-light specular on one mesh — negligible extra cost).
+     emissive white keeps every facet's floor near-white instead of going grey wherever it faces
+     away from both lights — transparent:true so it can fade out during the scroll fly-through
+     below without a separate material swap. */
+  const mMat=new THREE.MeshStandardMaterial({color:0xffffff,flatShading:true,roughness:0.36,metalness:0.04,
+    emissive:0xffffff,emissiveIntensity:0.24,transparent:true});
   const mesh=new THREE.Mesh(mGeo,mMat);
   /* subtle tilt, not a hard angle — the M's zigzag profile only reads as a letter close to
      face-on; a big initial rotation turned it into an unrecognizable rounded blob before the
      spin brought it back around. Just enough tilt to hint at the bevel/depth immediately. */
   mesh.rotation.set(-0.08,0.22,0);
   group.add(mesh);
+  /* soft white glow shell — same geometry, no extra memory, drawn from the inside (BackSide) with
+     additive blending so it reads as a faint aura around the silhouette rather than a second
+     solid object. No EffectComposer/bloom pass (banned — real GPU-compat bug hit earlier with
+     that route), just one cheap unlit mesh. Child of mesh so it automatically tracks every
+     rotation/scale change below for free. */
+  const glowMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.22,
+    side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false});
+  const glow=new THREE.Mesh(mGeo,glowMat);
+  glow.scale.setScalar(1.14);
+  mesh.add(glow);
 
-  let w=0,h=0,baseZ=7,zoomDepth=2.2;
+  let w=0,h=0,baseZ=7;
   function size(){
     const r=hero.getBoundingClientRect();
     w=r.width;h=r.height;
@@ -411,9 +428,10 @@ function initHero3D(canvas){
     const xMax=(halfW-margin)/scaleF-R;
     const xPreferred=narrow?1.3:3.15;
     mesh.position.set(Math.max(narrow?0.9:1.0,Math.min(xPreferred,xMax)),narrow?-2.0:-0.3,0);
-    /* mobile starts farther back (baseZ 10.5 vs 7) and scaled down 0.62x, so the same scroll-zoom
-       distance reads as barely-there — push the zoom travel out so it's felt at the same intensity. */
-    zoomDepth=w<700?4.4:2.2;
+    /* camera sits at a fixed distance now — the scroll effect moves the MESH toward camera
+       instead of dollying the camera in (see frame() below), so this just needs to track baseZ
+       whenever it changes on resize. */
+    camera.position.z=baseZ;
   }
   onWidthResize(size);
   size();
@@ -449,10 +467,18 @@ function initHero3D(canvas){
     t+=0.014;
     mesh.rotation.y+=0.0022;
     mesh.rotation.x+=0.0013;
-    mesh.scale.setScalar(1+scrollImpulse*0.06);
+    /* scroll fly-through — eased (scrollT²) so it starts slow and rushes at the very end, the M
+       moving toward the camera and growing instead of the camera doing a subtle dolly-in. Fades
+       out over the last 40% of travel so it doesn't just clip through the near plane. */
+    const st=scrollT*scrollT;
+    mesh.position.z=st*baseZ*0.88;
+    mesh.scale.setScalar((1+scrollImpulse*0.06)*(1+st*4));
+    const fadeStart=0.6;
+    const op=scrollT>fadeStart?Math.max(0,1-(scrollT-fadeStart)/(1-fadeStart)):1;
+    mMat.opacity=op;
+    glowMat.opacity=0.22*op;
     group.rotation.x+=(mouseY*0.22-group.rotation.x)*0.04;
     group.rotation.y+=(mouseX*0.14)*0.002;
-    camera.position.z=baseZ-scrollT*zoomDepth;
     group.rotation.z=scrollT*0.3;
     light.intensity=2.6+scrollImpulse*1.4;
     fill.intensity=0.4+scrollImpulse*0.3;
