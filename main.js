@@ -263,8 +263,13 @@ function initCapGrid3D(canvas){
     camera.aspect=w/Math.max(h,1);
     camera.updateProjectionMatrix();
     const narrow=w<700;
-    camera.position.set(0,narrow?2.5:1.7,narrow?4.4:3.1);
+    camera.position.set(0,narrow?3.6:1.7,narrow?6.4:3.1);
     camera.lookAt(0,-0.3,-4);
+    /* narrow FOV fits far fewer grid cells across the width than desktop, so each cell (and
+       its line) reads chunky/oversized at the same grid scale — finer grid + thinner lines
+       fixes the density, pulling the camera back alone didn't. */
+    gridMat.uniforms.uGridScale.value=narrow?42.0:26.0;
+    gridMat.uniforms.uLineWidth.value=narrow?0.4:0.6;
   }
   onWidthResize(size);
   const detailsEl=section.querySelector('.cap-more');
