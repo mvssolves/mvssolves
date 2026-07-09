@@ -86,6 +86,17 @@ if(!reduce&&isDesktop){
   window.addEventListener('resize',()=>move(active),{passive:true});
 })();
 
+/* back-to-top button — show past one viewport, click scrolls to top (Lenis-aware) */
+(function(){
+  const btn=document.getElementById('toTop');
+  if(!btn)return;
+  let pending=false;
+  const check=()=>{btn.classList.toggle('show',window.scrollY>window.innerHeight*0.8);};
+  window.addEventListener('scroll',()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;check();});},{passive:true});
+  btn.addEventListener('click',()=>{lenis?lenis.scrollTo(0,{duration:1.1}):window.scrollTo({top:0,behavior:'smooth'});});
+  check();
+})();
+
 /* hero headline auto-morph — swap phrases every 2s (gooey blur crossfade via CSS .alt) */
 (function(){
   const h1=document.querySelector('h1.morph');
@@ -1269,11 +1280,11 @@ function initPriceRise3D(canvas){
   function upd(){
     const h=hero.offsetHeight||window.innerHeight;
     const p=Math.min(Math.max(window.scrollY/h,0),1);
-    /* veil RISES from the hero's bottom edge — height grows 0→~115% of the hero as you scroll. */
-    fill.style.setProperty('--ph',(p*115)+'%');
-    /* hero content lifts + fades as the veil rises. */
-    const op=Math.max(0,1-p*1.35);
-    content.forEach(el=>{el.style.opacity=op;el.style.transform=`translateY(${-p*36}px)`;});
+    /* veil RISES from the hero's bottom edge — faster + bigger: covers the hero by ~65% scroll. */
+    fill.style.setProperty('--ph',Math.min(p*190,190)+'%');
+    /* hero content lifts + fades quicker as the veil sweeps up. */
+    const op=Math.max(0,1-p*1.9);
+    content.forEach(el=>{el.style.opacity=op;el.style.transform=`translateY(${-p*80}px)`;});
   }
   window.addEventListener('scroll',()=>{
     if(pending)return;pending=true;
