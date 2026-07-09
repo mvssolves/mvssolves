@@ -168,8 +168,8 @@ function initCapGrid3D(canvas){
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
   const scene=new THREE.Scene();
   const camera=new THREE.PerspectiveCamera(50,1,0.1,50);
-  camera.position.set(0,2.4,4.2);
-  camera.lookAt(0,-0.6,-4);
+  camera.position.set(0,1.7,3.1);
+  camera.lookAt(0,-0.3,-4);
 
   const SEGX=44,SEGY=28;
   const geo=new THREE.PlaneGeometry(16,11,SEGX,SEGY);
@@ -195,8 +195,8 @@ function initCapGrid3D(canvas){
     camera.aspect=w/Math.max(h,1);
     camera.updateProjectionMatrix();
     const narrow=w<700;
-    camera.position.set(0,narrow?3.4:2.4,narrow?6:4.2);
-    camera.lookAt(0,-0.6,-4);
+    camera.position.set(0,narrow?2.5:1.7,narrow?4.4:3.1);
+    camera.lookAt(0,-0.3,-4);
   }
   onWidthResize(size);
   const detailsEl=section.querySelector('.cap-more');
@@ -206,13 +206,13 @@ function initCapGrid3D(canvas){
   let running=false,raf=null;
   function frame(){
     if(!running)return;
-    t+=0.008;
+    t+=0.015;
     const arr=posAttr.array,carr=colorAttr.array;
     for(let i=0;i<arr.length;i+=3){
       const x=base[i],y=base[i+1];
-      const height=Math.sin(x*0.5+t)*0.22+Math.sin(y*0.4+t*0.7)*0.16;
+      const height=Math.sin(x*0.5+t)*0.36+Math.sin(y*0.4+t*0.8)*0.26;
       arr[i+2]=height;
-      mixC.copy(TROUGH).lerp(PEAK,Math.max(0,height/0.38));
+      mixC.copy(TROUGH).lerp(PEAK,Math.max(0,height/0.6));
       carr[i]=mixC.r;carr[i+1]=mixC.g;carr[i+2]=mixC.b;
     }
     posAttr.needsUpdate=true;
