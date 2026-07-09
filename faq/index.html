@@ -109,7 +109,10 @@
   .lab{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--ink);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
   .lab::before{content:'';width:24px;height:2px;background:var(--accent);}
-  .hero{padding:80px 0 40px;border-bottom:1px solid var(--line);text-align:center;}
+  .hero{position:relative;overflow:hidden;padding:80px 0 40px;border-bottom:1px solid var(--line);text-align:center;}
+  .hero .wrap{position:relative;z-index:2;}
+  .faq-3d{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease;}
+  .hero.has-3d .faq-3d{opacity:1;}
   .hero .lab{justify-content:center;}
   .hero h1{font-size:clamp(34px,6vw,58px);line-height:1.05;margin-bottom:18px;}
   .hero .sub{font-size:18px;color:var(--soft);max-width:60ch;margin-left:auto;margin-right:auto;}
@@ -166,6 +169,7 @@
 </nav>
 
 <header class="hero">
+  <canvas class="faq-3d" id="faq3d" aria-hidden="true"></canvas>
   <div class="wrap">
     <div class="lab">FAQ</div>
     <h1>
@@ -212,6 +216,46 @@ document.querySelectorAll('#faqList .qa').forEach(qa=>{
     if(!open){qa.classList.add('open');a.style.maxHeight=a.scrollHeight+'px';q.setAttribute('aria-expanded','true');}};
   q.addEventListener('click',toggle);
   q.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
+});
+</script>
+
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js';
+window.THREE = THREE;
+</script>
+<script src="/bg3d.js" defer></script>
+<script type="module">
+/* scattered tumbling tetrahedra — "pieces falling into place" for a Q&A page. Distinct from
+   every homepage motif (single network/terrain/knot/rings/polyhedron shapes): many small
+   independent pieces instead of one big form. */
+initAmbientScene(document.getElementById('faq3d'), ({THREE,scene,camera})=>{
+  camera.position.set(0,0,8);
+  const group=new THREE.Group();
+  const mat=new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true,transparent:true,opacity:0.4});
+  const shapes=[];
+  for(let i=0;i<16;i++){
+    const geo=new THREE.TetrahedronGeometry(0.35+Math.random()*0.25,0);
+    const mesh=new THREE.Mesh(geo,mat);
+    const r=2.2+Math.random()*2.6;
+    const theta=Math.random()*Math.PI*2,phi=Math.acos(2*Math.random()-1);
+    mesh.position.set(r*Math.sin(phi)*Math.cos(theta),r*Math.sin(phi)*Math.sin(theta)*0.6,r*Math.cos(phi)*0.6);
+    mesh.userData.spin={x:(Math.random()-0.5)*0.012,y:(Math.random()-0.5)*0.012,z:(Math.random()-0.5)*0.012};
+    group.add(mesh);
+    shapes.push(mesh);
+  }
+  scene.add(group);
+  return{
+    resize(w){camera.position.z=w<700?11:8;},
+    tick(t,impulse){
+      group.rotation.y+=0.0009;
+      shapes.forEach(s=>{
+        s.rotation.x+=s.userData.spin.x*(1+impulse*3);
+        s.rotation.y+=s.userData.spin.y*(1+impulse*3);
+        s.rotation.z+=s.userData.spin.z*(1+impulse*3);
+      });
+      mat.opacity=0.4+impulse*0.3;
+    }
+  };
 });
 </script>
 
