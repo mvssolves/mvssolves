@@ -847,8 +847,79 @@ function initCostLeak3D(canvas){
   section.classList.add('has-3d');
   start();
 }
+/* pricing backdrop — same drifting-particle language as hidden-cost's leak (that one landed
+   well), but inverted: particles rise instead of fall ("value building up" vs "cost draining
+   away"), sparser and slower so it reads as a distinct, calmer counterpart, not a repeat. */
+function initPriceRise3D(canvas){
+  if(!canvas||reduce||typeof THREE==='undefined')return;
+  let gl;
+  try{gl=canvas.getContext('webgl2')||canvas.getContext('webgl');}catch(e){}
+  if(!gl)return;
+
+  const section=canvas.closest('#pricing');
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(45,1,0.1,50);
+  camera.position.set(0,0,7);
+
+  const N=140;
+  const pos=new Float32Array(N*3);
+  const speed=new Float32Array(N);
+  const phase=new Float32Array(N);
+  for(let i=0;i<N;i++){
+    pos[i*3]=(Math.random()-0.5)*11;
+    pos[i*3+1]=(Math.random()-0.5)*9;
+    pos[i*3+2]=(Math.random()-0.5)*4;
+    speed[i]=0.004+Math.random()*0.008;
+    phase[i]=Math.random()*Math.PI*2;
+  }
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const mat=new THREE.PointsMaterial({color:0xffffff,size:0.045,transparent:true,opacity:0.26,sizeAttenuation:true,blending:THREE.AdditiveBlending,depthWrite:false});
+  const points=new THREE.Points(geo,mat);
+  scene.add(points);
+
+  let w=0,h=0;
+  function size(){
+    const r=section.getBoundingClientRect();
+    w=r.width;h=r.height;
+    renderer.setSize(w,h,false);
+    camera.aspect=w/Math.max(h,1);
+    camera.updateProjectionMatrix();
+    camera.position.z=w<700?9:7;
+  }
+  onWidthResize(size);
+  size();
+
+  const posArr=geo.attributes.position.array;
+  let running=false,raf=null,t=0;
+  function frame(){
+    if(!running)return;
+    t+=0.01;
+    const rise=1+scrollImpulse*3;
+    for(let i=0;i<N;i++){
+      posArr[i*3+1]+=speed[i]*rise;
+      posArr[i*3]+=Math.sin(t+phase[i])*0.0012;
+      if(posArr[i*3+1]>4.5)posArr[i*3+1]=-4.5;
+    }
+    geo.attributes.position.needsUpdate=true;
+    mat.opacity=0.26+scrollImpulse*0.3;
+    renderer.render(scene,camera);
+    raf=requestAnimationFrame(frame);
+  }
+  function start(){if(running)return;running=true;raf=requestAnimationFrame(frame);}
+  function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=null;}
+
+  onVisibilityChange(section,visible=>{visible?start():stop();});
+  document.addEventListener('visibilitychange',()=>{document.hidden?stop():(section.getBoundingClientRect().bottom>0&&start());});
+
+  section.classList.add('has-3d');
+  start();
+}
 initHero3D(document.getElementById('hero3d'));
 initCapGrid3D(document.getElementById('cap3d'));
 initBookPoly3D(document.getElementById('book3d'));
 initIntegNodes3D(document.getElementById('integ3d'));
+initPriceRise3D(document.getElementById('price3d'));
 initCostLeak3D(document.getElementById('cost3d'));
