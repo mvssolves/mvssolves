@@ -189,7 +189,7 @@ function initCapGrid3D(canvas){
   const boxGeo=new THREE.BoxGeometry(0.3,1,0.3);
   boxGeo.translate(0,0.5,0);
   const count=COLS*ROWS;
-  const mat=new THREE.MeshBasicMaterial({wireframe:true,transparent:true,opacity:0.35,vertexColors:true});
+  const mat=new THREE.MeshBasicMaterial({wireframe:true,transparent:true,opacity:0.55,vertexColors:true});
   const inst=new THREE.InstancedMesh(boxGeo,mat,count);
   const baseX=new Float32Array(count),baseZ=new Float32Array(count),edgeT=new Float32Array(count);
   const m=new THREE.Matrix4();
@@ -211,7 +211,7 @@ function initCapGrid3D(canvas){
   grid.position.z=-3;
   scene.add(grid);
 
-  const TROUGH=new THREE.Color(0x5a5a62),PEAK=new THREE.Color(0xffffff),mixC=new THREE.Color();
+  const TROUGH=new THREE.Color(0x8a8a92),PEAK=new THREE.Color(0xffffff),mixC=new THREE.Color();
   let t=0;
 
   let w=0,h=0;
@@ -276,28 +276,18 @@ function initHero3D(canvas){
   const camera=new THREE.PerspectiveCamera(45,1,0.1,100);
   camera.position.set(0,0,7);
 
-  /* particle globe instead of the torus knot — points, not wireframe lines, an entirely
-     different rendering language (soft dot-field vs hard mesh edges). Fibonacci-sphere
-     distribution for even coverage, dense core + soft additive outer glow layer. */
-  const COUNT=1600,RADIUS=2.6;
-  const pos=new Float32Array(COUNT*3);
-  for(let i=0;i<COUNT;i++){
-    const yF=1-(i/(COUNT-1))*2;
-    const r=Math.sqrt(Math.max(0,1-yF*yF));
-    const theta=Math.PI*(1+Math.sqrt(5))*i;
-    pos[i*3]=Math.cos(theta)*r*RADIUS;
-    pos[i*3+1]=yF*RADIUS;
-    pos[i*3+2]=Math.sin(theta)*r*RADIUS;
-  }
-  const geo=new THREE.BufferGeometry();
-  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
-  const mat=new THREE.PointsMaterial({color:0xffffff,size:0.045,transparent:true,opacity:0.55,sizeAttenuation:true});
-  const points=new THREE.Points(geo,mat);
-  const glowMat=new THREE.PointsMaterial({color:0xffffff,size:0.1,transparent:true,opacity:0.12,sizeAttenuation:true,blending:THREE.AdditiveBlending,depthWrite:false});
-  const glow=new THREE.Points(geo,glowMat);
+  /* faceted gem instead of the particle globe — solid translucent low-poly facets with crisp
+     edge lines on top (EdgesGeometry, not the diagonal-heavy wireframe every other shape on
+     this site uses). First hero pass with an actual filled surface, not lines or points. */
+  const gemGeo=new THREE.IcosahedronGeometry(2.2,1);
+  const faceMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.07,side:THREE.DoubleSide});
+  const faces=new THREE.Mesh(gemGeo,faceMat);
+  const edgeGeo=new THREE.EdgesGeometry(gemGeo);
+  const edgeMat=new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.55});
+  const edges=new THREE.LineSegments(edgeGeo,edgeMat);
 
   const group=new THREE.Group();
-  group.add(glow,points);
+  group.add(faces,edges);
   scene.add(group);
 
   let w=0,h=0,baseZ=7,zoomDepth=2.2;
@@ -350,10 +340,10 @@ function initHero3D(canvas){
     camera.position.z=baseZ-scrollT*zoomDepth;
     group.rotation.z=scrollT*0.3;
     const ps=1+scrollImpulse*0.08;
-    points.scale.setScalar(ps);
-    glow.scale.setScalar(ps);
-    mat.opacity=0.55+scrollImpulse*0.3;
-    glowMat.opacity=0.12+scrollImpulse*0.25;
+    faces.scale.setScalar(ps);
+    edges.scale.setScalar(ps);
+    faceMat.opacity=0.07+scrollImpulse*0.2;
+    edgeMat.opacity=0.55+scrollImpulse*0.35;
     renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
   }
