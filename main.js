@@ -308,71 +308,28 @@ function initHero3D(canvas){
   const camera=new THREE.PerspectiveCamera(45,1,0.1,100);
   camera.position.set(0,0,7);
 
-  /* dithered-halftone sphere — ported from a real reference (a React Three Fiber ordered-
-     dithering shader demo, 4x4 Bayer matrix from shadertoy.com/view/ltSSzW). The original
-     applies it as a full-screen post-process (EffectComposer + render target), which risks
-     the same GPU/driver incompatibility that killed the bloom pass earlier this session
-     (HalfFloatType render targets failing silently on some hardware). Ported the dither math
-     onto the object's own fragment shader instead — renders straight to the canvas like any
-     other mesh, no render target at all, none of that risk. First hero pass using a custom
-     shader rather than a built-in material; solid lit surface, not wireframe/points/translucent. */
-  const sphereGeo=new THREE.SphereGeometry(2.3,64,64);
-  const ditherMat=new THREE.ShaderMaterial({
-    transparent:true,
-    uniforms:{
-      lightDir:{value:new THREE.Vector3(0.5,0.6,1.0).normalize()},
-      gridSize:{value:3.0},
-      uImpulse:{value:0}
-    },
-    vertexShader:`
-      varying vec3 vNormal;
-      void main(){
-        vNormal=normalize(normalMatrix*normal);
-        gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);
-      }
-    `,
-    fragmentShader:`
-      uniform vec3 lightDir;
-      uniform float gridSize;
-      uniform float uImpulse;
-      varying vec3 vNormal;
-      bool ditherTest(float brightness, vec2 pos){
-        if(brightness>16.0/17.0)return false;
-        if(brightness<1.0/17.0)return true;
-        vec2 pixel=floor(mod(pos.xy/gridSize,4.0));
-        int x=int(pixel.x);int y=int(pixel.y);
-        if(x==0){
-          if(y==0)return brightness<16.0/17.0;
-          if(y==1)return brightness<5.0/17.0;
-          if(y==2)return brightness<13.0/17.0;
-          return brightness<1.0/17.0;
-        }else if(x==1){
-          if(y==0)return brightness<8.0/17.0;
-          if(y==1)return brightness<12.0/17.0;
-          if(y==2)return brightness<4.0/17.0;
-          return brightness<9.0/17.0;
-        }else if(x==2){
-          if(y==0)return brightness<14.0/17.0;
-          if(y==1)return brightness<2.0/17.0;
-          if(y==2)return brightness<15.0/17.0;
-          return brightness<3.0/17.0;
-        }else{
-          if(y==0)return brightness<6.0/17.0;
-          if(y==1)return brightness<10.0/17.0;
-          if(y==2)return brightness<7.0/17.0;
-          return brightness<11.0/17.0;
-        }
-      }
-      void main(){
-        float lambert=max(dot(normalize(vNormal),normalize(lightDir)),0.0);
-        float rim=pow(1.0-abs(vNormal.z),2.0);
-        float brightness=clamp(lambert*0.75+rim*0.3+uImpulse*0.35,0.0,1.0);
-        bool dark=ditherTest(brightness,gl_FragCoord.xy);
-        gl_FragColor=dark?vec4(0.0):vec4(1.0,1.0,1.0,0.9);
-      }
-    `
-  });
-  const sphere=new THREE.Mesh(sphereGeo,ditherMat);
+  /* chrome/mirror sphere — a real environment-reflection technique (WebGLCubeRenderTarget +
+     CubeCamera), ported from a mirror-physics-text reference found in the 3D pack review.
+     Everything it reflects is already black/white (the page itself), so it's monochrome by
+     construction rather than by tuning a color value — same principle as the dither shader,
+     different technique. This is the first hero to use a genuine reflective material rather
+     than wireframe/points/translucent-fill/custom-fragment-shading. Standard, universally-
+     supported feature (unlike the HalfFloatType bloom target that failed earlier) — but it
+     is a real extra render pass, so the cube camera updates every 3rd frame at low (128px)
+     resolution instead of every frame, keeping the added cost small. */
+  const cubeRT=new THREE.WebGLCubeRenderTarget(128,{generateMipmaps:true,minFilter:THREE.LinearMipmapLinearFilter});
+  const cubeCam=new THREE.CubeCamera(0.1,50,cubeRT);
+  scene.add(cubeCam);
+  const light=new THREE.DirectionalLight(0xffffff,2.2);
+  light.position.set(2,3,4);
+  scene.add(light,new THREE.AmbientLight(0xffffff,0.35));
+  const sphereGeo=new THREE.SphereGeometry(2.2,64,64);
+  /* every prior hero material was translucent/wireframe/alpha-gapped, so the CTA button
+     underneath always showed through — a fully opaque chrome surface doesn't, and blocked the
+     button icon outright. Slight transparency keeps the metal look while letting content
+     underneath still show through. */
+  const chromeMat=new THREE.MeshStandardMaterial({color:0xffffff,metalness:1,roughness:0.06,envMap:cubeRT.texture,transparent:true,opacity:0.85});
+  const sphere=new THREE.Mesh(sphereGeo,chromeMat);
 
   const group=new THREE.Group();
   group.add(sphere);
@@ -392,10 +349,6 @@ function initHero3D(canvas){
     /* mobile starts farther back (baseZ 10.5 vs 7) and scaled down 0.62x, so the same scroll-zoom
        distance reads as barely-there — push the zoom travel out so it's felt at the same intensity. */
     zoomDepth=w<700?4.4:2.2;
-    /* dither pattern is read in real framebuffer pixels (gl_FragCoord) — scale the grid cell
-       size with devicePixelRatio so the halftone dots look the same physical size on retina
-       screens instead of shrinking to a quarter their size. */
-    ditherMat.uniforms.gridSize.value=3.0*Math.min(window.devicePixelRatio||1,1.5);
   }
   onWidthResize(size);
   size();
@@ -422,7 +375,7 @@ function initHero3D(canvas){
   },{passive:true});
   updateScroll();
 
-  let running=false,raf=null,t=0;
+  let running=false,raf=null,t=0,frameN=0;
   function frame(){
     if(!running)return;
     t+=0.014;
@@ -432,7 +385,13 @@ function initHero3D(canvas){
     camera.position.z=baseZ-scrollT*zoomDepth;
     group.rotation.z=scrollT*0.3;
     sphere.scale.setScalar(1+scrollImpulse*0.06);
-    ditherMat.uniforms.uImpulse.value=scrollImpulse;
+    frameN++;
+    if(frameN%3===0){
+      sphere.visible=false;
+      cubeCam.position.copy(sphere.position);
+      cubeCam.update(renderer,scene);
+      sphere.visible=true;
+    }
     renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
   }
