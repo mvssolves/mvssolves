@@ -182,31 +182,36 @@ function initCapGrid3D(canvas){
   camera.position.set(0,1.7,3.1);
   camera.lookAt(0,-0.3,-4);
 
-  const SEGX=44,SEGY=28;
-  const geo=new THREE.PlaneGeometry(16,11,SEGX,SEGY);
-  geo.rotateX(-Math.PI/2.15);
-  const vcount=geo.attributes.position.count;
-  const colorAttr=new THREE.Float32BufferAttribute(new Float32Array(vcount*3),3);
-  geo.setAttribute('color',colorAttr);
-  const mat=new THREE.MeshBasicMaterial({wireframe:true,transparent:true,opacity:0.2,vertexColors:true});
-  const grid=new THREE.Mesh(geo,mat);
-  grid.position.z=-2.5;
+  /* equalizer cube grid instead of the rippling plane — discrete instanced blocks whose
+     height pulses in a wave, not a continuous flowing surface. Reads as structured/digital
+     rather than organic terrain, distinct from every other section's shape language. */
+  const COLS=20,ROWS=13,SPACING=0.55;
+  const boxGeo=new THREE.BoxGeometry(0.3,1,0.3);
+  boxGeo.translate(0,0.5,0);
+  const count=COLS*ROWS;
+  const mat=new THREE.MeshBasicMaterial({wireframe:true,transparent:true,opacity:0.35,vertexColors:true});
+  const inst=new THREE.InstancedMesh(boxGeo,mat,count);
+  const baseX=new Float32Array(count),baseZ=new Float32Array(count),edgeT=new Float32Array(count);
+  const m=new THREE.Matrix4();
+  let idx=0;
+  for(let cx=0;cx<COLS;cx++)for(let cz=0;cz<ROWS;cz++){
+    const x=(cx-(COLS-1)/2)*SPACING,z=(cz-(ROWS-1)/2)*SPACING;
+    baseX[idx]=x;baseZ[idx]=z;
+    const du=Math.min(cx,(COLS-1)-cx)/((COLS-1)/2);
+    const dv=Math.min(cz,(ROWS-1)-cz)/((ROWS-1)/2);
+    edgeT[idx]=Math.pow(Math.min(1,Math.min(du,dv)*1.6),0.6);
+    m.makeScale(1,0.2,1);
+    m.elements[12]=x;m.elements[13]=0;m.elements[14]=z;
+    inst.setMatrixAt(idx,m);
+    inst.setColorAt(idx,new THREE.Color(0xffffff));
+    idx++;
+  }
+  const grid=new THREE.Group();
+  grid.add(inst);
+  grid.position.z=-3;
   scene.add(grid);
 
   const TROUGH=new THREE.Color(0x5a5a62),PEAK=new THREE.Color(0xffffff),mixC=new THREE.Color();
-  const posAttr=geo.attributes.position;
-  const base=Float32Array.from(posAttr.array);
-  /* the mesh is a hard-edged rectangle — without this it just stops mid-air with a visible
-     straight cutoff. Fade every vertex toward black as it nears the plane's original UV
-     boundary (stable regardless of the rotateX bake above) so it dissolves into the
-     black background instead of cutting off. */
-  const uvAttr=geo.attributes.uv;
-  const edgeT=new Float32Array(vcount);
-  for(let i=0;i<vcount;i++){
-    const u=uvAttr.array[i*2],v=uvAttr.array[i*2+1];
-    const d=Math.min(Math.min(u,1-u),Math.min(v,1-v));
-    edgeT[i]=Math.pow(Math.min(1,d*3.2),0.6);
-  }
   let t=0;
 
   let w=0,h=0;
@@ -228,19 +233,21 @@ function initCapGrid3D(canvas){
   let running=false,raf=null;
   function frame(){
     if(!running)return;
-    t+=0.015;
-    const arr=posAttr.array,carr=colorAttr.array;
-    for(let i=0;i<arr.length;i+=3){
-      const x=base[i],y=base[i+1];
-      const ripple=scrollImpulse*Math.sin(Math.abs(x)*1.3-t*5)*0.5;
-      const height=Math.sin(x*0.5+t)*0.36+Math.sin(y*0.4+t*0.8)*0.26+ripple;
-      arr[i+2]=height;
-      const e=edgeT[i/3];
-      mixC.copy(TROUGH).lerp(PEAK,Math.max(0,height/0.6));
-      carr[i]=mixC.r*e;carr[i+1]=mixC.g*e;carr[i+2]=mixC.b*e;
+    t+=0.02;
+    for(let i=0;i<count;i++){
+      const x=baseX[i],z=baseZ[i];
+      const ripple=scrollImpulse*Math.sin(Math.hypot(x,z)*1.4-t*4)*0.7;
+      const h=Math.max(0.15,0.6+Math.sin(x*0.9+t)*0.4+Math.sin(z*0.7+t*1.1)*0.3+ripple);
+      m.makeScale(1,h,1);
+      m.elements[12]=x;m.elements[13]=0;m.elements[14]=z;
+      inst.setMatrixAt(i,m);
+      const e=edgeT[i];
+      mixC.copy(TROUGH).lerp(PEAK,Math.max(0,Math.min(1,h/1.3)));
+      mixC.multiplyScalar(e);
+      inst.setColorAt(i,mixC);
     }
-    posAttr.needsUpdate=true;
-    colorAttr.needsUpdate=true;
+    inst.instanceMatrix.needsUpdate=true;
+    inst.instanceColor.needsUpdate=true;
     renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
   }
@@ -269,33 +276,28 @@ function initHero3D(canvas){
   const camera=new THREE.PerspectiveCamera(45,1,0.1,100);
   camera.position.set(0,0,7);
 
-  /* wireframe torus knot instead of the old sphere — distinct silhouette (ribbon-like knot,
-     not another ball) with a baked top-lit gradient + an animated shimmer traveling along the
-     tube, done via vertex colors so shading reads as real depth instead of flat uniform lines.
-     No per-vertex displacement needed (unlike the old sphere) — cheaper per frame, not more. */
-  const geo=new THREE.TorusKnotGeometry(1.9,0.55,120,10,2,3);
-  const posAttr=geo.attributes.position;
-  const count=posAttr.count;
-  const phase=new Float32Array(count);
-  const topT=new Float32Array(count);
-  let minY=Infinity,maxY=-Infinity;
-  for(let i=0;i<count;i++){const y=posAttr.array[i*3+1];if(y<minY)minY=y;if(y>maxY)maxY=y;}
-  for(let i=0;i<count;i++){
-    const x=posAttr.array[i*3],y=posAttr.array[i*3+1],z=posAttr.array[i*3+2];
-    phase[i]=Math.atan2(z,x)*2+y*0.6;
-    topT[i]=(y-minY)/((maxY-minY)||1);
+  /* particle globe instead of the torus knot — points, not wireframe lines, an entirely
+     different rendering language (soft dot-field vs hard mesh edges). Fibonacci-sphere
+     distribution for even coverage, dense core + soft additive outer glow layer. */
+  const COUNT=1600,RADIUS=2.6;
+  const pos=new Float32Array(COUNT*3);
+  for(let i=0;i<COUNT;i++){
+    const yF=1-(i/(COUNT-1))*2;
+    const r=Math.sqrt(Math.max(0,1-yF*yF));
+    const theta=Math.PI*(1+Math.sqrt(5))*i;
+    pos[i*3]=Math.cos(theta)*r*RADIUS;
+    pos[i*3+1]=yF*RADIUS;
+    pos[i*3+2]=Math.sin(theta)*r*RADIUS;
   }
-  const colorAttr=new THREE.Float32BufferAttribute(new Float32Array(count*3),3);
-  geo.setAttribute('color',colorAttr);
-
-  const mat=new THREE.MeshBasicMaterial({wireframe:true,transparent:true,opacity:0.6,vertexColors:true});
-  const mesh=new THREE.Mesh(geo,mat);
-  const glowMat=new THREE.MeshBasicMaterial({wireframe:true,transparent:true,opacity:0.14,vertexColors:true,blending:THREE.AdditiveBlending,depthWrite:false});
-  const glow=new THREE.Mesh(geo,glowMat);
-  glow.scale.setScalar(1.04);
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const mat=new THREE.PointsMaterial({color:0xffffff,size:0.045,transparent:true,opacity:0.55,sizeAttenuation:true});
+  const points=new THREE.Points(geo,mat);
+  const glowMat=new THREE.PointsMaterial({color:0xffffff,size:0.1,transparent:true,opacity:0.12,sizeAttenuation:true,blending:THREE.AdditiveBlending,depthWrite:false});
+  const glow=new THREE.Points(geo,glowMat);
 
   const group=new THREE.Group();
-  group.add(glow,mesh);
+  group.add(glow,points);
   scene.add(group);
 
   let w=0,h=0,baseZ=7,zoomDepth=2.2;
@@ -338,7 +340,6 @@ function initHero3D(canvas){
   },{passive:true});
   updateScroll();
 
-  const carr=colorAttr.array;
   let running=false,raf=null,t=0;
   function frame(){
     if(!running)return;
@@ -348,15 +349,11 @@ function initHero3D(canvas){
     group.rotation.y+=(mouseX*0.14)*0.002;
     camera.position.z=baseZ-scrollT*zoomDepth;
     group.rotation.z=scrollT*0.3;
-    const ps=1+scrollImpulse*0.1;
-    mesh.scale.setScalar(ps);
-    glow.scale.setScalar(1.04*ps);
-    for(let i=0;i<count;i++){
-      const wave=(Math.sin(phase[i]+t)+1)*0.5;
-      const b=0.2+topT[i]*0.35+wave*0.45+scrollImpulse*0.3;
-      carr[i*3]=b;carr[i*3+1]=b;carr[i*3+2]=b;
-    }
-    colorAttr.needsUpdate=true;
+    const ps=1+scrollImpulse*0.08;
+    points.scale.setScalar(ps);
+    glow.scale.setScalar(ps);
+    mat.opacity=0.55+scrollImpulse*0.3;
+    glowMat.opacity=0.12+scrollImpulse*0.25;
     renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
   }
