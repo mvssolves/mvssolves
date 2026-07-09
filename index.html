@@ -150,13 +150,17 @@
   #integrations .wrap{position:relative;z-index:2;}
   .integ-3d{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease;}
   #integrations.has-3d .integ-3d{opacity:1;}
-  #hidden-cost{position:relative;overflow:hidden;}
+  #hidden-cost{position:relative;}
   #hidden-cost .wrap{position:relative;z-index:2;}
-  .cost-3d{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease;}
+  /* bleeds 45% past this section's own bottom edge into pricing's space, and pricing's
+     canvas bleeds the same amount up into here — the two particle fields overlap right at
+     the seam so falling and rising particles visibly share the same zone, connecting the
+     two backgrounds instead of each cutting off at its own hard boundary. */
+  .cost-3d{position:absolute;left:0;right:0;top:-10%;bottom:-45%;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease;}
   #hidden-cost.has-3d .cost-3d{opacity:1;}
-  #pricing{position:relative;overflow:hidden;}
+  #pricing{position:relative;}
   #pricing .wrap{position:relative;z-index:2;}
-  .price-3d{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease;}
+  .price-3d{position:absolute;left:0;right:0;top:-45%;bottom:-10%;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease;}
   #pricing.has-3d .price-3d{opacity:1;}
   .hero.has-3d .hero-field{opacity:0;}
   .scrolldot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:bob 1.6s ease-in-out infinite;}

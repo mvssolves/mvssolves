@@ -276,18 +276,26 @@ function initHero3D(canvas){
   const camera=new THREE.PerspectiveCamera(45,1,0.1,100);
   camera.position.set(0,0,7);
 
-  /* faceted gem instead of the particle globe — solid translucent low-poly facets with crisp
-     edge lines on top (EdgesGeometry, not the diagonal-heavy wireframe every other shape on
-     this site uses). First hero pass with an actual filled surface, not lines or points. */
-  const gemGeo=new THREE.IcosahedronGeometry(2.2,1);
-  const faceMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.07,side:THREE.DoubleSide});
-  const faces=new THREE.Mesh(gemGeo,faceMat);
-  const edgeGeo=new THREE.EdgesGeometry(gemGeo);
-  const edgeMat=new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.55});
-  const edges=new THREE.LineSegments(edgeGeo,edgeMat);
+  /* flowing ribbon instead of the faceted gem — a single smooth closed curve extruded into a
+     tube, not a polyhedron/points at all. Reads as one continuous abstract line-art stroke,
+     matching the site's serif/italic editorial touches more than a hard geometric form. */
+  const CTRL=8,CR=1.9;
+  const ctrlPts=[];
+  for(let i=0;i<CTRL;i++){
+    const v=new THREE.Vector3(Math.random()-0.5,Math.random()-0.5,Math.random()-0.5).normalize();
+    v.multiplyScalar(CR*(0.7+Math.random()*0.5));
+    ctrlPts.push(v);
+  }
+  const curve=new THREE.CatmullRomCurve3(ctrlPts,true,'catmullrom',0.6);
+  const tubeGeo=new THREE.TubeGeometry(curve,220,0.075,8,true);
+  const mat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.5,side:THREE.DoubleSide});
+  const ribbon=new THREE.Mesh(tubeGeo,mat);
+  const glowGeo=new THREE.TubeGeometry(curve,220,0.16,8,true);
+  const glowMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.1,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false});
+  const glow=new THREE.Mesh(glowGeo,glowMat);
 
   const group=new THREE.Group();
-  group.add(faces,edges);
+  group.add(glow,ribbon);
   scene.add(group);
 
   let w=0,h=0,baseZ=7,zoomDepth=2.2;
@@ -340,10 +348,10 @@ function initHero3D(canvas){
     camera.position.z=baseZ-scrollT*zoomDepth;
     group.rotation.z=scrollT*0.3;
     const ps=1+scrollImpulse*0.08;
-    faces.scale.setScalar(ps);
-    edges.scale.setScalar(ps);
-    faceMat.opacity=0.07+scrollImpulse*0.2;
-    edgeMat.opacity=0.55+scrollImpulse*0.35;
+    ribbon.scale.setScalar(ps);
+    glow.scale.setScalar(ps);
+    mat.opacity=0.5+scrollImpulse*0.3;
+    glowMat.opacity=0.1+scrollImpulse*0.25;
     renderer.render(scene,camera);
     raf=requestAnimationFrame(frame);
   }
@@ -799,7 +807,7 @@ function initCostLeak3D(canvas){
   const phase=new Float32Array(N);
   for(let i=0;i<N;i++){
     pos[i*3]=(Math.random()-0.5)*11;
-    pos[i*3+1]=(Math.random()-0.5)*9;
+    pos[i*3+1]=(Math.random()-0.5)*13;
     pos[i*3+2]=(Math.random()-0.5)*4;
     speed[i]=0.006+Math.random()*0.014;
     phase[i]=Math.random()*Math.PI*2;
@@ -810,9 +818,12 @@ function initCostLeak3D(canvas){
   const points=new THREE.Points(geo,mat);
   scene.add(points);
 
+  /* canvas now bleeds well past its own section (see CSS) so it visually overlaps pricing's
+     bled canvas at the seam — measure the canvas's own rect, not the section's, or the
+     renderer's internal resolution would mismatch the larger CSS box and stretch/blur. */
   let w=0,h=0;
   function size(){
-    const r=section.getBoundingClientRect();
+    const r=canvas.getBoundingClientRect();
     w=r.width;h=r.height;
     renderer.setSize(w,h,false);
     camera.aspect=w/Math.max(h,1);
@@ -831,7 +842,7 @@ function initCostLeak3D(canvas){
     for(let i=0;i<N;i++){
       posArr[i*3+1]-=speed[i]*fall;
       posArr[i*3]+=Math.sin(t+phase[i])*0.0015;
-      if(posArr[i*3+1]<-4.5)posArr[i*3+1]=4.5;
+      if(posArr[i*3+1]<-6.5)posArr[i*3+1]=6.5;
     }
     geo.attributes.position.needsUpdate=true;
     mat.opacity=0.32+scrollImpulse*0.35;
@@ -869,7 +880,7 @@ function initPriceRise3D(canvas){
   const phase=new Float32Array(N);
   for(let i=0;i<N;i++){
     pos[i*3]=(Math.random()-0.5)*11;
-    pos[i*3+1]=(Math.random()-0.5)*9;
+    pos[i*3+1]=(Math.random()-0.5)*13;
     pos[i*3+2]=(Math.random()-0.5)*4;
     speed[i]=0.004+Math.random()*0.008;
     phase[i]=Math.random()*Math.PI*2;
@@ -880,9 +891,12 @@ function initPriceRise3D(canvas){
   const points=new THREE.Points(geo,mat);
   scene.add(points);
 
+  /* canvas bleeds up past its own section into hidden-cost's space (see CSS) — measure the
+     canvas's own rect, matching the fall scene's fix, so the renderer resolution isn't
+     stretched against the taller bled CSS box. */
   let w=0,h=0;
   function size(){
-    const r=section.getBoundingClientRect();
+    const r=canvas.getBoundingClientRect();
     w=r.width;h=r.height;
     renderer.setSize(w,h,false);
     camera.aspect=w/Math.max(h,1);
@@ -901,7 +915,7 @@ function initPriceRise3D(canvas){
     for(let i=0;i<N;i++){
       posArr[i*3+1]+=speed[i]*rise;
       posArr[i*3]+=Math.sin(t+phase[i])*0.0012;
-      if(posArr[i*3+1]>4.5)posArr[i*3+1]=-4.5;
+      if(posArr[i*3+1]>6.5)posArr[i*3+1]=-6.5;
     }
     geo.attributes.position.needsUpdate=true;
     mat.opacity=0.26+scrollImpulse*0.3;
