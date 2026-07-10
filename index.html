@@ -704,9 +704,12 @@
   .po{display:none;}
   .pu{display:none;}
   .puo{display:none;}
+  .oo-only{display:none;}
   .tiers.mode-own .pm{display:none;}
   .tiers.mode-own .po{display:block;}
   .tiers.mode-own .own-hide{display:none;}
+  .tiers.mode-own .mo-only,.tiers.mode-usd-own .mo-only{display:none;}
+  .tiers.mode-own .oo-only,.tiers.mode-usd-own .oo-only{display:inline;}
   .tiers.mode-usd .pm{display:none;}
   .tiers.mode-usd .pu{display:block;}
   .tiers.mode-usd-own .pm{display:none;}
@@ -1075,7 +1078,7 @@
         </div>
       </div>
       <div class="tier-slot">
-        <div class="tier-note">2 person max</div>
+        <div class="tier-note"><span class="mo-only">2 person max</span><span class="oo-only">1 person max</span></div>
         <div class="tier prem">
           <span class="badge">★ Most complete</span>
           <div class="tn">Premium</div>
