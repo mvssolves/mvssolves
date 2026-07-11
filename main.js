@@ -727,16 +727,6 @@ if(!reduce){
      Softer scale range + longer duration, same reasoning as above */
   gsap.fromTo('.int-carousel-wrap',{opacity:0,scale:0.94,y:20},
     {opacity:1,scale:1,y:0,duration:1.2,ease:'power2.out',scrollTrigger:{trigger:'.int-carousel-wrap',start:'top 88%',once:true,fastScrollEnd:true}});
-  /* hidden-cost (03) wheel — pops in from Z-depth to match the extrude-on-hover language */
-  gsap.fromTo('.wheel-disc',{opacity:0,z:-220},
-    {opacity:1,z:0,duration:0.9,ease:'power3.out',scrollTrigger:{trigger:'.wheel-disc',start:'top 88%',once:true,fastScrollEnd:true}});
-  /* ring draws itself in, same beat as the disc pop — reference video's circle-trace */
-  gsap.fromTo('.wheel-ring circle',{strokeDashoffset:309.9},
-    {strokeDashoffset:0,duration:1.3,ease:'power2.inOut',scrollTrigger:{trigger:'.wheel-disc',start:'top 88%',once:true,fastScrollEnd:true}});
-  /* labels pop in one at a time as the ring finishes drawing around them — video sequences the
-     chips onto the ring rather than showing them all at once */
-  gsap.fromTo('.wn',{opacity:0,scale:0.6},{opacity:1,scale:1,duration:0.5,stagger:0.15,delay:0.5,
-    ease:'back.out(2)',scrollTrigger:{trigger:'.wheel-disc',start:'top 88%',once:true,fastScrollEnd:true}});
   /* hero content drifts up on scroll — desktop only. scrub:true recalculates every scroll tick,
      right at the hero->01 handoff — the exact spot users felt lag on mobile. */
   if(isDesktop){
@@ -867,7 +857,6 @@ if(!reduce){
   document.addEventListener('click',e=>{
     if(e.target.closest('.btn-fill,.navcta')){tick(880,0.05,0.045);}
     else if(e.target.closest('#modeToggle button')){tick(660,0.045,0.04);}
-    else if(e.target.closest('.wseg')){tick(740,0.04,0.04);}
   });
 }
 
@@ -913,22 +902,6 @@ if(!reduce){
   window.addEventListener('resize',()=>{ih=window.innerHeight;onScroll();},{passive:true});
   if(lenis&&lenis.on)lenis.on('scroll',onScroll);
   upd();
-})();
-
-/* hidden-cost wheel: click a quadrant, swap the center panel copy */
-(function(){
-  const wheel=document.querySelector('.wheel-disc');if(!wheel)return;
-  const stage=wheel.closest('.wheel-stage');
-  const segs=wheel.querySelectorAll('.wseg');
-  const labels=stage.querySelectorAll('.wn');
-  const lab=wheel.querySelector('.wc-lab'),desc=wheel.querySelector('.wc-desc');
-  segs.forEach((seg,i)=>seg.addEventListener('click',()=>{
-    segs.forEach(s=>s.classList.toggle('active',s===seg));
-    labels.forEach((l,li)=>l.classList.toggle('wn-active',li===i));
-    lab.textContent=seg.dataset.lab;
-    desc.textContent=seg.dataset.desc;
-  }));
-  /* cursor-follow tilt removed — read as the disc "lifting"/leaning. Wheel stays flat. */
 })();
 
 /* pricing mode toggle: Monthly / Own outright */
@@ -1123,7 +1096,7 @@ function initIntegNodes3D(canvas){
 }
 /* hidden-cost backdrop — concentric rings expanding outward on a loop, "cost compounding the
    longer you wait" motif. Distinct shape language from every other section (rings, not
-   network/terrain/knot/polyhedron). Kept faint behind the interactive wheel in front. */
+   network/terrain/knot/polyhedron). Kept faint behind the domino chain in front. */
 function initCostLeak3D(canvas){
   if(!canvas||reduce||typeof THREE==='undefined')return;
   let gl;
