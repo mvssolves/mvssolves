@@ -879,7 +879,7 @@ if(!reduce){
   const el=document.getElementById('dcost');
   if(el){
     const oddRand=()=>2*Math.floor(Math.random()*1000)+1001; // 1001..2999 odd
-    setInterval(()=>{el.textContent=oddRand().toLocaleString('en-ZA');},260);
+    setInterval(()=>{el.textContent=oddRand().toLocaleString('en-US');},260);
   }
   if(reduce){ds.forEach(d=>d.classList.add('active'));return;}
   let pending=false, ih=window.innerHeight;
