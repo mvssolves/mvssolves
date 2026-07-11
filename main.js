@@ -97,22 +97,9 @@ if(!reduce&&isDesktop){
   check();
 })();
 
-/* custom cursor + magnetic CTAs — desktop/mouse only, matches the cursor-reactive grid and
-   tilt cards already on the page but was missing from the cursor itself. gsap.quickTo instead
-   of a rAF loop: same lerp-toward-target feel, GSAP already ticking site-wide for Lenis sync. */
+/* magnetic CTAs — desktop/mouse only. gsap.quickTo, no rAF loop of its own: GSAP's already
+   ticking site-wide for Lenis sync. */
 if(!reduce&&isDesktop){
-  document.documentElement.classList.add('has-cursor');
-  const dot=document.createElement('div');
-  dot.className='cursor-dot';
-  document.body.appendChild(dot);
-  const setX=gsap.quickTo(dot,'x',{duration:0.45,ease:'power3.out'});
-  const setY=gsap.quickTo(dot,'y',{duration:0.45,ease:'power3.out'});
-  window.addEventListener('mousemove',e=>{setX(e.clientX);setY(e.clientY);},{passive:true});
-  document.querySelectorAll('a, button, .btn-fill, .btn-ghost, .cap, .tier, summary').forEach(el=>{
-    el.addEventListener('mouseenter',()=>dot.classList.add('hover'));
-    el.addEventListener('mouseleave',()=>dot.classList.remove('hover'));
-  });
-
   /* magnetic pull — CTA buttons drift toward the cursor within their own bounds, spring back on leave */
   const PULL=0.35;
   document.querySelectorAll('.btn-fill, .navcta').forEach(btn=>{
