@@ -447,7 +447,16 @@
   .tb-txt{font-size:12px;color:var(--muted);}
   .tb-num{font-size:15px;font-weight:700;color:var(--ink);}
   @media(max-width:600px){.trust-badge{flex-direction:column;gap:4px;}}
-  @media(max-width:900px){.toggle{flex-wrap:wrap;justify-content:center;border-radius:24px;}}
+  /* mobile: .tiers is a horizontal scroll-snap carousel (overflow-x:auto). Per the CSS overflow
+     spec, setting only overflow-x forces overflow-y to compute as 'auto' too -- so the absolute-
+     positioned badge (used on desktop to avoid stretching the 3 equal-height cards) was getting
+     silently clipped away below the carousel's own box, invisible on real devices. Only one card
+     shows at a time on mobile anyway, so there's no cross-card alignment to protect -- put it
+     back in normal flow instead of fighting the clip. */
+  @media(max-width:900px){
+    .toggle{flex-wrap:wrap;justify-content:center;border-radius:24px;}
+    .trust-badge{position:static;margin-top:16px;}
+  }
   .tier.prem{position:relative;z-index:0;border-color:transparent;isolation:isolate;overflow:hidden;}
   .tier.prem::before{content:"";position:absolute;inset:-60%;z-index:-2;
     background:conic-gradient(from 0deg,var(--ink),var(--line) 30%,var(--ink) 60%,var(--line) 90%,var(--ink));
