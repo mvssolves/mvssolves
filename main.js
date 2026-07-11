@@ -131,7 +131,6 @@ if(!reduce&&isDesktop){
 
 /* scroll progress + nav */
 const prog=document.getElementById('progress'),nav=document.getElementById('nav');
-const scPct=document.getElementById('scPct');
 /* document height cached instead of read every scroll tick. Recomputed on resize AND via
    ResizeObserver on <body> (debounced) — catches every height-changing cause (details expanding,
    Cal embed lazy-load, fonts, whatever) instead of drifting stale like the window-resize-only
@@ -145,8 +144,7 @@ window.addEventListener('resize',recalcScrollable,{passive:true});
 })();
 function onScroll(y){nav.classList.toggle('scrolled',y>40);
   const pct=scrollableH>0?(y/scrollableH*100):0;
-  prog.style.width=pct+'%';
-  if(scPct)scPct.textContent=Math.round(pct)+'%';}
+  prog.style.width=pct+'%';}
 if(lenis) lenis.on('scroll',({scroll})=>onScroll(scroll));
 else{
   /* no-Lenis path (mobile or reduced-motion): rAF-coalesce so a burst of native scroll events
@@ -1267,7 +1265,7 @@ function initPriceRise3D(canvas){
   const cv=document.getElementById('bgfx');
   if(!cv||reduce)return;
   const ctx=cv.getContext('2d');
-  const dpr=Math.min(window.devicePixelRatio||1,1.5);
+  const dpr=Math.min(window.devicePixelRatio||1,1.25);
   let w=0,h=0,pts=[];
   function resize(){
     w=window.innerWidth;h=window.innerHeight;
@@ -1284,10 +1282,15 @@ function initPriceRise3D(canvas){
   }
   window.addEventListener('resize',resize,{passive:true});
   resize();
-  let running=true,t=0;
+  let running=true,t=0,hr=false;
   function frame(){
     if(!running)return;
-    t+=0.016;
+    /* runs at 30fps not 60 -- this is a full-viewport fixed canvas repainting under every
+       scroll frame, sitewide, forever. Drift/twinkle motion is slow enough that half the
+       frames are invisible (same halfRate reasoning as the ambient 3D scenes above), so this
+       halves the single biggest always-on scroll-time cost on the page for free. */
+    hr=!hr;if(!hr){requestAnimationFrame(frame);return;}
+    t+=0.032;
     ctx.clearRect(0,0,w,h);
     for(const p of pts){
       p.x+=p.vx;p.y+=p.vy;

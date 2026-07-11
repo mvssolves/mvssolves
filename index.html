@@ -98,13 +98,6 @@
   /* progress */
   .progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--accent);z-index:100;}
 
-  /* persistent scroll chrome — desktop only */
-  .scroll-chrome{display:none;position:fixed;right:24px;bottom:22px;z-index:60;align-items:center;gap:8px;
-    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
-    color:var(--muted);pointer-events:none;}
-  .scroll-chrome .sc-pct{color:var(--ink);font-weight:600;min-width:32px;text-align:right;}
-  @media(min-width:901px){.scroll-chrome{display:flex;}}
-  @media(prefers-reduced-motion:reduce){.scroll-chrome{display:none;}}
 
   /* nav */
   nav{position:fixed;top:0;left:0;right:0;z-index:60;padding:20px 36px;display:flex;align-items:center;gap:16px;
@@ -640,7 +633,6 @@
 <!-- one global background canvas for the whole site — drifting sparkle field behind everything -->
 <canvas id="bgfx" aria-hidden="true"></canvas>
 <div class="progress" id="progress"></div>
-<div class="scroll-chrome" aria-hidden="true"><span>Scroll</span><span class="sc-pct" id="scPct">0%</span></div>
 <a class="float-cta" id="floatCta" href="#book" aria-label="Book a free call with Martin">
   <span class="fc-mark">M</span><span class="fc-text">Book a free call</span>
 </a>
