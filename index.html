@@ -819,6 +819,11 @@
   #hidden-cost .dcalc .dc{display:inline-flex;align-items:center;gap:8px;}
   #hidden-cost .dcalc .chip{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:7px;padding:5px 9px;}
   #hidden-cost .dcalc .x{color:var(--muted);}
+  @media(max-width:600px){
+    #hidden-cost .dcalc{font-size:9px;gap:5px 6px;flex-wrap:nowrap;}
+    #hidden-cost .dcalc .dc{gap:4px;flex-shrink:0;}
+    #hidden-cost .dcalc .chip{padding:3px 6px;white-space:nowrap;}
+  }
   #hidden-cost .domino::after{content:"";position:absolute;left:37px;bottom:-40px;width:1px;height:40px;
     background:linear-gradient(rgba(255,255,255,.18),transparent);}
   #hidden-cost .domino:last-child::after{display:none;}
