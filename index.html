@@ -814,9 +814,11 @@
   #hidden-cost .rand{color:var(--accent);font-weight:800;font-size:clamp(30px,5vw,44px);letter-spacing:-.03em;
     margin-top:4px;font-variant-numeric:tabular-nums;text-shadow:0 0 32px rgba(232,169,75,.4);}
   #hidden-cost .rand .per{font-size:.4em;font-weight:700;color:var(--soft);margin-left:4px;}
-  #hidden-cost .dcalc{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-top:12px;font-size:12.5px;color:var(--soft);}
-  #hidden-cost .dcalc span{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:7px;padding:5px 9px;}
-  #hidden-cost .dcalc span.x{background:none;border:0;padding:0 1px;color:var(--muted);}
+  /* each chip + its trailing × is one flex-wrap unit (.dc), so the × can never wrap onto its own orphaned line */
+  #hidden-cost .dcalc{display:flex;flex-wrap:wrap;gap:8px 10px;margin-top:12px;font-size:12.5px;color:var(--soft);}
+  #hidden-cost .dcalc .dc{display:inline-flex;align-items:center;gap:8px;}
+  #hidden-cost .dcalc .chip{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:7px;padding:5px 9px;}
+  #hidden-cost .dcalc .x{color:var(--muted);}
   #hidden-cost .domino::after{content:"";position:absolute;left:37px;bottom:-40px;width:1px;height:40px;
     background:linear-gradient(rgba(255,255,255,.18),transparent);}
   #hidden-cost .domino:last-child::after{display:none;}
@@ -858,7 +860,7 @@
         <div class="domino cost"><div class="dface"><span class="didx">4</span>
           <h3>That adds up — every month</h3>
           <div class="rand">$<span id="dcost">1,847</span><span class="per">/mo</span></div>
-          <div class="dcalc"><span>missed leads</span><span class="x">×</span><span>avg job value</span><span class="x">×</span><span>every week</span></div>
+          <div class="dcalc"><span class="dc"><span class="chip">missed leads</span><span class="x">×</span></span><span class="dc"><span class="chip">avg job value</span><span class="x">×</span></span><span class="dc"><span class="chip">every week</span></span></div>
           </div><div class="dedge"></div><div class="dshadow"></div></div>
       </div>
     </div>
