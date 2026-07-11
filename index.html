@@ -442,20 +442,11 @@
   .tier-details dt{font-weight:700;color:var(--ink);margin-top:8px;}
   .tier-details dt:first-child{margin-top:0;}
   .tier-details dd{margin:2px 0 0;color:var(--soft);line-height:1.4;}
-  .tier-hidden{max-width:520px;margin:24px auto 0;}
-  .trust-badge{display:flex;align-items:center;gap:10px;margin-top:34px;}
-  .tb-stars{color:var(--accent);font-size:21px;letter-spacing:2px;}
-  .tb-txt{font-size:12.5px;color:var(--muted);}
-  .tb-num{font-size:17px;font-weight:700;color:var(--ink);}
-  @media(max-width:600px){.trust-badge{flex-direction:column;align-items:flex-start;gap:5px;}}
-  .tier-more{margin-top:34px;max-width:420px;margin-left:auto;margin-right:auto;}
-  .tier-more summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:center;gap:8px;
-    font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
-    padding:14px;border:1px dashed var(--line);border-radius:999px;transition:color .2s ease,border-color .2s ease;}
-  .tier-more summary:hover{color:var(--ink);border-color:var(--line-strong);}
-  .tier-more summary::-webkit-details-marker{display:none;}
-  .tier-more summary::before{content:"+";font-weight:800;font-size:15px;transition:transform .2s ease;display:inline-block;}
-  .tier-more[open] summary::before{transform:rotate(45deg);}
+  .trust-badge{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px;}
+  .tb-stars{color:var(--accent);font-size:19px;letter-spacing:2px;}
+  .tb-txt{font-size:12px;color:var(--muted);}
+  .tb-num{font-size:15px;font-weight:700;color:var(--ink);}
+  @media(max-width:600px){.trust-badge{flex-direction:column;gap:4px;}}
   @media(max-width:900px){.toggle{flex-wrap:wrap;justify-content:center;border-radius:24px;}}
   .tier.prem{position:relative;z-index:0;border-color:transparent;isolation:isolate;overflow:hidden;}
   .tier.prem::before{content:"";position:absolute;inset:-60%;z-index:-2;
@@ -930,6 +921,10 @@
           </details>
           <a class="btn btn-fill tcta" href="#book" style="justify-content:center">Get package
             <span class="swap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></a>
+          <div class="trust-badge">
+            <span class="tb-stars">★★★★★</span>
+            <span class="tb-txt"><span class="tb-num">22</span> clients and counting.</span>
+          </div>
         </div>
       </div>
       <div class="tier-slot">
@@ -961,37 +956,6 @@
         </div>
       </div>
     </div>
-    <div class="trust-badge">
-      <span class="tb-stars">★★★★★</span>
-      <span class="tb-txt"><span class="tb-num">22</span> clients and counting.</span>
-    </div>
-    <details class="tier-more">
-      <summary>Need something bigger, more serious?</summary>
-      <div class="tier-hidden" id="franchiseTier">
-        <div class="tier">
-          <span class="badge">★ Custom scope</span>
-          <div class="tn">Franchise / Corporation</div>
-          <div class="tl">Multiple locations, or booking outside/non-member clients at scale. Scoped and built for the whole network.</div>
-          <div class="price" style="font-size:21px">Let's talk <small>— custom</small></div>
-          <ul>
-            <li class="inh">Everything in Premium</li><li>Multi-location rollout</li><li>Centralized booking across sites</li><li>AI WhatsApp booking bot</li><li>Custom automations</li><li>Dedicated support &amp; reporting</li>
-          </ul>
-          <details class="tier-details">
-            <summary>Full details</summary>
-            <dl>
-              <dt>Everything in Premium</dt><dd>CRM + AI assistant + priority support — see Premium for the full breakdown.</dd>
-              <dt>Multi-location rollout</dt><dd>The same system deployed and kept in sync across every branch.</dd>
-              <dt>Centralized booking across sites</dt><dd>One booking system, every location, one calendar view.</dd>
-              <dt>AI WhatsApp booking bot</dt><dd>A full AI agent that books appointments over WhatsApp — no human needed.</dd>
-              <dt>Custom automations</dt><dd>Bespoke Make/n8n workflows scoped to how your business actually runs.</dd>
-              <dt>Dedicated support &amp; reporting</dt><dd>A direct line to me, plus regular performance reports.</dd>
-            </dl>
-          </details>
-          <a class="btn btn-fill tcta" href="#book" style="justify-content:center">Book a scoping call
-            <span class="swap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></a>
-        </div>
-      </div>
-    </details>
   </div>
 </section>
 
