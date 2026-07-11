@@ -707,8 +707,12 @@ if(!reduce){
      card right at the Lenis scroll-handoff point, read as lag) — same risk here, not worth it
      for a pricing-card entrance. Single shared trigger + per-card delay gives the cascade
      timing instead of each card's own independent threshold-cross. */
-  gsap.utils.toArray('.tiers .tier').forEach((tier,i)=>{
-    gsap.fromTo(tier,{y:46-i*6,scale:0.92,opacity:0},
+  gsap.utils.toArray('.tier-slot').forEach((slot,i)=>{
+    /* trust-badge sits outside .tier (so it doesn't stretch the card's flex height) but must
+       animate WITH its card — otherwise it sits fully visible/static while the card is still
+       fading/scaling in underneath it, reading as a floating, disconnected element mid-scroll. */
+    const targets=[slot.querySelector('.tier'),slot.querySelector('.trust-badge')].filter(Boolean);
+    gsap.fromTo(targets,{y:46-i*6,scale:0.92,opacity:0},
       {y:0,scale:1,opacity:1,duration:0.85,delay:i*0.12,ease:'power3.out',
         scrollTrigger:{trigger:'.tiers',start:'top 88%',once:true,fastScrollEnd:true}});
   });
