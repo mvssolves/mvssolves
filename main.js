@@ -97,23 +97,6 @@ if(!reduce&&isDesktop){
   check();
 })();
 
-/* magnetic CTAs — desktop/mouse only. gsap.quickTo, no rAF loop of its own: GSAP's already
-   ticking site-wide for Lenis sync. */
-if(!reduce&&isDesktop){
-  /* magnetic pull — CTA buttons drift toward the cursor within their own bounds, spring back on leave */
-  const PULL=0.35;
-  document.querySelectorAll('.btn-fill, .navcta').forEach(btn=>{
-    const mx=gsap.quickTo(btn,'x',{duration:0.4,ease:'power3.out'});
-    const my=gsap.quickTo(btn,'y',{duration:0.4,ease:'power3.out'});
-    btn.addEventListener('mousemove',e=>{
-      const r=btn.getBoundingClientRect();
-      mx((e.clientX-(r.left+r.width/2))*PULL);
-      my((e.clientY-(r.top+r.height/2))*PULL);
-    });
-    btn.addEventListener('mouseleave',()=>{mx(0);my(0);});
-  });
-}
-
 /* hero headline neon flicker — split into letters, dip 1-2 random letters' opacity in snappy ticks */
 (function(){
   const root=document.querySelector('h1.flick');
