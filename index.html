@@ -98,6 +98,14 @@
   /* progress */
   .progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--accent);z-index:100;}
 
+  /* custom cursor -- desktop only (mouse-driven). mix-blend-mode:difference so one white dot
+     reads correctly over both the dark bg and any lighter card/button underneath it. */
+  html.has-cursor,html.has-cursor *{cursor:none!important;}
+  .cursor-dot{position:fixed;top:0;left:0;width:10px;height:10px;margin:-5px 0 0 -5px;
+    border-radius:50%;background:var(--ink);mix-blend-mode:difference;pointer-events:none;
+    z-index:200;transition:width .25s ease,height .25s ease,margin .25s ease,opacity .25s ease;}
+  .cursor-dot.hover{width:44px;height:44px;margin:-22px 0 0 -22px;opacity:.8;}
+
 
   /* nav */
   nav{position:fixed;top:0;left:0;right:0;z-index:60;padding:20px 36px;display:flex;align-items:center;gap:16px;
