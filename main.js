@@ -939,10 +939,8 @@ if(!reduce){
     const mode=b.dataset.mode;
     mt.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
     tiers.classList.toggle('mode-own',mode==='own');
-    tiers.classList.toggle('mode-usd',mode==='usd');
-    tiers.classList.toggle('mode-usd-own',mode==='usd-own');
     if(!reduce){
-      const sel=mode==='own'?'.po':mode==='usd'?'.pu':mode==='usd-own'?'.puo':'.pm';
+      const sel=mode==='own'?'.po':'.pm';
       const prices=tiers.querySelectorAll(sel+' .price');
       gsap.fromTo(prices,{opacity:0,y:-6},{opacity:1,y:0,duration:0.3,stagger:0.04,ease:'power2.out',overwrite:true});
     }
