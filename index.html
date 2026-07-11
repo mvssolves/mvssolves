@@ -404,7 +404,7 @@
   .tier .badge{display:inline-block;align-self:flex-start;background:var(--accent);color:var(--accent-ink);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:4px;margin-bottom:12px;}
   .tier .tn{font-weight:700;font-size:22px;color:var(--ink);letter-spacing:-.02em;font-family:'Nohemi',sans-serif;}
   .tier .tl{color:var(--soft);font-size:13.5px;margin:6px 0 18px;min-height:38px;}
-  .tier-slot{display:flex;flex-direction:column;position:relative;}
+  .tier-slot{display:flex;flex-direction:column;}
   .tier-slot .tier{flex:1;}
   .tier .price{font-weight:700;font-size:30px;letter-spacing:-.02em;color:var(--ink);font-family:'Nohemi',sans-serif;}
   .tier .price small{font-size:15px;font-weight:600;color:var(--muted);}
@@ -442,21 +442,12 @@
   .tier-details dt{font-weight:700;color:var(--ink);margin-top:8px;}
   .tier-details dt:first-child{margin-top:0;}
   .tier-details dd{margin:2px 0 0;color:var(--soft);line-height:1.4;}
-  .trust-badge{position:absolute;top:100%;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:28px;}
-  .tb-stars{color:var(--accent);font-size:19px;letter-spacing:2px;}
-  .tb-txt{font-size:12px;color:var(--muted);}
-  .tb-num{font-size:15px;font-weight:700;color:var(--ink);}
-  @media(max-width:600px){.trust-badge{flex-direction:column;gap:4px;}}
-  /* mobile: .tiers is a horizontal scroll-snap carousel (overflow-x:auto). Per the CSS overflow
-     spec, setting only overflow-x forces overflow-y to compute as 'auto' too -- so the absolute-
-     positioned badge (used on desktop to avoid stretching the 3 equal-height cards) was getting
-     silently clipped away below the carousel's own box, invisible on real devices. Only one card
-     shows at a time on mobile anyway, so there's no cross-card alignment to protect -- put it
-     back in normal flow instead of fighting the clip. */
-  @media(max-width:900px){
-    .toggle{flex-wrap:wrap;justify-content:center;border-radius:24px;}
-    .trust-badge{position:static;margin-top:16px;}
-  }
+  .trust-badge{display:flex;align-items:center;gap:10px;margin-top:34px;}
+  .tb-stars{color:var(--accent);font-size:21px;letter-spacing:2px;}
+  .tb-txt{font-size:12.5px;color:var(--muted);}
+  .tb-num{font-size:17px;font-weight:700;color:var(--ink);}
+  @media(max-width:600px){.trust-badge{flex-direction:column;align-items:flex-start;gap:5px;}}
+  @media(max-width:900px){.toggle{flex-wrap:wrap;justify-content:center;border-radius:24px;}}
   .tier.prem{position:relative;z-index:0;border-color:transparent;isolation:isolate;overflow:hidden;}
   .tier.prem::before{content:"";position:absolute;inset:-60%;z-index:-2;
     background:conic-gradient(from 0deg,var(--ink),var(--line) 30%,var(--ink) 60%,var(--line) 90%,var(--ink));
@@ -931,10 +922,6 @@
           <a class="btn btn-fill tcta" href="#book" style="justify-content:center">Get package
             <span class="swap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></a>
         </div>
-        <div class="trust-badge">
-          <span class="tb-stars">★★★★★</span>
-          <span class="tb-txt"><span class="tb-num">22</span> clients and counting.</span>
-        </div>
       </div>
       <div class="tier-slot">
         <div class="tier prem">
@@ -964,6 +951,10 @@
             <span class="swap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></a>
         </div>
       </div>
+    </div>
+    <div class="trust-badge">
+      <span class="tb-stars">★★★★★</span>
+      <span class="tb-txt"><span class="tb-num">22</span> clients and counting.</span>
     </div>
   </div>
 </section>
