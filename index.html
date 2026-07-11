@@ -125,8 +125,11 @@
      link on touch. Narrow screens scroll the pill horizontally instead of collapsing to a hamburger. */
   .nav-links{position:relative;display:flex;flex-direction:row;align-items:center;gap:4px;
     padding:5px;pointer-events:auto;max-width:100%;min-width:0;overflow-x:auto;
-    background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:999px;
-    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    /* nav is position:fixed -- always on screen, so backdrop-filter here recomposited every
+       scroll frame for the whole site, forever (nav's own .scrolled bg was already fixed for
+       this reason; this inner pill was the one still doing it). Solid tint instead, same look
+       once nav.scrolled kicks in almost immediately on scroll anyway. */
+    background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:999px;
     scrollbar-width:none;-ms-overflow-style:none;}
   .nav-links::-webkit-scrollbar{display:none;}
   .nav-links a{padding:7px 15px;border-radius:999px;position:relative;z-index:1;white-space:nowrap;
@@ -481,11 +484,12 @@
   .book-note{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--muted);margin-top:14px;text-align:center;}
   .mailbtn{display:flex;margin:20px auto 0;width:fit-content;}
 
-  /* back-to-top button — hidden until scrolled, fixed bottom-right */
+  /* back-to-top button — hidden until scrolled, fixed bottom-right. No backdrop-filter: this is
+     fixed + visible for most of the scroll after the first screen, so blur here recomposited
+     every scroll frame, same cost as the nav pill's. Solid tint instead. */
   .to-top{position:fixed;right:22px;bottom:22px;z-index:70;width:44px;height:44px;display:flex;
     align-items:center;justify-content:center;border-radius:999px;cursor:pointer;color:var(--ink);
-    background:rgba(255,255,255,.06);border:1px solid var(--line);backdrop-filter:blur(8px);
-    -webkit-backdrop-filter:blur(8px);opacity:0;pointer-events:none;transform:translateY(12px);
+    background:rgba(20,20,20,.92);border:1px solid var(--line);opacity:0;pointer-events:none;transform:translateY(12px);
     transition:opacity .3s ease,transform .3s ease,background .25s ease;}
   .to-top svg{width:20px;height:20px;}
   .to-top.show{opacity:1;pointer-events:auto;transform:translateY(0);}
