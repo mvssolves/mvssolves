@@ -65,11 +65,11 @@
 <style>
   :root{
     --bg:#0a0a0a; --bg-2:#151515; --surface:#1e1e1e;
-    /* warm neutrals + Signal Amber accent — matches the homepage token change so the subpages
-       don't drift back to cold white. */
+    /* stark black & white — no brand accent on this page. Deliberate departure from the
+       homepage's amber, per direction: this page reads as a hard bar, not a warm pitch. */
     --ink:#ffffff; --text:#f2efe9; --soft:#c8c3ba; --muted:#98938a;
     --line:rgba(255,255,255,0.12); --line-strong:rgba(255,255,255,0.24);
-    --accent:#e8a94b; --accent-ink:#160d02;
+    --accent:#ffffff; --accent-ink:#000000;
     --maxw:900px;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -125,18 +125,18 @@
   ul.list li::before{content:'—';position:absolute;left:0;color:var(--muted);}
   .note{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:18px 20px;font-size:14.5px;
     color:var(--soft);margin-top:8px;}
-  /* pill + slide-and-rotate icon, matching the CTA buttons on the main site */
+  /* sharp-edged, not a pill — hard bar, not a warm pitch */
   .btn{position:relative;display:inline-flex;align-items:center;gap:10px;padding:16px 60px 16px 28px;
-    border-radius:999px;font-weight:700;font-size:15.5px;background:var(--accent);color:var(--accent-ink);
-    overflow:hidden;transition:padding .5s cubic-bezier(.4,0,.2,1),opacity .2s ease;}
+    border-radius:2px;font-weight:700;font-size:15.5px;background:var(--accent);color:var(--accent-ink);
+    overflow:hidden;transition:padding .5s cubic-bezier(.4,0,.2,1),opacity .2s ease;text-transform:uppercase;letter-spacing:.04em;}
   .btn:hover{opacity:.92;padding-left:60px;padding-right:28px;}
-  .btn .swap-icon{position:absolute;top:4px;right:4px;width:40px;height:40px;border-radius:50%;
+  .btn .swap-icon{position:absolute;top:4px;right:4px;width:40px;height:40px;border-radius:0;
     background:var(--accent-ink);color:var(--accent);display:flex;align-items:center;justify-content:center;
     transition:right .5s cubic-bezier(.4,0,.2,1),transform .5s cubic-bezier(.4,0,.2,1);pointer-events:none;}
   .btn .swap-icon svg{width:16px;height:16px;}
   .btn:hover .swap-icon{right:calc(100% - 44px);transform:rotate(45deg);}
   .apply{padding:60px 0 90px;}
-  .apply .box{background:var(--ink);color:var(--accent-ink);border-radius:20px;padding:40px 36px;}
+  .apply .box{background:var(--ink);color:var(--accent-ink);border-radius:4px;padding:40px 36px;border:1px solid var(--ink);}
   .apply .box .lab::before{background:var(--accent-ink);}
   .apply .box h2{color:var(--accent-ink);}
   .apply .box p{color:rgba(10,10,10,.72);}
@@ -160,6 +160,25 @@
     .hero{padding:56px 0 32px;}
     .apply .box{padding:30px 24px;}
   }
+  /* document column — centered declarations, left-aligned reading column beneath.
+     Sections read as a formal brief, not a pricing grid. */
+  .center-block{text-align:center;}
+  .center-block .lab{justify-content:center;}
+  .center-block p{margin-left:auto;margin-right:auto;}
+  .col{max-width:640px;margin:24px auto 0;text-align:left;}
+  .col ul.list{margin:0;}
+  .fine{font-size:12.5px;color:var(--muted);margin-top:16px;line-height:1.6;max-width:640px;}
+  .tracks{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px auto 0;max-width:640px;text-align:left;}
+  @media(max-width:640px){.tracks{grid-template-columns:1fr;}}
+  .tracks .track{border:1px solid var(--line-strong);padding:20px;}
+  .tracks .track .tlab{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+  .tracks .track .trate{font-family:'Nohemi',sans-serif;font-size:28px;font-weight:700;color:var(--ink);letter-spacing:-.02em;}
+  .tracks .track .trate small{font-size:14px;color:var(--soft);font-weight:500;}
+  .tracks .track p{font-size:13px;color:var(--soft);margin-top:10px;max-width:none;}
+  .milestone{max-width:480px;margin:28px auto 0;border:2px solid var(--ink);padding:32px;text-align:center;}
+  .milestone .mnum{font-family:'Nohemi',sans-serif;font-size:44px;font-weight:800;letter-spacing:-.02em;color:var(--ink);}
+  .milestone .mnum small{font-size:14px;font-weight:600;color:var(--soft);text-transform:uppercase;letter-spacing:.08em;display:block;margin-top:6px;}
+  .milestone p{margin-top:14px;max-width:none;}
 </style>
 </head>
 <body>
@@ -175,55 +194,100 @@
 <header class="hero">
   <canvas class="team-3d" id="team3d" aria-hidden="true"></canvas>
   <div class="wrap">
-    <div class="lab">Careers</div>
+    <div class="lab">Careers — Closer</div>
     <h1>
-      <span class="line"><span>Join the team.</span></span>
-      <span class="line"><span class="serif">Become a closer.</span></span>
+      <span class="line"><span>We don't hire salespeople.</span></span>
+      <span class="line"><span class="serif">We hire closers.</span></span>
     </h1>
-    <p class="sub">MVS Solves is a one-person agency that's outgrowing "one person." I need someone who can take warm, qualified leads and turn them into signed clients — without me on every call.</p>
   </div>
 </header>
 
 <section>
-  <div class="wrap">
-    <div class="lab">What MVS Solves does</div>
-    <h2>Websites, booking systems &amp; automation for service businesses.</h2>
-    <p>I build and run the digital basics local service businesses need — websites, online booking, Google visibility, automations, AI assistants — priced simply, delivered fast, no agency layers. Every lead that reaches you has already shown real interest.</p>
+  <div class="wrap center-block">
+    <div class="lab">The Business</div>
+    <h2>Websites, booking systems and automation for service businesses.</h2>
+    <p>I build the infrastructure local service businesses actually need — websites, booking, Google visibility, automation, AI reply systems. Priced simply. Delivered fast. No agency layers, no hand-offs. Most leads reaching you have already shown interest. Anything beyond that is on you to find.</p>
   </div>
 </section>
 
 <section>
-  <div class="wrap">
-    <div class="lab">The role</div>
-    <h2>What a closer does here</h2>
-    <ul class="list">
-      <li>Work warm leads from my own outreach and inbound — you're not cold-prospecting from zero</li>
-      <li>Get on calls or WhatsApp, understand what the business needs, and close the deal</li>
-      <li>Once a lead is assigned to you, it's yours — I stay out of it and let you run the conversation</li>
-      <li>Report back on what closed, what didn't, and why</li>
-    </ul>
+  <div class="wrap center-block">
+    <div class="lab">The Work</div>
+    <h2>What you actually do.</h2>
+    <div class="col">
+      <ul class="list">
+        <li>Free training first — weekly, ongoing, not a one-off course. You earn from client one — your first five are guided, then you're live: running your own leads, unsupervised</li>
+        <li>Find your own on top if you want more — outreach templates provided, no ceiling on what you bring in</li>
+        <li>Once it's yours, it stays yours. No interference</li>
+        <li>Bring it home, or explain exactly why you didn't. Same day. Every time</li>
+        <li>No CRM. No admin. One message the moment it's done</li>
+      </ul>
+    </div>
   </div>
 </section>
 
 <section>
-  <div class="wrap">
-    <div class="lab">Who fits</div>
-    <h2>What I'm looking for</h2>
-    <ul class="list">
-      <li>You can hold a real conversation and actually listen — not read a script</li>
-      <li>You follow up. Every time. Without being told to</li>
-      <li>You're comfortable closing over a call or WhatsApp, no fancy CRM required</li>
-      <li>Self-motivated — you don't need someone checking in on you daily</li>
-    </ul>
+  <div class="wrap center-block">
+    <div class="lab">The Bar</div>
+    <h2>The bar required.</h2>
+    <div class="col">
+      <ul class="list">
+        <li>15 hours a week, minimum. Not clocked — delivered</li>
+        <li>Remote. Any timezone. You respond in minutes, not "when you get to it"</li>
+        <li>You listen before you talk. Nobody wants a script read at them</li>
+        <li>You follow up. Every time. Without being told twice</li>
+        <li>Self-motivated. No one is checking in on you daily</li>
+        <li>No experience required. Lying about it will end things fast</li>
+      </ul>
+    </div>
   </div>
 </section>
 
 <section>
-  <div class="wrap">
-    <div class="lab">Pay</div>
-    <h2>Commission-based</h2>
-    <p>You earn on what you close — no cap. Exact structure gets walked through on a call, so we're both clear before anything starts.</p>
-    <div class="note">No base salary, no fixed hours — this suits someone who wants to be paid on results, not present hours.</div>
+  <div class="wrap center-block">
+    <div class="lab">Commission</div>
+    <h2>No base. No salary. No cap.</h2>
+    <p>You earn on what you close. Nothing else.</p>
+    <div class="tracks">
+      <div class="track">
+        <div class="tlab">New to closing</div>
+        <div class="trate">5%<small> → 10% → 15%</small></div>
+        <p>Trained from zero, free of charge. 5% on clients 1–10. 10% on clients 11–20. 15% from client 21 on.</p>
+      </div>
+      <div class="track">
+        <div class="tlab">Already closed before</div>
+        <div class="trate">10%<small> → 15%</small></div>
+        <p>No training needed. 10% on your first ten clients. 15% on every one after.</p>
+      </div>
+    </div>
+    <div class="col">
+      <ul class="list">
+        <li>Commission runs on a client's first 12 months of payments</li>
+        <li>Paid monthly, within 7 days of payment actually clearing</li>
+        <li>One-time deals pay their commission once, same rates</li>
+      </ul>
+      <p class="fine">Cross the threshold and only new deals earn the higher rate — what you've already closed keeps its original rate.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap center-block">
+    <div class="lab">30 Clients</div>
+    <h2>Cross 30, and commission stops being the only number.</h2>
+    <p>Thirty clients closed — recurring or one-time, same count as the ramp above — and commission stops being the only thing you're paid.</p>
+    <div class="milestone">
+      <div class="mnum">+$1,000<small>a month, on top of commission</small></div>
+      <p>Not a bonus. Not once. Every month you're still active.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap center-block">
+    <div class="lab">Termination</div>
+    <h2>Standards slip, you're out.</h2>
+    <p>This isn't a role with a review cycle or a warning system. Miss the bar — hours, follow-up, results — and the contract ends immediately. No notice period. No second conversation. Perform, or don't be here.</p>
   </div>
 </section>
 
@@ -231,9 +295,9 @@
   <div class="wrap">
     <div class="box">
       <div class="lab" style="color:rgba(10,10,10,.6)">Apply</div>
-      <h2>Think you're a fit?</h2>
-      <p>Send me a short note — who you are, any closing/sales experience, and why this caught your eye. No CV needed.</p>
-      <a class="btn" href="mailto:martin@mvssolves.com?subject=Closer%20application%20-%20MVS%20Solves&body=Hey%20Martin%2C%0A%0AA%20bit%20about%20me%3A%0A%0AMy%20sales%2Fclosing%20experience%3A%0A%0AWhy%20this%20caught%20my%20eye%3A%0A">
+      <h2>This is not for everyone.</h2>
+      <p>If you cannot commit 15 hours a week, do not apply. If you've never closed anything, say so — plainly, not padded. State your experience, your availability, and why you think you're worth the risk. No CV needed.</p>
+      <a class="btn" href="mailto:martin@mvssolves.com?subject=Closer%20application%20-%20MVS%20Solves&body=Closing%2Fsales%20experience%20%E2%80%94%20yes%20or%20no%2C%20and%20specifics%20if%20yes%3A%0A%0AHours%20per%20week%20you%20can%20actually%20commit%3A%0A%0AYour%20timezone%3A%0A%0AWhy%20you're%20worth%20the%20risk%3A%0A">
         Email Martin
         <span class="swap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
       </a>
