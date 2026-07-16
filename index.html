@@ -551,7 +551,7 @@
   /* button effects: ghost fill-sweep + fill shine/arrow */
   .btn-ghost{position:relative;overflow:hidden;z-index:0;}
   .btn-ghost::before{content:'';position:absolute;inset:0;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .38s cubic-bezier(.4,0,.2,1);z-index:-1;}
-  .btn-ghost:hover{background:transparent;color:#fff;border-color:var(--ink);}
+  .btn-ghost:hover{background:transparent;color:var(--bg);border-color:var(--ink);}
   .btn-ghost:hover::before{transform:scaleX(1);}
   .btn-fill{position:relative;overflow:hidden;}
   .btn-fill::after{content:'';position:absolute;top:0;left:-40%;width:35%;height:100%;background:linear-gradient(110deg,transparent,rgba(255,255,255,.28),transparent);transform:skewX(-18deg);pointer-events:none;}
