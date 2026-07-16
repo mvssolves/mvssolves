@@ -867,10 +867,15 @@ if(!reduce){
 (function(){
   const rail=document.getElementById('drail');if(!rail)return;
   const ds=[...rail.querySelectorAll('.domino')];
+  /* gate both the scroll-driven layout read below and this ticker on section visibility —
+     neither had a skip before, so both ran sitewide, forever, on every scroll frame /
+     every 260ms regardless of whether this section was anywhere near the viewport. */
+  let railVisible=true;
+  onVisibilityChange(rail,v=>{railVisible=v;});
   const el=document.getElementById('dcost');
   if(el){
     const oddRand=()=>2*Math.floor(Math.random()*1000)+1001; // 1001..2999 odd
-    setInterval(()=>{el.textContent=oddRand().toLocaleString('en-US');},260);
+    setInterval(()=>{if(railVisible)el.textContent=oddRand().toLocaleString('en-US');},260);
   }
   if(reduce){ds.forEach(d=>d.classList.add('active'));return;}
   let pending=false, ih=window.innerHeight;
@@ -899,7 +904,7 @@ if(!reduce){
       d.classList.toggle('active',ab<0.16);
     });
   }
-  const onScroll=()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;upd();});};
+  const onScroll=()=>{if(pending||!railVisible)return;pending=true;requestAnimationFrame(()=>{pending=false;upd();});};
   window.addEventListener('scroll',onScroll,{passive:true});
   window.addEventListener('resize',()=>{ih=window.innerHeight;onScroll();},{passive:true});
   if(lenis&&lenis.on)lenis.on('scroll',onScroll);
@@ -1345,8 +1350,14 @@ function initPriceRise3D(canvas){
     const op=Math.max(0,1-p*1.9);
     content.forEach(el=>{el.style.opacity=op;el.style.transform=`translateY(${-p*80}px)`;});
   }
+  /* once fully scrolled past the hero this had no visible effect left to update, but was still
+     forcing a layout read (offsetHeight) + style writes on every scroll frame for the rest of
+     the page, forever -- same off-screen-listener bug already fixed on the other scroll
+     trackers in this file, just missed here. Gate on hero visibility like those. */
+  let heroVisible=true;
+  onVisibilityChange(hero,v=>{heroVisible=v;});
   window.addEventListener('scroll',()=>{
-    if(pending)return;pending=true;
+    if(pending||!heroVisible)return;pending=true;
     requestAnimationFrame(()=>{pending=false;upd();});
   },{passive:true});
   upd();
