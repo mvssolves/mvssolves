@@ -179,6 +179,20 @@
   .milestone .mnum{font-family:'Nohemi',sans-serif;font-size:44px;font-weight:800;letter-spacing:-.02em;color:var(--ink);}
   .milestone .mnum small{font-size:14px;font-weight:600;color:var(--soft);text-transform:uppercase;letter-spacing:.08em;display:block;margin-top:6px;}
   .milestone p{margin-top:14px;max-width:none;}
+  /* milestone bonus row — same swipe-carousel pattern as .pkg/.tracks, three across on desktop */
+  .bonus-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px;}
+  @media(max-width:900px){
+    .bonus-row{display:flex;grid-template-columns:none;overflow-x:auto;scroll-snap-type:x mandatory;
+      gap:14px;margin-left:-20px;margin-right:-20px;padding:0 20px 10px;
+      -webkit-overflow-scrolling:touch;scrollbar-width:none;}
+    .bonus-row::-webkit-scrollbar{display:none;}
+    .bonus-row .bcard{flex:0 0 84%;scroll-snap-align:center;}
+  }
+  .bcard{border:2px solid var(--ink);padding:24px;text-align:center;}
+  .bcard .blab{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+  .bcard .mnum{font-family:'Nohemi',sans-serif;font-size:32px;font-weight:800;color:var(--ink);letter-spacing:-.02em;}
+  .bcard .mnum small{font-size:11.5px;color:var(--soft);font-weight:500;display:block;margin-top:4px;}
+  .bcard p{font-size:12px;color:var(--soft);margin-top:10px;max-width:none;}
 </style>
 </head>
 <body>
@@ -273,35 +287,26 @@
 </section>
 
 <section>
-  <div class="wrap center-block">
-    <div class="lab">50 Clients</div>
-    <h2>Cross 50, and commission stops being the only number.</h2>
-    <p>Fifty recurring clients closed — one-time deals don't count here, same as the ramp above — and commission stops being the only thing you're paid.</p>
-    <div class="milestone">
-      <div class="mnum">+$1,000<small>a month, on top of commission</small></div>
-      <p>Not a bonus. Not once. Every month you're still active.</p>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="wrap center-block">
-    <div class="lab">75 Clients</div>
-    <h2>Cross 75, take a $3,000 once-off.</h2>
-    <p>Seventy-five recurring clients closed — one-time deals still don't count, same as every threshold above — and you get paid a lump sum on top of the $1,000/month that's already running.</p>
-    <div class="milestone">
-      <div class="mnum">$3,000<small>once-off, on top of the monthly bonus</small></div>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="wrap center-block">
-    <div class="lab">100 Clients</div>
-    <h2>Cross 100, take a $5,000 once-off.</h2>
-    <p>A hundred recurring clients closed — and you get paid another lump sum, still stacked on top of the $1,000/month.</p>
-    <div class="milestone">
-      <div class="mnum">$5,000<small>once-off, on top of the monthly bonus</small></div>
+  <div class="wrap pkg-wrap center-block">
+    <div class="lab">Milestone Bonuses</div>
+    <h2>Commission isn't the ceiling.</h2>
+    <p>Recurring clients closed — one-time deals don't count, same rule as the tiers above. Stacks on top of whatever commission you're already earning.</p>
+    <div class="bonus-row">
+      <div class="bcard">
+        <div class="blab">50 Clients</div>
+        <div class="mnum">+$1,000<small>a month, on top of commission</small></div>
+        <p>Not a bonus. Not once. Every month you're still active.</p>
+      </div>
+      <div class="bcard">
+        <div class="blab">75 Clients</div>
+        <div class="mnum">$3,000<small>once-off, on top of the monthly bonus</small></div>
+        <p>A lump sum, on top of the $1,000/month that's already running.</p>
+      </div>
+      <div class="bcard">
+        <div class="blab">100 Clients</div>
+        <div class="mnum">$5,000<small>once-off, stacked on the monthly bonus</small></div>
+        <p>Another lump sum, still stacked on top of the $1,000/month.</p>
+      </div>
     </div>
   </div>
 </section>
