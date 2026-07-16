@@ -923,6 +923,22 @@ if(!reduce){
   });
 })();
 
+/* pricing currency toggle: USD / ZAR — independent of the Monthly/Own-outright toggle above */
+(function(){
+  const ct=document.getElementById('currToggle');if(!ct)return;
+  const tiers=document.getElementById('tiers');
+  ct.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    const curr=b.dataset.curr;
+    ct.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+    tiers.classList.toggle('curr-zar',curr==='zar');
+    if(!reduce){
+      const prices=tiers.querySelectorAll(curr==='zar'?'.cur-zar':'.cur-usd');
+      gsap.fromTo(prices,{opacity:0,y:-6},{opacity:1,y:0,duration:0.3,stagger:0.04,ease:'power2.out',overwrite:true});
+    }
+    ScrollTrigger.refresh();
+  });
+})();
+
 /* in-page anchor jumps — smooth scroll, no wipe overlay */
 document.querySelectorAll('a[href^="#"]').forEach(link=>{
   link.addEventListener('click',e=>{
