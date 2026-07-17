@@ -777,19 +777,6 @@ if(!reduce){
   });
 })();
 
-/* floating book-call pill: visible once past the hero, hidden again once the book section
-   (which has its own CTA already on screen) is reached. Own observer — not the shared one,
-   since #top already has a callback registered above and onVisibilityChange only keeps one
-   per element. */
-(function(){
-  const fc=document.getElementById('floatCta'),hero=document.getElementById('top'),book=document.getElementById('book');
-  if(!fc||!hero)return;
-  let heroVisible=true,bookVisible=false;
-  function sync(){fc.classList.toggle('show',!heroVisible&&!bookVisible);}
-  new IntersectionObserver(es=>es.forEach(e=>{heroVisible=e.isIntersecting;sync();}),{threshold:0}).observe(hero);
-  if(book)new IntersectionObserver(es=>es.forEach(e=>{bookVisible=e.isIntersecting;sync();}),{threshold:0}).observe(book);
-})();
-
 /* Premium feature callouts — fade in once, desktop only */
 if(isDesktop&&!reduce){
   const prem=document.querySelector('.tier.prem');
