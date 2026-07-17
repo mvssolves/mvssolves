@@ -928,20 +928,59 @@ if(!reduce){
   });
 })();
 
-/* pricing currency toggle: USD / ZAR — independent of the Monthly/Own-outright toggle above */
+/* pricing currency combobox: USD/ZAR/EUR/GBP/AUD/CAD/NGN/KES/AED/INR — independent of Monthly/Own-outright toggle above */
 (function(){
-  const ct=document.getElementById('currToggle');if(!ct)return;
+  const dd=document.getElementById('currDD');if(!dd)return;
+  const btn=document.getElementById('currBtn');
+  const panel=document.getElementById('currPanel');
+  const list=document.getElementById('currList');
+  const more=document.getElementById('currMore');
+  const btnSym=document.getElementById('currBtnSym');
+  const btnCode=document.getElementById('currBtnCode');
   const tiers=document.getElementById('tiers');
-  ct.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
-    const curr=b.dataset.curr;
-    ct.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
-    tiers.classList.toggle('curr-zar',curr==='zar');
+  const items=[...list.querySelectorAll('.curr-dd-item')];
+  const ALL=['zar','eur','gbp','aud','cad','ngn','kes','aed','inr','brl','mxn','jpy','cny','sgd','chf','sek','nok','dkk','nzd'];
+
+  /* bouncing chevron tells an average visitor the 20-currency list scrolls -- fades once they reach the bottom */
+  function updateMore(){
+    const atBottom=list.scrollTop+list.clientHeight>=list.scrollHeight-4;
+    more.classList.toggle('hide',atBottom);
+  }
+  list.addEventListener('scroll',updateMore,{passive:true});
+
+  function closeList(){
+    dd.classList.remove('open');
+    btn.setAttribute('aria-expanded','false');
+    panel.hidden=true;
+  }
+  function openList(){
+    dd.classList.add('open');
+    btn.setAttribute('aria-expanded','true');
+    panel.hidden=false;
+    list.scrollTop=0;
+    updateMore();
+    if(!reduce)gsap.fromTo(panel,{opacity:0,y:-8},{opacity:1,y:0,duration:0.22,ease:'power2.out'});
+  }
+  function select(item){
+    const curr=item.dataset.curr;
+    btnSym.textContent=item.dataset.sym;
+    btnCode.textContent=item.dataset.curr.toUpperCase();
+    items.forEach(i=>{i.classList.toggle('on',i===item);i.setAttribute('aria-selected',i===item?'true':'false');});
+    ALL.forEach(c=>tiers.classList.toggle('curr-'+c,curr===c));
     if(!reduce){
-      const prices=tiers.querySelectorAll(curr==='zar'?'.cur-zar':'.cur-usd');
+      const prices=tiers.querySelectorAll(curr==='usd'?'.cur-usd':'.cur-'+curr);
       gsap.fromTo(prices,{opacity:0,y:-6},{opacity:1,y:0,duration:0.3,stagger:0.04,ease:'power2.out',overwrite:true});
     }
     ScrollTrigger.refresh();
+    closeList();
+  }
+  btn.addEventListener('click',e=>{
+    e.stopPropagation();
+    dd.classList.contains('open')?closeList():openList();
   });
+  items.forEach(item=>item.addEventListener('click',()=>select(item)));
+  document.addEventListener('click',e=>{if(!dd.contains(e.target))closeList();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeList();});
 })();
 
 /* in-page anchor jumps — smooth scroll, no wipe overlay */
