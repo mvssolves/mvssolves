@@ -919,11 +919,6 @@ if(!reduce){
     const mode=b.dataset.mode;
     mt.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
     tiers.classList.toggle('mode-own',mode==='own');
-    if(!reduce){
-      const sel=mode==='own'?'.po':'.pm';
-      const prices=tiers.querySelectorAll(sel+' .price');
-      gsap.fromTo(prices,{opacity:0,y:-6},{opacity:1,y:0,duration:0.15,stagger:0.02,ease:'power2.out',overwrite:true});
-    }
     ScrollTrigger.refresh();
   });
 })();
@@ -967,10 +962,6 @@ if(!reduce){
     btnCode.textContent=item.dataset.curr.toUpperCase();
     items.forEach(i=>{i.classList.toggle('on',i===item);i.setAttribute('aria-selected',i===item?'true':'false');});
     ALL.forEach(c=>tiers.classList.toggle('curr-'+c,curr===c));
-    if(!reduce){
-      const prices=tiers.querySelectorAll(curr==='usd'?'.cur-usd':'.cur-'+curr);
-      gsap.fromTo(prices,{opacity:0,y:-6},{opacity:1,y:0,duration:0.15,stagger:0.02,ease:'power2.out',overwrite:true});
-    }
     ScrollTrigger.refresh();
     closeList();
   }
