@@ -101,12 +101,9 @@
 
   /* nav */
   nav{position:fixed;top:0;left:0;right:0;z-index:60;padding:20px 36px;display:flex;align-items:center;gap:16px;
-    justify-content:space-between;border-bottom:1px solid transparent;transition:border-color .3s,background .3s;}
-  /* backdrop-filter on a fixed, always-scrolling-past element resamples everything behind it
-     every frame — real GPU cost right at the hero, where nav flips to .scrolled almost
-     immediately. Was mobile-only before; the cost isn't mobile-specific, so solid everywhere. */
-  nav.scrolled{border-color:var(--line);background:rgba(10,10,10,.94);}
-  .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:17px;color:var(--ink);white-space:nowrap;flex-shrink:0;}
+    justify-content:space-between;}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:17px;color:var(--ink);white-space:nowrap;flex-shrink:0;
+    background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:999px;padding:8px 16px 8px 8px;}
   .logo-mark{width:26px;height:26px;border-radius:7px;background:var(--ink);color:var(--accent-ink);
     display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;flex-shrink:0;}
   .logo-text{display:inline-block;max-width:0;opacity:0;overflow:hidden;white-space:nowrap;
@@ -118,10 +115,8 @@
      link on touch. Narrow screens scroll the pill horizontally instead of collapsing to a hamburger. */
   .nav-links{position:relative;display:flex;flex-direction:row;align-items:center;gap:4px;
     padding:5px;pointer-events:auto;max-width:100%;min-width:0;overflow-x:auto;
-    /* nav is position:fixed -- always on screen, so backdrop-filter here recomposited every
-       scroll frame for the whole site, forever (nav's own .scrolled bg was already fixed for
-       this reason; this inner pill was the one still doing it). Solid tint instead, same look
-       once nav.scrolled kicks in almost immediately on scroll anyway. */
+    /* nav is position:fixed -- always on screen, so backdrop-filter here would recomposite
+       everything behind it every scroll frame, forever. Solid tint instead. */
     background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:999px;
     scrollbar-width:none;-ms-overflow-style:none;}
   .nav-links::-webkit-scrollbar{display:none;}
@@ -1113,6 +1108,6 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js';
 window.THREE = THREE;
 </script>
-<script src="/main.js?v=23" defer></script>
+<script src="/main.js?v=24" defer></script>
 </body>
 </html>

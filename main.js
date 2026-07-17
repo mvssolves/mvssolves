@@ -129,8 +129,8 @@ if(!reduce&&isDesktop){
   });
 })();
 
-/* scroll progress + nav */
-const prog=document.getElementById('progress'),nav=document.getElementById('nav');
+/* scroll progress */
+const prog=document.getElementById('progress');
 /* document height cached instead of read every scroll tick. Recomputed on resize AND via
    ResizeObserver on <body> (debounced) — catches every height-changing cause (details expanding,
    Cal embed lazy-load, fonts, whatever) instead of drifting stale like the window-resize-only
@@ -142,7 +142,7 @@ window.addEventListener('resize',recalcScrollable,{passive:true});
   let roT=null;
   new ResizeObserver(()=>{clearTimeout(roT);roT=setTimeout(recalcScrollable,120);}).observe(document.body);
 })();
-function onScroll(y){nav.classList.toggle('scrolled',y>40);
+function onScroll(y){
   const pct=scrollableH>0?(y/scrollableH*100):0;
   prog.style.width=pct+'%';}
 if(lenis) lenis.on('scroll',({scroll})=>onScroll(scroll));
