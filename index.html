@@ -835,10 +835,12 @@
     #hidden-cost .dcalc .dc{gap:4px;flex-shrink:0;}
     #hidden-cost .dcalc .chip{padding:3px 6px;white-space:nowrap;}
   }
-  #hidden-cost .domino::after{content:"";position:absolute;left:37px;bottom:-40px;width:1px;height:40px;
+  #hidden-cost .domino::after,#hidden-cost .domino::before{content:"";position:absolute;bottom:-40px;width:1px;height:40px;
     background:linear-gradient(var(--accent),transparent);box-shadow:0 0 8px rgba(232,169,75,.35);}
-  #hidden-cost .domino:last-child::after{display:none;}
-  #hidden-cost .domino.active::after{box-shadow:0 0 14px rgba(232,169,75,.6);}
+  #hidden-cost .domino::after{left:37px;}
+  #hidden-cost .domino::before{right:37px;}
+  #hidden-cost .domino:last-child::after,#hidden-cost .domino:last-child::before{display:none;}
+  #hidden-cost .domino.active::after,#hidden-cost .domino.active::before{box-shadow:0 0 14px rgba(232,169,75,.6);}
   @media(max-width:600px){#hidden-cost .drail{transform:rotateX(20deg);gap:48px;}}
   /* desktop: bigger slabs, tilted a touch more toward the viewer (lower rotateX) */
   @media(min-width:901px){
