@@ -1023,7 +1023,7 @@ if(document.fonts&&document.fonts.ready){
 })();
 
 /* intro loader — cinematic: brand mark tracks in, a progress bar counts 0→100%, then the veil
-   wipes upward to reveal the site. Plays once per page load. */
+   iris-closes to a point at center, revealing the site. Plays once per page load. */
 (function(){
   const veil=document.getElementById('introVeil');
   const fill=document.getElementById('introFill'),pct=document.getElementById('introPct');
@@ -1044,7 +1044,7 @@ if(document.fonts&&document.fonts.ready){
       document.documentElement.classList.remove('no-scroll');
       if(lenis)lenis.start();
       playHeroReveal();
-      setTimeout(()=>veil.remove(),900);
+      setTimeout(()=>veil.remove(),750);
     },220);
   }
   requestAnimationFrame(tick);
