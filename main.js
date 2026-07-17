@@ -922,7 +922,7 @@ if(!reduce){
     if(!reduce){
       const sel=mode==='own'?'.po':'.pm';
       const prices=tiers.querySelectorAll(sel+' .price');
-      gsap.fromTo(prices,{opacity:0,y:-6},{opacity:1,y:0,duration:0.3,stagger:0.04,ease:'power2.out',overwrite:true});
+      gsap.fromTo(prices,{opacity:0,y:-6},{opacity:1,y:0,duration:0.15,stagger:0.02,ease:'power2.out',overwrite:true});
     }
     ScrollTrigger.refresh();
   });
@@ -969,7 +969,7 @@ if(!reduce){
     ALL.forEach(c=>tiers.classList.toggle('curr-'+c,curr===c));
     if(!reduce){
       const prices=tiers.querySelectorAll(curr==='usd'?'.cur-usd':'.cur-'+curr);
-      gsap.fromTo(prices,{opacity:0,y:-6},{opacity:1,y:0,duration:0.3,stagger:0.04,ease:'power2.out',overwrite:true});
+      gsap.fromTo(prices,{opacity:0,y:-6},{opacity:1,y:0,duration:0.15,stagger:0.02,ease:'power2.out',overwrite:true});
     }
     ScrollTrigger.refresh();
     closeList();
