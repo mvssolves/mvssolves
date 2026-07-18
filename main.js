@@ -896,7 +896,11 @@ if(!reduce){
   }
   const onScroll=()=>{if(pending||!railVisible)return;pending=true;requestAnimationFrame(()=>{pending=false;upd();});};
   window.addEventListener('scroll',onScroll,{passive:true});
-  window.addEventListener('resize',()=>{ih=window.innerHeight;onScroll();},{passive:true});
+  /* mobile Safari fires 'resize' (height-only) as the address bar collapses/expands mid-scroll --
+     same false trigger documented and guarded elsewhere in this file (see onWidthResize above),
+     missed here. Recomputing every domino's getBoundingClientRect() on that false signal is what
+     read as the page stalling/glitching right when scroll resumed. */
+  onWidthResize(()=>{ih=window.innerHeight;onScroll();});
   if(lenis&&lenis.on)lenis.on('scroll',onScroll);
   upd();
 })();
