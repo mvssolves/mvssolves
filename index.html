@@ -387,7 +387,7 @@
     .tier-slot{flex:0 0 84%;scroll-snap-align:center;}
   }
   .tier{border:1px solid var(--line);border-radius:16px;padding:28px;display:flex;flex-direction:column;background:var(--bg);}
-  .tier.feat{border:2px solid var(--accent);box-shadow:0 2px 0 var(--accent);}
+  .tier.feat{border:2px solid var(--ink);box-shadow:0 2px 0 var(--ink);}
   .tier .badge{display:inline-block;align-self:flex-start;background:var(--accent);color:var(--accent-ink);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:4px;margin-bottom:12px;}
   .tier .tn{font-weight:700;font-size:22px;color:var(--ink);letter-spacing:-.02em;font-family:'Nohemi',sans-serif;}
   .tier .tl{color:var(--soft);font-size:13.5px;margin:6px 0 18px;min-height:38px;}
@@ -432,14 +432,20 @@
   @media(max-width:900px){
     .toggle{flex-wrap:wrap;justify-content:center;border-radius:24px;}
   }
-  .tier.prem{position:relative;z-index:0;border-color:transparent;isolation:isolate;overflow:hidden;}
+  .tier.prem{position:relative;z-index:0;border-color:transparent;isolation:isolate;overflow:hidden;
+    box-shadow:0 0 24px rgba(232,169,75,.18);}
   .tier.prem::before{content:"";position:absolute;inset:-60%;z-index:-2;
     background:conic-gradient(from 0deg,var(--accent),var(--line) 30%,var(--accent) 60%,var(--line) 90%,var(--accent));
     animation:premSpin 6s linear infinite;will-change:transform;pointer-events:none;}
   .tier.prem::after{content:"";position:absolute;inset:1px;z-index:-1;border-radius:15px;background:var(--bg);pointer-events:none;}
+  .tier.launch{position:relative;z-index:0;border-color:transparent;isolation:isolate;overflow:hidden;}
+  .tier.launch::before{content:"";position:absolute;inset:-60%;z-index:-2;
+    background:conic-gradient(from 0deg,var(--ink),var(--line) 30%,var(--ink) 60%,var(--line) 90%,var(--ink));
+    animation:premSpin 6s linear infinite;will-change:transform;pointer-events:none;}
+  .tier.launch::after{content:"";position:absolute;inset:1px;z-index:-1;border-radius:15px;background:var(--bg);pointer-events:none;}
   @keyframes premSpin{to{transform:rotate(360deg);}}
-  .tier.prem.spin-off::before{animation-play-state:paused;}
-  @media(prefers-reduced-motion:reduce){.tier.prem::before{animation:none;}}
+  .tier.prem.spin-off::before,.tier.launch.spin-off::before{animation-play-state:paused;}
+  @media(prefers-reduced-motion:reduce){.tier.prem::before,.tier.launch::before{animation:none;}}
   .pos{font-style:italic;color:var(--muted);font-size:13px;margin-top:10px;}
   .alc{margin-top:50px;border-top:1px solid var(--line);padding-top:30px;}
   .alc-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 40px;margin-top:18px;}
@@ -516,7 +522,7 @@
   .toggle button{transition:background .3s ease,color .3s ease;}
   .tier{transition:transform .3s cubic-bezier(.4,0,.2,1),border-color .3s ease,box-shadow .3s ease;}
   .tier:not(.feat):hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(10,10,10,.06);}
-  .tier.feat:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(10,10,10,.10),0 2px 0 var(--accent);}
+  .tier.feat:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(10,10,10,.10),0 2px 0 var(--ink);}
   .btn{transition:transform .12s ease;}
   .btn:active{transform:scale(.96);}
   .btn-fill{transition:transform .12s ease,opacity .25s ease,padding .5s cubic-bezier(.4,0,.2,1);}
@@ -926,7 +932,7 @@
     </div>
     <div class="tiers" id="tiers">
       <div class="tier-slot">
-        <div class="tier">
+        <div class="tier launch">
           <span class="badge">★ Best starter</span>
           <div class="tn">Launch Plan</div>
           <div class="pm">
@@ -1108,6 +1114,6 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js';
 window.THREE = THREE;
 </script>
-<script src="/main.js?v=25" defer></script>
+<script src="/main.js?v=26" defer></script>
 </body>
 </html>

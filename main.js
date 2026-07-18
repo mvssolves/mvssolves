@@ -742,6 +742,9 @@ if(!reduce){
 /* pause the Premium card's spinning gradient border off-screen — was running unconditionally forever */
 (function(){const prem=document.querySelector('.tier.prem');if(!prem)return;
   onVisibilityChange(prem,visible=>prem.classList.toggle('spin-off',!visible));})();
+/* same pause-off-screen treatment for the Launch card's spinning border */
+(function(){const launch=document.querySelector('.tier.launch');if(!launch)return;
+  onVisibilityChange(launch,visible=>launch.classList.toggle('spin-off',!visible));})();
 /* pause the integrations carousel spin off-screen — same reasoning, was running forever */
 (function(){const ic=document.querySelector('.int-carousel');if(!ic)return;
   onVisibilityChange(ic,visible=>ic.classList.toggle('spin-off',!visible));})();
