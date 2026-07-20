@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terms of Service — MVS Solves</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<meta name="description" content="The terms that govern using MVS Solves' website and services.">
+<meta name="author" content="Martin · MVS Solves">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://mvssolves.com/terms-of-service">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MVS Solves">
+<meta property="og:title" content="Terms of Service — MVS Solves">
+<meta property="og:description" content="The terms that govern using MVS Solves' website and services.">
+<meta property="og:url" content="https://mvssolves.com/terms-of-service">
+<meta property="og:image" content="https://mvssolves.com/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap">
+</noscript>
+<style>
+  :root{
+    --bg:#ffffff; --bg-2:#f6f5f3; --surface:#efeee9;
+    --ink:#0a0a0a; --text:#1c1a17; --soft:#4c4944; --muted:#8a8680;
+    --line:rgba(10,10,10,0.10); --line-strong:rgba(10,10,10,0.18);
+    --accent:#00eeff; --accent-ink:#0a0a0a;
+    --maxw:760px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Regular.ttf') format('truetype');font-weight:400;font-display:swap;}
+  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Bold.ttf') format('truetype');font-weight:700;font-display:swap;}
+  body{background:var(--bg);color:var(--text);font-family:'Roboto',-apple-system,"Helvetica Neue",sans-serif;
+    font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+  #bgfx{position:fixed;inset:0;width:100%;height:100%;z-index:-2;pointer-events:none;display:block;background:var(--bg);}
+  a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--line-strong);text-underline-offset:2px;}
+  a:hover{text-decoration-color:var(--ink);}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 36px;width:100%;}
+  h1{font-family:'Nohemi',sans-serif;letter-spacing:-.02em;color:var(--ink);font-size:clamp(32px,6vw,52px);line-height:1.05;}
+  h2{font-family:'Nohemi',sans-serif;letter-spacing:-.01em;color:var(--ink);font-size:19px;margin-top:38px;margin-bottom:10px;}
+  p,li{color:var(--soft);}
+  p{margin:12px 0;}
+  ul{margin:12px 0;padding-left:22px;}
+  li{margin:5px 0;}
+  strong{color:var(--text);font-weight:700;}
+  nav{position:sticky;top:0;left:0;right:0;z-index:60;padding:20px 36px;display:flex;align-items:center;
+    justify-content:space-between;background:rgba(255,255,255,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  @media(max-width:768px){nav{background:rgba(255,255,255,.96);backdrop-filter:none;-webkit-backdrop-filter:none;}}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px;letter-spacing:-.02em;}
+  .logo .mk{width:28px;height:28px;border-radius:8px;background:#0a0a0a;color:#fff;display:flex;align-items:center;
+    justify-content:center;font-weight:800;font-family:'Roboto',monospace;font-size:13px;}
+  nav .back{font-size:13.5px;color:var(--muted);font-weight:600;}
+  nav .back:hover{color:var(--ink);}
+  .lab{font-family:'Roboto',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+  .lab::before{content:'';width:24px;height:2px;background:var(--accent);}
+  .hero{position:relative;padding:70px 0 20px;}
+  .meta{font-family:'Roboto',monospace;font-size:12.5px;color:var(--muted);margin-top:12px;}
+  main{padding:20px 0 70px;}
+  main .wrap{border-top:1px solid var(--line);padding-top:8px;}
+  footer{padding:30px 0 50px;text-align:center;color:var(--muted);font-size:13px;}
+  .flag{background:#fff8e1;border:1px solid #d9b400;padding:1px 6px;border-radius:3px;font-weight:700;color:#5c4a00;}
+  .intro-veil{position:fixed;inset:0;pointer-events:none;z-index:99998;background:#0a0a0a;
+    opacity:1;transition:opacity .5s ease;}
+  .intro-veil.wipe{opacity:0;}
+  .intro-logo{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
+    pointer-events:none;opacity:0;transform:scale(.85);transition:opacity .4s ease,transform .45s cubic-bezier(.2,1,.3,1);}
+  .intro-logo.show{opacity:1;transform:scale(1);}
+  .intro-logo.hide{opacity:0;transform:scale(.85);transition:opacity .4s ease,transform .4s ease;}
+  .il-mark{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;color:#fff;letter-spacing:-.02em;}
+  .il-box{width:30px;height:30px;border-radius:8px;background:var(--accent-ink);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;font-family:'Roboto',monospace;}
+  @media(prefers-reduced-motion:reduce){.intro-veil,.intro-logo{display:none!important;}}
+  @media(max-width:640px){nav{padding:16px 20px;}.wrap{padding:0 20px;}.hero{padding:50px 0 16px;}}
+</style>
+</head>
+<body>
+
+<canvas id="bgfx" aria-hidden="true"></canvas>
+<div class="intro-veil" id="introVeil"></div>
+<div class="intro-logo" id="introLogo"><div class="il-mark"><span class="il-box">M</span> MVS Solves</div></div>
+
+<nav>
+  <a class="logo" href="/"><span class="mk">M</span> MVS Solves</a>
+  <a class="back" href="/">← Back to site</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="lab">Legal</div>
+    <h1>Terms of Service</h1>
+    <p class="meta">Last updated: July 20, 2026</p>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <p>These Terms of Service ("Terms") govern your access to and use of mvssolves.com (the "Site") and the services offered by MVS Solves ("MVS Solves," "we," "us," or "our"), including website design and development, online booking systems, automation, and AI assistant integration (collectively, the "Services"). By using the Site or purchasing a Service, you agree to these Terms.</p>
+    <p>If you do not agree to these Terms, do not use the Site or Services.</p>
+
+    <h2>1. Who We Are</h2>
+    <p>MVS Solves is a US-based, independently operated digital services business providing website builds, online booking systems, business automation, and AI assistant integrations to service businesses.</p>
+
+    <h2>2. Services</h2>
+    <p>MVS Solves offers plans (Launch, Growth, and Premium) on a monthly subscription or one-time ("Outright") payment basis, as described on the Site. The specific scope of each plan, including which features are included, is set out on the Site at the time of purchase and may be updated from time to time. Custom or à-la-carte services may be scoped and agreed separately in writing (including by email).</p>
+
+    <h2>3. Free Trial</h2>
+    <p>The Launch plan may be offered with a 7-day free trial. Unless otherwise stated at signup:</p>
+    <ul>
+      <li>The free trial provides a live website and online booking system on the Launch plan. Automations and features exclusive to Growth or Premium plans are not included during the trial.</li>
+      <li>No payment is charged during the 7-day trial period.</li>
+      <li>If you do not cancel before the trial period ends, your selected payment method will automatically be charged for the Launch plan at the then-current price, on either a Monthly or Outright basis as selected at signup, and your subscription will continue on that basis until cancelled.</li>
+      <li>You may cancel at any time before the trial ends at no cost, using the contact method in Section 12. We will confirm cancellation and no charge will be made.</li>
+      <li>Free trial availability may be limited to one trial per business/customer and may be modified or discontinued at any time before signup.</li>
+    </ul>
+
+    <h2>4. Fees and Payment</h2>
+    <ul>
+      <li>All prices are listed in US dollars (USD) unless otherwise indicated, and are subject to change with reasonable notice for existing subscriptions.</li>
+      <li>Monthly plans are billed on a recurring basis until cancelled. Outright plans are billed once for the scope agreed at signup.</li>
+      <li>Payments are processed by a third-party payment processor. By providing payment information, you authorize MVS Solves and its payment processor to charge the applicable fees.</li>
+      <li>You are responsible for keeping your payment information current. Failure to pay may result in suspension or termination of Services.</li>
+    </ul>
+
+    <h2>5. Cancellation and Refunds</h2>
+    <ul>
+      <li><strong>Monthly plans:</strong> You may cancel at any time. Cancellation takes effect at the end of the current billing period, and you will not be charged for subsequent periods. Fees already paid for the current billing period are non-refundable except as required by law.</li>
+      <li><strong>Outright (one-time) plans:</strong> Once work has begun on a project, the one-time fee is non-refundable, except as required by law or as otherwise agreed in writing.</li>
+      <li><strong>Free trial:</strong> No charge applies if cancelled before the trial period ends, per Section 3.</li>
+    </ul>
+    <p>To cancel, contact us using the information in Section 12.</p>
+
+    <h2>6. Client Responsibilities</h2>
+    <p>To deliver Services on schedule, we rely on you to provide timely feedback, content, access credentials, and approvals reasonably requested during the course of a project. Delays in providing these may delay delivery of the Services.</p>
+
+    <h2>7. Intellectual Property</h2>
+    <ul>
+      <li>Upon full payment, you own the final website content, copy, and branding materials created specifically for your business as part of the Services.</li>
+      <li>MVS Solves retains ownership of its own pre-existing tools, code libraries, templates, frameworks, and any general-purpose components not unique to your project, and may reuse them in other work.</li>
+      <li>You grant MVS Solves a limited license to display completed work as part of a portfolio or case study, unless you request otherwise in writing.</li>
+    </ul>
+
+    <h2>8. Third-Party Services</h2>
+    <p>The Services may incorporate or rely on third-party tools (including scheduling, payment processing, hosting, and automation platforms). Your use of those tools may be subject to the third party's own terms and privacy policy, and MVS Solves is not responsible for the acts or omissions of third-party providers.</p>
+
+    <h2>9. Disclaimers</h2>
+    <p>The Services are provided "as is" and "as available." MVS Solves does not guarantee specific business outcomes, including but not limited to increases in leads, bookings, revenue, or search engine rankings, as these depend on factors outside our control. To the maximum extent permitted by law, we disclaim all warranties, express or implied, including warranties of merchantability, fitness for a particular purpose, and non-infringement.</p>
+
+    <h2>10. Limitation of Liability</h2>
+    <p>To the maximum extent permitted by law, MVS Solves' total liability arising out of or relating to these Terms or the Services will not exceed the total fees paid by you to MVS Solves in the three (3) months preceding the event giving rise to the claim. MVS Solves will not be liable for any indirect, incidental, special, consequential, or punitive damages, including lost profits or lost data, even if advised of the possibility of such damages.</p>
+
+    <h2>11. Termination</h2>
+    <p>We may suspend or terminate access to the Services if you breach these Terms, fail to pay applicable fees, or engage in conduct that we reasonably believe is harmful to MVS Solves or others. You may terminate a Monthly plan at any time per Section 5.</p>
+
+    <h2>12. Governing Law and Disputes</h2>
+    <p>These Terms are governed by the laws of the State of <span class="flag">[STATE — CONFIRM]</span>, United States, without regard to its conflict-of-laws principles. Any dispute arising out of or relating to these Terms or the Services will be resolved in the state or federal courts located in that state, and you consent to the personal jurisdiction of those courts.</p>
+
+    <h2>13. Changes to These Terms</h2>
+    <p>We may update these Terms from time to time. Changes are effective when posted on this page, with the "Last updated" date revised accordingly. Continued use of the Site or Services after changes are posted constitutes acceptance of the updated Terms.</p>
+
+    <h2>14. Contact Us</h2>
+    <p><strong>MVS Solves</strong><br>Email: <a href="mailto:martin@mvssolves.com">martin@mvssolves.com</a><br>Website: mvssolves.com</p>
+  </div>
+</main>
+
+<footer>MVS Solves — martin@mvssolves.com</footer>
+
+<script>
+const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+(function(){
+  const veil=document.getElementById('introVeil'),logo=document.getElementById('introLogo');
+  if(!veil||reduce)return;
+  requestAnimationFrame(()=>logo.classList.add('show'));
+  setTimeout(()=>{
+    logo.classList.remove('show');logo.classList.add('hide');
+    veil.classList.add('wipe');
+    setTimeout(()=>{veil.remove();logo.remove();},520);
+  },600);
+})();
+(function(){
+  const cv=document.getElementById('bgfx');
+  if(!cv||reduce)return;
+  const ctx=cv.getContext('2d');
+  const dpr=Math.min(window.devicePixelRatio||1,1.25);
+  let w=0,h=0,pts=[];
+  function resize(){
+    w=window.innerWidth;h=window.innerHeight;
+    cv.width=w*dpr;cv.height=h*dpr;cv.style.width=w+'px';cv.style.height=h+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const n=Math.round(w*h/14000);
+    pts=Array.from({length:n},()=>({
+      x:Math.random()*w,y:Math.random()*h,
+      r:Math.random()*1.3+0.3,
+      vx:(Math.random()-0.5)*0.12,vy:(Math.random()-0.5)*0.12,
+      tw:Math.random()*Math.PI*2,ts:0.6+Math.random()*1.4,
+      amber:Math.random()<0.14
+    }));
+  }
+  window.addEventListener('resize',resize,{passive:true});
+  resize();
+  let running=true,t=0,hr=false;
+  function frame(){
+    if(!running)return;
+    hr=!hr;if(!hr){requestAnimationFrame(frame);return;}
+    t+=0.032;
+    ctx.clearRect(0,0,w,h);
+    for(const p of pts){
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x+=w;else if(p.x>w)p.x-=w;
+      if(p.y<0)p.y+=h;else if(p.y>h)p.y-=h;
+      const a=(Math.sin(t*p.ts+p.tw)*0.5+0.5)*0.6+0.08;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,6.283);
+      ctx.fillStyle=p.amber?`rgba(0,238,255,${a})`:`rgba(10,10,10,${a})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  document.addEventListener('visibilitychange',()=>{running=!document.hidden;if(running)requestAnimationFrame(frame);});
+})();
+</script>
+
+</body>
+</html>

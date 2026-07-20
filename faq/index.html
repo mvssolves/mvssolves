@@ -24,13 +24,10 @@
 <meta name="twitter:image" content="https://mvssolves.com/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-<link rel="preload" as="style" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap">
 </noscript>
 <script type="application/ld+json">
 {
@@ -74,12 +71,11 @@
 </script>
 <style>
   :root{
-    --bg:#0a0a0a; --bg-2:#151515; --surface:#1e1e1e;
-    /* warm neutrals + Signal Amber accent — matches the homepage token change so the subpages
-       don't drift back to cold white. */
-    --ink:#ffffff; --text:#f2efe9; --soft:#c8c3ba; --muted:#98938a;
-    --line:rgba(255,255,255,0.12); --line-strong:rgba(255,255,255,0.24);
-    --accent:#e8a94b; --accent-ink:#160d02;
+    /* light theme, matches homepage's redesign exactly -- was still the old dark palette. */
+    --bg:#ffffff; --bg-2:#f6f5f3; --surface:#efeee9;
+    --ink:#0a0a0a; --text:#1c1a17; --soft:#4c4944; --muted:#8a8680;
+    --line:rgba(10,10,10,0.10); --line-strong:rgba(10,10,10,0.18);
+    --accent:#00eeff; --accent-ink:#0a0a0a;
     --maxw:900px;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -90,28 +86,29 @@
   @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-SemiBold.ttf') format('truetype');font-weight:600;font-display:swap;}
   @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Bold.ttf') format('truetype');font-weight:700;font-display:swap;}
   @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-ExtraBold.ttf') format('truetype');font-weight:800;font-display:swap;}
-  body{background:var(--bg);color:var(--text);font-family:'General Sans',-apple-system,"Helvetica Neue",sans-serif;
+  body{background:var(--bg);color:var(--text);font-family:'Roboto',-apple-system,"Helvetica Neue",sans-serif;
     font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;}
   /* one global background canvas for the whole page -- same drifting sparkle field as the
      homepage, so the hero and FAQ list read as one continuous flow instead of stacked panels. */
   #bgfx{position:fixed;inset:0;width:100%;height:100%;z-index:-2;pointer-events:none;display:block;background:var(--bg);}
   a{color:inherit;text-decoration:none;}
-  .mono{font-family:'JetBrains Mono',monospace;}
-  .serif{font-family:'Cormorant',serif;font-style:italic;font-weight:500;}
+  .mono{font-family:'Roboto',monospace;}
+  .serif{font-family:'Nohemi',sans-serif;font-style:normal;font-weight:400;}
   .wrap{max-width:var(--maxw);margin:0 auto;padding:0 36px;width:100%;}
   h1{font-family:'Nohemi',sans-serif;letter-spacing:-.02em;color:var(--ink);}
-  h2{font-family:'Space Grotesk',sans-serif;letter-spacing:-.02em;color:var(--ink);}
+  h2{font-family:'Nohemi',sans-serif;letter-spacing:-.02em;color:var(--ink);}
   nav{position:sticky;top:0;left:0;right:0;z-index:60;padding:20px 36px;display:flex;align-items:center;
-    justify-content:space-between;background:rgba(10,10,10,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+    justify-content:space-between;background:rgba(255,255,255,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
   /* sticky nav's backdrop-filter resamples scrolling content behind it every frame once stuck —
      real GPU cost on mobile. Solid-ish background reads the same without it. */
-  @media(max-width:768px){nav{background:rgba(10,10,10,.96);backdrop-filter:none;-webkit-backdrop-filter:none;}}
+  @media(max-width:768px){nav{background:rgba(255,255,255,.96);backdrop-filter:none;-webkit-backdrop-filter:none;}}
   .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px;letter-spacing:-.02em;}
-  .logo .mk{width:28px;height:28px;border-radius:8px;background:var(--ink);color:var(--accent-ink);display:flex;align-items:center;
-    justify-content:center;font-weight:800;font-family:'JetBrains Mono',monospace;font-size:13px;}
+  /* explicit inverted chip regardless of theme token, same as homepage's logo-mark */
+  .logo .mk{width:28px;height:28px;border-radius:8px;background:#0a0a0a;color:#fff;display:flex;align-items:center;
+    justify-content:center;font-weight:800;font-family:'Roboto',monospace;font-size:13px;}
   nav .back{font-size:13.5px;color:var(--muted);font-weight:600;}
   nav .back:hover{color:var(--ink);}
-  .lab{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  .lab{font-family:'Roboto',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--ink);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
   .lab::before{content:'';width:24px;height:2px;background:var(--accent);}
   .hero{position:relative;overflow:hidden;padding:80px 0 40px;text-align:center;}
@@ -138,7 +135,7 @@
   .qa{border-bottom:1px solid var(--line);}
   .qa q{display:flex;justify-content:space-between;gap:20px;align-items:center;padding:22px 0;font-weight:700;font-size:18px;color:var(--ink);cursor:pointer;quotes:none;letter-spacing:-.01em;}
   .qa q::before,.qa q::after{content:none;}
-  .qa .plus{font-family:'JetBrains Mono',monospace;font-size:20px;color:var(--muted);transition:transform .3s;flex:none;}
+  .qa .plus{font-family:'Roboto',monospace;font-size:20px;color:var(--muted);transition:transform .3s;flex:none;}
   .qa.open .plus{transform:rotate(45deg);}
   .qa .a{max-height:0;overflow:hidden;transition:max-height .4s ease;color:var(--soft);font-size:15px;line-height:1.6;}
   .qa .a p{padding:0 0 22px;max-width:760px;}
@@ -153,8 +150,8 @@
     pointer-events:none;opacity:0;transform:scale(.85);transition:opacity .4s ease,transform .45s cubic-bezier(.2,1,.3,1);}
   .intro-logo.show{opacity:1;transform:scale(1);}
   .intro-logo.hide{opacity:0;transform:scale(.85);transition:opacity .4s ease,transform .4s ease;}
-  .il-mark{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;color:var(--accent-ink);letter-spacing:-.02em;}
-  .il-box{width:30px;height:30px;border-radius:8px;background:var(--accent-ink);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;font-family:'JetBrains Mono',monospace;}
+  .il-mark{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;color:#fff;letter-spacing:-.02em;}
+  .il-box{width:30px;height:30px;border-radius:8px;background:var(--accent-ink);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;font-family:'Roboto',monospace;}
   @media(prefers-reduced-motion:reduce){.intro-veil,.intro-logo{display:none!important;}}
   @media(max-width:640px){
     nav{padding:16px 20px;}
@@ -198,7 +195,7 @@
   </div>
 </section>
 
-<footer>MVS Solves — martin@mvssolves.com</footer>
+<footer>MVS Solves — martin@mvssolves.com<br><a href="/privacy-policy" style="color:inherit">Privacy Policy</a> · <a href="/terms-of-service" style="color:inherit">Terms of Service</a></footer>
 
 <script>
 const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -304,7 +301,7 @@ initAmbientScene(document.getElementById('faq3d'), ({THREE,scene,camera})=>{
       const a=(Math.sin(t*p.ts+p.tw)*0.5+0.5)*0.6+0.08;
       ctx.beginPath();
       ctx.arc(p.x,p.y,p.r,0,6.283);
-      ctx.fillStyle=p.amber?`rgba(232,169,75,${a})`:`rgba(255,255,255,${a})`;
+      ctx.fillStyle=p.amber?`rgba(0,238,255,${a})`:`rgba(10,10,10,${a})`;
       ctx.fill();
     }
     requestAnimationFrame(frame);

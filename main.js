@@ -79,11 +79,36 @@ if(!reduce&&isDesktop){
   function move(el){if(!el)return;hl.style.opacity='1';hl.style.transform=`translateX(${el.offsetLeft}px)`;hl.style.width=el.offsetWidth+'px';}
   anchors.forEach(a=>{
     a.addEventListener('mouseenter',()=>move(a));
-    a.addEventListener('click',()=>{active=a;move(a);});
+    a.addEventListener('click',e=>{
+      active=a;move(a);
+      if(reduce)return;
+      const r=a.getBoundingClientRect(),d=Math.max(r.width,r.height)*1.4;
+      const s=document.createElement('span');
+      s.className='nav-ripple';
+      s.style.width=s.style.height=d+'px';
+      s.style.left=(e.clientX-r.left-d/2)+'px';
+      s.style.top=(e.clientY-r.top-d/2)+'px';
+      a.appendChild(s);
+      s.addEventListener('animationend',()=>s.remove());
+    });
   });
   links.addEventListener('mouseleave',()=>move(active));
   requestAnimationFrame(()=>move(active));
   window.addEventListener('resize',()=>move(active),{passive:true});
+})();
+
+/* nume-style scroll reveal — measured off nume.ai's own design-card_new inline transform mid-
+   scroll (translate3d ~9px, filter:blur ~4px, opacity fading) instead of a flat opacity-only
+   fade. Applied to the new nume-matched card types; existing .cap grid keeps its own separate
+   ScrollTrigger.batch reveal below (untouched). */
+(function(){
+  if(reduce||typeof gsap==='undefined'||typeof ScrollTrigger==='undefined')return;
+  gsap.utils.toArray('.feat-card, .proc-card, .trust-card').forEach(el=>{
+    gsap.fromTo(el,{opacity:0,y:26,filter:'blur(8px)'},{
+      opacity:1,y:0,filter:'blur(0px)',duration:.9,ease:'power2.out',
+      scrollTrigger:{trigger:el,start:'top 88%',once:true}
+    });
+  });
 })();
 
 /* back-to-top button — show past one viewport, click scrolls to top (Lenis-aware) */
@@ -647,7 +672,9 @@ function playHeroReveal(){
   const fadeIn=(el,delay)=>{if(!el)return;gsap.fromTo(el,{opacity:0,y:14},{opacity:1,y:0,duration:0.6,delay,ease:'power2.out'});};
   fadeIn(document.querySelector('.navcta'),0);
   document.querySelectorAll('h1 .line').forEach((span,i)=>fadeIn(span,i*0.1));
-  document.querySelectorAll('#hcta .btn').forEach((btn,i)=>fadeIn(btn,0.7+i*0.1));
+  /* CTA buttons no longer fade in after the headline -- reported as reading like a bug
+     ("buttons not fully visible yet") rather than a polish flourish. Render at full opacity
+     immediately instead of staggering in. */
 }
 
 
@@ -725,10 +752,6 @@ if(!reduce){
     {opacity:1,x:0,duration:0.9,ease:'power3.out',scrollTrigger:{trigger:'.book-grid',start:'top 85%',once:true,fastScrollEnd:true}});
   gsap.fromTo('.book-grid>div:last-child',{opacity:0,x:40},
     {opacity:1,x:0,duration:0.9,ease:'power3.out',scrollTrigger:{trigger:'.book-grid',start:'top 85%',once:true,fastScrollEnd:true}});
-  /* integrations (02) carousel — whole assembly scales/fades in once, spin keeps going after.
-     Softer scale range + longer duration, same reasoning as above */
-  gsap.fromTo('.int-carousel-wrap',{opacity:0,scale:0.94,y:20},
-    {opacity:1,scale:1,y:0,duration:1.2,ease:'power2.out',scrollTrigger:{trigger:'.int-carousel-wrap',start:'top 88%',once:true,fastScrollEnd:true}});
   /* hero content drifts up on scroll — desktop only. scrub:true recalculates every scroll tick,
      right at the hero->01 handoff — the exact spot users felt lag on mobile. */
   if(isDesktop){
@@ -745,40 +768,6 @@ if(!reduce){
 /* same pause-off-screen treatment for the Launch card's spinning border */
 (function(){const launch=document.querySelector('.tier.launch');if(!launch)return;
   onVisibilityChange(launch,visible=>launch.classList.toggle('spin-off',!visible));})();
-/* pause the integrations carousel spin off-screen — same reasoning, was running forever */
-(function(){const ic=document.querySelector('.int-carousel');if(!ic)return;
-  onVisibilityChange(ic,visible=>ic.classList.toggle('spin-off',!visible));})();
-/* mobile logo timeline — ported from Eldora UI's logo-timeline concept (several rows,
-   each own speed/direction, instead of one flat marquee). Built from the single canonical
-   logo list (the desktop carousel's .int-item nodes) instead of hand-duplicating markup
-   per row — one source of truth for the 23 logos, same as before. */
-(function(){
-  const wrap=document.getElementById('intTimeline');
-  const items=document.querySelectorAll('.int-carousel .int-item');
-  if(!wrap||!items.length)return;
-  const ROWS=4,durations=[38,52,44,60];
-  const rows=Array.from({length:ROWS},()=>[]);
-  items.forEach((el,i)=>rows[i%ROWS].push(el));
-  rows.forEach((rowItems,i)=>{
-    if(!rowItems.length)return;
-    const row=document.createElement('div');
-    row.className='int-timeline-row'+(i%2?' rev':'');
-    row.style.setProperty('--row-dur',durations[i%durations.length]+'s');
-    /* duplicated once for a seamless -50% loop, same trick the old single marquee used.
-       Strip .int-item/--i — that class is position:absolute for the desktop 3D ring
-       layout, which zeroed every clone's height once dropped into this flex row. */
-    [rowItems,rowItems].forEach(set=>set.forEach(el=>{
-      const clone=el.cloneNode(true);
-      clone.classList.remove('int-item');
-      clone.style.removeProperty('--i');
-      row.appendChild(clone);
-    }));
-    wrap.appendChild(row);
-  });
-  onVisibilityChange(wrap,visible=>{
-    wrap.querySelectorAll('.int-timeline-row').forEach(r=>r.classList.toggle('spin-off',!visible));
-  });
-})();
 
 /* Premium feature callouts — fade in once, desktop only */
 if(isDesktop&&!reduce){
@@ -1029,32 +1018,26 @@ if(document.fonts&&document.fonts.ready){
   },{passive:true});
 })();
 
-/* intro loader — cinematic: brand mark tracks in, a progress bar counts 0→100%, then the veil
-   iris-closes to a point at center, revealing the site. Plays once per page load. */
+/* intro loader — kinetic type: wordmark letters blur+rise in on a GSAP stagger, hold a beat,
+   then the veil iris-closes to a point at center, revealing the site. Plays once per page load. */
 (function(){
   const veil=document.getElementById('introVeil');
-  const fill=document.getElementById('introFill'),pct=document.getElementById('introPct');
   if(!veil||reduce){playHeroReveal();return;}
   document.documentElement.classList.add('no-scroll');
   if(lenis)lenis.stop();
-  const DUR=1400,start=performance.now();
-  function tick(now){
-    const p=Math.min((now-start)/DUR,1);
-    /* ease-out so it rushes then settles, like a real load bar */
-    const e=1-Math.pow(1-p,2.2);
-    const v=Math.round(e*100);
-    if(fill)fill.style.width=v+'%';
-    if(pct)pct.textContent=v+'%';
-    if(p<1){requestAnimationFrame(tick);return;}
-    setTimeout(()=>{
-      veil.classList.add('lift');
-      document.documentElement.classList.remove('no-scroll');
-      if(lenis)lenis.start();
-      playHeroReveal();
-      setTimeout(()=>veil.remove(),750);
-    },220);
+  function finish(){
+    veil.classList.add('lift');
+    document.documentElement.classList.remove('no-scroll');
+    if(lenis)lenis.start();
+    playHeroReveal();
+    setTimeout(()=>veil.remove(),750);
   }
-  requestAnimationFrame(tick);
+  const letters=veil.querySelectorAll('.intro-mark .lt');
+  if(typeof gsap==='undefined'||!letters.length){setTimeout(finish,900);return;}
+  gsap.fromTo(letters,{opacity:0,y:24,filter:'blur(10px)'},{
+    opacity:1,y:0,filter:'blur(0px)',duration:.7,ease:'power3.out',stagger:.045,
+    onComplete:()=>setTimeout(finish,380)
+  });
 })();
 /* integrations backdrop — sparse node network reclaims the "connected systems" motif the
    hero used to use (now free since hero moved to the torus knot). Kept faint/ambient since
@@ -1335,6 +1318,14 @@ function initPriceRise3D(canvas){
   }
   window.addEventListener('resize',resize,{passive:true});
   resize();
+  /* pointer repel — tsParticles "hover: repulse" equivalent, done as a per-frame draw-position
+     offset only (base drift x/y never mutated) so a lingering cursor can't accumulate velocity
+     and fling particles off; cheap squared-distance check skips the sqrt for anything outside
+     the radius, which is nearly every particle nearly every frame. */
+  let mx=null,my=null;
+  window.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;},{passive:true});
+  document.addEventListener('mouseleave',()=>{mx=null;my=null;});
+  const REPEL_R=110,REPEL_F=18;
   let running=true,t=0,hr=false;
   function frame(){
     if(!running)return;
@@ -1349,10 +1340,19 @@ function initPriceRise3D(canvas){
       p.x+=p.vx;p.y+=p.vy;
       if(p.x<0)p.x+=w;else if(p.x>w)p.x-=w;
       if(p.y<0)p.y+=h;else if(p.y>h)p.y-=h;
+      let dx=0,dy=0;
+      if(mx!==null){
+        const ddx=p.x-mx,ddy=p.y-my,d2=ddx*ddx+ddy*ddy;
+        if(d2<REPEL_R*REPEL_R&&d2>0.01){
+          const d=Math.sqrt(d2),f=(1-d/REPEL_R)*REPEL_F;
+          dx=(ddx/d)*f;dy=(ddy/d)*f;
+        }
+      }
       const a=(Math.sin(t*p.ts+p.tw)*0.5+0.5)*0.6+0.08;
       ctx.beginPath();
-      ctx.arc(p.x,p.y,p.r,0,6.283);
-      ctx.fillStyle=p.amber?`rgba(232,169,75,${a})`:`rgba(255,255,255,${a})`;
+      ctx.arc(p.x+dx,p.y+dy,p.r,0,6.283);
+      /* redesign: light theme now, dark dots instead of white (were invisible on white bg) */
+      ctx.fillStyle=p.amber?`rgba(0,238,255,${a})`:`rgba(10,10,10,${a})`;
       ctx.fill();
     }
     requestAnimationFrame(frame);

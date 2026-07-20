@@ -32,13 +32,10 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Space+Grotesk:wght@500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-<link rel="preload" as="style" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Space+Grotesk:wght@500;600;700&display=swap">
-<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap">
 </noscript>
 <style>
   /* Nohemi — freeware (personal+commercial use), self-hosted via the Tamagui project's npm
@@ -49,18 +46,21 @@
   @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Bold.ttf') format('truetype');font-weight:700;font-display:swap;}
   @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-ExtraBold.ttf') format('truetype');font-weight:800;font-display:swap;}
   :root {
-    --paper: #f1e9dc; --paper-2: #e8ddc8; --paper-edge: #d9c9ad;
-    --espresso: #1f1813; --bean: #2e201a;
-    --mocha: #6e4a2e; --mocha-soft: #8a6747;
-    --brass: #a07043; --brass-deep: #8a5a30;
-    --rule: rgba(31,24,19,0.14); --rule-strong: rgba(31,24,19,0.30);
-    --ink-soft: rgba(31,24,19,0.70); --ink-mute: rgb(94,87,79);
+    /* was a warm paper/espresso/brass palette, completely disconnected from the rest of the
+       site's black/white/cyan system -- remapped to the same tokens, same variable ROLES
+       (paper=bg, espresso=ink, brass=accent) so every rule below still makes sense unchanged. */
+    --paper: #ffffff; --paper-2: #f6f5f3; --paper-edge: #efeee9;
+    --espresso: #0a0a0a; --bean: #0a0a0a;
+    --mocha: #4c4944; --mocha-soft: #8a8680;
+    --brass: #00eeff; --brass-deep: #0a0a0a;
+    --rule: rgba(10,10,10,0.10); --rule-strong: rgba(10,10,10,0.18);
+    --ink-soft: rgba(10,10,10,0.65); --ink-mute: #8a8680;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
   body {
     background: var(--paper); color: var(--espresso);
-    font-family: 'General Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 17px; line-height: 1.55;
     -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden; position: relative; min-height: 100vh;
@@ -101,7 +101,7 @@
   }
   .brand { display: inline-flex; align-items: baseline; gap: 10px; }
   .brand-mark {
-    font-family: 'Cormorant', serif; font-style: italic;
+    font-family: 'Nohemi', sans-serif; font-style: normal;
     font-size: 28px; line-height: 1; color: var(--brass-deep);
     transform: translateY(2px); display: inline-block;
     transition: transform 0.4s cubic-bezier(.2,1,.3,1);
@@ -144,7 +144,7 @@
   @keyframes barIn { to { transform: scaleX(1); } }
   .eyebrow .live { display: inline-flex; align-items: center; gap: 8px; color: var(--mocha-soft); }
   .eyebrow .live i {
-    width: 7px; height: 7px; border-radius: 50%; background: #4a7a3a;
+    width: 7px; height: 7px; border-radius: 50%; background: #3d8a5c;
     animation: pulse 2s infinite;
   }
   @keyframes pulse {
@@ -158,7 +158,7 @@
     font-size: clamp(54px, 8.5vw, 108px);
     line-height: 0.96; letter-spacing: -0.028em;
   }
-  h1.headline em { font-family: 'Cormorant', serif; font-style: italic; color: var(--brass-deep); font-weight: 400; }
+  h1.headline em { font-family: 'Nohemi', sans-serif; font-style: normal; color: var(--brass-deep); font-weight: 400; }
   .h-word { display: inline-block; overflow: hidden; vertical-align: bottom; }
   .h-word .char {
     display: inline-block; transform: translateY(110%);
@@ -209,12 +209,12 @@
     background: var(--mocha-soft); margin-bottom: 14px;
   }
   .expect-col h2 {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Nohemi', sans-serif;
     font-size: clamp(34px, 4.2vw, 50px);
     line-height: 1.02; letter-spacing: -0.02em;
     margin-bottom: 36px;
   }
-  .expect-col h2 em { font-family: 'Cormorant', serif; font-style: italic; font-weight: 400; color: var(--brass-deep); }
+  .expect-col h2 em { font-family: 'Nohemi', sans-serif; font-style: normal; font-weight: 400; color: var(--brass-deep); }
 
   .expect-list { list-style: none; }
   .expect-list li {
@@ -256,7 +256,7 @@
   .cal-card:hover::before { transform: translate(10px, 10px); }
 
   .cal-card-inner {
-    background: #fbf6ec;
+    background: #ffffff;
     border: 1px solid var(--rule);
     padding: 28px 30px 22px;
     position: relative;
@@ -270,7 +270,7 @@
     font-family: 'Nohemi', sans-serif; font-weight: 600;
     font-size: 26px; letter-spacing: -0.015em; line-height: 1.1;
   }
-  .cal-card-head h3 em { font-family: 'Cormorant', serif; font-style: italic; font-weight: 400; color: var(--brass-deep); }
+  .cal-card-head h3 em { font-family: 'Nohemi', sans-serif; font-style: normal; font-weight: 400; color: var(--brass-deep); }
   .cal-card-head .meta {
     font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
     color: var(--mocha);
@@ -441,6 +441,7 @@
   <div class="wrap foot-inner">
     <div>© 2026 MVS Solves</div>
     <div><a href="mailto:martin@mvssolves.com">martin@mvssolves.com</a></div>
+    <div><a href="/privacy-policy">Privacy Policy</a> · <a href="/terms-of-service">Terms of Service</a></div>
     <div><a href="/">← back home</a></div>
   </div>
 </footer>
@@ -485,15 +486,15 @@
     theme: "light",
     cssVarsPerTheme: {
       light: {
-        "cal-brand": "#a07043",
-        "cal-text": "#1f1813",
-        "cal-text-emphasis": "#1f1813",
-        "cal-bg": "#fbf6ec",
-        "cal-bg-emphasis": "#f1e9dc",
-        "cal-bg-muted": "#e8ddc8",
-        "cal-border": "rgba(31,24,19,0.18)",
-        "cal-border-emphasis": "rgba(31,24,19,0.30)",
-        "cal-border-subtle": "rgba(31,24,19,0.10)"
+        "cal-brand": "#00eeff",
+        "cal-text": "#0a0a0a",
+        "cal-text-emphasis": "#0a0a0a",
+        "cal-bg": "#ffffff",
+        "cal-bg-emphasis": "#f6f5f3",
+        "cal-bg-muted": "#efeee9",
+        "cal-border": "rgba(10,10,10,0.18)",
+        "cal-border-emphasis": "rgba(10,10,10,0.30)",
+        "cal-border-subtle": "rgba(10,10,10,0.10)"
       }
     },
     hideEventTypeDetails: false,
