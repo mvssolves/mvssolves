@@ -122,38 +122,6 @@ if(!reduce&&isDesktop){
   check();
 })();
 
-/* hero headline neon flicker — split into letters, dip 1-2 random letters' opacity in snappy ticks */
-(function(){
-  const root=document.querySelector('h1.flick');
-  if(!root||reduce)return;
-  const chars=[];
-  root.querySelectorAll('.ft').forEach(ft=>{
-    const txt=ft.textContent;ft.textContent='';
-    [...txt].forEach(c=>{
-      const s=document.createElement('span');s.className='ch';s.textContent=c;
-      if(c===' ')s.style.whiteSpace='pre';
-      ft.appendChild(s);if(c.trim())chars.push(s);
-    });
-  });
-  if(!chars.length)return;
-  const CYCLE=240,SUB=80,DIM='0.25';
-  let cur=[],id;
-  const tick=()=>{
-    cur.forEach(s=>s.style.opacity='1');
-    const n=1+Math.floor(Math.random()*2);cur=[];
-    for(let i=0;i<n;i++)cur.push(chars[Math.floor(Math.random()*chars.length)]);
-    cur.forEach(s=>s.style.opacity=DIM);
-    setTimeout(()=>cur.forEach(s=>s.style.opacity='1'),SUB);
-    setTimeout(()=>cur.forEach(s=>s.style.opacity=DIM),SUB*2);
-  };
-  const start=()=>{id=setInterval(tick,CYCLE);};
-  start();
-  document.addEventListener('visibilitychange',()=>{
-    clearInterval(id);cur.forEach(s=>s.style.opacity='1');cur=[];
-    if(!document.hidden)start();
-  });
-})();
-
 /* scroll progress */
 const prog=document.getElementById('progress');
 /* document height cached instead of read every scroll tick. Recomputed on resize AND via
@@ -1018,27 +986,8 @@ if(document.fonts&&document.fonts.ready){
   },{passive:true});
 })();
 
-/* intro loader — kinetic type: wordmark letters blur+rise in on a GSAP stagger, hold a beat,
-   then the veil iris-closes to a point at center, revealing the site. Plays once per page load. */
-(function(){
-  const veil=document.getElementById('introVeil');
-  if(!veil||reduce){playHeroReveal();return;}
-  document.documentElement.classList.add('no-scroll');
-  if(lenis)lenis.stop();
-  function finish(){
-    veil.classList.add('lift');
-    document.documentElement.classList.remove('no-scroll');
-    if(lenis)lenis.start();
-    playHeroReveal();
-    setTimeout(()=>veil.remove(),750);
-  }
-  const letters=veil.querySelectorAll('.intro-mark .lt');
-  if(typeof gsap==='undefined'||!letters.length){setTimeout(finish,900);return;}
-  gsap.fromTo(letters,{opacity:0,y:24,filter:'blur(10px)'},{
-    opacity:1,y:0,filter:'blur(0px)',duration:.7,ease:'power3.out',stagger:.045,
-    onComplete:()=>setTimeout(finish,380)
-  });
-})();
+/* loading screen removed -- go straight to the hero reveal, no veil/gate in front of it. */
+playHeroReveal();
 /* integrations backdrop — sparse node network reclaims the "connected systems" motif the
    hero used to use (now free since hero moved to the torus knot). Kept faint/ambient since
    the colorful brand-logo marquee sits on top of it and must stay the visual focus. */
