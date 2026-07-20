@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-site-verification" content="ZtO1idXhZNEdwCWEoK2SGHLS-nC4Q6HmfW1AcKsdb7c" />
+<title>MVS Solves — Your unfair advantage</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<meta name="description" content="I build what your competition is dreaming of — websites, booking &amp; AI automation, built end-to-end by one person.">
+<meta name="author" content="Martin · MVS Solves">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://mvssolves.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MVS Solves">
+<meta property="og:title" content="MVS Solves — Your unfair advantage">
+<meta property="og:description" content="I build what your competition is dreaming of — websites, booking &amp; AI automation, built end-to-end by one person.">
+<meta property="og:url" content="https://mvssolves.com/">
+<meta property="og:image" content="https://mvssolves.com/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MVS Solves — Your unfair advantage">
+<meta name="twitter:description" content="I build what your competition is dreaming of — websites, booking &amp; AI automation, built end-to-end by one person.">
+<meta name="twitter:image" content="https://mvssolves.com/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap">
+</noscript>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "ProfessionalService", "@id": "https://mvssolves.com/#business", "name": "MVS Solves", "url": "https://mvssolves.com/", "image": "https://mvssolves.com/og-image.png", "description": "Premium websites, automation & AI for service businesses — built end-to-end by one person. No agency, no handoffs.", "slogan": "Digital work, done properly.", "email": "martin@mvssolves.com", "priceRange": "USD", "founder": { "@id": "https://mvssolves.com/#martin" }, "areaServed": { "@type": "AdministrativeArea", "name": "Local & remote clients" }, "serviceType": ["Website design","Conversion funnels","Local SEO","Business automation","AI assistants","Custom systems"],
+      "makesOffer": [
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Websites built to convert", "description": "Fast, honest, built to sell — not template soup." } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Local presence, owned", "description": "Google Profile, map-pack visibility, and a steady stream of real 5-stars." } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Automation, end to end", "description": "Workflows, integrations, the boring bits handled — so the work runs itself." } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "AI assistants in your voice", "description": "Booking, FAQs, replies — trained on your business, not a chatbot template." } }
+      ]
+    },
+    { "@type": "WebSite", "@id": "https://mvssolves.com/#website", "url": "https://mvssolves.com/", "name": "MVS Solves", "publisher": { "@id": "https://mvssolves.com/#business" } },
+    { "@type": "Person", "@id": "https://mvssolves.com/#martin", "name": "Martin", "jobTitle": "Founder", "worksFor": { "@id": "https://mvssolves.com/#business" }, "email": "martin@mvssolves.com" }
+  ]
+}
+</script>
+<style>
+  :root{
+    /* REDESIGN (nume.ai-inspired): light/white ground, dark ink, one accent colour.
+       Kept MVS's own Signal Amber as the accent instead of nume's cyan -- same
+       restrained "white + one colour" structure, still reads as this brand's site. */
+    --bg:#ffffff; --bg-2:#f6f5f3; --surface:#efeee9;
+    --bg-glass:rgba(255,255,255,.85); --bg-2-glass:rgba(246,245,243,.85);
+    --ink:#0a0a0a; --text:#1c1a17; --soft:#4c4944; --muted:#8a8680;
+    --line:rgba(10,10,10,0.10); --line-strong:rgba(10,10,10,0.18);
+    /* accent swapped to nume.ai's actual measured accent -- extracted its real computed
+       background-color (rgb(0,238,255)) off the live button_icon-wrapper element, not guessed.
+       Was MVS's own gold; changing this is a real brand-identity call, not just a layout copy --
+       flagged for confirmation. --accent-ink stays near-black, still legible on the new cyan. */
+    --accent:#00eeff; --accent-ink:#0a0a0a;
+    --ok:#3d8a5c; --warn:#c97a1f; --err:#c14a3d;
+    --maxw:1300px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;overflow-x:hidden;}
+  /* Nohemi — freeware (personal+commercial use), self-hosted via the Tamagui project's npm
+     package on jsDelivr since it's not on Google Fonts/Fontshare */
+  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Regular.ttf') format('truetype');font-weight:400;font-display:swap;}
+  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Medium.ttf') format('truetype');font-weight:500;font-display:swap;}
+  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-SemiBold.ttf') format('truetype');font-weight:600;font-display:swap;}
+  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Bold.ttf') format('truetype');font-weight:700;font-display:swap;}
+  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-ExtraBold.ttf') format('truetype');font-weight:800;font-display:swap;}
+  html.no-scroll{overflow:hidden;height:100%;}
+  body{background:var(--bg);color:var(--text);font-family:'Roboto',-apple-system,"Helvetica Neue",sans-serif;
+    font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  a{color:inherit;text-decoration:none;}
+  .mono{font-family:'Roboto',monospace;}
+  .serif{font-family:'Nohemi',sans-serif;font-style:normal;font-weight:400;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 36px;width:100%;}
+  .lab{font-family:'Roboto',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink);margin-bottom:26px;display:flex;align-items:center;justify-content:center;gap:10px;}
+  .lab::before{content:'';width:24px;height:2px;background:var(--accent);}
+  h2{font-weight:700;letter-spacing:-.025em;line-height:1.0;font-size:clamp(44px,9vw,88px);color:var(--ink);text-align:center;}
+  h2 .serif{color:var(--ink);}
+  /* one global background canvas (#bgfx) sits behind everything — sections are transparent so the
+     single drifting sparkle field shows through the whole site instead of each section painting
+     its own opaque dark fill over it. */
+  #bgfx{position:fixed;inset:0;width:100%;height:100%;z-index:-2;pointer-events:none;display:block;background:var(--bg);}
+  .section{padding:120px 0;position:relative;background:transparent;}
+  .sub{color:var(--soft);font-size:clamp(13px,1.2vw,15px);max-width:560px;margin:16px auto 0;line-height:1.5;text-align:center;}
+
+  /* progress */
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--accent);z-index:100;}
+
+
+  /* nav */
+  nav{position:fixed;top:0;left:0;right:0;z-index:60;padding:20px 36px;display:flex;align-items:center;gap:16px;
+    justify-content:space-between;}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:17px;color:var(--ink);white-space:nowrap;flex-shrink:0;
+    background:rgba(10,10,10,.05);border:1px solid var(--line);border-radius:999px;padding:8px 16px 8px 8px;}
+  /* explicit inverted chip (dark square, white letter) -- this is a fixed badge treatment,
+     not meant to flip with the page's light/dark ink token. */
+  .logo-mark{width:26px;height:26px;border-radius:7px;background:#0a0a0a;color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;flex-shrink:0;}
+  .logo-text{display:inline-block;max-width:0;opacity:0;overflow:hidden;white-space:nowrap;
+    transition:max-width .35s ease,opacity .25s ease;}
+  .logo:hover .logo-text,.logo:focus-visible .logo-text{max-width:160px;opacity:1;}
+  .nav-r{display:flex;gap:16px;align-items:center;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);min-width:0;}
+  /* one sliding-pill nav on every width. Links live in a rounded pill; a single absolutely-positioned
+     highlight chip (JS-driven left/width) eases to the hovered link on desktop and the tapped/active
+     link on touch. Narrow screens scroll the pill horizontally instead of collapsing to a hamburger. */
+  .nav-links{position:relative;display:flex;flex-direction:row;align-items:center;gap:4px;
+    padding:5px;pointer-events:auto;max-width:100%;min-width:0;overflow-x:auto;
+    /* nav is position:fixed -- always on screen, so backdrop-filter here would recomposite
+       everything behind it every scroll frame, forever. Solid tint instead. */
+    background:rgba(10,10,10,.05);border:1px solid var(--line);border-radius:999px;
+    scrollbar-width:none;-ms-overflow-style:none;}
+  .nav-links::-webkit-scrollbar{display:none;}
+  .nav-links a{padding:7px 15px;border-radius:999px;position:relative;z-index:1;white-space:nowrap;
+    flex-shrink:0;transition:color .25s ease;color:var(--muted);overflow:hidden;}
+  .nav-links a:hover{color:var(--ink);}
+  .nav-ripple{position:absolute;border-radius:50%;background:rgba(10,10,10,.16);transform:scale(0);
+    animation:navRipple .5s ease-out forwards;pointer-events:none;}
+  @keyframes navRipple{to{transform:scale(1);opacity:0;}}
+  .nav-hl{position:absolute;top:5px;height:calc(100% - 10px);left:0;width:0;
+    border-radius:999px;background:rgba(10,10,10,.08);pointer-events:none;z-index:0;opacity:0;
+    transition:transform .32s cubic-bezier(.25,1,.5,1),width .32s cubic-bezier(.25,1,.5,1),opacity .25s ease;}
+  .navcta{color:var(--ink)!important;font-weight:700;padding:7px 6px;white-space:nowrap;}
+  .navcta:hover{opacity:.7;}
+  .nl-cta{display:none;}
+  @media(max-width:900px){
+    nav{padding:14px 16px;gap:10px;}
+    .nav-links{padding:4px;gap:2px;}
+    .nav-links a{padding:5px 9px;font-size:10px;}
+    .navcta{display:none;}
+  }
+
+  /* smooth hero veil — a soft dark gradient that RISES from the hero's bottom edge as you scroll,
+     its top edge feathered (mask fade) so there's no hard line, just a gentle darkening that lifts
+     the hero away. Confined to the hero, behind the headline; never touches the nav or sections
+     below. --paint swaps the colour. Smooth, not a textured brush. */
+  :root{ --paint:linear-gradient(180deg,rgba(10,10,10,0) 0%,#0a0a0a 55%,#050505 100%); }
+  /* top:100px not inset:0 -- hero's own box starts at the same y=0 as the fixed nav, so a
+     bottom-anchored fill tall enough to near-fill the hero was still darkening straight through
+     the nav's fixed footprint even though it never left the hero's box. Carving out nav's real
+     height here means the veil physically cannot reach it, at any scroll depth. */
+  .paint-wipe{position:absolute;top:100px;left:0;right:0;bottom:0;z-index:2;pointer-events:none;overflow:hidden;}
+  .paint-fill{position:absolute;left:0;width:100%;bottom:0;height:var(--ph,0%);
+    will-change:height;background:var(--paint);
+    /* feather the very top edge so the rising veil dissolves in instead of showing a seam */
+    -webkit-mask-image:linear-gradient(to top,#000 78%,transparent 100%);
+    mask-image:linear-gradient(to top,#000 78%,transparent 100%);}
+  @media(prefers-reduced-motion:reduce){.paint-wipe{display:none;}}
+
+  /* hero */
+  .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:40px;padding:200px 36px 64px;overflow:hidden;
+    background:transparent;}
+  .hero-field{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;}
+  .hero-field svg{position:absolute;top:50%;left:50%;width:130%;height:130%;transform:translate(-50%,-50%);
+    animation:contourDrift 60s ease-in-out infinite alternate;}
+  .hero-field path{fill:none;stroke:var(--line-strong);}
+  @keyframes contourDrift{0%{transform:translate(-50%,-50%) scale(1) rotate(0deg);}100%{transform:translate(-51.5%,-48.5%) scale(1.04) rotate(.7deg);}}
+  @media(prefers-reduced-motion:reduce){.hero-field svg{animation:none;}}
+  .hero-3d{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity 1.2s ease;}
+  .hero.has-3d .hero-3d{opacity:1;}
+  #capabilities{overflow:hidden;}
+  #capabilities .wrap{position:relative;z-index:2;}
+  .cap-3d{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease;}
+  #capabilities.has-3d .cap-3d{opacity:1;}
+  #book{overflow:hidden;}
+  #book .wrap{position:relative;z-index:2;}
+  .book-3d{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease;}
+  #book.has-3d .book-3d{opacity:1;}
+  #integrations{position:relative;overflow:hidden;}
+  #integrations .wrap{position:relative;z-index:2;}
+  .integ-3d{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease;}
+  #integrations.has-3d .integ-3d{opacity:1;}
+  #hidden-cost{position:relative;}
+  #hidden-cost .wrap{position:relative;z-index:2;}
+  .cost-3d{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease;}
+  #hidden-cost.has-3d .cost-3d{opacity:1;}
+  #pricing{position:relative;overflow:hidden;}
+  #pricing .wrap{position:relative;z-index:2;}
+  .price-3d{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease;}
+  #pricing.has-3d .price-3d{opacity:1;}
+  /* opacity:0 makes it invisible but the 60s transform animation kept running forever
+     underneath — pure wasted compositor work once the 3D hero takes over. */
+  .hero.has-3d .hero-field{opacity:0;}
+  .hero.has-3d .hero-field svg{animation-play-state:paused;}
+  .scrolldot{width:6px;height:6px;border-radius:50%;background:var(--ink);animation:bob 1.6s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0);opacity:1;}50%{transform:translateY(5px);opacity:.4;}}
+  .scroll-arrow{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:5;color:var(--ink);animation:scrollbob 1.6s ease-in-out infinite;}
+  .scroll-arrow svg{width:26px;height:26px;display:block;}
+  @keyframes scrollbob{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(7px);}}
+  @media(prefers-reduced-motion:reduce){.scroll-arrow{animation:none;}}
+  h1{font-family:'Nohemi',sans-serif;font-weight:700;letter-spacing:-.03em;line-height:.95;font-size:clamp(36px,8vw,128px);color:var(--ink);}
+  h1 .line{display:block;position:relative;}
+  h1 .line>span{display:block;}
+  h1 .aw{font-family:'Nohemi',sans-serif;font-style:normal;font-weight:400;text-transform:none;letter-spacing:-.01em;line-height:1.05;padding-bottom:.14em;}
+  /* neon flicker — random letters dip opacity in snappy ticks, like a flickering sign (JS-driven) */
+  h1.flick .ch{display:inline-block;}
+  .h-sub{margin:24px auto 0;max-width:560px;font-size:clamp(15px,1.5vw,18px);color:var(--text);line-height:1.55;text-align:center;}
+  .h-cta{margin-top:28px;display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;}
+  /* nume's actual CTA buttons measured much more compact than MVS's original: ~11.5px/19px
+     padding, 13.4px font, weight 500 -- not the chunky 16px/26px/700 MVS had. */
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:12px 20px;border-radius:999px;font-weight:600;font-size:13.5px;}
+  /* solid black pill, white text -- explicit inverted chip regardless of the page's light/dark
+     ink token, same reasoning as .logo-mark. Still used by other buttons sitewide (pricing,
+     book section) that keep their own swap-icon glide until those sections get redesigned. */
+  .btn-fill{background:#0a0a0a;color:#fff;will-change:transform;padding-right:60px;}
+  /* hero's compound CTA doesn't use the glide-icon (that's .h-cta-icon instead) -- drop the
+     reserved right-padding just for this one button. */
+  .h-cta .btn-fill{padding-right:26px;}
+  .btn-fill .swap-icon{position:absolute;top:4px;right:4px;width:40px;height:40px;border-radius:50%;
+    background:#fff;color:#0a0a0a;display:flex;align-items:center;justify-content:center;
+    transition:right .5s cubic-bezier(.4,0,.2,1),transform .5s cubic-bezier(.4,0,.2,1);pointer-events:none;}
+  .btn-fill .swap-icon svg{width:16px;height:16px;}
+  .btn-fill:hover .swap-icon{right:calc(100% - 44px);transform:rotate(45deg);}
+  .btn-ghost{border:1px solid var(--line-strong);color:var(--ink);font-weight:600;transition:background .25s,border-color .25s;}
+  .btn-ghost:hover{background:var(--surface);border-color:var(--ink);}
+  /* compound CTA circle -- accent-coloured, sits beside the black pill instead of an icon
+     gliding inside it. */
+  /* 46px, matching nume's measured .button_icon-wrapper exactly -- was 52px, visibly oversized
+     next to the pill once the pill's own padding got trimmed down to nume's compact scale. */
+  .h-cta-icon{width:46px;height:46px;border-radius:50%;background:var(--accent);color:var(--accent-ink);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .3s cubic-bezier(.34,1.4,.5,1);}
+  .h-cta-icon svg{width:18px;height:18px;}
+  .h-cta-icon:hover{transform:scale(1.08) rotate(8deg);}
+  .h-trust{margin-top:20px;display:flex;gap:22px;align-items:center;justify-content:center;flex-wrap:wrap;
+    font-size:13px;color:var(--muted);}
+  .h-trust span{display:inline-flex;align-items:center;gap:7px;}
+  .h-trust svg{width:15px;height:15px;color:var(--ok);flex-shrink:0;}
+  .h-logos{margin-top:64px;text-align:center;}
+  .h-logos-lab{font-family:'Roboto',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+  .h-logos-row{margin-top:22px;display:flex;gap:40px;align-items:center;justify-content:center;flex-wrap:wrap;}
+  .h-logo{font-weight:700;font-size:15px;color:var(--muted);letter-spacing:-.01em;opacity:.7;transition:opacity .25s ease;}
+  .h-logo:hover{opacity:1;}
+  .h-wrap{position:relative;z-index:3;max-width:var(--maxw);margin:0 auto;width:100%;}
+
+  /* nume-style feature cards -- measured 1:1 off nume.ai's .overview-item-content DOM: it's a
+     FLEX ROW (image ~42.5% left, text right, equal height), not a stacked image-over-text card
+     (first build got this wrong -- display:flex was on the parent, not obvious from a shallow
+     read). Heading is huge (44px) at weight 400 (regular, not bold) -- nume runs its display type
+     thin at size instead of bold at small size. Tags are transparent outlined pills, no fill. */
+  .feat-cards{display:flex;flex-direction:column;gap:20px;margin-top:46px;}
+  .feat-card{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:12px;
+    overflow:hidden;background:var(--bg);transition:border-color .3s ease,box-shadow .3s ease;}
+  .feat-card:hover{border-color:var(--line-strong);box-shadow:0 20px 40px -28px rgba(10,10,10,.18);}
+  .feat-visual{flex:0 0 42%;position:relative;background:linear-gradient(155deg,var(--surface) 0%,var(--bg-2) 100%);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;min-height:260px;}
+  .feat-visual::before{content:'';position:absolute;width:220px;height:220px;border-radius:50%;
+    background:radial-gradient(circle,rgba(0,238,255,.16),transparent 70%);}
+  .feat-visual .fi{width:56px;height:56px;border-radius:14px;background:#0a0a0a;color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;
+    font-family:'Roboto',monospace;position:relative;z-index:1;}
+  .feat-body{flex:1;padding:40px 44px;display:flex;flex-direction:column;justify-content:center;min-width:0;}
+  .feat-body h3{font-family:'Nohemi',sans-serif;font-weight:400;font-size:clamp(26px,3.4vw,40px);
+    letter-spacing:-.02em;line-height:1.08;color:var(--ink);}
+  .feat-body p{color:var(--soft);font-size:14.5px;line-height:1.6;margin-top:14px;max-width:48ch;}
+  .feat-tags{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}
+  .feat-tag{font-family:'Roboto',monospace;font-size:11.5px;letter-spacing:.03em;
+    color:var(--soft);border:1px solid var(--line-strong);border-radius:999px;padding:9px 15px;}
+  @media(max-width:900px){
+    .feat-card{flex-direction:column;}
+    .feat-visual{flex:none;min-height:180px;}
+    .feat-body{padding:28px 26px 32px;}
+  }
+
+  /* capabilities grid */
+  .cap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:46px;}
+  @media(max-width:900px){.cap-grid{grid-template-columns:repeat(2,1fr);}}
+  .cap-more{margin-top:14px;}
+  .cap-more summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:center;gap:8px;
+    font-family:'Roboto',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+    padding:14px;border:1px dashed var(--line);border-radius:14px;transition:color .2s ease,border-color .2s ease;}
+  .cap-more summary::-webkit-details-marker{display:none;}
+  .cap-more summary::before{content:"+";font-weight:800;font-size:15px;transition:transform .2s ease;display:inline-block;}
+  .cap-more[open] summary::before{transform:rotate(45deg);}
+  .cap-more summary:hover{color:var(--ink);border-color:var(--ink);}
+  .cap-more .cap-grid{margin-top:14px;}
+
+  /* integrations — same monogram/card treatment as .cap, arranged on a rotating 3D cylinder */
+  /* grid, not flex — a fixed 30px icon column + 1fr text column with align-items:center gives
+     pixel-identical vertical centering for every row regardless of glyph (svg vs bare letter) or
+     font metrics; flex align-items was letting some baselines drift a px or two off. */
+  .int{display:grid;grid-template-columns:30px minmax(0,1fr);align-items:center;gap:10px;
+    border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+    background:linear-gradient(180deg,var(--surface) 0%,var(--bg-2) 100%);font-weight:700;font-size:13px;color:var(--ink);
+    line-height:1;box-shadow:0 1px 2px rgba(10,10,10,.04);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    transition:box-shadow .3s cubic-bezier(.16,1,.3,1);}
+  .int:hover{box-shadow:0 10px 26px -14px rgba(10,10,10,.22);}
+  /* real per-brand color instead of one flat monogram treatment — .ii carries the brand bg,
+     svg/glyph inside is white or brand-on-white where the mark needs contrast */
+  .int .ii{width:30px;height:30px;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;font-weight:800;line-height:1;
+    font-family:'Roboto',monospace;font-size:11px;overflow:hidden;text-align:center;}
+  .int .ii svg{width:18px;height:18px;display:block;}
+  /* 23 items now (was 8) — 15.652deg apart (360/23), radius bumped so chips don't crowd */
+  /* overflow:hidden here, not just on body — far-side carousel items sit hundreds of px out in
+     3D space via translateZ, and that geometry can expand the page's real scrollable width on
+     iOS Safari even though body already has overflow-x:hidden (a known WebKit gap with 3D
+     transforms). Clipping at the carousel's own box is what actually stops it. */
+  .int-carousel-wrap{position:relative;perspective:1600px;height:280px;display:flex;align-items:center;
+    justify-content:center;margin-top:56px;overflow:hidden;}
+  /* blurred edge fade — items entering/leaving the visible arc soften out instead of hard-cutting
+     at the wrap's edge. Plain gradient overlays, no backdrop-filter, cheap. */
+  .int-carousel-wrap::before,.int-carousel-wrap::after{content:'';position:absolute;top:0;bottom:0;
+    width:14%;z-index:2;pointer-events:none;}
+  .int-carousel-wrap::before{left:0;background:linear-gradient(to right,var(--bg) 0%,transparent 100%);}
+  .int-carousel-wrap::after{right:0;background:linear-gradient(to left,var(--bg) 0%,transparent 100%);}
+  .int-carousel{position:relative;width:1px;height:1px;transform-style:preserve-3d;animation:intSpin 60s linear infinite;}
+  .int-carousel.spin-off{animation-play-state:paused;}
+  @keyframes intSpin{from{transform:rotateY(0deg);}to{transform:rotateY(360deg);}}
+  .int-item{position:absolute;top:0;left:0;width:150px;margin:-29px 0 0 -75px;
+    transform:rotateY(calc(var(--i) * 15.652deg)) translateZ(620px);backface-visibility:hidden;}
+  /* 3D rotateY rig confirmed real lag/crash cost on mobile GPUs (twice now — static fan read as
+     "frozen", re-enabling the spin read as "laggy"). Swapped for a flat 2D marquee below instead
+     of tuning the 3D version further — no preserve-3d, no per-frame 3D matrix recompute, just one
+     GPU-cheap translateX loop. Desktop keeps the 3D carousel unchanged. */
+  /* logo timeline — ported from Eldora UI's logo-timeline component concept: several rows of
+     logos, each its own scroll speed + direction, instead of one flat marquee. Rows are built in
+     JS from the single canonical logo list (the desktop carousel's .int-item nodes) rather than
+     hand-duplicating markup per row. Was mobile-only with the 3D ring carousel kept for desktop;
+     now universal — same timeline treatment on every width, ring carousel just stays dormant in
+     the DOM (still the source list the JS builder reads from, just never shown). */
+  .int-carousel-wrap{display:none;}
+  .int-timeline-wrap{display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden;margin-top:56px;}
+  .int-timeline-wrap::before,.int-timeline-wrap::after{content:'';position:absolute;top:0;bottom:0;
+    width:14%;z-index:2;pointer-events:none;}
+  .int-timeline-wrap::before{left:0;background:linear-gradient(to right,var(--bg) 0%,transparent 100%);}
+  .int-timeline-wrap::after{right:0;background:linear-gradient(to left,var(--bg) 0%,transparent 100%);}
+  .int-timeline-row{display:flex;gap:10px;width:max-content;animation:mqScroll linear infinite;
+    animation-duration:var(--row-dur,40s);}
+  .int-timeline-row.rev{animation-direction:reverse;}
+  .int-timeline-row.spin-off{animation-play-state:paused;}
+  .int-timeline-row .int{flex:0 0 auto;padding:11px 14px;font-size:11.5px;grid-template-columns:22px 1fr;gap:8px;}
+  .int-timeline-row .ii{width:22px;height:22px;}
+  .int-timeline-row .ii svg{width:14px;height:14px;}
+  @keyframes mqScroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+  @media(prefers-reduced-motion:reduce){.int-timeline-row{animation:none;}}
+  @media(prefers-reduced-motion:reduce){.int-carousel{animation:none;}}
+
+  /* per-word heading reveal — sections 01-03 only, driven by GSAP in main.js */
+  .h2-split .word{display:inline-block;overflow:hidden;vertical-align:top;}
+  .h2-split .word>span{display:inline-block;}
+
+  /* hero trust-stat badge — sits over the continuously-rendering hero-3d canvas the whole time
+     the hero is on screen; backdrop-filter there resamples the canvas behind it every frame,
+     same real cost nav.scrolled's blur was already cut for. Solid tint instead. */
+  .hero-stat{display:inline-flex;align-items:center;gap:8px;font-family:'Roboto',monospace;
+    font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);
+    border:1px solid var(--line);border-radius:999px;padding:7px 16px;margin-bottom:18px;
+    background:rgba(10,10,10,.72);}
+  .hero-stat b{color:var(--ink);font-weight:700;}
+
+  .cap{border:1px solid var(--line);border-radius:14px;padding:22px;
+    background:linear-gradient(180deg,var(--surface) 0%,var(--bg-2) 100%);
+    box-shadow:0 1px 2px rgba(10,10,10,.04),0 8px 20px -14px rgba(10,10,10,.14),0 20px 40px -24px rgba(10,10,10,.10);
+    transition:transform .35s cubic-bezier(.16,1,.3,1),box-shadow .35s cubic-bezier(.16,1,.3,1);}
+  .cap:hover{transform:translateY(-3px);
+    box-shadow:0 1px 2px rgba(10,10,10,.05),0 16px 28px -14px rgba(10,10,10,.20),0 28px 48px -20px rgba(10,10,10,.14);}
+  .cap-inner{will-change:transform;}
+
+  /* capabilities grid only (01) — real 3D tilt on hover, on top of the base .cap treatment above.
+     No preserve-3d here — .cap has no children that need their own 3D depth, so skipping it avoids
+     promoting every card to its own compositing layer all the time (real cost with 8+ cards on
+     mobile GPUs), not just the one being hovered. */
+  #capabilities .cap-grid, #capabilities .cap-more .cap-grid{perspective:1200px;}
+  #capabilities .cap:hover{transform:translateY(-6px) translateZ(14px) rotateX(5deg) rotateY(-5deg);}
+  @media(prefers-reduced-motion:reduce){#capabilities .cap:hover{transform:translateY(-3px);}}
+  /* neutral steel gradient, not amber — 16 capability-card icons in amber was another big yellow
+     block. Kept to the same non-brand steel as the wheel skill icons. */
+  .cap .ci{width:30px;height:30px;border-radius:8px;background:linear-gradient(160deg,#333 0%,#8a8a8a 90%);color:#0a0a0a;display:flex;align-items:center;justify-content:center;font-weight:800;font-family:'Roboto',monospace;font-size:13px;box-shadow:0 2px 5px rgba(10,10,10,.28),inset 0 1px 0 rgba(255,255,255,.10);}
+
+  /* === BorderGlow (React Bits port) — grayscale, on-brand === */
+  .cap.border-glow-card{
+    --edge-proximity:0;--cursor-angle:45deg;--edge-sensitivity:30;--color-sensitivity:calc(var(--edge-sensitivity) + 20);
+    --glow-padding:24px;--cone-spread:25;--fill-opacity:.35;position:relative;isolation:isolate;overflow:visible;
+  }
+  .cap.border-glow-card::before,.cap.border-glow-card::after,.cap.border-glow-card>.edge-light{
+    content:"";position:absolute;inset:0;border-radius:inherit;transition:opacity .25s ease-out;z-index:-1;
+  }
+  .cap.border-glow-card:not(:hover)::before,.cap.border-glow-card:not(:hover)::after,.cap.border-glow-card:not(:hover)>.edge-light{
+    opacity:0;transition:opacity .75s ease-in-out;
+  }
+  .cap.border-glow-card::before{
+    border:1px solid transparent;
+    background:linear-gradient(var(--bg-2) 0 100%) padding-box,
+      radial-gradient(at 80% 55%,rgba(255,255,255,.9) 0px,transparent 55%) border-box,
+      radial-gradient(at 15% 20%,rgba(197,197,203,.8) 0px,transparent 55%) border-box,
+      radial-gradient(at 50% 90%,rgba(149,149,156,.7) 0px,transparent 55%) border-box;
+    opacity:calc((var(--edge-proximity) - var(--color-sensitivity)) / (100 - var(--color-sensitivity)));
+    mask-image:conic-gradient(from var(--cursor-angle) at center,black calc(var(--cone-spread) * 1%),transparent calc((var(--cone-spread) + 15) * 1%),transparent calc((100 - var(--cone-spread) - 15) * 1%),black calc((100 - var(--cone-spread)) * 1%));
+  }
+  .cap.border-glow-card::after{
+    background:radial-gradient(at 80% 55%,rgba(255,255,255,.9) 0px,transparent 55%) padding-box,
+      radial-gradient(at 15% 20%,rgba(197,197,203,.8) 0px,transparent 55%) padding-box,
+      radial-gradient(at 50% 90%,rgba(149,149,156,.7) 0px,transparent 55%) padding-box;
+    mask-image:radial-gradient(ellipse at 50% 50%,black 40%,transparent 70%);
+    opacity:calc(var(--fill-opacity) * (var(--edge-proximity) - var(--color-sensitivity)) / (100 - var(--color-sensitivity)));
+    mix-blend-mode:screen;
+  }
+  .cap.border-glow-card>.edge-light{
+    inset:calc(var(--glow-padding) * -1);pointer-events:none;z-index:1;
+    mask-image:conic-gradient(from var(--cursor-angle) at center,black 2.5%,transparent 10%,transparent 90%,black 97.5%);
+    opacity:calc((var(--edge-proximity) - var(--edge-sensitivity)) / (100 - var(--edge-sensitivity)));
+  }
+  .cap.border-glow-card>.edge-light::before{
+    content:"";position:absolute;inset:var(--glow-padding);border-radius:inherit;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.5),inset 0 0 6px 0 rgba(255,255,255,.3),inset 0 0 15px 0 rgba(255,255,255,.18),
+      0 0 6px 0 rgba(255,255,255,.28),0 0 15px 0 rgba(255,255,255,.16),0 0 30px 2px rgba(255,255,255,.10);
+  }
+  @media(prefers-reduced-motion:reduce){.cap.border-glow-card::before,.cap.border-glow-card::after,.cap.border-glow-card>.edge-light{display:none;}}
+  .cap .cn{font-weight:700;font-size:16px;color:var(--ink);margin-top:16px;letter-spacing:-.01em;}
+  .cap .cc{color:var(--soft);font-size:13px;margin-top:6px;line-height:1.5;}
+
+  /* pricing */
+  .toggle{position:relative;display:inline-flex;border:1px solid var(--line-strong);border-radius:999px;padding:4px;margin-top:30px;font-size:13px;font-weight:600;}
+  .price-controls{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:16px;margin-top:30px;}
+  .price-controls .toggle,.price-controls .curr-dd{margin-top:0;}
+  /* mobile: toggle + dropdown together need ~330px, the full row width, so side-by-side always reads
+     crowded regardless of justify-content. Stack them instead -- each gets its own row, dropdown
+     right-aligned on the second. */
+  @media(max-width:600px){
+    .price-controls{flex-direction:column;align-items:flex-start;gap:12px;}
+    .price-controls .curr-dd{align-self:flex-end;}
+  }
+  .toggle button{padding:9px 18px;border-radius:999px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-weight:600;}
+  .toggle button.on{background:var(--accent);color:var(--accent-ink);}
+  .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:34px;}
+  /* mobile: packages swipe horizontally (scroll-snap carousel) instead of stacking vertically —
+     each card snaps centre, peeking the next so it reads as swipeable. */
+  @media(max-width:900px){
+    .tiers{display:flex;grid-template-columns:none;overflow-x:auto;scroll-snap-type:x mandatory;
+      gap:14px;margin-left:-20px;margin-right:-20px;padding:0 20px 10px;
+      -webkit-overflow-scrolling:touch;scrollbar-width:none;}
+    .tiers::-webkit-scrollbar{display:none;}
+    .tier-slot{flex:0 0 84%;scroll-snap-align:center;}
+  }
+  .tier{border:1px solid var(--line);border-radius:16px;padding:28px;display:flex;flex-direction:column;background:var(--bg);}
+  .tier.feat{border:2px solid var(--ink);box-shadow:0 2px 0 var(--ink);}
+  .tier .badge{display:inline-block;align-self:flex-start;background:var(--accent);color:var(--accent-ink);font-family:'Roboto',monospace;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:4px;margin-bottom:12px;}
+  .tier .tn{font-weight:700;font-size:22px;color:var(--ink);letter-spacing:-.02em;font-family:'Nohemi',sans-serif;}
+  .tier .tl{color:var(--soft);font-size:13.5px;margin:6px 0 18px;min-height:38px;}
+  .tier-slot{display:flex;flex-direction:column;}
+  .tier-slot .tier{flex:1;}
+  .tier .price{font-weight:700;font-size:30px;letter-spacing:-.02em;color:var(--ink);font-family:'Nohemi',sans-serif;}
+  .tier .price small{font-size:15px;font-weight:600;color:var(--muted);}
+  .tier ul{list-style:none;margin:18px 0;padding:0;font-size:14px;}
+  .tier li{padding:5px 0 5px 22px;position:relative;color:var(--text);}
+  .tier li::before{content:"✓";position:absolute;left:0;font-weight:800;color:var(--ink);}
+  .tier.prem li::before{color:var(--accent);}
+  .tier li.inh{color:var(--muted);}
+  .tier li.inh::before{content:"+";color:var(--muted);}
+  .tier li.inh .inh-note{display:none;font-size:9px;letter-spacing:.04em;text-transform:uppercase;margin-left:3px;}
+  .tier li.own-hide .mo-note{font-size:9px;letter-spacing:.04em;text-transform:uppercase;margin-left:3px;color:var(--muted);}
+  .tier li .co-tag{display:none;}
+  @media(min-width:901px){
+    .tier.prem li .co-tag{display:inline-block;margin-left:8px;padding-left:10px;border-left:1px solid var(--line-strong);
+      font-family:'Roboto',monospace;font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);opacity:0;}
+  }
+  .tiers.mode-own .tier li.inh .inh-note{display:inline;}
+  .tier .tcta{margin-top:auto;}
+  /* package buttons are ghost, not amber fill — three stacked solid-amber buttons was the bulk of
+     "too many yellow buttons". They read as clear buttons via the outline and fill amber on hover
+     (brand on intent), while the primary hero + book CTAs keep the standing amber fill. */
+  .btn-fill.tcta{background:transparent;color:var(--ink);border:1px solid var(--line-strong);}
+  .btn-fill.tcta .swap-icon{background:var(--ink);color:var(--accent-ink);}
+  .btn-fill.tcta:hover{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);opacity:1;}
+  .btn-fill.tcta:hover .swap-icon{background:var(--accent-ink);color:var(--accent);}
+  /* the ghost tcta has no light fill for the shine sweep to read against — drop it here only. */
+  .btn-fill.tcta::after{display:none;}
+  .tier-details{margin:2px 0 16px;font-size:12px;}
+  .tier-details summary{cursor:pointer;font-weight:600;color:var(--muted);list-style:none;
+    display:flex;align-items:center;gap:5px;padding:6px 0;transition:color .2s ease;}
+  .tier-details summary::-webkit-details-marker{display:none;}
+  .tier-details summary::before{content:"⌄";font-size:12px;line-height:1;transition:transform .25s ease;display:inline-block;}
+  .tier-details[open] summary::before{transform:rotate(180deg);}
+  .tier-details summary:hover{color:var(--ink);}
+  .tier-details dl{margin:10px 0 0;padding:10px 0 0;border-top:1px dashed var(--line);}
+  .tier-details dt{font-weight:700;color:var(--ink);margin-top:8px;}
+  .tier-details dt:first-child{margin-top:0;}
+  .tier-details dd{margin:2px 0 0;color:var(--soft);line-height:1.4;}
+  @media(max-width:900px){
+    .toggle{flex-wrap:wrap;justify-content:center;border-radius:24px;}
+  }
+  .tier.prem{position:relative;z-index:0;border-color:transparent;isolation:isolate;overflow:hidden;
+    box-shadow:0 0 24px rgba(0,238,255,.18);}
+  .tier.prem::before{content:"";position:absolute;inset:-60%;z-index:-2;
+    background:conic-gradient(from 0deg,var(--accent),var(--line) 30%,var(--accent) 60%,var(--line) 90%,var(--accent));
+    animation:premSpin 6s linear infinite;will-change:transform;pointer-events:none;}
+  .tier.prem::after{content:"";position:absolute;inset:1px;z-index:-1;border-radius:15px;background:var(--bg);pointer-events:none;}
+  .tier.launch{position:relative;z-index:0;border-color:transparent;isolation:isolate;overflow:hidden;}
+  .tier.launch::before{content:"";position:absolute;inset:-60%;z-index:-2;
+    background:conic-gradient(from 0deg,var(--ink),var(--line) 30%,var(--ink) 60%,var(--line) 90%,var(--ink));
+    animation:premSpin 6s linear infinite;will-change:transform;pointer-events:none;}
+  .tier.launch::after{content:"";position:absolute;inset:1px;z-index:-1;border-radius:15px;background:var(--bg);pointer-events:none;}
+  @keyframes premSpin{to{transform:rotate(360deg);}}
+  .tier.prem.spin-off::before,.tier.launch.spin-off::before{animation-play-state:paused;}
+  @media(prefers-reduced-motion:reduce){.tier.prem::before,.tier.launch::before{animation:none;}}
+  .pos{font-style:italic;color:var(--muted);font-size:13px;margin-top:10px;}
+  .alc{margin-top:50px;border-top:1px solid var(--line);padding-top:30px;}
+  .alc-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 40px;margin-top:18px;}
+  @media(max-width:760px){.alc-grid{grid-template-columns:1fr;}}
+  .alc-row{display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px;}
+  .alc-row .s{color:var(--text);} .alc-row .p{color:var(--muted);font-weight:600;white-space:nowrap;font-family:'Roboto',monospace;font-size:12.5px;}
+
+  /* process -- measured 1:1 off nume.ai's .section_process / .process-list_grid DOM: 3-col grid
+     (~48/24px row/col gap), near-white cards (var(--surface)) with a real border and 15px radius
+     on a barely-tinted section background, number badge + heading side by side, paragraph below. */
+  #how-it-works{background:rgba(10,10,10,.05);}
+  .proc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:48px 24px;margin-top:46px;}
+  @media(max-width:900px){.proc-grid{grid-template-columns:1fr;gap:20px;}}
+  .proc-card{background:var(--surface);border:1px solid var(--line-strong);border-radius:15px;padding:36px 22px;}
+  .proc-head{display:flex;align-items:center;gap:12px;}
+  .proc-num{flex-shrink:0;width:34px;height:34px;border-radius:9px;background:#0a0a0a;color:#fff;
+    display:flex;align-items:center;justify-content:center;font-family:'Roboto',monospace;font-size:13px;font-weight:700;}
+  .proc-card h3{font-family:'Nohemi',sans-serif;font-weight:700;font-size:18px;letter-spacing:-.01em;color:var(--ink);}
+  .proc-card p{color:var(--soft);font-size:14px;line-height:1.6;margin-top:12px;}
+
+  /* trust -- measured 1:1 off nume.ai's .section_design / .design-card_new DOM: transparent
+     section, flex row of 3 cards (20px gap), no border, subtle grey fill, small 8px radius,
+     icon + centered heading + centered paragraph (nume uses an illustration; MVS uses an icon
+     chip in the same slot since there's no equivalent illustration asset). */
+  .trust-row{display:flex;gap:20px;margin-top:46px;flex-wrap:wrap;}
+  .trust-card{flex:1 1 260px;background:var(--surface);border-radius:8px;padding:40px 32px 28px;
+    display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px;}
+  .trust-card .ti{width:44px;height:44px;border-radius:12px;background:#0a0a0a;color:var(--accent);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .trust-card .ti svg{width:20px;height:20px;}
+  .trust-card h3{font-family:'Nohemi',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.01em;color:var(--ink);}
+  .trust-card p{color:var(--soft);font-size:14px;line-height:1.6;max-width:32ch;}
+
+
+  /* book */
+  .book-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:40px;margin-top:46px;align-items:start;}
+  @media(max-width:900px){.book-grid{grid-template-columns:1fr;}}
+  #cal-embed{min-height:620px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--bg-2);}
+  .book-note{font-family:'Roboto',monospace;font-size:12.5px;color:var(--muted);margin-top:14px;text-align:center;}
+  .mailbtn{display:flex;margin:20px auto 0;width:fit-content;background:var(--accent);color:var(--accent-ink);}
+  .mailbtn .swap-icon{background:var(--accent-ink);color:var(--accent);}
+
+  /* back-to-top button — hidden until scrolled, fixed bottom-right. No backdrop-filter: this is
+     fixed + visible for most of the scroll after the first screen, so blur here recomposited
+     every scroll frame, same cost as the nav pill's. Solid tint instead. */
+  /* was color:var(--ink) (near-black) on a near-black rgba(20,20,20,.92) bg -- invisible icon,
+     same dark-theme-era bug already caught on .logo-mark/.btn-fill but missed here. Explicit
+     inverted chip like those: dark bg, white icon, stays dark (not washed-out near-white) on
+     hover too -- the old hover was also a dark-theme leftover that only worked against a dark
+     page bleeding through. */
+  .to-top{position:fixed;right:22px;bottom:22px;z-index:70;width:44px;height:44px;display:flex;
+    align-items:center;justify-content:center;border-radius:999px;cursor:pointer;color:#fff;
+    background:rgba(10,10,10,.92);border:1px solid var(--line-strong);opacity:0;pointer-events:none;transform:translateY(12px);
+    transition:opacity .3s ease,transform .3s ease,background .25s ease;}
+  .to-top svg{width:20px;height:20px;}
+  .to-top.show{opacity:1;pointer-events:auto;transform:translateY(0);}
+  .to-top:hover{background:rgba(10,10,10,.75);}
+  @media(max-width:900px){.to-top{right:14px;bottom:14px;width:40px;height:40px;}}
+
+  /* footer */
+  footer{padding:60px 36px 50px;background:transparent;}
+  .foot-inner{max-width:var(--maxw);margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap;}
+  .foot-meta{font-family:'Roboto',monospace;font-size:11px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;line-height:1.8;}
+  .foot-legal{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--muted);}
+  .foot-legal a{transition:color .2s ease;}
+  .foot-legal a:hover{color:var(--ink);}
+  .foot-legal span{color:var(--line-strong);}
+  .sign{font-family:'Nohemi',sans-serif;font-style:normal;font-weight:400;font-size:26px;color:var(--ink);}
+
+  /* intro loader — cinematic: white screen (matches the redesign's light theme), brand mark tracks
+     in, a slim progress bar fills with a live % readout, then the veil iris-closes to a point at
+     center, revealing the site. */
+  .intro-veil{position:fixed;inset:0;z-index:99999;background:#ffffff;display:flex;align-items:center;justify-content:center;
+    clip-path:circle(150% at 50% 50%);transition:clip-path .7s cubic-bezier(.76,0,.24,1);}
+  .intro-veil.lift{clip-path:circle(0% at 50% 50%);}
+  .intro-in{display:flex;flex-direction:column;align-items:center;gap:24px;padding:20px;}
+  /* kinetic-type intro (cdrc.tv reel reference -- video itself wasn't fetchable, built from its
+     "kinetic type / type animation" description): big display wordmark, each letter its own span,
+     GSAP-staggers in blur+rise instead of a boring linear progress bar + percent readout. */
+  .intro-mark{display:flex;align-items:center;gap:16px;font-family:'Nohemi',sans-serif;font-weight:700;
+    font-size:clamp(32px,7.5vw,64px);letter-spacing:-.02em;color:#0a0a0a;}
+  .intro-mark .ib{width:clamp(34px,6vw,52px);height:clamp(34px,6vw,52px);border-radius:10px;background:#0a0a0a;color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:clamp(17px,3.4vw,26px);letter-spacing:0;
+    font-family:'Roboto',monospace;flex-shrink:0;}
+  .intro-mark .lt{display:inline-block;white-space:pre;}
+  @media(prefers-reduced-motion:reduce){.intro-veil{display:none!important;}}
+
+  /* ===== polish pass ===== */
+
+  /* hero words: solid ink (sheen removed — background-clip:text conflicted with BlurText per-word spans).
+     Two-tone headline (nume-style): "Real Conversion" solid black, "for your business" soft grey. */
+  h1{color:var(--ink);}
+  h1 .aw{color:var(--soft);text-shadow:none;}
+
+  /* nav: underline-grow + hover */
+  .nav-r a:not(.navcta){position:relative;transition:color .25s ease;}
+  /* amber underline-grow removed — the pill highlight already marks the hovered link, and the
+     yellow lines under the menu items were unwanted. */
+  .nav-r a:not(.navcta)::after{content:none;}
+  .navcta{transition:opacity .25s ease;}.navcta:hover{opacity:.7;}
+
+  /* missing transitions: toggle, tier hover, buttons, faq */
+  .toggle button{transition:background .3s ease,color .3s ease;}
+  .tier{transition:transform .3s cubic-bezier(.4,0,.2,1),border-color .3s ease,box-shadow .3s ease;}
+  .tier:not(.feat):hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(10,10,10,.06);}
+  .tier.feat:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(10,10,10,.10),0 2px 0 var(--ink);}
+  .btn{transition:transform .12s ease;}
+  .btn:active{transform:scale(.96);}
+  .btn-fill{transition:transform .12s ease,opacity .25s ease,padding .5s cubic-bezier(.4,0,.2,1);}
+  .btn-fill:hover{opacity:.88;padding-left:60px;padding-right:26px;}
+  .alc-row{transition:padding-left .25s ease,color .25s ease;}
+  .alc-row:hover{padding-left:8px;color:var(--ink);}
+  .tier:active{transform:translateY(-2px);}
+
+
+  /* film grain removed — fixed mix-blend overlay was costing scroll repaints */
+
+  /* heading font — characterful display */
+  h2{font-family:'Nohemi',sans-serif;}
+
+  /* grid alignment safeguards */
+  .cap-grid,.tiers,.steps{align-items:stretch;}
+
+  /* button effects: ghost fill-sweep + fill shine/arrow */
+  .btn-ghost{position:relative;overflow:hidden;z-index:0;}
+  .btn-ghost::before{content:'';position:absolute;inset:0;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .38s cubic-bezier(.4,0,.2,1);z-index:-1;}
+  .btn-ghost:hover{background:transparent;color:var(--bg);border-color:var(--ink);}
+  .btn-ghost:hover::before{transform:scaleX(1);}
+  .btn-fill{position:relative;overflow:hidden;}
+  .btn-fill::after{content:'';position:absolute;top:0;left:-40%;width:35%;height:100%;background:linear-gradient(110deg,transparent,rgba(255,255,255,.28),transparent);transform:skewX(-18deg);pointer-events:none;}
+  .btn-fill:hover::after{animation:shine .7s ease;}
+  @keyframes shine{from{left:-40%;}to{left:130%;}}
+
+  /* pause hero sheen when scrolled away (perf) */
+  .hero-off h1,.hero-off h1 .aw,.hero-off .scroll-arrow{animation-play-state:paused;}
+
+  /* Starter lead offer card */
+  .starter{position:relative;background:var(--ink);color:var(--accent-ink);border-radius:18px;padding:30px 34px;margin-top:30px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:22px;}
+  .starter .s-badge{display:inline-block;background:var(--accent-ink);color:var(--accent);font-family:'Roboto',monospace;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;border-radius:5px;}
+  .starter .s-price{font-weight:700;font-size:clamp(36px,5vw,58px);letter-spacing:-.025em;line-height:1;margin-top:14px;font-family:'Nohemi',sans-serif;}
+  .starter .s-price small{font-size:17px;font-weight:600;color:rgba(10,10,10,.5);letter-spacing:0;font-family:'Roboto',sans-serif;}
+  .starter .s-feat{font-size:14px;color:rgba(10,10,10,.65);margin-top:10px;max-width:520px;line-height:1.5;}
+  .s-btn{background:var(--accent-ink);color:var(--accent);font-weight:700;white-space:nowrap;}
+  .s-btn svg{width:16px;height:16px;}
+  .more-lab{font-family:'Roboto',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:40px 0 0;}
+  .po{display:none;}
+  .po-note{font-size:11px;color:var(--muted);margin-top:6px;}
+  .tiers.mode-own .pm{display:none;}
+  .tiers.mode-own .po{display:block;}
+  .tiers.mode-own .own-hide{display:none;}
+  .curr-toggle{margin-top:12px;}
+  .cur-zar,.cur-eur,.cur-gbp,.cur-aud,.cur-cad,.cur-ngn,.cur-kes,.cur-aed,.cur-inr,
+  .cur-brl,.cur-mxn,.cur-jpy,.cur-cny,.cur-sgd,.cur-chf,.cur-sek,.cur-nok,.cur-dkk,.cur-nzd{display:none;}
+  .tiers[class*="curr-"] .cur-usd{display:none;}
+  .tiers.curr-zar .cur-zar,.tiers.curr-eur .cur-eur,.tiers.curr-gbp .cur-gbp,.tiers.curr-aud .cur-aud,
+  .tiers.curr-cad .cur-cad,.tiers.curr-ngn .cur-ngn,.tiers.curr-kes .cur-kes,.tiers.curr-aed .cur-aed,.tiers.curr-inr .cur-inr,
+  .tiers.curr-brl .cur-brl,.tiers.curr-mxn .cur-mxn,.tiers.curr-jpy .cur-jpy,.tiers.curr-cny .cur-cny,.tiers.curr-sgd .cur-sgd,
+  .tiers.curr-chf .cur-chf,.tiers.curr-sek .cur-sek,.tiers.curr-nok .cur-nok,.tiers.curr-dkk .cur-dkk,.tiers.curr-nzd .cur-nzd{display:block;}
+
+  /* creative currency combobox -- hidden: nume has no pricing UI at all (gated behind signup),
+     so a 19-country currency switcher is MVS-only bloat with no equivalent to match. Underlying
+     .tiers carries no curr-* class by default, so USD prices show correctly with just this. */
+  .curr-dd{display:none;}
+  .curr-dd-old{position:relative;display:inline-block;margin-top:14px;}
+  .curr-dd-btn{display:flex;align-items:center;gap:8px;background:linear-gradient(180deg,#fff,var(--bg-2));color:var(--ink);border:1px solid var(--line-strong);border-radius:999px;padding:10px 16px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:border-color .2s ease,transform .15s ease;}
+  .curr-dd-btn:hover{border-color:var(--accent);}
+  .curr-dd-btn:active{transform:scale(.97);}
+  .curr-dd-btn .curr-dd-sym{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#121212;font-size:12px;font-weight:800;}
+  .curr-dd-caret{width:12px;height:12px;transition:transform .25s ease;flex:none;}
+  .curr-dd.open .curr-dd-caret{transform:rotate(180deg);}
+  .curr-dd-panel{position:absolute;top:calc(100% + 10px);left:0;z-index:20;width:240px;}
+  @media(max-width:600px){.curr-dd-panel{left:auto;right:0;}}
+  .curr-dd-list{list-style:none;margin:0;padding:6px;max-height:320px;overflow-y:auto;background:var(--bg-glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line-strong);border-radius:16px;box-shadow:0 20px 50px rgba(10,10,10,.16);}
+  .curr-dd-more{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);width:26px;height:26px;border-radius:50%;background:var(--accent);color:#121212;display:flex;align-items:center;justify-content:center;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.5);animation:currBounce 1.3s ease-in-out infinite;transition:opacity .2s ease;}
+  .curr-dd-more svg{width:13px;height:13px;}
+  .curr-dd-more.hide{opacity:0;}
+  @keyframes currBounce{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(4px);}}
+  .curr-dd-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;position:relative;transition:background .15s ease;}
+  .curr-dd-item:hover,.curr-dd-item.focus{background:rgba(10,10,10,.05);}
+  .curr-dd-item.on{background:rgba(0,238,255,.12);}
+  .curr-dd-item.on .curr-dd-item-code{color:var(--accent);}
+  .curr-dd-item.on::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:2px;background:var(--accent);}
+  .curr-dd-item-sym{width:30px;flex:none;text-align:center;font-size:12px;font-weight:800;color:var(--muted);}
+  .curr-dd-item-code{font-size:13px;font-weight:700;letter-spacing:.03em;}
+  .curr-dd-item-name{font-size:12px;color:var(--muted);margin-left:auto;white-space:nowrap;}
+  @media(max-width:600px){.starter{padding:26px 22px;}.s-btn{width:100%;justify-content:center;}}
+
+  /* mobile polish (phone) */
+  @media(max-width:600px){
+    .wrap{padding:0 20px;}
+    nav{padding:14px 20px;}
+    .section{padding:80px 0;}
+    /* integrations reads cramped on mobile — network backdrop + carousel need more room to
+       breathe than the shared section padding gives every other section. */
+    #integrations{padding:110px 0;min-height:640px;display:flex;align-items:center;}
+    .hero{min-height:100vh;min-height:100svh;padding:120px 20px 48px;justify-content:center;}
+    h1{font-size:clamp(44px,13vw,68px);}
+    h2{font-size:clamp(32px,8vw,52px);}
+    .h-sub{font-size:clamp(11px,2.6vw,12px);}
+    .h-cta{margin-top:16px;gap:10px;flex-direction:column;align-items:center;}
+    .h-cta .btn{justify-content:center;padding:13px 20px;font-size:13.5px;}
+    .h-cta .btn-fill{padding-right:52px;}
+    .h-cta .btn-fill:hover{padding-left:52px;padding-right:20px;}
+    .hero-stat{padding:5px 12px;font-size:10px;}
+    .cap{padding:16px;}
+    .cap .ci{width:26px;height:26px;font-size:11px;}
+    .cap .cn{font-size:14.5px;}
+    .cap .cc{font-size:12px;}
+    footer{padding:40px 20px 32px;}
+    /* pricing cards were carrying full desktop padding/spacing straight into a stacked single
+       column — reads oversized on a phone. Tighten without touching desktop/tablet. */
+    .tiers{gap:12px;}
+    .tier{padding:20px;}
+    .tier .tn{font-size:19px;}
+    .tier .tl{min-height:0;margin:5px 0 14px;}
+    .tier .price{font-size:26px;}
+    .tier ul{margin:12px 0;}
+    .tier li{padding:4px 0 4px 20px;}
+    .tier-details{margin:2px 0 10px;}
+    /* kept subtle on mobile too — a bordered pill read as a second CTA competing with "Get
+       package" below it. Slightly bigger tap padding only (already added above), no visual bulk. */
+  }
+
+
+
+  /* === GradualBlur page edges (React Bits port) === */
+  /* was a 3-stop white->dark->transparent gradient (hardcoded rgba(10,10,10,.6) middle stop) --
+     wrong direction entirely once --bg flipped to white. Simple 2-stop fade using the theme's
+     own --bg so it's always correct regardless of light/dark. */
+  .gblur{position:fixed;left:0;right:0;pointer-events:none;z-index:50;
+    background:linear-gradient(to bottom,var(--bg) 0%,transparent 100%);}
+  .gblur.top{top:0;}
+
+  @media(prefers-reduced-motion:reduce){
+    h1,h1 .aw{animation:none;background:none;-webkit-text-fill-color:var(--ink);color:var(--ink);text-shadow:none;}
+    .tier{transition:border-color .3s ease;}.tier:hover{transform:none;}
+    .btn:active{transform:none;}
+    .btn-fill:hover::after{animation:none;}
+    .btn-ghost::before{transition:none;}
+  }
+</style>
+</head>
+<body>
+<!-- one global background canvas for the whole site — drifting sparkle field behind everything -->
+<canvas id="bgfx" aria-hidden="true"></canvas>
+<div class="progress" id="progress"></div>
+
+<nav id="nav">
+  <a class="logo" href="#top"><span class="logo-mark">M</span><span class="logo-text"> MVS Solves</span></a>
+  <div class="nav-r">
+    <div class="nav-links" id="navLinks">
+      <span class="nav-hl" id="navHl" aria-hidden="true"></span>
+      <a href="#capabilities">Services</a>
+      <a href="#pricing">Pricing</a>
+      <a href="/faq">FAQ</a>
+      <a href="/join-the-team">Careers</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="h-wrap">
+    <h1 class="flick">
+      <span class="line"><span class="ft">Real</span></span>
+      <span class="line"><span class="ft">Conversion</span></span>
+      <span class="line"><span class="ft aw">for your business</span></span>
+    </h1>
+    <p class="h-sub">Premium websites and AI automations that turn visitors into booked clients — live in days, not months.</p>
+  </div>
+  <div class="h-bottom">
+    <div class="h-cta" id="hcta">
+      <a class="h-cta-icon" href="#book" aria-label="Start free trial">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+      </a>
+      <a class="btn btn-fill" href="#book">Start 7-day free trial</a>
+    </div>
+    <div class="h-trust">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M5 13l4 4L19 7"/></svg>7 days free, Launch plan</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M5 13l4 4L19 7"/></svg>No build fee</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M5 13l4 4L19 7"/></svg>Cancel anytime</span>
+    </div>
+  </div>
+  <!-- h-logos block removed: only had one real client (Browne's Mobile Detailing) and you
+       asked for it off the hero. Not fabricating others to fill the row -- re-add once there
+       are enough real logos to show. -->
+  <a class="scroll-arrow" href="#capabilities" aria-label="Scroll down">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </a>
+</header>
+
+<!-- CAPABILITIES -->
+<section class="section" id="capabilities">
+  <canvas class="cap-3d" id="cap3d" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <h2 class="h2-split"><span class="word"><span>Your</span></span> <span class="word"><span>entire</span></span> <span class="word"><span>workflow.</span></span></h2>
+    <div class="feat-cards">
+      <div class="feat-card">
+        <div class="feat-visual"><div class="fi">W</div></div>
+        <div class="feat-body">
+          <h3>Website &amp; funnels, built to convert.</h3>
+          <p>A fast, professional site engineered around one job: turning visitors into booked clients — live in days, not months.</p>
+          <div class="feat-tags"><span class="feat-tag">Conversion-built</span><span class="feat-tag">Live in days</span><span class="feat-tag">Mobile-first</span></div>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-visual"><div class="fi">A</div></div>
+        <div class="feat-body">
+          <h3>Automations that run while you sleep.</h3>
+          <p>Make / n8n workflows wired end-to-end and error-handled, so the boring admin happens without you touching it.</p>
+          <div class="feat-tags"><span class="feat-tag">Make / n8n</span><span class="feat-tag">Error-handled</span><span class="feat-tag">Runs 24/7</span></div>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-visual"><div class="fi">AI</div></div>
+        <div class="feat-body">
+          <h3>AI assistants, in your own voice.</h3>
+          <p>Booking, FAQs and replies trained on your business, not a generic chatbot template. Never off the clock.</p>
+          <div class="feat-tags"><span class="feat-tag">Booking &amp; replies</span><span class="feat-tag">Trained on your voice</span><span class="feat-tag">Always on</span></div>
+        </div>
+      </div>
+    </div>
+    <details class="cap-more">
+      <summary>Show the rest</summary>
+      <div class="cap-grid">
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">B</div><div class="cn">Online booking</div><div class="cc">Self-serve, synced to your calendar.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">G</div><div class="cn">Google profile optimisation</div><div class="cc">Map-pack visibility, owned.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">SEO</div><div class="cn">SEO cleanup</div><div class="cc">Fix what's blocking search.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">SMS</div><div class="cn">SMS reminders &amp; updates</div><div class="cc">Automated texts, fewer no-shows.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">R</div><div class="cn">Automated reviews</div><div class="cc">Automated 5-star asks.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">@</div><div class="cn">Email &amp; SMS</div><div class="cc">Lists, newsletters, payments.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">$</div><div class="cn">Online payments</div><div class="cc">Get paid without a card machine.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">BR</div><div class="cn">Logo &amp; brand</div><div class="cc">Identity built to look premium.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">RF</div><div class="cn">Referral programs</div><div class="cc">Turn happy clients into new ones.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">LM</div><div class="cn">Lead magnets</div><div class="cc">Exit-intent capture, more leads.</div></div></div>
+        <div class="cap border-glow-card"><span class="edge-light"></span><div class="cap-inner"><div class="ci">MR</div><div class="cn">Membership retention</div><div class="cc">Win-back flows, stop the churn.</div></div></div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how-it-works">
+  <div class="wrap">
+    <h2 class="h2-split"><span class="word"><span>How</span></span> <span class="word"><span>it</span></span> <span class="word"><span>works.</span></span></h2>
+    <div class="proc-grid">
+      <div class="proc-card"><div class="proc-head"><div class="proc-num">01</div><h3>Free 30-min call</h3></div><p>Tell me what's slow or broken. I scope the fix — website, automation, or both — no pressure, no jargon.</p></div>
+      <div class="proc-card"><div class="proc-head"><div class="proc-num">02</div><h3>Built &amp; live in days</h3></div><p>I build it myself, end to end. No agency layers, no handoffs, no six-week timelines.</p></div>
+      <div class="proc-card"><div class="proc-head"><div class="proc-num">03</div><h3>You run, I support</h3></div><p>Cancel anytime, no lock-in contract. Same-day fixes if anything needs attention.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST -->
+<section class="section" id="trust">
+  <div class="wrap">
+    <h2 class="h2-split"><span class="word"><span>Built</span></span> <span class="word"><span>for</span></span> <span class="word"><span>small</span></span> <span class="word"><span>business,</span></span> <span class="word"><span>not</span></span> <span class="word"><span>enterprise</span></span> <span class="word"><span>contracts.</span></span></h2>
+    <div class="trust-row">
+      <div class="trust-card">
+        <div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 13l4 4L19 7"/></svg></div>
+        <h3>No lock-in contracts</h3>
+        <p>Month to month, or own it outright. Cancel anytime, no penalty.</p>
+      </div>
+      <div class="trust-card">
+        <div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 4h16v16H4z"/><path d="M8 4v16M4 8h16"/></svg></div>
+        <h3>Direct line to the builder</h3>
+        <p>No account managers, no offshore queue. You talk to the person building it.</p>
+      </div>
+      <div class="trust-card">
+        <div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 2v20M2 12h20"/></svg></div>
+        <h3>Real pricing, no surprises</h3>
+        <p>Flat monthly or one-time, shown upfront on this page — not hidden behind a sales call.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <canvas class="price-3d" id="price3d" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <h2>Flexible prices.</h2>
+    <p class="sub">Pay monthly, zero build fee — or own it outright.</p>
+    <div class="price-controls">
+    <div class="toggle" id="modeToggle">
+      <button class="on" data-mode="monthly">Monthly</button>
+      <button data-mode="own">Outright</button>
+    </div>
+    <div class="curr-dd" id="currDD">
+      <button type="button" class="curr-dd-btn" id="currBtn" aria-haspopup="listbox" aria-expanded="false">
+        <span class="curr-dd-sym" id="currBtnSym">$</span>
+        <span class="curr-dd-code" id="currBtnCode">USD</span>
+        <svg class="curr-dd-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="curr-dd-panel" id="currPanel" hidden>
+      <ul class="curr-dd-list" id="currList" role="listbox" tabindex="-1" data-lenis-prevent>
+        <li role="option" aria-selected="true" class="curr-dd-item on" data-curr="usd" data-sym="$"><span class="curr-dd-item-sym">$</span><span class="curr-dd-item-code">USD</span><span class="curr-dd-item-name">US Dollar</span></li>
+        <li role="option" aria-selected="false" class="curr-dd-item" data-curr="zar" data-sym="R"><span class="curr-dd-item-sym">R</span><span class="curr-dd-item-code">ZAR</span><span class="curr-dd-item-name">South African Rand</span></li>
+        <li role="option" aria-selected="false" class="curr-dd-item" data-curr="eur" data-sym="€"><span class="curr-dd-item-sym">€</span><span class="curr-dd-item-code">EUR</span><span class="curr-dd-item-name">Euro</span></li>
+        <li role="option" aria-selected="false" class="curr-dd-item" data-curr="gbp" data-sym="£"><span class="curr-dd-item-sym">£</span><span class="curr-dd-item-code">GBP</span><span class="curr-dd-item-name">British Pound</span></li>
+        <li role="option" aria-selected="false" class="curr-dd-item" data-curr="aud" data-sym="A$"><span class="curr-dd-item-sym">A$</span><span class="curr-dd-item-code">AUD</span><span class="curr-dd-item-name">Australian Dollar</span></li>
+        <li role="option" aria-selected="false" class="curr-dd-item" data-curr="cad" data-sym="C$"><span class="curr-dd-item-sym">C$</span><span class="curr-dd-item-code">CAD</span><span class="curr-dd-item-name">Canadian Dollar</span></li>
+        <li role="option" aria-selected="false" class="curr-dd-item" data-curr="ngn" data-sym="₦"><span class="curr-dd-item-sym">₦</span><span class="curr-dd-item-code">NGN</span><span class="curr-dd-item-name">Nigerian Naira</span></li>
+        <li role="option" aria-selected="false" class="curr-dd-item" data-curr="kes" data-sym="KSh"><span class="curr-dd-item-sym">KSh</span><span class="curr-dd-item-code">KES</span><span class="curr-dd-item-name">Kenyan Shilling</span></li>
+        <li role="option" aria-selected="false" class="curr-dd-item" data-curr="aed" data-sym="AED"><span class="curr-dd-item-sym">AED</span><span class="curr-dd-item-code">AED</span><span class="curr-dd-item-name">UAE Dirham</span></li>
+        <li role="option" aria-selected="false" class="curr-dd-item" data-curr="inr" data-sym="₹"><span class="curr-dd-item-sym">₹</span><span class="curr-dd-item-code">INR</span><span class="curr-dd-item-name">Indian Rupee</span></li>
+        <li role="option" aria-selected="false" class="curr-dd-item" data-curr="brl" data-sym="R$"><span class="curr-dd-item-sym">R$</span><span class="curr-dd-item-code">BRL</span><span class="curr-dd-item-name">Brazilian Real</span></li>
+        <li role="option" aria-selected="false" class="curr-dd-item" data-curr="mxn" data-sym="MX$"><span class="curr-dd-item-sym">MX$</span><span class="curr-dd-item-code">MXN</span><span class="curr-dd-item-name">Mexican Peso</span></li>
+        <li role="option" aria-selected="false" class="curr-dd-item" data-curr="jpy" data-sym="¥"><span class="curr-dd-item-sym">¥</span><span class="curr-dd-item-code">JPY</span><span class="curr-dd-item-name">Japanese Yen</span></li>
+        <li role="option" aria-selected="false" class="curr-dd-item" data-curr="cny" data-sym="CN¥"><span class="curr-dd-item-sym">CN¥</span><span class="curr-dd-item-code">CNY</span><span class="curr-dd-item-name">Chinese Yuan</span></li>
+        <li role="option" aria-selected="false" class="curr-dd-item" data-curr="sgd" data-sym="S$"><span class="curr-dd-item-sym">S$</span><span class="curr-dd-item-code">SGD</span><span class="curr-dd-item-name">Singapore Dollar</span></li>
+        <li role="option" aria-selected="false" class="curr-dd-item" data-curr="chf" data-sym="CHF"><span class="curr-dd-item-sym">CHF</span><span class="curr-dd-item-code">CHF</span><span class="curr-dd-item-name">Swiss Franc</span></li>
+        <li role="option" aria-selected="false" class="curr-dd-item" data-curr="sek" data-sym="kr"><span class="curr-dd-item-sym">kr</span><span class="curr-dd-item-code">SEK</span><span class="curr-dd-item-name">Swedish Krona</span></li>
+        <li role="option" aria-selected="false" class="curr-dd-item" data-curr="nok" data-sym="kr"><span class="curr-dd-item-sym">kr</span><span class="curr-dd-item-code">NOK</span><span class="curr-dd-item-name">Norwegian Krone</span></li>
+        <li role="option" aria-selected="false" class="curr-dd-item" data-curr="dkk" data-sym="kr"><span class="curr-dd-item-sym">kr</span><span class="curr-dd-item-code">DKK</span><span class="curr-dd-item-name">Danish Krone</span></li>
+        <li role="option" aria-selected="false" class="curr-dd-item" data-curr="nzd" data-sym="NZ$"><span class="curr-dd-item-sym">NZ$</span><span class="curr-dd-item-code">NZD</span><span class="curr-dd-item-name">New Zealand Dollar</span></li>
+      </ul>
+      <div class="curr-dd-more" id="currMore" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      </div>
+    </div>
+    </div>
+    <div class="tiers" id="tiers">
+      <div class="tier-slot">
+        <div class="tier launch">
+          <span class="badge">★ 7-day free trial</span>
+          <div class="tn">Launch Plan</div>
+          <div class="pm">
+            <div class="price cur-usd">$150<small>/mo</small></div>
+            <div class="price cur-zar">R997<small>/mo</small></div>
+            <div class="price cur-eur">€140<small>/mo</small></div>
+            <div class="price cur-gbp">£120<small>/mo</small></div>
+            <div class="price cur-aud">A$230<small>/mo</small></div>
+            <div class="price cur-cad">C$210<small>/mo</small></div>
+            <div class="price cur-ngn">₦230,000<small>/mo</small></div>
+            <div class="price cur-kes">KSh19,500<small>/mo</small></div>
+            <div class="price cur-aed">AED550<small>/mo</small></div>
+            <div class="price cur-inr">₹12,500<small>/mo</small></div>
+            <div class="price cur-brl">R$840<small>/mo</small></div>
+            <div class="price cur-mxn">MX$2,800<small>/mo</small></div>
+            <div class="price cur-jpy">¥23,500<small>/mo</small></div>
+            <div class="price cur-cny">CN¥1,080<small>/mo</small></div>
+            <div class="price cur-sgd">S$200<small>/mo</small></div>
+            <div class="price cur-chf">CHF135<small>/mo</small></div>
+            <div class="price cur-sek">1,600 kr<small>/mo</small></div>
+            <div class="price cur-nok">1,650 kr<small>/mo</small></div>
+            <div class="price cur-dkk">1,000 kr<small>/mo</small></div>
+            <div class="price cur-nzd">NZ$250<small>/mo</small></div>
+          </div>
+          <div class="po"><div class="price cur-usd">$500 <small>once-off</small></div><div class="price cur-zar">R5,000 <small>once-off</small></div><div class="price cur-eur">€460 <small>once-off</small></div><div class="price cur-gbp">£400 <small>once-off</small></div><div class="price cur-aud">A$780 <small>once-off</small></div><div class="price cur-cad">C$700 <small>once-off</small></div><div class="price cur-ngn">₦780,000 <small>once-off</small></div><div class="price cur-kes">KSh65,000 <small>once-off</small></div><div class="price cur-aed">AED1,800 <small>once-off</small></div><div class="price cur-inr">₹42,000 <small>once-off</small></div><div class="price cur-brl">R$2,800 <small>once-off</small></div><div class="price cur-mxn">MX$9,200 <small>once-off</small></div><div class="price cur-jpy">¥78,000 <small>once-off</small></div><div class="price cur-cny">CN¥3,600 <small>once-off</small></div><div class="price cur-sgd">S$670 <small>once-off</small></div><div class="price cur-chf">CHF450 <small>once-off</small></div><div class="price cur-sek">5,400 kr <small>once-off</small></div><div class="price cur-nok">5,500 kr <small>once-off</small></div><div class="price cur-dkk">3,400 kr <small>once-off</small></div><div class="price cur-nzd">NZ$840 <small>once-off</small></div><div class="po-note">*Payment plans available</div></div>
+          <ul>
+            <li>Website &amp; funnels</li><li>Google profile optimisation</li><li>SEO cleanup</li><li>Online booking</li><li>Logo &amp; brand</li>
+          </ul>
+          <details class="tier-details">
+            <summary>Full details</summary>
+            <dl>
+              <dt>Website &amp; funnels</dt><dd>Professional site built to convert, live in about a day.</dd>
+              <dt>Google profile optimisation</dt><dd>Set up and optimized so you show up in the map pack when locals search.</dd>
+              <dt>SEO cleanup</dt><dd>Basic on-page SEO — your site actually ranks, not just exists.</dd>
+              <dt>Online booking</dt><dd>Clients book themselves, synced straight to your calendar. No back-and-forth.</dd>
+              <dt>Logo &amp; brand</dt><dd>A logo and visual identity that reads premium, not DIY.</dd>
+            </dl>
+          </details>
+        </div>
+      </div>
+      <div class="tier-slot">
+        <div class="tier feat">
+          <span class="badge">★ Best deal</span>
+          <div class="tn">Growth Plan</div>
+          <div class="pm">
+            <div class="price cur-usd">$250<small>/mo</small></div>
+            <div class="price cur-zar">R2,997<small>/mo</small></div>
+            <div class="price cur-eur">€230<small>/mo</small></div>
+            <div class="price cur-gbp">£200<small>/mo</small></div>
+            <div class="price cur-aud">A$390<small>/mo</small></div>
+            <div class="price cur-cad">C$350<small>/mo</small></div>
+            <div class="price cur-ngn">₦390,000<small>/mo</small></div>
+            <div class="price cur-kes">KSh32,500<small>/mo</small></div>
+            <div class="price cur-aed">AED920<small>/mo</small></div>
+            <div class="price cur-inr">₹21,000<small>/mo</small></div>
+            <div class="price cur-brl">R$1,400<small>/mo</small></div>
+            <div class="price cur-mxn">MX$4,600<small>/mo</small></div>
+            <div class="price cur-jpy">¥39,000<small>/mo</small></div>
+            <div class="price cur-cny">CN¥1,800<small>/mo</small></div>
+            <div class="price cur-sgd">S$330<small>/mo</small></div>
+            <div class="price cur-chf">CHF225<small>/mo</small></div>
+            <div class="price cur-sek">2,700 kr<small>/mo</small></div>
+            <div class="price cur-nok">2,800 kr<small>/mo</small></div>
+            <div class="price cur-dkk">1,700 kr<small>/mo</small></div>
+            <div class="price cur-nzd">NZ$420<small>/mo</small></div>
+          </div>
+          <div class="po"><div class="price cur-usd">$700 <small>once-off</small></div><div class="price cur-zar">R10,000 <small>once-off</small></div><div class="price cur-eur">€640 <small>once-off</small></div><div class="price cur-gbp">£550 <small>once-off</small></div><div class="price cur-aud">A$1,080 <small>once-off</small></div><div class="price cur-cad">C$950 <small>once-off</small></div><div class="price cur-ngn">₦1,090,000 <small>once-off</small></div><div class="price cur-kes">KSh90,000 <small>once-off</small></div><div class="price cur-aed">AED2,600 <small>once-off</small></div><div class="price cur-inr">₹58,000 <small>once-off</small></div><div class="price cur-brl">R$3,900 <small>once-off</small></div><div class="price cur-mxn">MX$13,000 <small>once-off</small></div><div class="price cur-jpy">¥109,000 <small>once-off</small></div><div class="price cur-cny">CN¥5,000 <small>once-off</small></div><div class="price cur-sgd">S$940 <small>once-off</small></div><div class="price cur-chf">CHF630 <small>once-off</small></div><div class="price cur-sek">7,600 kr <small>once-off</small></div><div class="price cur-nok">7,800 kr <small>once-off</small></div><div class="price cur-dkk">4,800 kr <small>once-off</small></div><div class="price cur-nzd">NZ$1,180 <small>once-off</small></div><div class="po-note">*Payment plans available</div></div>
+          <ul>
+            <li class="inh">Everything in Launch<span class="inh-note">*in outright</span></li><li>Automated reviews</li><li>Online payments</li><li>Lead magnets</li><li class="own-hide">SMS reminders &amp; updates<span class="mo-note">- only in monthly</span></li>
+          </ul>
+          <details class="tier-details">
+            <summary>Full details</summary>
+            <dl>
+              <dt>Everything in Launch</dt><dd>Website + Google profile + basic SEO + online booking — see Launch for the full breakdown.</dd>
+              <dt>Automated reviews</dt><dd>Automated prompts that turn happy clients into 5-star Google reviews.</dd>
+              <dt>Online payments</dt><dd>Take deposits or full payment online — no card machine needed.</dd>
+              <dt>Lead magnets</dt><dd>Exit-intent popups that turn browsers into leads, feeding straight into your booking funnel.</dd>
+              <dt class="own-hide">SMS reminders &amp; updates<span class="mo-note">- only in monthly</span></dt><dd class="own-hide">Automated text reminders and booking confirmations — fewer no-shows, less chasing.</dd>
+            </dl>
+          </details>
+        </div>
+      </div>
+      <div class="tier-slot">
+        <div class="tier prem">
+          <span class="badge">★ Most complete</span>
+          <div class="tn">Premium Plan</div>
+          <div class="pm">
+            <div class="price cur-usd">$400<small>/mo</small></div>
+            <div class="price cur-zar">R5,997<small>/mo</small></div>
+            <div class="price cur-eur">€370<small>/mo</small></div>
+            <div class="price cur-gbp">£320<small>/mo</small></div>
+            <div class="price cur-aud">A$620<small>/mo</small></div>
+            <div class="price cur-cad">C$550<small>/mo</small></div>
+            <div class="price cur-ngn">₦620,000<small>/mo</small></div>
+            <div class="price cur-kes">KSh52,000<small>/mo</small></div>
+            <div class="price cur-aed">AED1,470<small>/mo</small></div>
+            <div class="price cur-inr">₹33,000<small>/mo</small></div>
+            <div class="price cur-brl">R$2,200<small>/mo</small></div>
+            <div class="price cur-mxn">MX$7,400<small>/mo</small></div>
+            <div class="price cur-jpy">¥62,000<small>/mo</small></div>
+            <div class="price cur-cny">CN¥2,900<small>/mo</small></div>
+            <div class="price cur-sgd">S$540<small>/mo</small></div>
+            <div class="price cur-chf">CHF360<small>/mo</small></div>
+            <div class="price cur-sek">4,350 kr<small>/mo</small></div>
+            <div class="price cur-nok">4,400 kr<small>/mo</small></div>
+            <div class="price cur-dkk">2,750 kr<small>/mo</small></div>
+            <div class="price cur-nzd">NZ$670<small>/mo</small></div>
+          </div>
+          <div class="po"><div class="price cur-usd">$1,300 <small>once-off</small></div><div class="price cur-zar">R15,000 <small>once-off</small></div><div class="price cur-eur">€1,200 <small>once-off</small></div><div class="price cur-gbp">£1,020 <small>once-off</small></div><div class="price cur-aud">A$2,010 <small>once-off</small></div><div class="price cur-cad">C$1,800 <small>once-off</small></div><div class="price cur-ngn">₦2,000,000 <small>once-off</small></div><div class="price cur-kes">KSh168,000 <small>once-off</small></div><div class="price cur-aed">AED4,800 <small>once-off</small></div><div class="price cur-inr">₹108,000 <small>once-off</small></div><div class="price cur-brl">R$7,300 <small>once-off</small></div><div class="price cur-mxn">MX$24,000 <small>once-off</small></div><div class="price cur-jpy">¥203,000 <small>once-off</small></div><div class="price cur-cny">CN¥9,400 <small>once-off</small></div><div class="price cur-sgd">S$1,740 <small>once-off</small></div><div class="price cur-chf">CHF1,170 <small>once-off</small></div><div class="price cur-sek">14,100 kr <small>once-off</small></div><div class="price cur-nok">14,400 kr <small>once-off</small></div><div class="price cur-dkk">8,900 kr <small>once-off</small></div><div class="price cur-nzd">NZ$2,180 <small>once-off</small></div><div class="po-note">*Payment plans available</div></div>
+          <ul>
+            <li class="inh">Everything in Growth<span class="inh-note">*in outright</span></li><li>Automations<span class="co-tag">built for you</span></li><li>Email &amp; SMS</li><li>Referral programs</li><li>Membership retention</li><li class="own-hide">Business system / CRM<span class="mo-note">- only in monthly</span></li><li class="own-hide">AI assistants<span class="mo-note">- only in monthly</span></li><li>Priority support<span class="co-tag">same-day fixes</span></li>
+          </ul>
+          <details class="tier-details">
+            <summary>Full details</summary>
+            <dl>
+              <dt>Everything in Growth</dt><dd>Booking + reviews + payments — see Growth for the full breakdown.</dd>
+              <dt>Automations</dt><dd>Make/n8n workflows wired up so nothing falls through the cracks.</dd>
+              <dt>Email &amp; SMS</dt><dd>Newsletters, promos and payment links straight to your list.</dd>
+              <dt>Referral programs</dt><dd>A built-in system that turns happy clients into new ones.</dd>
+              <dt>Membership retention</dt><dd>Win-back and dunning flows that catch members before they cancel.</dd>
+              <dt class="own-hide">Business system / CRM<span class="mo-note">- only in monthly</span></dt><dd class="own-hide">A tracker for leads, clients and follow-ups — your business in one dashboard.</dd>
+              <dt class="own-hide">AI assistants<span class="mo-note">- only in monthly</span></dt><dd class="own-hide">Auto-replies to DMs and WhatsApp messages in your voice, day or night.</dd>
+              <dt>Priority support</dt><dd>Same-day response when something needs fixing.</dd>
+            </dl>
+          </details>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BOOK -->
+<section class="section" id="book">
+  <canvas class="book-3d" id="book3d" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div class="book-grid">
+      <div>
+        <h2 id="bookH2">Book your free call.</h2>
+        <a class="btn btn-fill mailbtn" href="mailto:martin@mvssolves.com">Or email me instead
+          <span class="swap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></a>
+      </div>
+      <div>
+        <div id="cal-embed"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-inner">
+    <div>
+      <div class="logo" style="margin-bottom:14px"><span class="logo-mark">M</span> MVS Solves</div>
+      <div class="foot-legal"><a href="/privacy-policy">Privacy Policy</a><span>·</span><a href="/terms-of-service">Terms of Service</a></div>
+    </div>
+    <div class="foot-meta">
+      REMOTE &amp; ON-SITE<br>
+      MARTIN@MVSSOLVES.COM<br>
+      © 2026 MVS SOLVES
+    </div>
+  </div>
+</footer>
+
+<button id="toTop" class="to-top" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+</button>
+
+<!-- externalized so defer works correctly (defer is a documented no-op on inline scripts with
+     no src — see CLAUDE.md). All four now genuinely defer and execute in this relative order
+     only after HTML parsing completes, so parsing/painting the page never waits on them. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js" defer></script>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js';
+window.THREE = THREE;
+</script>
+<script src="/main.js?v=redesign3" defer></script>
+</body>
+</html>
