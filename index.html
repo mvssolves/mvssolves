@@ -807,7 +807,7 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
      plain CSS (site has no React/build step). Reduced-motion kill-switch below already resets
      h1 .aw to flat color, so this needs no extra guard here. */
   h1{color:var(--ink);}
-  h1 .aw{text-shadow:none;background-image:linear-gradient(90deg,#00eeff,#0a0a0a,#0a0a0a,#00eeff);
+  h1 .aw{text-shadow:none;background-image:linear-gradient(90deg,#00eeff,#ffffff,#ffffff,#00eeff);
     background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
     animation:gradLoop 6s ease-in-out infinite;}
   @keyframes gradLoop{0%{background-position:0% 50%}100%{background-position:100% 50%}}

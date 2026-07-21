@@ -10,6 +10,46 @@ const _visibilityObserver=new IntersectionObserver(es=>{
   es.forEach(e=>{(e.target.__onVisible||[]).forEach(cb=>cb(e.isIntersecting));});
 },{threshold:0});
 function onVisibilityChange(el,cb){(el.__onVisible=el.__onVisible||[]).push(cb);_visibilityObserver.observe(el);}
+
+/* text-effect helpers ported from Eldora UI's FadeText / BlurInText / GradualSpacingText —
+   same visual recipes, done as plain runtime DOM-split + GSAP instead of React components
+   since this site has no build step/framework. */
+function splitWords(el){
+  const text=el.textContent;
+  el.textContent='';
+  const spans=[];
+  text.split(/(\s+)/).forEach(part=>{
+    if(!part)return;
+    if(/^\s+$/.test(part)){el.appendChild(document.createTextNode(part));return;}
+    const s=document.createElement('span');s.className='fx-word';s.style.display='inline-block';s.textContent=part;
+    el.appendChild(s);spans.push(s);
+  });
+  return spans;
+}
+function splitChars(el){
+  const text=el.textContent;
+  el.textContent='';
+  const spans=[];
+  [...text].forEach(ch=>{
+    const s=document.createElement('span');s.className='fx-char';s.style.display='inline-block';
+    s.textContent=ch===' '?' ':ch;
+    el.appendChild(s);spans.push(s);
+  });
+  return spans;
+}
+/* FadeText: words fade + rise in, staggered. */
+function fadeTextWords(el,wordDelay){
+  if(!el||reduce)return;
+  const words=splitWords(el);
+  gsap.fromTo(words,{opacity:0,y:10},{opacity:1,y:0,duration:0.5,stagger:wordDelay,ease:'power2.out'});
+}
+/* GradualSpacingText: letters assemble in from a slight left offset, staggered per-char. */
+function gradualSpacingHeading(el){
+  if(!el||reduce||el.children.length)return null; /* has nested markup (e.g. <em>) -- don't flatten it */
+  const chars=splitChars(el);
+  gsap.set(chars,{opacity:0,x:-10}); /* explicit set, not relying on fromTo's immediateRender under paused:true */
+  return {chars,tween:gsap.to(chars,{opacity:1,x:0,duration:0.5,stagger:0.035,ease:'power2.out',paused:true})};
+}
 /* mobile browser chrome (address bar) collapsing/expanding on scroll fires resize events that
    only ever change height, never width — the 3D scenes below were recomputing full renderer
    size + camera matrices on every one of those, which is what read as a frame hop tied to
@@ -97,15 +137,16 @@ if(!reduce&&isDesktop){
   window.addEventListener('resize',()=>move(active),{passive:true});
 })();
 
-/* nume-style scroll reveal — measured off nume.ai's own design-card_new inline transform mid-
-   scroll (translate3d ~9px, filter:blur ~4px, opacity fading) instead of a flat opacity-only
-   fade. feat-card excluded: the fold-stack pin/cover further down is its own entrance, a second
-   fade-in on top of that would fight it. */
+/* crisp fade+rise reveal — no blur filter. filter:blur() mid-transition reads soft/laggy, not
+   crisp, and is a real GPU compositing cost on top of it. Pure opacity+translateY on a tight
+   cubic-bezier is the same recipe Browne's Mobile Detailing site uses site-wide (its .reveal
+   class) and reads noticeably crisper. feat-card excluded: the fold-stack pin/cover further
+   down is its own entrance, a second fade-in on top of that would fight it. */
 (function(){
   if(reduce||typeof gsap==='undefined'||typeof ScrollTrigger==='undefined')return;
   gsap.utils.toArray('.hiw-step, .trust-card, .testi-card, .tier, .book-copy, .book-cal, #about > .wrap > p').forEach(el=>{
-    gsap.fromTo(el,{opacity:0,y:26,filter:'blur(8px)'},{
-      opacity:1,y:0,filter:'blur(0px)',duration:.9,ease:'power2.out',
+    gsap.fromTo(el,{opacity:0,y:32},{
+      opacity:1,y:0,duration:.75,ease:'expo.out',
       scrollTrigger:{trigger:el,start:'top 88%',once:true}
     });
   });
@@ -659,9 +700,12 @@ function playHeroReveal(){
    behavior every other pin/reveal effect on this page already relies on. */
   const rt={once:true};
 if(!reduce){
+  /* plain headings (subpages: FAQ, careers, legal, book-a-call) — GradualSpacingText: letters
+     assemble in from a slight offset instead of the whole block just fading+rising as one unit. */
   gsap.utils.toArray('.section h2:not(.h2-split):not(:has(.kt-text))').forEach(el=>{
-    gsap.from(el,{y:32,opacity:0,duration:1.05,ease:'power4.out',
-      scrollTrigger:{trigger:el,start:'top 86%',fastScrollEnd:true,...rt}});
+    const g=gradualSpacingHeading(el);
+    if(!g){gsap.from(el,{y:32,opacity:0,duration:1.05,ease:'power4.out',scrollTrigger:{trigger:el,start:'top 86%',fastScrollEnd:true,...rt}});return;}
+    ScrollTrigger.create({trigger:el,start:'top 86%',fastScrollEnd:true,...rt,onEnter:()=>g.tween.play()});
   });
   /* sections 01-03 share the .h2-split markup (per-word split spans) but no longer share one
      identical reveal -- capabilities keeps the original vertical mask-wipe; trust (.h2-split-alt)
@@ -692,9 +736,16 @@ if(!reduce){
     ScrollTrigger.create({trigger:el,start:'top 86%',once:true,fastScrollEnd:true,
       onEnter:()=>el.classList.add('kt-in')});
   });
-  gsap.utils.toArray('.section .sub, .lab').forEach(el=>{
+  /* .lab keeps its own block fade (it also gets the scramble-decode layered on right below --
+     splitting it into words too would fight that). .sub gets FadeText: words fade+rise in with
+     a per-word delay instead of the whole paragraph moving as one block. */
+  gsap.utils.toArray('.lab').forEach(el=>{
     gsap.from(el,{y:30,opacity:0,duration:0.9,ease:'power3.out',
       scrollTrigger:{trigger:el,start:'top 88%',fastScrollEnd:true,...rt}});
+  });
+  gsap.utils.toArray('.section .sub').forEach(el=>{
+    ScrollTrigger.create({trigger:el,start:'top 88%',fastScrollEnd:true,...rt,
+      onEnter:()=>fadeTextWords(el,0.06)});
   });
   /* same gradient shine sweep as the hero lede (index.html .shine-text/.shine-in), extended to
      every section's own .sub copy line -- reuses the fade-up above (this just layers the shine
