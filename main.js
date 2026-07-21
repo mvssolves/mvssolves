@@ -11,21 +11,8 @@ const _visibilityObserver=new IntersectionObserver(es=>{
 },{threshold:0});
 function onVisibilityChange(el,cb){(el.__onVisible=el.__onVisible||[]).push(cb);_visibilityObserver.observe(el);}
 
-/* text-effect helpers ported from Eldora UI's FadeText / BlurInText / GradualSpacingText —
-   same visual recipes, done as plain runtime DOM-split + GSAP instead of React components
-   since this site has no build step/framework. */
-function splitWords(el){
-  const text=el.textContent;
-  el.textContent='';
-  const spans=[];
-  text.split(/(\s+)/).forEach(part=>{
-    if(!part)return;
-    if(/^\s+$/.test(part)){el.appendChild(document.createTextNode(part));return;}
-    const s=document.createElement('span');s.className='fx-word';s.style.display='inline-block';s.textContent=part;
-    el.appendChild(s);spans.push(s);
-  });
-  return spans;
-}
+/* GradualSpacingText (Eldora UI) — letters assemble in from a slight offset instead of the
+   whole heading fading/rising as one block. Plain runtime DOM-split + GSAP, no build step. */
 function splitChars(el){
   const text=el.textContent;
   el.textContent='';
@@ -37,13 +24,6 @@ function splitChars(el){
   });
   return spans;
 }
-/* FadeText: words fade + rise in, staggered. */
-function fadeTextWords(el,wordDelay){
-  if(!el||reduce)return;
-  const words=splitWords(el);
-  gsap.fromTo(words,{opacity:0,y:10},{opacity:1,y:0,duration:0.5,stagger:wordDelay,ease:'power2.out'});
-}
-/* GradualSpacingText: letters assemble in from a slight left offset, staggered per-char. */
 function gradualSpacingHeading(el){
   if(!el||reduce||el.children.length)return null; /* has nested markup (e.g. <em>) -- don't flatten it */
   const chars=splitChars(el);
@@ -736,16 +716,12 @@ if(!reduce){
     ScrollTrigger.create({trigger:el,start:'top 86%',once:true,fastScrollEnd:true,
       onEnter:()=>el.classList.add('kt-in')});
   });
-  /* .lab keeps its own block fade (it also gets the scramble-decode layered on right below --
-     splitting it into words too would fight that). .sub gets FadeText: words fade+rise in with
-     a per-word delay instead of the whole paragraph moving as one block. */
-  gsap.utils.toArray('.lab').forEach(el=>{
+  /* .section .sub keeps its plain fade-up + the gradient shine sweep below (background-clip:text
+     needs the text to stay a single node -- FadeText's per-word split would break that gradient
+     clip across separate inline-block spans, so .sub doesn't get the word-split treatment). */
+  gsap.utils.toArray('.section .sub, .lab').forEach(el=>{
     gsap.from(el,{y:30,opacity:0,duration:0.9,ease:'power3.out',
       scrollTrigger:{trigger:el,start:'top 88%',fastScrollEnd:true,...rt}});
-  });
-  gsap.utils.toArray('.section .sub').forEach(el=>{
-    ScrollTrigger.create({trigger:el,start:'top 88%',fastScrollEnd:true,...rt,
-      onEnter:()=>fadeTextWords(el,0.06)});
   });
   /* same gradient shine sweep as the hero lede (index.html .shine-text/.shine-in), extended to
      every section's own .sub copy line -- reuses the fade-up above (this just layers the shine
