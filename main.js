@@ -1136,24 +1136,22 @@ document.addEventListener('mvs:veilDone',playHeroRevealWhenReady,{once:true});
 /* RotatingText (react-bits), ported to vanilla JS+GSAP -- no React/motion lib on this site.
    "your" stays static (index.html) -- only this trailing noun rotates, so "for your ___" always
    reads as a real sentence instead of the whole phrase (including the unchanging "your") flipping
-   every cycle. Flip-clock style rotateX instead of a vertical slide -- rotates away to edge-on,
-   swaps text, rotates in from the opposite edge. Only transform is touched here (rotationX/
-   transformPerspective/transformOrigin) -- never opacity, background, or anything on the .grad
-   rule itself, so its own gradLoop CSS animation (background-position) keeps running continuously
-   and never gets reset by this. Rotated as one word, not per-character, for the same
-   background-clip:text reason noted where .rot-wrap is defined. */
+   every cycle. Vertical slide (tried a rotateX flip-clock version, reverted -- didn't land).
+   Only opacity/yPercent are touched here -- never background, so the .grad gradient's own
+   gradLoop CSS animation (background-position) keeps running continuously and is never reset
+   by this. Rotated as one word, not per-character, for the same background-clip:text reason
+   noted where .rot-wrap is defined. */
 (function(){
   if(reduce||typeof gsap==='undefined')return;
   const el=document.getElementById('heroRot');
   if(!el)return;
-  const texts=['business','bookings','leads','customers']; /* all read naturally as "Real Conversion for your ___" -- "revenue"/"growth" (previous list) don't work grammatically as objects of "for" */
+  const texts=['business','bookings','leads','customers']; /* all read naturally as "Real Conversion for your ___" */
   let i=0;
-  gsap.set(el,{transformPerspective:500,transformOrigin:'50% 50% -18px'});
   setInterval(()=>{
-    gsap.to(el,{rotationX:-90,duration:0.3,ease:'power1.in',onComplete:()=>{
+    gsap.to(el,{yPercent:-120,opacity:0,duration:0.35,ease:'power2.in',onComplete:()=>{
       i=(i+1)%texts.length;
       el.textContent=texts[i];
-      gsap.fromTo(el,{rotationX:90},{rotationX:0,duration:0.35,ease:'power1.out'});
+      gsap.fromTo(el,{yPercent:100,opacity:0},{yPercent:0,opacity:1,duration:0.45,ease:'back.out(1.5)'});
     }});
   },2400);
 })();
