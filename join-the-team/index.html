@@ -70,6 +70,14 @@
     --line:rgba(10,10,10,0.10); --line-strong:rgba(10,10,10,0.18);
     --accent:#0a0a0a; --accent-ink:#ffffff;
     --maxw:900px;
+
+    /* motion + icon scale (full-site-rework) -- same tokens as index.html, see that file for the
+       rationale comment. */
+    --dur-instant:120ms; --dur-fast:200ms; --dur-normal:300ms; --dur-slow:500ms; --dur-slower:900ms;
+    --ease-default:cubic-bezier(.4,0,.2,1); --ease-out:cubic-bezier(0,0,.2,1);
+    --ease-spring:cubic-bezier(.34,1.56,.64,1); --ease-glide:cubic-bezier(.16,1,.3,1);
+    --icon-xs:22px; --icon-sm:30px; --icon-md:44px; --icon-lg:56px; --icon-xl:96px;
+    --icon-stroke:2.4;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   /* Nohemi — freeware (personal+commercial use), self-hosted via the Tamagui project's npm
@@ -80,11 +88,15 @@
   @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Bold.ttf') format('truetype');font-weight:700;font-display:swap;}
   @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-ExtraBold.ttf') format('truetype');font-weight:800;font-display:swap;}
   body{background:var(--bg);color:var(--text);font-family:'Roboto',-apple-system,"Helvetica Neue",sans-serif;
-    font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;}
+    font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;
+    animation:pageFadeIn var(--dur-normal) var(--ease-default);}
+  @keyframes pageFadeIn{from{opacity:0}to{opacity:1}}
+  @media(prefers-reduced-motion:reduce){body{animation:none;}}
   /* one global background canvas for the whole page -- same drifting sparkle field as the
      homepage, ported so sections read as one continuous flow instead of stacked panels. */
   #bgfx{position:fixed;inset:0;width:100%;height:100%;z-index:-2;pointer-events:none;display:block;background:var(--bg);}
   a{color:inherit;text-decoration:none;}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:inherit;}
   .mono{font-family:'Roboto',monospace;}
   .serif{font-family:'Nohemi',sans-serif;font-style:normal;font-weight:400;}
   .wrap{max-width:var(--maxw);margin:0 auto;padding:0 36px;width:100%;}
@@ -106,8 +118,6 @@
   .lab::before{content:'';width:24px;height:2px;background:var(--accent);}
   .hero{position:relative;overflow:hidden;padding:80px 0 40px;text-align:center;}
   .hero .wrap{position:relative;z-index:2;}
-  .team-3d{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease;}
-  .hero.has-3d .team-3d{opacity:1;}
   .hero .lab{justify-content:center;}
   .hero h1{font-size:clamp(34px,6vw,58px);line-height:1.05;margin-bottom:18px;}
   .hero .sub{font-size:18px;color:var(--soft);max-width:60ch;margin-left:auto;margin-right:auto;}
@@ -149,18 +159,24 @@
   .apply .box p{color:rgba(255,255,255,.72);}
   .apply .btn{background:var(--accent-ink);color:var(--accent);margin-top:18px;}
   .apply .btn .swap-icon{background:var(--accent);color:var(--accent-ink);}
+  /* scroll-reveal (full-site-rework) -- shared.js drives .in via IntersectionObserver, no GSAP needed here */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity var(--dur-slower) var(--ease-out),transform var(--dur-slower) var(--ease-out);}
+  .reveal.in{opacity:1;transform:none;}
+  @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none;}}
   footer{padding:30px 0 50px;text-align:center;color:var(--muted);font-size:13px;}
-  /* intro veil — fade to black + centered logo, on page load */
-  .intro-veil{position:fixed;inset:0;pointer-events:none;z-index:99998;background:var(--ink);
-    opacity:1;transition:opacity .5s ease;}
-  .intro-veil.wipe{opacity:0;}
-  .intro-logo{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
-    pointer-events:none;opacity:0;transform:scale(.85);transition:opacity .4s ease,transform .45s cubic-bezier(.2,1,.3,1);}
-  .intro-logo.show{opacity:1;transform:scale(1);}
-  .intro-logo.hide{opacity:0;transform:scale(.85);transition:opacity .4s ease,transform .4s ease;}
-  .il-mark{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;color:#fff;letter-spacing:-.02em;}
-  .il-box{width:30px;height:30px;border-radius:8px;background:var(--accent-ink);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;font-family:'Roboto',monospace;}
-  @media(prefers-reduced-motion:reduce){.intro-veil,.intro-logo{display:none!important;}}
+  /* kinetic-type loading veil -- one shared implementation (shared.js), same as the homepage.
+     Visible by default (not JS-gated) so there's no flash of unstyled page if shared.js is slow. */
+  .kt-veil{position:fixed;inset:0;z-index:99998;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .5s var(--ease-default),visibility .5s;}
+  .kt-veil.kt-out{opacity:0;visibility:hidden;pointer-events:none;}
+  .kt-word{display:flex;gap:.05em;font-family:'Nohemi',sans-serif;font-weight:600;font-size:clamp(40px,9vw,96px);letter-spacing:-.02em;color:var(--ink);}
+  .kt-word span{display:inline-block;opacity:0;filter:blur(6px);
+    transform:translate(var(--kx),var(--ky)) rotate(var(--kr)) scale(1.4);
+    transition:opacity .5s var(--ease-out),filter .5s var(--ease-out),transform .6s var(--ease-spring);}
+  .kt-word span:nth-child(1){transition-delay:0ms;}
+  .kt-word span:nth-child(2){transition-delay:90ms;}
+  .kt-word span:nth-child(3){transition-delay:180ms;}
+  .kt-veil.kt-in .kt-word span{opacity:1;filter:blur(0);transform:translate(0,0) rotate(0) scale(1);}
+  @media(prefers-reduced-motion:reduce){.kt-veil{display:none!important;}}
   @media(max-width:640px){
     nav{padding:16px 20px;}
     .wrap{padding:0 20px;}
@@ -200,231 +216,50 @@
   .bcard .mnum{font-family:'Nohemi',sans-serif;font-size:23px;font-weight:800;color:var(--ink);letter-spacing:-.02em;line-height:1.15;}
   .bcard .mnum small{font-size:11.5px;color:var(--soft);font-weight:500;display:block;margin-top:4px;}
   .bcard p{font-size:12px;color:var(--soft);margin-top:10px;max-width:none;}
+  /* back-to-top button -- shared across every page (shared.js) */
+  .to-top{position:fixed;right:22px;bottom:22px;z-index:70;width:44px;height:44px;display:flex;
+    align-items:center;justify-content:center;border-radius:999px;cursor:pointer;color:#fff;
+    background:rgba(10,10,10,.92);border:1px solid var(--line-strong);opacity:0;pointer-events:none;transform:translateY(12px);
+    transition:opacity .3s ease,transform .3s ease,background .25s ease;}
+  .to-top svg{width:20px;height:20px;}
+  .to-top.show{opacity:1;pointer-events:auto;transform:translateY(0);}
+  .to-top:hover{background:rgba(10,10,10,.75);}
+  @media(max-width:900px){.to-top{right:14px;bottom:14px;width:40px;height:40px;}}
 </style>
 </head>
-<body>
+<body data-bg-mono>
 
 <canvas id="bgfx" aria-hidden="true"></canvas>
-<div class="intro-veil" id="introVeil"></div>
-<div class="intro-logo" id="introLogo"><div class="il-mark"><span class="il-box">M</span> MVS Solves</div></div>
+<div class="kt-veil" id="ktVeil" aria-hidden="true">
+  <div class="kt-word"><span style="--kx:-18px;--ky:14px;--kr:-8deg">M</span><span style="--kx:10px;--ky:-10px;--kr:6deg">V</span><span style="--kx:-6px;--ky:18px;--kr:-11deg">S</span></div>
+</div>
 
 <nav>
   <a class="logo" href="/"><span class="mk">M</span> MVS Solves</a>
   <a class="back" href="/">← Back to site</a>
 </nav>
 
-<header class="hero">
-  <canvas class="team-3d" id="team3d" aria-hidden="true"></canvas>
+<button id="toTop" class="to-top" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+</button>
+
+<header class="hero" style="min-height:64vh;display:flex;align-items:center;padding:80px 0;">
   <div class="wrap">
     <div class="lab">Careers — Closer</div>
     <h1>
-      <span class="line"><span>We don't hire salespeople.</span></span>
-      <span class="line"><span class="serif">We hire closers.</span></span>
+      <span class="line"><span>Not hiring right now.</span></span>
     </h1>
+    <p class="sub">No open closer roles at the moment — check back later, or reach out if the timing lines up down the line.</p>
+    <a class="btn" href="/" style="margin-top:28px;">
+      Back to site
+      <span class="swap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
+    </a>
   </div>
 </header>
 
-<section>
-  <div class="wrap center-block">
-    <div class="lab">The Role</div>
-    <h2>What you do. What's required.</h2>
-    <div class="tracks">
-      <div class="track">
-        <div class="tlab">The Work</div>
-        <ul class="list">
-          <li>You find your own leads — no list handed to you, no ceiling on what you bring in</li>
-          <li>Sourcing guide and outreach templates provided — you run the search</li>
-          <li>A lead is a contact, nothing more — no website built until signed and paid</li>
-          <li>Once it's yours, it stays yours. No interference, no CRM, no admin</li>
-        </ul>
-      </div>
-      <div class="track">
-        <div class="tlab">The Bar</div>
-        <ul class="list">
-          <li>20 hours a week, minimum. Not clocked — delivered</li>
-          <li>Remote, any country, any timezone — you respond in minutes, not "when you get to it"</li>
-          <li>You listen before you talk, and follow up every time without being told twice</li>
-          <li>Self-motivated, no experience required — lying about it ends things fast</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="wrap center-block">
-    <div class="lab">Commission</div>
-    <h2>No base. No salary. No cap.</h2>
-    <p>You earn on what you close. Nothing else. One ladder, same for everyone.</p>
-    <div class="tracks">
-      <div class="track">
-        <div class="tlab">Monthly Commission</div>
-        <div class="trate">10%<small> → 20% → 30%</small></div>
-        <p>Recurring clients 1–5: 10%. 6–10: 20%. 11+: 30% — and flat from there on.</p>
-      </div>
-      <div class="track">
-        <div class="tlab">Outright Commission</div>
-        <div class="trate">30%<small> flat, always</small></div>
-        <p>One-time deals pay 30% — client 1 or client 100, no ladder, no low tier, no high tier.</p>
-      </div>
-    </div>
-    <div class="col">
-      <ul class="list">
-        <li>Recurring commission runs for the lifetime of the client's payments — no cutoff</li>
-        <li>Paid monthly, within 7 days of payment actually clearing</li>
-        <li>One-time deals pay their flat 30% once, at close — and don't count toward your recurring tier or the bonus ladder below. Only recurring clients build toward those</li>
-        <li>You get paid in whatever currency the client actually pays in — no conversion, no cut, wherever you both are in the world</li>
-      </ul>
-      <p class="fine">Cross a recurring tier threshold and only new recurring deals earn the higher rate — what you've already closed keeps its original rate.</p>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="wrap pkg-wrap center-block">
-    <div class="lab">Milestone Bonuses</div>
-    <h2>Commission isn't the ceiling.</h2>
-    <p>Recurring clients closed — one-time deals don't count, same rule as the tiers above. Stacks on top of whatever commission you're already earning.</p>
-    <div class="bonus-row">
-      <div class="bcard">
-        <div class="blab">50 Clients</div>
-        <div class="mnum">+$1,000<small>a month, on top of commission</small></div>
-        <p>Not a bonus. Not once. Every month you're still active.</p>
-      </div>
-      <div class="bcard">
-        <div class="blab">75 Clients</div>
-        <div class="mnum">$3,000<small>once-off, on top of the monthly bonus</small></div>
-        <p>A lump sum, on top of the $1,000/month that's already running.</p>
-      </div>
-      <div class="bcard">
-        <div class="blab">100 Clients</div>
-        <div class="mnum">$5,000<small>once-off, stacked on the monthly bonus</small></div>
-        <p>Another lump sum, still stacked on top of the $1,000/month.</p>
-      </div>
-    </div>
-    <p class="fine">Bonus figures are always paid in USD, wherever you're based — a fixed number, not a local conversion. This is different from commission, which is paid in whichever currency the client themselves pays in.</p>
-    <p class="fine">Standards slip, you're out — no review cycle, no warning system. Miss the bar (hours, follow-up, results) and the contract ends immediately. No notice period. No second conversation.</p>
-  </div>
-</section>
-
-<section class="apply">
-  <div class="wrap">
-    <div class="box">
-      <div class="lab" style="color:rgba(255,255,255,.6)">Apply</div>
-      <h2>This is not for everyone.</h2>
-      <p>If you cannot commit 20 hours a week, do not apply. If you've never closed anything, say so — plainly, not padded. State your experience, your availability, and why you think you're worth the risk. No CV needed.</p>
-      <a class="btn" href="mailto:martin@mvssolves.com?subject=Closer%20application%20-%20MVS%20Solves&body=Closing%2Fsales%20experience%20%E2%80%94%20yes%20or%20no%2C%20and%20specifics%20if%20yes%3A%0A%0AHours%20per%20week%20you%20can%20actually%20commit%3A%0A%0AYour%20timezone%3A%0A%0AWhy%20you're%20worth%20the%20risk%3A%0A">
-        Email Martin
-        <span class="swap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
-      </a>
-    </div>
-  </div>
-</section>
-
 <footer>MVS Solves — martin@mvssolves.com<br><a href="/privacy-policy" style="color:inherit">Privacy Policy</a> · <a href="/terms-of-service" style="color:inherit">Terms of Service</a></footer>
 
-<script>
-const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-/* intro veil — fade to black + centered logo, plays once per page load */
-(function(){
-  const veil=document.getElementById('introVeil'),logo=document.getElementById('introLogo');
-  if(!veil||reduce)return;
-  requestAnimationFrame(()=>logo.classList.add('show'));
-  setTimeout(()=>{
-    logo.classList.remove('show');logo.classList.add('hide');
-    veil.classList.add('wipe');
-    setTimeout(()=>{veil.remove();logo.remove();},520);
-  },600);
-})();
-</script>
-
-<script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js';
-window.THREE = THREE;
-</script>
-<script src="/bg3d.js" defer></script>
-<script type="module">
-/* double-helix — growth/team motif, distinct from every homepage shape and from FAQ's
-   scattered tetrahedra. Two line strands + periodic rungs, no fills, wireframe-only feel. */
-initAmbientScene(document.getElementById('team3d'), ({THREE,scene,camera})=>{
-  camera.position.set(0,0,9);
-  const group=new THREE.Group();
-  const N=60,TURNS=4,RADIUS=1.3,HEIGHT=6;
-  const ptsA=[],ptsB=[];
-  for(let i=0;i<=N;i++){
-    const t=i/N,ang=t*Math.PI*2*TURNS,y=(t-0.5)*HEIGHT;
-    ptsA.push(new THREE.Vector3(Math.cos(ang)*RADIUS,y,Math.sin(ang)*RADIUS));
-    ptsB.push(new THREE.Vector3(Math.cos(ang+Math.PI)*RADIUS,y,Math.sin(ang+Math.PI)*RADIUS));
-  }
-  const strandMat=new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.45});
-  const lineA=new THREE.Line(new THREE.BufferGeometry().setFromPoints(ptsA),strandMat);
-  const lineB=new THREE.Line(new THREE.BufferGeometry().setFromPoints(ptsB),strandMat);
-  const rungPositions=[];
-  for(let i=0;i<=N;i+=4)rungPositions.push(ptsA[i].x,ptsA[i].y,ptsA[i].z,ptsB[i].x,ptsB[i].y,ptsB[i].z);
-  const rungGeo=new THREE.BufferGeometry();
-  rungGeo.setAttribute('position',new THREE.Float32BufferAttribute(rungPositions,3));
-  const rungMat=new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.18});
-  const rungs=new THREE.LineSegments(rungGeo,rungMat);
-  group.add(lineA,lineB,rungs);
-  scene.add(group);
-  return{
-    resize(w){camera.position.z=w<700?12:9;},
-    tick(t,impulse){
-      group.rotation.y+=0.004+impulse*0.02;
-      strandMat.opacity=0.45+impulse*0.3;
-      rungMat.opacity=0.18+impulse*0.25;
-    }
-  };
-});
-</script>
-
-<script>
-/* one global background -- same drifting sparkle field as the homepage, white-only (this page
-   is deliberately zero-accent/monochrome). DPR-capped, 30fps (halved -- motion's slow enough
-   half the frames are invisible), pauses when the tab is hidden. */
-(function(){
-  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const cv=document.getElementById('bgfx');
-  if(!cv||reduce)return;
-  const ctx=cv.getContext('2d');
-  const dpr=Math.min(window.devicePixelRatio||1,1.25);
-  let w=0,h=0,pts=[];
-  function resize(){
-    w=window.innerWidth;h=window.innerHeight;
-    cv.width=w*dpr;cv.height=h*dpr;cv.style.width=w+'px';cv.style.height=h+'px';
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-    const n=Math.round(w*h/14000);
-    pts=Array.from({length:n},()=>({
-      x:Math.random()*w,y:Math.random()*h,
-      r:Math.random()*1.3+0.3,
-      vx:(Math.random()-0.5)*0.12,vy:(Math.random()-0.5)*0.12,
-      tw:Math.random()*Math.PI*2,ts:0.6+Math.random()*1.4
-    }));
-  }
-  window.addEventListener('resize',resize,{passive:true});
-  resize();
-  let running=true,t=0,hr=false;
-  function frame(){
-    if(!running)return;
-    hr=!hr;if(!hr){requestAnimationFrame(frame);return;}
-    t+=0.032;
-    ctx.clearRect(0,0,w,h);
-    for(const p of pts){
-      p.x+=p.vx;p.y+=p.vy;
-      if(p.x<0)p.x+=w;else if(p.x>w)p.x-=w;
-      if(p.y<0)p.y+=h;else if(p.y>h)p.y-=h;
-      const a=(Math.sin(t*p.ts+p.tw)*0.5+0.5)*0.6+0.08;
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.r,0,6.283);
-      ctx.fillStyle=`rgba(10,10,10,${a})`;
-      ctx.fill();
-    }
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
-  document.addEventListener('visibilitychange',()=>{running=!document.hidden;if(running)requestAnimationFrame(frame);});
-})();
-</script>
+<script src="/shared.js" defer></script>
 
 </body>
 </html>

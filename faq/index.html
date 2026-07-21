@@ -77,6 +77,14 @@
     --line:rgba(10,10,10,0.10); --line-strong:rgba(10,10,10,0.18);
     --accent:#00eeff; --accent-ink:#0a0a0a;
     --maxw:900px;
+
+    /* motion + icon scale (full-site-rework) -- same tokens as index.html, see that file for the
+       rationale comment. */
+    --dur-instant:120ms; --dur-fast:200ms; --dur-normal:300ms; --dur-slow:500ms; --dur-slower:900ms;
+    --ease-default:cubic-bezier(.4,0,.2,1); --ease-out:cubic-bezier(0,0,.2,1);
+    --ease-spring:cubic-bezier(.34,1.56,.64,1); --ease-glide:cubic-bezier(.16,1,.3,1);
+    --icon-xs:22px; --icon-sm:30px; --icon-md:44px; --icon-lg:56px; --icon-xl:96px;
+    --icon-stroke:2.4;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   /* Nohemi — freeware (personal+commercial use), self-hosted via the Tamagui project's npm
@@ -87,11 +95,15 @@
   @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Bold.ttf') format('truetype');font-weight:700;font-display:swap;}
   @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-ExtraBold.ttf') format('truetype');font-weight:800;font-display:swap;}
   body{background:var(--bg);color:var(--text);font-family:'Roboto',-apple-system,"Helvetica Neue",sans-serif;
-    font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;}
+    font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;
+    animation:pageFadeIn var(--dur-normal) var(--ease-default);}
+  @keyframes pageFadeIn{from{opacity:0}to{opacity:1}}
+  @media(prefers-reduced-motion:reduce){body{animation:none;}}
   /* one global background canvas for the whole page -- same drifting sparkle field as the
      homepage, so the hero and FAQ list read as one continuous flow instead of stacked panels. */
   #bgfx{position:fixed;inset:0;width:100%;height:100%;z-index:-2;pointer-events:none;display:block;background:var(--bg);}
   a{color:inherit;text-decoration:none;}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:inherit;}
   .mono{font-family:'Roboto',monospace;}
   .serif{font-family:'Nohemi',sans-serif;font-style:normal;font-weight:400;}
   .wrap{max-width:var(--maxw);margin:0 auto;padding:0 36px;width:100%;}
@@ -113,8 +125,6 @@
   .lab::before{content:'';width:24px;height:2px;background:var(--accent);}
   .hero{position:relative;overflow:hidden;padding:80px 0 40px;text-align:center;}
   .hero .wrap{position:relative;z-index:2;}
-  .faq-3d{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease;}
-  .hero.has-3d .faq-3d{opacity:1;}
   .hero .lab{justify-content:center;}
   .hero h1{font-size:clamp(34px,6vw,58px);line-height:1.05;margin-bottom:18px;}
   .hero .sub{font-size:18px;color:var(--soft);max-width:60ch;margin-left:auto;margin-right:auto;}
@@ -138,41 +148,62 @@
   .qa .plus{font-family:'Roboto',monospace;font-size:20px;color:var(--muted);transition:transform .3s;flex:none;}
   .qa.open .plus{transform:rotate(45deg);}
   .qa .a{max-height:0;overflow:hidden;transition:max-height .4s ease;color:var(--soft);font-size:15px;line-height:1.6;}
+  /* scroll-reveal (full-site-rework) -- shared.js drives .in via IntersectionObserver, no GSAP needed here */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity var(--dur-slower) var(--ease-out),transform var(--dur-slower) var(--ease-out);}
+  .reveal.in{opacity:1;transform:none;}
+  @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none;}}
   .qa .a p{padding:0 0 22px;max-width:760px;}
   .qa q:hover{color:var(--muted);}
   .qa q:hover .plus{color:var(--ink);}
 
-  /* intro veil — fade to black + centered logo, on page load */
-  .intro-veil{position:fixed;inset:0;pointer-events:none;z-index:99998;background:var(--ink);
-    opacity:1;transition:opacity .5s ease;}
-  .intro-veil.wipe{opacity:0;}
-  .intro-logo{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
-    pointer-events:none;opacity:0;transform:scale(.85);transition:opacity .4s ease,transform .45s cubic-bezier(.2,1,.3,1);}
-  .intro-logo.show{opacity:1;transform:scale(1);}
-  .intro-logo.hide{opacity:0;transform:scale(.85);transition:opacity .4s ease,transform .4s ease;}
-  .il-mark{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;color:#fff;letter-spacing:-.02em;}
-  .il-box{width:30px;height:30px;border-radius:8px;background:var(--accent-ink);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;font-family:'Roboto',monospace;}
-  @media(prefers-reduced-motion:reduce){.intro-veil,.intro-logo{display:none!important;}}
+  /* kinetic-type loading veil -- one shared implementation (shared.js), same as the homepage.
+     Visible by default (not JS-gated) so there's no flash of unstyled page if shared.js is slow. */
+  .kt-veil{position:fixed;inset:0;z-index:99998;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .5s var(--ease-default),visibility .5s;}
+  .kt-veil.kt-out{opacity:0;visibility:hidden;pointer-events:none;}
+  .kt-word{display:flex;gap:.05em;font-family:'Nohemi',sans-serif;font-weight:600;font-size:clamp(40px,9vw,96px);letter-spacing:-.02em;color:var(--ink);}
+  .kt-word span{display:inline-block;opacity:0;filter:blur(6px);
+    transform:translate(var(--kx),var(--ky)) rotate(var(--kr)) scale(1.4);
+    transition:opacity .5s var(--ease-out),filter .5s var(--ease-out),transform .6s var(--ease-spring);}
+  .kt-word span:nth-child(1){transition-delay:0ms;}
+  .kt-word span:nth-child(2){transition-delay:90ms;}
+  .kt-word span:nth-child(3){transition-delay:180ms;}
+  .kt-veil.kt-in .kt-word span{opacity:1;filter:blur(0);transform:translate(0,0) rotate(0) scale(1);}
+  @media(prefers-reduced-motion:reduce){.kt-veil{display:none!important;}}
   @media(max-width:640px){
     nav{padding:16px 20px;}
     .wrap{padding:0 20px;}
     .hero{padding:56px 0 32px;}
   }
+  /* back-to-top button -- shared across every page (shared.js), same treatment as the homepage:
+     explicit dark chip + white icon, not the light/dark ink token (would go invisible against
+     itself either theme). */
+  .to-top{position:fixed;right:22px;bottom:22px;z-index:70;width:44px;height:44px;display:flex;
+    align-items:center;justify-content:center;border-radius:999px;cursor:pointer;color:#fff;
+    background:rgba(10,10,10,.92);border:1px solid var(--line-strong);opacity:0;pointer-events:none;transform:translateY(12px);
+    transition:opacity .3s ease,transform .3s ease,background .25s ease;}
+  .to-top svg{width:20px;height:20px;}
+  .to-top.show{opacity:1;pointer-events:auto;transform:translateY(0);}
+  .to-top:hover{background:rgba(10,10,10,.75);}
+  @media(max-width:900px){.to-top{right:14px;bottom:14px;width:40px;height:40px;}}
 </style>
 </head>
 <body>
 
 <canvas id="bgfx" aria-hidden="true"></canvas>
-<div class="intro-veil" id="introVeil"></div>
-<div class="intro-logo" id="introLogo"><div class="il-mark"><span class="il-box">M</span> MVS Solves</div></div>
+<div class="kt-veil" id="ktVeil" aria-hidden="true">
+  <div class="kt-word"><span style="--kx:-18px;--ky:14px;--kr:-8deg">M</span><span style="--kx:10px;--ky:-10px;--kr:6deg">V</span><span style="--kx:-6px;--ky:18px;--kr:-11deg">S</span></div>
+</div>
 
 <nav>
   <a class="logo" href="/"><span class="mk">M</span> MVS Solves</a>
   <a class="back" href="/">← Back to site</a>
 </nav>
 
+<button id="toTop" class="to-top" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+</button>
+
 <header class="hero">
-  <canvas class="faq-3d" id="faq3d" aria-hidden="true"></canvas>
   <div class="wrap">
     <div class="lab">FAQ</div>
     <h1>
@@ -186,11 +217,11 @@
 <section>
   <div class="wrap">
     <div class="faq" id="faqList">
-      <div class="qa"><q role="button" tabindex="0" aria-expanded="false">What does MVS Solves do?<span class="plus">+</span></q><div class="a"><p>I build and fix the digital basics service businesses rely on: fast websites, online booking, Google Business Profiles, automation and AI assistants — all done by one person, end to end. Speed matters because slow sites lose customers and rankings.</p></div></div>
-      <div class="qa"><q role="button" tabindex="0" aria-expanded="false">Who actually builds the work?<span class="plus">+</span></q><div class="a"><p>Martin — one person, start to finish. No agency, no account managers, no handoffs, so you always talk to the person doing the work.</p></div></div>
-      <div class="qa"><q role="button" tabindex="0" aria-expanded="false">How much does a website cost?<span class="plus">+</span></q><div class="a"><p>Packages start at $0 build fee + $150/mo on Launch, and every à-la-carte service has a clear USD range. You're quoted up front in plain language — what, when, and how much — before any work starts. The fastest way to get a number is a free 30-minute call.</p></div></div>
-      <div class="qa"><q role="button" tabindex="0" aria-expanded="false">How does AI booking work?<span class="plus">+</span></q><div class="a"><p>An AI assistant answers common questions and takes bookings around the clock in your tone of voice, then drops each appointment straight into your calendar. Book a call and I'll walk you through exactly how it'd work for your business.</p></div></div>
-      <div class="qa"><q role="button" tabindex="0" aria-expanded="false">How do we get started?<span class="plus">+</span></q><div class="a"><p>It starts with a free 30-minute call: you explain what's broken or what you're building, and you leave with a real plan and no obligation. If we're not a fit, I'll say so and point you somewhere better.</p></div></div>
+      <div class="qa reveal"><q role="button" tabindex="0" aria-expanded="false">What does MVS Solves do?<span class="plus">+</span></q><div class="a"><p>I build and fix the digital basics service businesses rely on: fast websites, online booking, Google Business Profiles, automation and AI assistants — all done by one person, end to end. Speed matters because slow sites lose customers and rankings.</p></div></div>
+      <div class="qa reveal"><q role="button" tabindex="0" aria-expanded="false">Who actually builds the work?<span class="plus">+</span></q><div class="a"><p>Martin — one person, start to finish. No agency, no account managers, no handoffs, so you always talk to the person doing the work.</p></div></div>
+      <div class="qa reveal"><q role="button" tabindex="0" aria-expanded="false">How much does a website cost?<span class="plus">+</span></q><div class="a"><p>Packages start at $0 build fee + $150/mo on Launch, and every à-la-carte service has a clear USD range. You're quoted up front in plain language — what, when, and how much — before any work starts. The fastest way to get a number is a free 30-minute call.</p></div></div>
+      <div class="qa reveal"><q role="button" tabindex="0" aria-expanded="false">How does AI booking work?<span class="plus">+</span></q><div class="a"><p>An AI assistant answers common questions and takes bookings around the clock in your tone of voice, then drops each appointment straight into your calendar. Book a call and I'll walk you through exactly how it'd work for your business.</p></div></div>
+      <div class="qa reveal"><q role="button" tabindex="0" aria-expanded="false">How do we get started?<span class="plus">+</span></q><div class="a"><p>It starts with a free 30-minute call: you explain what's broken or what you're building, and you leave with a real plan and no obligation. If we're not a fit, I'll say so and point you somewhere better.</p></div></div>
     </div>
   </div>
 </section>
@@ -198,19 +229,6 @@
 <footer>MVS Solves — martin@mvssolves.com<br><a href="/privacy-policy" style="color:inherit">Privacy Policy</a> · <a href="/terms-of-service" style="color:inherit">Terms of Service</a></footer>
 
 <script>
-const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-/* intro veil — fade to black + centered logo, plays once per page load */
-(function(){
-  const veil=document.getElementById('introVeil'),logo=document.getElementById('introLogo');
-  if(!veil||reduce)return;
-  requestAnimationFrame(()=>logo.classList.add('show'));
-  setTimeout(()=>{
-    logo.classList.remove('show');logo.classList.add('hide');
-    veil.classList.add('wipe');
-    setTimeout(()=>{veil.remove();logo.remove();},520);
-  },600);
-})();
-
 /* FAQ accordion */
 document.querySelectorAll('#faqList .qa').forEach(qa=>{
   const q=qa.querySelector('q'),a=qa.querySelector('.a');
@@ -222,94 +240,7 @@ document.querySelectorAll('#faqList .qa').forEach(qa=>{
 });
 </script>
 
-<script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js';
-window.THREE = THREE;
-</script>
-<script src="/bg3d.js" defer></script>
-<script type="module">
-/* scattered tumbling tetrahedra — "pieces falling into place" for a Q&A page. Distinct from
-   every homepage motif (single network/terrain/knot/rings/polyhedron shapes): many small
-   independent pieces instead of one big form. */
-initAmbientScene(document.getElementById('faq3d'), ({THREE,scene,camera})=>{
-  camera.position.set(0,0,8);
-  const group=new THREE.Group();
-  const mat=new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true,transparent:true,opacity:0.4});
-  const shapes=[];
-  for(let i=0;i<16;i++){
-    const geo=new THREE.TetrahedronGeometry(0.35+Math.random()*0.25,0);
-    const mesh=new THREE.Mesh(geo,mat);
-    const r=2.2+Math.random()*2.6;
-    const theta=Math.random()*Math.PI*2,phi=Math.acos(2*Math.random()-1);
-    mesh.position.set(r*Math.sin(phi)*Math.cos(theta),r*Math.sin(phi)*Math.sin(theta)*0.6,r*Math.cos(phi)*0.6);
-    mesh.userData.spin={x:(Math.random()-0.5)*0.012,y:(Math.random()-0.5)*0.012,z:(Math.random()-0.5)*0.012};
-    group.add(mesh);
-    shapes.push(mesh);
-  }
-  scene.add(group);
-  return{
-    resize(w){camera.position.z=w<700?11:8;},
-    tick(t,impulse){
-      group.rotation.y+=0.0009;
-      shapes.forEach(s=>{
-        s.rotation.x+=s.userData.spin.x*(1+impulse*3);
-        s.rotation.y+=s.userData.spin.y*(1+impulse*3);
-        s.rotation.z+=s.userData.spin.z*(1+impulse*3);
-      });
-      mat.opacity=0.4+impulse*0.3;
-    }
-  };
-});
-</script>
-
-<script>
-/* one global background -- same drifting sparkle field as the homepage, amber-mixed to match
-   this page's accent. DPR-capped, 30fps (halved -- motion's slow enough half the frames are
-   invisible), pauses when the tab is hidden. */
-(function(){
-  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const cv=document.getElementById('bgfx');
-  if(!cv||reduce)return;
-  const ctx=cv.getContext('2d');
-  const dpr=Math.min(window.devicePixelRatio||1,1.25);
-  let w=0,h=0,pts=[];
-  function resize(){
-    w=window.innerWidth;h=window.innerHeight;
-    cv.width=w*dpr;cv.height=h*dpr;cv.style.width=w+'px';cv.style.height=h+'px';
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-    const n=Math.round(w*h/14000);
-    pts=Array.from({length:n},()=>({
-      x:Math.random()*w,y:Math.random()*h,
-      r:Math.random()*1.3+0.3,
-      vx:(Math.random()-0.5)*0.12,vy:(Math.random()-0.5)*0.12,
-      tw:Math.random()*Math.PI*2,ts:0.6+Math.random()*1.4,
-      amber:Math.random()<0.14
-    }));
-  }
-  window.addEventListener('resize',resize,{passive:true});
-  resize();
-  let running=true,t=0,hr=false;
-  function frame(){
-    if(!running)return;
-    hr=!hr;if(!hr){requestAnimationFrame(frame);return;}
-    t+=0.032;
-    ctx.clearRect(0,0,w,h);
-    for(const p of pts){
-      p.x+=p.vx;p.y+=p.vy;
-      if(p.x<0)p.x+=w;else if(p.x>w)p.x-=w;
-      if(p.y<0)p.y+=h;else if(p.y>h)p.y-=h;
-      const a=(Math.sin(t*p.ts+p.tw)*0.5+0.5)*0.6+0.08;
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.r,0,6.283);
-      ctx.fillStyle=p.amber?`rgba(0,238,255,${a})`:`rgba(10,10,10,${a})`;
-      ctx.fill();
-    }
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
-  document.addEventListener('visibilitychange',()=>{running=!document.hidden;if(running)requestAnimationFrame(frame);});
-})();
-</script>
+<script src="/shared.js" defer></script>
 
 </body>
 </html>

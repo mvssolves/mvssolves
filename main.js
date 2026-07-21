@@ -1,5 +1,6 @@
 gsap.registerPlugin(ScrollTrigger);
-const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* `reduce` and `lenis` come from shared.js, loaded before this file on every page that includes
+   both -- declared once there so the two scripts don't fight over the same top-level binding. */
 const isDesktop = window.matchMedia('(min-width:901px)').matches;
 
 /* one shared IntersectionObserver (threshold:0) for the handful of independent single-element
@@ -62,7 +63,6 @@ window.matchMedia('(min-width:901px)').addEventListener('change', () => location
    scrolls again to force a resync. Known Lenis-on-iOS issue, not fixable by tuning options; native
    scroll (the reduce-motion fallback path below) has no such desync since there's no virtual state
    to get out of sync. */
-let lenis;
 if(!reduce)gsap.ticker.lagSmoothing(0);
 if(!reduce&&isDesktop){
   lenis=new Lenis({duration:1.2,syncTouch:false});
@@ -99,11 +99,11 @@ if(!reduce&&isDesktop){
 
 /* nume-style scroll reveal — measured off nume.ai's own design-card_new inline transform mid-
    scroll (translate3d ~9px, filter:blur ~4px, opacity fading) instead of a flat opacity-only
-   fade. Applied to the new nume-matched card types; existing .cap grid keeps its own separate
-   ScrollTrigger.batch reveal below (untouched). */
+   fade. feat-card excluded: the fold-stack pin/cover further down is its own entrance, a second
+   fade-in on top of that would fight it. */
 (function(){
   if(reduce||typeof gsap==='undefined'||typeof ScrollTrigger==='undefined')return;
-  gsap.utils.toArray('.feat-card, .proc-card, .trust-card').forEach(el=>{
+  gsap.utils.toArray('.hiw-step, .trust-card, .testi-card, .tier, .book-copy, .book-cal').forEach(el=>{
     gsap.fromTo(el,{opacity:0,y:26,filter:'blur(8px)'},{
       opacity:1,y:0,filter:'blur(0px)',duration:.9,ease:'power2.out',
       scrollTrigger:{trigger:el,start:'top 88%',once:true}
@@ -111,16 +111,7 @@ if(!reduce&&isDesktop){
   });
 })();
 
-/* back-to-top button — show past one viewport, click scrolls to top (Lenis-aware) */
-(function(){
-  const btn=document.getElementById('toTop');
-  if(!btn)return;
-  let pending=false;
-  const check=()=>{btn.classList.toggle('show',window.scrollY>window.innerHeight*0.8);};
-  window.addEventListener('scroll',()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;check();});},{passive:true});
-  btn.addEventListener('click',()=>{lenis?lenis.scrollTo(0,{duration:1.1}):window.scrollTo({top:0,behavior:'smooth'});});
-  check();
-})();
+/* back-to-top button lives in shared.js now (loaded on every page, not just this one). */
 
 /* scroll progress */
 const prog=document.getElementById('progress');
@@ -653,7 +644,7 @@ function playHeroReveal(){
    made half the page flicker in/out — that's the "flickering" complaint. once:true plays each
    reveal exactly once and leaves it in its end state for good. */
 if(!reduce){
-  gsap.utils.toArray('.section h2:not(.h2-split)').forEach(el=>{
+  gsap.utils.toArray('.section h2:not(.h2-split):not(:has(.kt-text))').forEach(el=>{
     gsap.from(el,{y:32,opacity:0,duration:1.05,ease:'power4.out',
       scrollTrigger:{trigger:el,start:'top 86%',once:true,fastScrollEnd:true}});
   });
@@ -662,6 +653,13 @@ if(!reduce){
     const words=h.querySelectorAll('.word>span');
     gsap.fromTo(words,{yPercent:110,opacity:0},{yPercent:0,opacity:1,duration:0.7,stagger:0.05,
       ease:'power3.out',scrollTrigger:{trigger:h,start:'top 86%',once:true,fastScrollEnd:true}});
+  });
+  /* kinetic-letter reveal -- reused loading-veil effect (see shared.js/#ktVeil), applied to the
+     two headings that had no letter/word treatment (pricing, book). Pure class toggle, CSS
+     drives the actual per-letter transition. */
+  gsap.utils.toArray('.kt-text').forEach(el=>{
+    ScrollTrigger.create({trigger:el,start:'top 86%',once:true,fastScrollEnd:true,
+      onEnter:()=>el.classList.add('kt-in')});
   });
   gsap.utils.toArray('.section .sub, .lab').forEach(el=>{
     gsap.from(el,{y:30,opacity:0,duration:0.9,ease:'power3.out',
@@ -709,12 +707,6 @@ if(!reduce){
       {y:0,scale:1,opacity:1,duration:0.85,delay:i*0.12,ease:'power3.out',
         scrollTrigger:{trigger:'.tiers',start:'top 88%',once:true,fastScrollEnd:true}});
   });
-  /* capabilities (01) — alternating left/right slide by column, 2D translate only (no
-     rotateX/perspective — that's what forced a compositing layer per card right as Lenis hands
-     off from the hero and read as scroll lag; plain translateX doesn't have that cost). */
-  ScrollTrigger.batch(gsap.utils.toArray('#capabilities .cap-grid .cap'),{start:'top 94%',fastScrollEnd:true,
-    onEnter:b=>b.forEach((el,i)=>gsap.fromTo(el,{opacity:0,x:i%2===0?-26:26},
-      {opacity:1,x:0,duration:0.7,delay:i*0.05,ease:'power2.out',overwrite:true}))});
   /* book/closing (05) — copy and calendar converge from opposite sides */
   gsap.fromTo('.book-grid>div:first-child',{opacity:0,x:-40},
     {opacity:1,x:0,duration:0.9,ease:'power3.out',scrollTrigger:{trigger:'.book-grid',start:'top 85%',once:true,fastScrollEnd:true}});
@@ -756,33 +748,6 @@ if(!reduce){
   fade.className='gblur top';
   fade.style.height='84px';
   document.body.appendChild(fade);
-}
-
-/* BorderGlow (React Bits port → vanilla, no deps) on capability grid cards */
-if(window.matchMedia('(pointer:fine)').matches){
-  document.querySelectorAll('.border-glow-card').forEach(card=>{
-    let pending=false,lastEvent=null;
-    card.addEventListener('pointermove',e=>{
-      lastEvent=e;
-      if(pending)return;
-      pending=true;
-      requestAnimationFrame(()=>{
-        pending=false;
-        const rc=card.getBoundingClientRect();
-        const x=lastEvent.clientX-rc.left,y=lastEvent.clientY-rc.top;
-        const cx=rc.width/2,cy=rc.height/2;
-        const dx=x-cx,dy=y-cy;
-        let kx=Infinity,ky=Infinity;
-        if(dx!==0)kx=cx/Math.abs(dx);
-        if(dy!==0)ky=cy/Math.abs(dy);
-        const edge=Math.min(Math.max(1/Math.min(kx,ky),0),1);
-        let angle=0;
-        if(dx!==0||dy!==0){angle=Math.atan2(dy,dx)*(180/Math.PI)+90;if(angle<0)angle+=360;}
-        card.style.setProperty('--edge-proximity',(edge*100).toFixed(3));
-        card.style.setProperty('--cursor-angle',angle.toFixed(3)+'deg');
-      });
-    });
-  });
 }
 
 /* UI click ticks — procedural Web Audio, no asset files, no autoplay (only ever plays inside a
@@ -861,6 +826,49 @@ if(!reduce){
   if(lenis&&lenis.on)lenis.on('scroll',onScroll);
   upd();
 })();
+
+/* testimonials carousel -- auto-advances every 4.5s, loops back to the start at the end. Prev/
+   next and auto-advance share one step() so they can't fight; any manual interaction (arrow
+   click, drag/touch, hover) resets the auto timer instead of racing it. Reduced-motion gets
+   arrows only, no auto-advance -- a carousel that moves itself every few seconds is exactly the
+   kind of motion that preference exists to opt out of. */
+(function(){
+  const track=document.getElementById('testiGrid');
+  const prev=document.querySelector('.testi-prev'),next=document.querySelector('.testi-next');
+  if(!track||!prev||!next)return;
+  function cardStep(){
+    const card=track.querySelector('.testi-card');
+    return (card?card.getBoundingClientRect().width:320)+20;
+  }
+  function atEnd(){return track.scrollLeft+track.clientWidth>=track.scrollWidth-4;}
+  function step(dir){
+    if(dir>0&&atEnd()){track.scrollTo({left:0,behavior:reduce?'auto':'smooth'});return;}
+    track.scrollBy({left:dir*cardStep(),behavior:reduce?'auto':'smooth'});
+  }
+  let timer=null;
+  function stop(){if(timer){clearInterval(timer);timer=null;}}
+  function start(){
+    if(reduce||timer)return;
+    timer=setInterval(()=>step(1),3000);
+  }
+  function reset(){stop();start();}
+  prev.addEventListener('click',()=>{step(-1);reset();});
+  next.addEventListener('click',()=>{step(1);reset();});
+  track.addEventListener('pointerdown',stop);
+  track.addEventListener('mouseenter',stop);
+  track.addEventListener('mouseleave',start);
+  document.addEventListener('visibilitychange',()=>{document.hidden?stop():start();});
+  start();
+})();
+
+/* pricing copy column -- explicitly static, no scroll-tracking. Went through several rounds of
+   sticky/pin behavior here (CSS position:sticky, GSAP pin+pinSpacing variants, function-based
+   start/end, refreshPriority fixes for a real cross-trigger recalculation-order bug) chasing "don't
+   let it disappear while scrolling the tiers" -- final call: keep it simple and just leave it in
+   its normal position at the top of .price-copy ("keep flexible prices fixed in the slot at the
+   top, don't let it move"). No JS needed for that -- .price-copy-inner{position:relative} (CSS)
+   already renders it at the top of the column and leaves it there; this file simply doesn't touch
+   it anymore. */
 
 /* pricing mode toggle: Monthly / Own outright */
 (function(){
@@ -986,8 +994,10 @@ if(document.fonts&&document.fonts.ready){
   },{passive:true});
 })();
 
-/* loading screen removed -- go straight to the hero reveal, no veil/gate in front of it. */
-playHeroReveal();
+/* hero reveal waits for the kinetic-type veil (shared.js) to finish -- it always dispatches
+   mvs:veilDone, whether it played, was skipped, or never existed (reduced-motion), so this never
+   hangs waiting for an event that won't fire. */
+document.addEventListener('mvs:veilDone',playHeroReveal,{once:true});
 /* integrations backdrop — sparse node network reclaims the "connected systems" motif the
    hero used to use (now free since hero moved to the torus knot). Kept faint/ambient since
    the colorful brand-logo marquee sits on top of it and must stay the visual focus. */
@@ -1243,103 +1253,63 @@ function initPriceRise3D(canvas){
 // initPriceRise3D(document.getElementById('price3d'));
 // initCostLeak3D(document.getElementById('cost3d'));
 
-/* one global background — a drifting, twinkling sparkle field on a single fixed canvas behind the
-   whole site (equivalent to the tsparticles "Sparkle Particles" look, hand-written in vanilla so
-   there's no external engine to load/break). DPR-capped, pauses when the tab is hidden. */
-(function(){
-  const cv=document.getElementById('bgfx');
-  if(!cv||reduce)return;
-  const ctx=cv.getContext('2d');
-  const dpr=Math.min(window.devicePixelRatio||1,1.25);
-  let w=0,h=0,pts=[];
-  function resize(){
-    w=window.innerWidth;h=window.innerHeight;
-    cv.width=w*dpr;cv.height=h*dpr;cv.style.width=w+'px';cv.style.height=h+'px';
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-    const n=Math.round(w*h/14000);   // density scales with viewport
-    pts=Array.from({length:n},()=>({
-      x:Math.random()*w,y:Math.random()*h,
-      r:Math.random()*1.3+0.3,
-      vx:(Math.random()-0.5)*0.12,vy:(Math.random()-0.5)*0.12,
-      tw:Math.random()*Math.PI*2,ts:0.6+Math.random()*1.4,
-      amber:Math.random()<0.14
-    }));
-  }
-  window.addEventListener('resize',resize,{passive:true});
-  resize();
-  /* pointer repel — tsParticles "hover: repulse" equivalent, done as a per-frame draw-position
-     offset only (base drift x/y never mutated) so a lingering cursor can't accumulate velocity
-     and fling particles off; cheap squared-distance check skips the sqrt for anything outside
-     the radius, which is nearly every particle nearly every frame. */
-  let mx=null,my=null;
-  window.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;},{passive:true});
-  document.addEventListener('mouseleave',()=>{mx=null;my=null;});
-  const REPEL_R=110,REPEL_F=18;
-  let running=true,t=0,hr=false;
-  function frame(){
-    if(!running)return;
-    /* runs at 30fps not 60 -- this is a full-viewport fixed canvas repainting under every
-       scroll frame, sitewide, forever. Drift/twinkle motion is slow enough that half the
-       frames are invisible (same halfRate reasoning as the ambient 3D scenes above), so this
-       halves the single biggest always-on scroll-time cost on the page for free. */
-    hr=!hr;if(!hr){requestAnimationFrame(frame);return;}
-    t+=0.032;
-    ctx.clearRect(0,0,w,h);
-    for(const p of pts){
-      p.x+=p.vx;p.y+=p.vy;
-      if(p.x<0)p.x+=w;else if(p.x>w)p.x-=w;
-      if(p.y<0)p.y+=h;else if(p.y>h)p.y-=h;
-      let dx=0,dy=0;
-      if(mx!==null){
-        const ddx=p.x-mx,ddy=p.y-my,d2=ddx*ddx+ddy*ddy;
-        if(d2<REPEL_R*REPEL_R&&d2>0.01){
-          const d=Math.sqrt(d2),f=(1-d/REPEL_R)*REPEL_F;
-          dx=(ddx/d)*f;dy=(ddy/d)*f;
-        }
-      }
-      const a=(Math.sin(t*p.ts+p.tw)*0.5+0.5)*0.6+0.08;
-      ctx.beginPath();
-      ctx.arc(p.x+dx,p.y+dy,p.r,0,6.283);
-      /* redesign: light theme now, dark dots instead of white (were invisible on white bg) */
-      ctx.fillStyle=p.amber?`rgba(0,238,255,${a})`:`rgba(10,10,10,${a})`;
-      ctx.fill();
-    }
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
-  document.addEventListener('visibilitychange',()=>{running=!document.hidden;if(running)requestAnimationFrame(frame);});
-})();
+/* the global background canvas (#bgfx) lives in shared.js now (loaded on every page, not just
+   this one) -- was duplicated inline per-page before, this is the single copy. */
 
-/* scroll paint-wipe — replaces the floating MVS. A tall (200vh) brushed-paint band sits fixed over
-   the fold; as you scroll through the hero it sweeps straight down (enters from the top, fully
-   covers the screen mid-scroll, exits past the bottom), wiping the hero into section 01. Pure CSS
-   transform driven by one rAF-coalesced scroll read — no WebGL, no per-frame render, so it's far
-   cheaper than the 3D hero it replaces. Colour/texture live entirely in CSS (var --paint), so the
-   look is a one-line swap. */
+/* fold-stack — hero pins, then cap-head, then each of the 3 feat-cards pins in turn while the
+   next one rises from the bottom edge to cover it: pinSpacing:false collapses each pinned link's
+   reserved flow space, so the next link is already sitting exactly one viewport below at rest --
+   normal scrolling alone carries its top edge up 1:1, no tween needed. The one rule this whole
+   chain depends on: a pinned link's PIN DURATION (its end:'+=N%') must equal that same link's
+   REAL rendered height, or its follower either arrives early (dead time before it's visible) or
+   late (a gap of bare page once the pin releases before the follower has finished covering it).
+   Every link's duration is measured live off its own real height (see heroPct/stagePct below) --
+   NOT hardcoded percentages matched to a CSS vh value -- because content can render taller than
+   its min-height floor (confirmed on hero, and on feat-stage 2 specifically: its extra .feat-claim
+   line made it taller than the other two cards at some viewport sizes, which showed up as card 2
+   and card 3 visibly overlapping mid-scroll). Ascending z-index per link (CSS) is what makes each
+   incoming one actually paint OVER the one it covers. Last stage keeps pinSpacing:true (default)
+   so it reserves its own space and How It Works flows on normally after -- the effect covers only
+   this stack, nothing beyond it. Desktop only, matching every other pin/scrub effect in this file
+   -- mobile keeps everything simply stacked, no pin. */
 (function(){
   const hero=document.getElementById('top');
-  const fill=document.querySelector('.paint-fill');
-  const content=[hero&&hero.querySelector('.h-wrap'),hero&&hero.querySelector('.h-bottom')].filter(Boolean);
-  if(!hero||!fill||reduce)return;
-  let pending=false;
-  function upd(){
-    const h=hero.offsetHeight||window.innerHeight;
-    const p=Math.min(Math.max(window.scrollY/h,0),1);
-    /* veil RISES from the hero's bottom edge — faster + bigger: covers the hero by ~65% scroll. */
-    fill.style.setProperty('--ph',Math.min(p*190,190)+'%');
-    /* hero content lifts + fades quicker as the veil sweeps up. */
-    const op=Math.max(0,1-p*1.9);
-    content.forEach(el=>{el.style.opacity=op;el.style.transform=`translateY(${-p*80}px)`;});
+  const cap=document.getElementById('capabilities');
+  const capHead=document.querySelector('.cap-head');
+  const stages=[...document.querySelectorAll('#featStack .feat-stage')];
+  if(!hero||!cap||!capHead||reduce||!isDesktop||!stages.length)return;
+  /* the 3 feat-cards also need to be the same height as each other, not just their stages --
+     card 2's extra .feat-claim line otherwise makes IT (and its icon rectangle, which stretches to
+     match) visibly taller than cards 1 and 3 ("its not even same size"). Equalizing to the tallest
+     card's own natural height, before any pin-duration math below runs, so stage heights (measured
+     next) are genuinely uniform for the same reason, not just coincidentally close. */
+  const cards=[...document.querySelectorAll('#featStack .feat-card')];
+  if(cards.length){
+    cards.forEach(c=>{c.style.minHeight='';});
+    const maxCardH=Math.max(...cards.map(c=>c.getBoundingClientRect().height));
+    cards.forEach(c=>{c.style.minHeight=maxCardH+'px';});
   }
-  /* once fully scrolled past the hero this had no visible effect left to update, but was still
-     forcing a layout read (offsetHeight) + style writes on every scroll frame for the rest of
-     the page, forever -- same off-screen-listener bug already fixed on the other scroll
-     trackers in this file, just missed here. Gate on hero visibility like those. */
-  let heroVisible=true;
-  onVisibilityChange(hero,v=>{heroVisible=v;});
-  window.addEventListener('scroll',()=>{
-    if(pending||!heroVisible)return;pending=true;
-    requestAnimationFrame(()=>{pending=false;upd();});
-  },{passive:true});
-  upd();
+  /* hero pins briefly, then #capabilities (opaque bg + higher z-index, see CSS) rises up from the
+     bottom edge and covers it -- back to the original fold intent, just shorter. This chain's one
+     hard rule: pin duration must equal the pinned element's REAL rendered height, or the follower
+     arrives early (gap) or late. min-height:74vh on hero (CSS) is a FLOOR, not its actual height --
+     measured live it renders taller (788px vs the 666px 74vh implied at a 900px viewport, extra
+     content pushing past the floor), so a hardcoded '+=74%' undershoots and reopens the gap this
+     rule exists to prevent. Measuring hero's real height and converting to a vh-equivalent string
+     at setup keeps the two numbers honestly equal regardless of how tall the content actually
+     renders. */
+  const heroPct=()=>'+='+(hero.getBoundingClientRect().height/window.innerHeight*100)+'%';
+  ScrollTrigger.create({trigger:hero,start:'top top',end:heroPct,pin:true,pinSpacing:false,invalidateOnRefresh:true});
+  /* each card's own pin duration also has to match ITS real height, same rule as hero above --
+     hardcoded '+=65%' assumed every card renders at exactly the 65vh floor, but card 2
+     (Automations) carries an extra .feat-claim line the other two don't, so it can render taller
+     than 65vh depending on viewport size/width -- exactly the kind of mismatch that left card 2
+     and card 3 visibly overlapping (both partially on screen at once) at a wider window than this
+     was tested at. Measuring each stage's own real height fixes it regardless of viewport or which
+     card has more content. */
+  stages.forEach((stage,i)=>{
+    const isLast=i===stages.length-1;
+    const stagePct=()=>'+='+(stage.getBoundingClientRect().height/window.innerHeight*100)+'%';
+    ScrollTrigger.create({trigger:stage,start:'top top',end:stagePct,pin:true,pinSpacing:isLast,invalidateOnRefresh:true});
+  });
 })();
