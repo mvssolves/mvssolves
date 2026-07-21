@@ -19,7 +19,7 @@ function splitChars(el){
   const spans=[];
   [...text].forEach(ch=>{
     const s=document.createElement('span');s.className='fx-char';s.style.display='inline-block';
-    s.textContent=ch===' '?' ':ch;
+    s.textContent=ch===' '?' ':ch; /* plain space collapses to 0-width inside inline-block, nbsp doesn't */
     el.appendChild(s);spans.push(s);
   });
   return spans;
