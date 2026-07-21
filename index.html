@@ -471,18 +471,23 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   .h2-split .word{display:inline-block;overflow:hidden;vertical-align:top;}
   .h2-split .word>span{display:inline-block;}
 
-  /* glitch-on-hover -- ported from React Bits' GlitchText (vanilla, no React on this site).
+  /* glitch effect -- ported from React Bits' GlitchText (vanilla, no React on this site).
      Layered on TOP of the existing word-reveal/slant treatment, not replacing it: the h2's real
      word spans stay exactly as they are, these are two extra ::before/::after copies of the same
-     text, hidden until hover, then RGB-split + clip-path glitching over the original. */
+     text, RGB-split + clip-path glitching over the original. Runs continuously, on/off every 1s --
+     each layer's opacity-toggle animation is offset (0s vs 0.4s delay) so the two don't flash in
+     sync, reads as an independent flicker per layer rather than one unit blinking together. */
   .glitch-hover{position:relative;}
   .glitch-hover::after,.glitch-hover::before{
     content:attr(data-text);position:absolute;inset:0;color:var(--ink);background:var(--bg);
-    overflow:hidden;opacity:0;pointer-events:none;
+    overflow:hidden;pointer-events:none;
   }
-  .glitch-hover:hover::after{opacity:1;left:10px;text-shadow:-5px 0 red;animation:glitchAnim 3s infinite linear alternate-reverse;}
-  .glitch-hover:hover::before{opacity:1;left:-10px;text-shadow:5px 0 #00eeff;animation:glitchAnim 2s infinite linear alternate-reverse;}
-  @media(prefers-reduced-motion:reduce){.glitch-hover:hover::after,.glitch-hover:hover::before{animation:none;opacity:0;}}
+  .glitch-hover::after{left:10px;text-shadow:-5px 0 red;
+    animation:glitchAnim 3s infinite linear alternate-reverse,glitchToggle 2s steps(1) infinite;}
+  .glitch-hover::before{left:-10px;text-shadow:5px 0 #00eeff;
+    animation:glitchAnim 2s infinite linear alternate-reverse,glitchToggle 2s steps(1) infinite .4s;}
+  @media(prefers-reduced-motion:reduce){.glitch-hover::after,.glitch-hover::before{animation:none;opacity:0;}}
+  @keyframes glitchToggle{0%,49%{opacity:0;}50%,100%{opacity:1;}}
   @keyframes glitchAnim{
     0%{clip-path:inset(20% 0 50% 0);}5%{clip-path:inset(10% 0 60% 0);}10%{clip-path:inset(15% 0 55% 0);}
     15%{clip-path:inset(25% 0 35% 0);}20%{clip-path:inset(30% 0 40% 0);}25%{clip-path:inset(40% 0 20% 0);}
