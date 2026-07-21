@@ -1133,30 +1133,6 @@ function playHeroRevealWhenReady(){
 }
 document.addEventListener('mvs:veilDone',playHeroRevealWhenReady,{once:true});
 
-/* RotatingText (react-bits), ported to vanilla JS+GSAP -- no React/motion lib on this site.
-   "your" never changes text, but moves WITH the rotating noun -- same slide, same timing, so the
-   two read as one cohesive "your ___" unit refreshing together instead of one static word next to
-   one moving word. Only opacity/yPercent are touched here -- never background, so the .grad
-   gradient's own gradLoop CSS animation (background-position) keeps running continuously and is
-   never reset by this. Rotated as one word, not per-character, for the same background-clip:text
-   reason noted where .rot-wrap is defined. */
-(function(){
-  if(reduce||typeof gsap==='undefined')return;
-  const el=document.getElementById('heroRot');
-  const yourEl=document.getElementById('heroRotYour');
-  if(!el)return;
-  const texts=['business','leads']; /* both read naturally as "Real Conversion for your ___" */
-  let i=0;
-  setInterval(()=>{
-    const els=yourEl?[yourEl,el]:[el];
-    gsap.to(els,{yPercent:-120,opacity:0,duration:0.4,ease:'power2.inOut',force3D:true,onComplete:()=>{
-      i=(i+1)%texts.length;
-      el.textContent=texts[i];
-      gsap.fromTo(els,{yPercent:100,opacity:0},{yPercent:0,opacity:1,duration:0.5,ease:'power2.inOut',force3D:true});
-    }});
-  },2400);
-})();
-
 /* integrations backdrop — sparse node network reclaims the "connected systems" motif the
    hero used to use (now free since hero moved to the torus knot). Kept faint/ambient since
    the colorful brand-logo marquee sits on top of it and must stay the visual focus. */
