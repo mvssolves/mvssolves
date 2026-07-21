@@ -694,6 +694,14 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   #about .about-points{list-style:none;margin:24px auto 0;padding:0;font-size:14.5px;display:inline-block;text-align:left;}
   #about .about-points li{padding:6px 0 6px 26px;position:relative;color:var(--text);}
   #about .about-points li::before{content:"✓";position:absolute;left:0;font-weight:800;color:var(--accent);}
+  #about .why-lab{margin-top:44px;}
+  #about .why-timeline{margin:0 auto;max-width:400px;text-align:left;position:relative;padding-left:28px;}
+  #about .why-timeline::before{content:'';position:absolute;left:4px;top:6px;bottom:6px;width:1px;background:var(--line-strong);}
+  #about .why-item{position:relative;padding-bottom:28px;}
+  #about .why-item:last-child{padding-bottom:0;}
+  #about .why-item::before{content:'';position:absolute;left:-28px;top:3px;width:9px;height:9px;border-radius:50%;background:var(--accent);}
+  #about .why-date{display:block;font-family:'Roboto',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);margin-bottom:4px;}
+  #about .why-item p{margin:0;color:var(--text);font-size:15px;line-height:1.5;max-width:34ch;}
 
   /* testimonials -- DEMO content, placeholder quotes pending real client reviews. Not for
      production publish as-is; layout/trust-impact preview only. Same card language as .trust-card.
@@ -1203,11 +1211,17 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
     <h2 class="h2-split h2-split-side"><span class="word"><span>The</span></span> <span class="word"><span>person</span></span> <span class="word"><span class="serif">building it.</span></span></h2>
     <p>I'm Martin van Staden. Started in marketing and sales two years ago, taught myself the rest, and built MVS Solves because most agencies stack layers between you and the actual work. Every project is mine alone — strategy, design, build, delivery. 20-hour days when a client needs it, because I'm hungry for your business to grow as much as mine. Whoever I'm working with is my only priority until it's done.</p>
     <ul class="about-points">
-      <li>18 years old</li>
+      <li>Self-taught, no agency background</li>
       <li>2 years in marketing &amp; sales</li>
       <li>Running MVS Solves 1 year</li>
     </ul>
     <p>My goal is simple — grow your business, get you real results, and leave it better than I found it. If that's not happening, I'm not done.</p>
+    <div class="lab why-lab">Why me?</div>
+    <div class="why-timeline">
+      <div class="why-item"><span class="why-date">2 years ago</span><p>Started in marketing and sales — learned the trade hands-on, no classroom.</p></div>
+      <div class="why-item"><span class="why-date">1 year ago</span><p>Founded MVS Solves. Went solo on purpose — no layers between me and the client.</p></div>
+      <div class="why-item"><span class="why-date">Today</span><p>Every project still runs through me personally. That's not changing as this grows.</p></div>
+    </div>
   </div>
 </section>
 
