@@ -20,7 +20,19 @@ let lenis;
       transform:translateX(-120%);transition:transform .6s cubic-bezier(.2,.8,.2,1);}
     .btn-fill:hover::after{transform:translateX(120%);}
   }
-  @media (prefers-reduced-motion: reduce){ .btn-fill::after{ transition:none!important; } }`;
+  @media (prefers-reduced-motion: reduce){ .btn-fill::after{ transition:none!important; } }
+  /* card shine sweep -- a light band travels across a card once per hover, layered on top of the
+     JS-driven cursor spotlight below. Animates background-position (not transform on the element
+     itself), so the sweep stays clipped to the card's own box regardless of whether the card has
+     overflow:hidden set -- a transform-translate version would visibly spill past rounded corners
+     onto neighboring cards without it, and not every card selector here is guaranteed to clip. */
+  .card-shine{position:absolute;inset:0;pointer-events:none;border-radius:inherit;z-index:1;
+    background:linear-gradient(115deg,transparent 40%,rgba(0,238,255,.16) 48%,rgba(255,255,255,.4) 50%,rgba(0,238,255,.16) 52%,transparent 60%);
+    background-size:300% 100%;background-position:150% 0;opacity:0;
+    transition:opacity .3s ease;}
+  @media (hover:hover) and (pointer:fine){
+    .card-shine.sweep{opacity:1;background-position:-150% 0;transition:background-position .9s cubic-bezier(.2,.7,.2,1),opacity .3s ease;}
+  }`;
   const style=document.createElement('style');
   style.textContent=css;
   document.head.appendChild(style);
@@ -65,6 +77,23 @@ let lenis;
       spot.style.opacity='1';
     });
     card.addEventListener('mouseleave',()=>{spot.style.opacity='0';});
+  });
+
+  /* card shine sweep -- one-shot light band on hover-enter, layered on top of the cursor spotlight
+     above. Only on the bigger content cards (not .tier -- it already has its own spinning-border
+     treatment, and not the small nav .hover-target links -- a full sweep reads odd on something
+     that size). CSS for .card-shine lives in the injected stylesheet above. */
+  document.querySelectorAll('.feat-card,.testi-card,.trust-card,.cal-card').forEach(card=>{
+    if(getComputedStyle(card).position==='static')card.style.position='relative';
+    const shine=document.createElement('div');
+    shine.className='card-shine';
+    card.appendChild(shine);
+    card.addEventListener('mouseenter',()=>{
+      shine.classList.remove('sweep');
+      void shine.offsetWidth; // restart the animation on repeat hovers
+      shine.classList.add('sweep');
+    });
+    card.addEventListener('mouseleave',()=>{shine.classList.remove('sweep');});
   });
 })();
 

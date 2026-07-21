@@ -1037,8 +1037,23 @@ if(document.fonts&&document.fonts.ready){
 
 /* hero reveal waits for the kinetic-type veil (shared.js) to finish -- it always dispatches
    mvs:veilDone, whether it played, was skipped, or never existed (reduced-motion), so this never
-   hangs waiting for an event that won't fire. */
-document.addEventListener('mvs:veilDone',playHeroReveal,{once:true});
+   hangs waiting for an event that won't fire.
+   Also waits for full window 'load' (images/canvases/fonts decoded, layout final) before actually
+   calling playHeroReveal -- the veil alone dismisses ~1.1-1.6s after page load, which can land
+   BEFORE images/3D canvases finish sizing, especially on a slower connection. Every ScrollTrigger
+   created inside playHeroReveal evaluates the CURRENT scroll position the instant it's created --
+   if the page layout is still shorter/different than its final size at that moment, a trigger's
+   'top 86%' point gets measured wrong, and if that miscalculated point is already behind the
+   current scroll position, GSAP fires it immediately instead of waiting for the user to actually
+   scroll there. Symptom reported: reveals already "played" by the time you scroll down to them.
+   The existing fonts.ready/idle-callback refreshes correct trigger POSITIONS after the fact, but
+   can't un-fire a once:true trigger that already played early -- has to not fire early in the
+   first place. */
+function playHeroRevealWhenReady(){
+  if(document.readyState==='complete')playHeroReveal();
+  else window.addEventListener('load',playHeroReveal,{once:true});
+}
+document.addEventListener('mvs:veilDone',playHeroRevealWhenReady,{once:true});
 /* integrations backdrop — sparse node network reclaims the "connected systems" motif the
    hero used to use (now free since hero moved to the torus knot). Kept faint/ambient since
    the colorful brand-logo marquee sits on top of it and must stay the visual focus. */
