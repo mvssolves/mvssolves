@@ -1307,7 +1307,15 @@ function initPriceRise3D(canvas){
   const cap=document.getElementById('capabilities');
   const capHead=document.querySelector('.cap-head');
   const stages=[...document.querySelectorAll('#featStack .feat-stage')];
-  if(!hero||!cap||!capHead||reduce||!stages.length)return;
+  /* desktop only -- a chained pin (hero, then 3 cards in sequence) fights native touch momentum
+     scroll on mobile: reported as "laggy" scroll and cards "not scrolling properly" (mid-pin
+     ScrollTrigger recalculation stutters against the browser's own touch-scroll compositor, the
+     same class of problem the bgfx canvas in shared.js already works around for narrow viewports).
+     Falls back to plain stacked block-flow scroll on mobile -- the CSS for that (index.html, 900px
+     block) already renders the cards in normal flow without this JS, just without the pin/cover
+     visual. isDesktop is a load-time snapshot (see matchMedia reload listener above), consistent
+     with every other desktop-only effect in this file. */
+  if(!hero||!cap||!capHead||reduce||!stages.length||!isDesktop)return;
   /* the 3 feat-cards also need to be the same height as each other, not just their stages --
      card 2's extra .feat-claim line otherwise makes IT (and its icon rectangle, which stretches to
      match) visibly taller than cards 1 and 3 ("its not even same size"). Equalizing to the tallest
