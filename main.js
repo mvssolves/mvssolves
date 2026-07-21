@@ -988,8 +988,8 @@ document.querySelectorAll('a[href^="#"]').forEach(link=>{
 function initCal(){
   try{
     Cal("init","discovery",{origin:"https://app.cal.com"});
-    Cal.ns.discovery("inline",{elementOrSelector:"#cal-embed",calLink:"bjorn-van-staden-zxcmiq/discovery",layout:"month_view"});
-    Cal.ns.discovery("ui",{hideEventTypeDetails:false,layout:"month_view"});
+    Cal.ns.discovery("inline",{elementOrSelector:"#cal-embed",calLink:"bjorn-van-staden-zxcmiq/discovery",layout:"month_view",config:{theme:"light"}});
+    Cal.ns.discovery("ui",{theme:"light",cssVarsPerTheme:{light:{"cal-brand":"#00eeff","cal-text":"#0a0a0a","cal-text-emphasis":"#0a0a0a","cal-bg":"#ffffff","cal-bg-emphasis":"#f6f5f3","cal-bg-muted":"#efeee9","cal-border":"rgba(10,10,10,0.18)","cal-border-emphasis":"rgba(10,10,10,0.30)","cal-border-subtle":"rgba(10,10,10,0.10)"}},hideEventTypeDetails:false,layout:"month_view"});
   }catch(err){document.getElementById('cal-embed').innerHTML='<div style="padding:40px;font-family:JetBrains Mono,monospace;font-size:13px;color:#6a6a72">Booking calendar — <a href="https://cal.com/bjorn-van-staden-zxcmiq/discovery" style="color:#0a0a0a;text-decoration:underline">open in new tab →</a></div>';}
 }
 /* lazy-load the Cal.com booking app only when the visitor nears it — major initial-load win */
