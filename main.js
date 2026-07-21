@@ -1145,13 +1145,13 @@ document.addEventListener('mvs:veilDone',playHeroRevealWhenReady,{once:true});
   if(reduce||typeof gsap==='undefined')return;
   const el=document.getElementById('heroRot');
   if(!el)return;
-  const texts=['business','bookings','leads','customers']; /* all read naturally as "Real Conversion for your ___" */
+  const texts=['business','bookings']; /* down to 2 (was 4) -- both read naturally as "Real Conversion for your ___" */
   let i=0;
   setInterval(()=>{
-    gsap.to(el,{yPercent:-120,opacity:0,duration:0.35,ease:'power2.in',onComplete:()=>{
+    gsap.to(el,{yPercent:-120,opacity:0,duration:0.4,ease:'power2.inOut',force3D:true,onComplete:()=>{
       i=(i+1)%texts.length;
       el.textContent=texts[i];
-      gsap.fromTo(el,{yPercent:100,opacity:0},{yPercent:0,opacity:1,duration:0.45,ease:'back.out(1.5)'});
+      gsap.fromTo(el,{yPercent:100,opacity:0},{yPercent:0,opacity:1,duration:0.5,ease:'power2.inOut',force3D:true});
     }});
   },2400);
 })();
