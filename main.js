@@ -1146,7 +1146,7 @@ document.addEventListener('mvs:veilDone',playHeroRevealWhenReady,{once:true});
   if(reduce||typeof gsap==='undefined')return;
   const el=document.getElementById('heroRot');
   if(!el)return;
-  const texts=['business','bookings','revenue','growth'];
+  const texts=['business','bookings','leads','customers']; /* all read naturally as "Real Conversion for your ___" -- "revenue"/"growth" (previous list) don't work grammatically as objects of "for" */
   let i=0;
   gsap.set(el,{transformPerspective:500,transformOrigin:'50% 50% -18px'});
   setInterval(()=>{
