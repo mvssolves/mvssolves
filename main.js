@@ -1451,7 +1451,7 @@ function initPriceRise3D(canvas){
      even if that's small, beats a hard clip. */
   const dropDist=Math.max(0,Math.min(cardH*0.5,clearBelow-20));
 
-  const cardDistance=0,verticalDistance=16,skew=-6; /* subtle stack peek -- these are full-width content cards, not small fanned-out widgets, so no horizontal drift. Negative skew tilts left. */
+  const cardDistance=0,verticalDistance=16,skew=12; /* subtle stack peek -- these are full-width content cards, not small fanned-out widgets, so no horizontal drift. Positive skew tilts right. */
   const config={ease:'sine.inOut',durDrop:0.45,durMove:0.4,durReturn:0.4,promoteOverlap:0.8,returnDelay:0.1}; /* sine.inOut is GSAP's smoothest standard ease (pure sinusoidal, no acceleration snap); durations cut ~35% for a faster cycle */
 
   const makeSlot=(i,total)=>({x:i*cardDistance,y:-i*verticalDistance,z:-i*cardDistance*1.5,zIndex:total-i});
