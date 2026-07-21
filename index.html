@@ -383,11 +383,6 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   @media(prefers-reduced-motion:reduce){.feat-illo{animation:none;}}
   .feat-body{flex:1;padding:40px 44px;display:flex;flex-direction:column;justify-content:center;
     min-width:0;position:relative;overflow:hidden;}
-  /* ghost numeral -- large, faint, bleeding off the top-right corner behind the copy. Editorial
-     "this is step N of the workflow" cue that doesn't compete with the real heading for attention. */
-  .feat-ghost{position:absolute;top:-.18em;right:-.05em;font-family:'Nohemi',sans-serif;font-weight:700;
-    font-size:clamp(140px,15vw,230px);line-height:1;color:var(--line);z-index:0;pointer-events:none;
-    user-select:none;}
   .feat-kicker{position:relative;z-index:1;font-family:'Roboto',monospace;font-size:11.5px;
     letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;
     gap:10px;margin-bottom:12px;}
@@ -407,7 +402,6 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
     .feat-card{flex-direction:column;}
     .feat-visual{flex:none;min-height:180px;}
     .feat-body{padding:28px 26px 32px;}
-    .feat-ghost{display:none;}
   }
 
   /* integrations — same monogram/card treatment as .cap, arranged on a rotating 3D cylinder */
@@ -1095,7 +1089,6 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
         </svg>
       </div>
       <div class="feat-body">
-        <div class="feat-ghost" aria-hidden="true">01</div>
         <div class="feat-kicker">01 — Web &amp; Funnels</div>
         <h3>Website &amp; funnels, built to convert.</h3>
         <p>A fast, professional site engineered around one job: turning visitors into booked clients — live in days, not months.</p>
@@ -1118,7 +1111,6 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
         </svg>
       </div>
       <div class="feat-body">
-        <div class="feat-ghost" aria-hidden="true">02</div>
         <div class="feat-kicker">02 — Automation</div>
         <h3>Automations that run while you sleep.</h3>
         <p>Make / n8n workflows wired end-to-end and error-handled, so the boring admin happens without you touching it.</p>
@@ -1139,7 +1131,6 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
         </svg>
       </div>
       <div class="feat-body">
-        <div class="feat-ghost" aria-hidden="true">03</div>
         <div class="feat-kicker">03 — AI Assistants</div>
         <h3>AI assistants, in your own voice.</h3>
         <p>Booking, FAQs and replies trained on your business, not a generic chatbot template. Never off the clock.</p>
