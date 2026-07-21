@@ -471,6 +471,28 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   .h2-split .word{display:inline-block;overflow:hidden;vertical-align:top;}
   .h2-split .word>span{display:inline-block;}
 
+  /* glitch-on-hover -- ported from React Bits' GlitchText (vanilla, no React on this site).
+     Layered on TOP of the existing word-reveal/slant treatment, not replacing it: the h2's real
+     word spans stay exactly as they are, these are two extra ::before/::after copies of the same
+     text, hidden until hover, then RGB-split + clip-path glitching over the original. */
+  .glitch-hover{position:relative;}
+  .glitch-hover::after,.glitch-hover::before{
+    content:attr(data-text);position:absolute;inset:0;color:var(--ink);background:var(--bg);
+    overflow:hidden;opacity:0;pointer-events:none;
+  }
+  .glitch-hover:hover::after{opacity:1;left:10px;text-shadow:-5px 0 red;animation:glitchAnim 3s infinite linear alternate-reverse;}
+  .glitch-hover:hover::before{opacity:1;left:-10px;text-shadow:5px 0 #00eeff;animation:glitchAnim 2s infinite linear alternate-reverse;}
+  @media(prefers-reduced-motion:reduce){.glitch-hover:hover::after,.glitch-hover:hover::before{animation:none;opacity:0;}}
+  @keyframes glitchAnim{
+    0%{clip-path:inset(20% 0 50% 0);}5%{clip-path:inset(10% 0 60% 0);}10%{clip-path:inset(15% 0 55% 0);}
+    15%{clip-path:inset(25% 0 35% 0);}20%{clip-path:inset(30% 0 40% 0);}25%{clip-path:inset(40% 0 20% 0);}
+    30%{clip-path:inset(10% 0 60% 0);}35%{clip-path:inset(15% 0 55% 0);}40%{clip-path:inset(25% 0 35% 0);}
+    45%{clip-path:inset(30% 0 40% 0);}50%{clip-path:inset(20% 0 50% 0);}55%{clip-path:inset(10% 0 60% 0);}
+    60%{clip-path:inset(15% 0 55% 0);}65%{clip-path:inset(25% 0 35% 0);}70%{clip-path:inset(30% 0 40% 0);}
+    75%{clip-path:inset(40% 0 20% 0);}80%{clip-path:inset(20% 0 50% 0);}85%{clip-path:inset(10% 0 60% 0);}
+    90%{clip-path:inset(15% 0 55% 0);}95%{clip-path:inset(25% 0 35% 0);}100%{clip-path:inset(30% 0 40% 0);}
+  }
+
   /* hero trust-stat badge — sits over the continuously-rendering hero-3d canvas the whole time
      the hero is on screen; backdrop-filter there resamples the canvas behind it every frame,
      same real cost nav.scrolled's blur was already cut for. Solid tint instead. */
@@ -1073,7 +1095,7 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
 <!-- CAPABILITIES -->
 <section class="section" id="capabilities">
   <div class="wrap cap-head">
-    <h2 class="h2-split"><span class="word"><span>The</span></span> <span class="word"><span>workflow</span></span> <span class="word"><span>you</span></span> <span class="word"><span>need.</span></span></h2>
+    <h2 class="h2-split glitch-hover" data-text="The workflow you need."><span class="word"><span>The</span></span> <span class="word"><span>workflow</span></span> <span class="word"><span>you</span></span> <span class="word"><span>need.</span></span></h2>
   </div>
   <div class="wrap">
   <div class="feat-stack" id="featStack">
