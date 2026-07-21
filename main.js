@@ -106,7 +106,7 @@ if(!reduce&&isDesktop){
   gsap.utils.toArray('.hiw-step, .trust-card, .testi-card, .tier, .book-copy, .book-cal').forEach(el=>{
     gsap.fromTo(el,{opacity:0,y:26,filter:'blur(8px)'},{
       opacity:1,y:0,filter:'blur(0px)',duration:.9,ease:'power2.out',
-      scrollTrigger:{trigger:el,start:'top 88%',...(isDesktop?{once:true}:{toggleActions:'play none play reverse'})}
+      scrollTrigger:{trigger:el,start:'top 88%',...(isDesktop?{toggleActions:'play none play reverse'}:{once:true})}
     });
   });
 })();
@@ -637,18 +637,19 @@ function playHeroReveal(){
 }
 
 
-/* section heading reveals. Desktop: once:true on every scrollTrigger below — without it, GSAP's
+/* section heading reveals. Mobile: once:true on every scrollTrigger below — without it, GSAP's
    default toggleActions ('play none none reverse') un-plays each reveal (fades back to its "from"
    state) the moment you scroll back up past its start point, then replays it scrolling back down.
    With this many reveals stacked down the page, any bit of scroll wobble (trackpad, momentum
    overshoot) made half the page flicker in/out — that's the "flickering" complaint. once:true
-   plays each reveal exactly once and leaves it in its end state for good.
-   Mobile: explicitly wants the opposite -- reveals should replay every time you scroll back up
+   plays each reveal exactly once and leaves it in its end state for good. Confirmed as the real
+   cause of "mobile scroll logic is a bit messed up" once replay was mistakenly applied there.
+   Desktop: explicitly wants the opposite -- reveals should replay every time you scroll back up
    past them and back down again, not just play once and stay. toggleActions 'play none play
    reverse' reverses on scrolling back up past the start point (onLeaveBack) and re-plays on the
    next entry (onEnter) -- same wobble-flicker tradeoff the once:true fix above avoided, accepted
-   here because it's an explicit mobile-only request. */
-  const rt=isDesktop?{once:true}:{toggleActions:'play none play reverse'};
+   here because it's an explicit desktop-only request. */
+  const rt=isDesktop?{toggleActions:'play none play reverse'}:{once:true};
 if(!reduce){
   gsap.utils.toArray('.section h2:not(.h2-split):not(:has(.kt-text))').forEach(el=>{
     gsap.from(el,{y:32,opacity:0,duration:1.05,ease:'power4.out',
@@ -683,7 +684,7 @@ if(!reduce){
   gsap.utils.toArray('.kt-text').forEach(el=>{
     ScrollTrigger.create({trigger:el,start:'top 86%',fastScrollEnd:true,
       onEnter:()=>el.classList.add('kt-in'),
-      onLeaveBack:()=>{if(!isDesktop)el.classList.remove('kt-in');}});
+      onLeaveBack:()=>{if(isDesktop)el.classList.remove('kt-in');}});
   });
   gsap.utils.toArray('.section .sub, .lab').forEach(el=>{
     gsap.from(el,{y:30,opacity:0,duration:0.9,ease:'power3.out',
@@ -1338,15 +1339,15 @@ function initPriceRise3D(canvas){
      and card 3 visibly overlapping (both partially on screen at once) at a wider window than this
      was tested at. Measuring each stage's own real height fixes it regardless of viewport or which
      card has more content. */
-  /* last stage used to keep pinSpacing:true (default) so it reserved its own space and How It
-     Works flowed on right after -- on mobile this reserved DOUBLE the real height (measured: 889px
-     spacer for a 445px card), leaving a dead white gap before How It Works. pinSpacing:false on
-     every stage (last included) sidesteps that GSAP reserve math entirely: How It Works simply
-     rises to meet/cover the last card exactly like each card already covers the one before it --
-     same continuous fold language, one more link in the same chain, no separate reserve-space
-     bug surface. */
-  stages.forEach(stage=>{
+  /* last stage: pinSpacing:true on desktop (proven correct there -- How It Works reserves the
+     card's real space and flows on cleanly after). Removing it broke desktop (how-it-works content
+     rendered behind/through the still-pinned last card, no reserved space at all). Mobile needed
+     pinSpacing:false instead -- measured a real GSAP quirk there where pinSpacing:true reserved
+     DOUBLE the card's real height (889px spacer for a 445px card), leaving a dead gap. Two
+     different bugs, two different fixes -- branch on viewport instead of picking one for both. */
+  stages.forEach((stage,i)=>{
+    const isLast=i===stages.length-1;
     const stagePct=()=>'+='+(stage.getBoundingClientRect().height/window.innerHeight*100)+'%';
-    ScrollTrigger.create({trigger:stage,start:'top top',end:stagePct,pin:true,pinSpacing:false,invalidateOnRefresh:true});
+    ScrollTrigger.create({trigger:stage,start:'top top',end:stagePct,pin:true,pinSpacing:isLast&&isDesktop,invalidateOnRefresh:true});
   });
 })();
