@@ -688,7 +688,7 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   /* about -- founder bio, centered single column, sits directly above testimonials. Why-me
      timeline runs horizontal on desktop (dots along a top line); collapses to the original
      vertical dot-line on mobile, see media query below. */
-  #about .wrap{max-width:960px;text-align:center;display:flex;flex-direction:column;}
+  #about .wrap{max-width:960px;text-align:center;}
   #about p{color:var(--soft);font-size:16px;line-height:1.7;margin:18px auto 0;max-width:60ch;}
   #about .why-lab{margin-top:44px;}
   #about .why-timeline{margin:20px auto 0;max-width:900px;display:flex;justify-content:space-between;gap:12px;position:relative;padding-top:24px;}
@@ -703,10 +703,6 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   #about .why-date{display:block;font-family:'Roboto',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);margin-bottom:4px;}
   #about .why-item p{margin:0 auto;color:var(--text);font-size:14px;line-height:1.5;max-width:none;}
   @media(max-width:900px){
-    /* goal statement reads before the timeline on mobile (flex order only -- desktop keeps
-       source order, nothing to override there). */
-    #about .goal-p{order:1;}
-    #about .why-block{order:2;}
     #about .why-timeline{display:block;max-width:400px;margin:20px auto 0;padding-top:0;padding-left:28px;}
     #about .why-timeline::before{left:4px;right:auto;top:6px;bottom:6px;height:auto;width:1px;transform-origin:top center;transform:scaleY(0);}
     #about .why-timeline.why-in::before{transform:scaleY(1);}
@@ -1223,6 +1219,7 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
     <div class="lab">About</div>
     <h2 class="h2-split h2-split-side"><span class="word"><span>The</span></span> <span class="word"><span>person</span></span> <span class="word"><span class="serif">building it.</span></span></h2>
     <p>I'm Martin van Staden — self-taught, no agency background. Started in marketing and sales two years ago and built MVS Solves because most agencies stack layers between you and the actual work. Every project is mine alone — strategy, design, build, delivery. 20-hour days when a client needs it, because I'm hungry for your business to grow as much as mine. Whoever I'm working with is my only priority until it's done.</p>
+    <p class="goal-p">My goal is simple — grow your business, get you real results, and leave it better than I found it. If that's not happening, I'm not done.</p>
     <div class="why-block">
       <div class="lab why-lab">Why me?</div>
       <div class="why-timeline">
@@ -1233,7 +1230,6 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
         <div class="why-item"><span class="why-date">Today</span><p>Every project still runs through me personally. That's not changing as this grows.</p></div>
       </div>
     </div>
-    <p class="goal-p">My goal is simple — grow your business, get you real results, and leave it better than I found it. If that's not happening, I'm not done.</p>
   </div>
 </section>
 
