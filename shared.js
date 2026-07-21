@@ -43,10 +43,13 @@ let lenis;
      stop working, and the browser's compositor handles the interpolation for free. */
   const glow=document.createElement('div');
   glow.id='cursorGlow';
-  glow.style.cssText='position:fixed;top:0;left:0;width:460px;height:460px;margin:-230px 0 0 -230px;'
+  glow.style.cssText='position:fixed;top:0;left:0;width:640px;height:640px;margin:-320px 0 0 -320px;'
     +'border-radius:50%;pointer-events:none;z-index:40;opacity:0;'
-    +'background:radial-gradient(circle,rgba(0,238,255,.14) 0%,rgba(0,238,255,.05) 45%,transparent 72%);'
-    +'transition:opacity .4s ease,transform .12s linear;will-change:transform;';
+    +'background:radial-gradient(circle,rgba(190,247,255,.16) 0%,rgba(0,238,255,.09) 22%,rgba(0,238,255,.035) 46%,transparent 70%);'
+    +'filter:blur(2px);'
+    /* slow eased transition on transform (not the earlier 0.12s linear snap) is what actually reads
+       as a "glow" -- a soft light chasing the cursor with a bit of lag, not a rigid dot glued to it. */
+    +'transition:opacity .5s ease,transform .7s cubic-bezier(.16,1,.3,1);will-change:transform;';
   document.documentElement.appendChild(glow);
   window.addEventListener('mousemove',e=>{
     glow.style.transform='translate3d('+e.clientX+'px,'+e.clientY+'px,0)';
