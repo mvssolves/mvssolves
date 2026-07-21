@@ -808,7 +808,7 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
      flat color, so this needs no extra guard here. */
   h1{color:var(--ink);}
   h1 .aw{text-shadow:none;}
-  h1 .aw .grad{text-shadow:none;background-image:linear-gradient(90deg,#00eeff,#ffffff,#ffffff,#00eeff);
+  h1 .grad{text-shadow:none;background-image:linear-gradient(90deg,#00eeff,#ffffff,#ffffff,#00eeff);
     background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
     animation:gradLoop 3s ease-in-out infinite alternate;}
   @keyframes gradLoop{0%{background-position:0% 50%}100%{background-position:100% 50%}}
@@ -867,7 +867,7 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   @keyframes shine{from{left:-40%;}to{left:130%;}}
 
   /* pause hero sheen when scrolled away (perf) */
-  .hero-off h1,.hero-off h1 .aw .grad,.hero-off .scroll-arrow{animation-play-state:paused;}
+  .hero-off h1,.hero-off h1 .grad,.hero-off .scroll-arrow{animation-play-state:paused;}
 
   /* Starter lead offer card */
   .starter{position:relative;background:var(--ink);color:var(--accent-ink);border-radius:18px;padding:30px 34px;margin-top:30px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:22px;}
@@ -1033,7 +1033,7 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   .gblur.top{top:0;}
 
   @media(prefers-reduced-motion:reduce){
-    h1,h1 .aw .grad{animation:none;background:none;-webkit-text-fill-color:var(--ink);color:var(--ink);text-shadow:none;}
+    h1,h1 .grad{animation:none;background:none;-webkit-text-fill-color:var(--ink);color:var(--ink);text-shadow:none;}
     .tier{transition:border-color .3s ease;}.tier:hover{transform:none;}
     .btn:active{transform:none;}
     .btn-fill:hover::after{animation:none;}
