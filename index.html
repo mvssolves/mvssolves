@@ -677,6 +677,13 @@
   .trust-card h3{font-family:'Nohemi',sans-serif;font-weight:700;font-size:16.5px;letter-spacing:-.01em;color:var(--ink);}
   .trust-card p{color:var(--soft);font-size:14px;line-height:1.6;max-width:32ch;}
 
+  /* about -- founder bio, centered single column, sits directly above testimonials. */
+  #about .wrap{max-width:640px;text-align:center;}
+  #about p{color:var(--soft);font-size:16px;line-height:1.7;margin-top:18px;}
+  #about .about-points{list-style:none;margin:24px auto 0;padding:0;font-size:14.5px;display:inline-block;text-align:left;}
+  #about .about-points li{padding:6px 0 6px 26px;position:relative;color:var(--text);}
+  #about .about-points li::before{content:"✓";position:absolute;left:0;font-weight:800;color:var(--accent);}
+
   /* testimonials -- DEMO content, placeholder quotes pending real client reviews. Not for
      production publish as-is; layout/trust-impact preview only. Same card language as .trust-card.
      Carousel, not a wrapping grid -- scroll-snap track + prev/next buttons, room to keep adding
@@ -1177,10 +1184,17 @@
   </div>
 </section>
 
-<!-- ABOUT -- Martin bio section. Placeholder, content pending. -->
+<!-- ABOUT -->
 <section class="section" id="about">
   <div class="wrap">
-    <!-- TODO: Martin about content -->
+    <div class="lab">About</div>
+    <h2 class="h2-split h2-split-side"><span class="word"><span>The</span></span> <span class="word"><span>person</span></span> <span class="word"><span class="serif">building it.</span></span></h2>
+    <p>I started in marketing and sales three years ago, taught myself the rest, and built MVS Solves because most agencies stack layers between you and the actual work. Every project is mine alone — strategy, design, build, delivery. 16-hour days when a client needs it; whoever I'm working with is my only priority until it's done.</p>
+    <ul class="about-points">
+      <li>18 years old</li>
+      <li>3 years in marketing &amp; sales</li>
+      <li>Running MVS Solves 1–2 years</li>
+    </ul>
   </div>
 </section>
 
