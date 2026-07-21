@@ -160,9 +160,32 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   .progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--accent);z-index:100;}
 
 
-  /* nav */
-  nav{position:fixed;top:0;left:0;right:0;z-index:60;padding:20px 36px;display:flex;align-items:center;gap:16px;
+  /* nav -- replaced by the OptionWheel menu (hero section only, see .option-wheel below).
+     display:none unconditionally now, not just the old mobile-only media query: the pill read as
+     redundant next to the wheel on desktop too. */
+  nav{display:none;}
+  nav.legacy-unused{position:fixed;top:0;left:0;right:0;z-index:60;padding:20px 36px;display:flex;align-items:center;gap:16px;
     justify-content:flex-end;}
+
+  /* OptionWheel -- ported from React Bits (vanilla JS/CSS, no React on this site). Replaces the
+     pill nav above. position:absolute against .hero (which is position:relative), NOT fixed --
+     it lives inside the hero section and scrolls away with it, doesn't follow down the page.
+     Desktop only per the ask; mobile keeps no top nav at all, same as before this change. */
+  .option-wheel{
+    --ow-text-color:var(--muted);--ow-active-color:var(--ink);--ow-font-size:1.35rem;--ow-inset:32px;
+    position:absolute;top:50%;left:0;width:260px;height:220px;transform:translateY(-50%);
+    z-index:5;overflow:hidden;cursor:grab;user-select:none;outline:none;display:block;
+  }
+  @media(max-width:900px){.option-wheel{display:none;}}
+  .option-wheel__item{
+    position:absolute;top:50%;left:var(--ow-inset);white-space:nowrap;
+    font-size:var(--ow-font-size);line-height:1;font-weight:500;letter-spacing:-.01em;
+    transform-origin:left center;cursor:pointer;will-change:transform,opacity,filter;
+    font-family:'Nohemi',sans-serif;
+    color:color-mix(in srgb,var(--ow-active-color) calc(var(--ow-p,0) * 100%),var(--ow-text-color));
+  }
+  .option-wheel__item--selected{font-weight:700;}
+  @media(prefers-reduced-motion:reduce){.option-wheel__item{transition:none;}}
   .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:17px;color:var(--ink);white-space:nowrap;flex-shrink:0;
     background:rgba(10,10,10,.05);border:1px solid var(--line);border-radius:999px;padding:8px 16px 8px 8px;}
   /* explicit inverted chip (dark square, white letter) -- this is a fixed badge treatment,
@@ -1080,6 +1103,12 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
 </nav>
 
 <header class="hero" id="top">
+  <div id="optionWheel" class="option-wheel" role="listbox" tabindex="0" aria-label="Site navigation">
+    <div class="option-wheel__item" data-href="#top">Home</div>
+    <div class="option-wheel__item" data-href="#about">About</div>
+    <div class="option-wheel__item" data-href="#pricing">Pricing</div>
+    <div class="option-wheel__item" data-href="/faq">FAQ</div>
+  </div>
   <div class="h-wrap">
     <h1 class="flick">
       <span class="line"><span class="ft">Real</span></span>
@@ -1657,6 +1686,97 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   document.getElementById('calcPopupCta').addEventListener('click',close);
   document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
   setTimeout(open,6000);
+})();</script>
+
+<!-- OptionWheel nav -- ported from React Bits (vanilla, no React on this site). DOM+CSS transform
+     wheel, not canvas -- much lighter than the other two ported components on this page. Replaces
+     the old pill nav; items come from the markup itself (data-href + text) rather than a JS array,
+     so the menu stays editable in the HTML like every other nav link on the site. -->
+<script>(function(){
+  var root=document.getElementById('optionWheel');
+  if(!root)return;
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var items=[...root.querySelectorAll('.option-wheel__item')];
+  if(!items.length)return;
+  var count=items.length;
+  var rowH=Math.max(parseFloat(getComputedStyle(items[0]).fontSize)*1.4,1);
+  var curve=2,tilt=14.5,blur=3.75,fade=0.18,minOpacity=0.15,smoothing=250;
+  var pos=0,target=0,raf=null,last=0;
+
+  function clamp(v){return Math.min(Math.max(v,0),count-1);}
+
+  function layout(){
+    var tiltRad=tilt*Math.PI/180;
+    var R=tiltRad>0.0005?rowH/tiltRad:0;
+    items.forEach(function(el,i){
+      var d=i-pos,dist=Math.abs(d),x=0,y=d*rowH,rot=0;
+      if(R>0){
+        var ang=Math.max(-Math.PI/2,Math.min(Math.PI/2,d*tiltRad));
+        y=R*Math.sin(ang);x=-R*(1-Math.cos(ang))*curve;rot=ang*180/Math.PI;
+      }
+      el.style.transform='translate('+x.toFixed(2)+'px, calc('+y.toFixed(2)+'px - 50%)) rotate('+rot.toFixed(3)+'deg)';
+      el.style.opacity=String(reduce?1:Math.max(minOpacity,1-dist*fade));
+      el.style.filter=(!reduce&&blur>0)?'blur('+(dist*blur).toFixed(2)+'px)':'none';
+      el.style.setProperty('--ow-p',Math.max(0,1-Math.min(dist,1)).toFixed(4));
+      el.classList.toggle('option-wheel__item--selected',Math.round(pos)===i);
+    });
+  }
+
+  function frame(now){
+    var dt=Math.min((now-last)/1000,0.05);last=now;
+    var tau=Math.max(smoothing,1)/1000,k=1-Math.exp(-dt/tau);
+    var next=pos+(target-pos)*k;
+    var settled=Math.abs(target-next)<0.001;
+    pos=settled?target:next;
+    layout();
+    raf=settled?null:requestAnimationFrame(frame);
+  }
+  function startLoop(){if(raf!=null)return;last=performance.now();raf=requestAnimationFrame(frame);}
+  function setTarget(v,snap){
+    target=clamp(snap?Math.round(v):v);
+    startLoop();
+  }
+  layout(); /* paint the resting curve immediately, don't wait for the first interaction */
+
+  var wheelTimer;
+  root.addEventListener('wheel',function(e){
+    e.preventDefault();
+    var delta=e.deltaMode===1?e.deltaY*24:e.deltaY;
+    var step=Math.max(-1,Math.min(1,delta/rowH));
+    setTarget(target+step,false);
+    clearTimeout(wheelTimer);
+    wheelTimer=setTimeout(function(){setTarget(target,true);},140);
+  },{passive:false});
+
+  root.addEventListener('keydown',function(e){
+    var d=null;
+    if(e.key==='ArrowUp'||e.key==='ArrowLeft')d=-1;
+    else if(e.key==='ArrowDown'||e.key==='ArrowRight')d=1;
+    if(d===null)return;
+    e.preventDefault();
+    setTarget(Math.round(target)+d,true);
+  });
+
+  var dragY=null,dragStart=0,dragMoved=false;
+  root.addEventListener('pointerdown',function(e){dragY=e.clientY;dragStart=target;dragMoved=false;root.style.cursor='grabbing';});
+  root.addEventListener('pointermove',function(e){
+    if(dragY===null)return;
+    var dy=e.clientY-dragY;
+    if(!dragMoved&&Math.abs(dy)>4)dragMoved=true;
+    if(dragMoved)setTarget(dragStart-dy/rowH,false);
+  });
+  function endDrag(){if(dragY===null)return;dragY=null;root.style.cursor='grab';if(dragMoved)setTarget(target,true);}
+  root.addEventListener('pointerup',endDrag);
+  root.addEventListener('pointercancel',endDrag);
+
+  items.forEach(function(el,i){
+    el.addEventListener('click',function(){
+      if(dragMoved)return;
+      setTarget(i,true);
+      var href=el.getAttribute('data-href');
+      if(href)setTimeout(function(){location.href=href;},180);
+    });
+  });
 })();</script>
 
 <!-- fuzzy text on "exponential" -- ported from React Bits' FuzzyText, vanilla canvas version
