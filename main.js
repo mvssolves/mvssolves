@@ -960,6 +960,10 @@ if(!reduce){
   track.addEventListener('mouseenter',stop);
   track.addEventListener('mouseleave',start);
   document.addEventListener('visibilitychange',()=>{document.hidden?stop():start();});
+  /* scroll-position gate -- was only pausing on tab-hidden, not on scrolling the carousel itself
+     off-screen (every other continuous effect in this file also gates on section visibility, not
+     just tab visibility). Kept auto-advancing off-screen the whole session otherwise. */
+  onVisibilityChange(track,visible=>visible?start():stop());
   start();
 })();
 
@@ -1464,7 +1468,15 @@ function initPriceRise3D(canvas){
     tl.call(()=>{order=[...rest,front];});
   }
 
-  setInterval(swap,4200); /* bumped alongside the longer, less-overlapped swap animation so there's a clear resting beat between cycles instead of the next swap firing mid-motion */
+  /* paused off-screen -- every other continuous effect in this file (ambient 3D scenes'
+     halfRate()+onVisibilityChange, premium-card spin-off, hero sheen) stops running once its
+     section scrolls out of view; this one didn't, and kept re-tweening 3D transforms on 3
+     elements every 4.2s for the entire session regardless of scroll position -- a real
+     contributor to reported scroll lag, not just theoretical. */
+  let timer=null;
+  function startTimer(){if(!timer)timer=setInterval(swap,4200);}
+  function stopTimer(){if(timer){clearInterval(timer);timer=null;}}
+  onVisibilityChange(container,visible=>visible?startTimer():stopTimer());
   onWidthResize(()=>{
     cards.forEach(c=>{c.style.height='';});
     const h=Math.max(...cards.map(c=>c.getBoundingClientRect().height));
