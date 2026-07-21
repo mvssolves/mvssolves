@@ -802,10 +802,15 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
 
   /* ===== polish pass ===== */
 
-  /* hero words: solid ink (sheen removed — background-clip:text conflicted with BlurText per-word spans).
-     Two-tone headline (nume-style): "Real Conversion" solid black, "for your business" soft grey. */
+  /* hero words: "Real Conversion" solid black. "for your business" gets a slow looping gradient
+     sweep instead of flat grey -- accent cyan/black, same idea as react-bits' GradientText but
+     plain CSS (site has no React/build step). Reduced-motion kill-switch below already resets
+     h1 .aw to flat color, so this needs no extra guard here. */
   h1{color:var(--ink);}
-  h1 .aw{color:var(--soft);text-shadow:none;}
+  h1 .aw{text-shadow:none;background-image:linear-gradient(90deg,#00eeff,#0a0a0a,#0a0a0a,#00eeff);
+    background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:gradLoop 6s ease-in-out infinite;}
+  @keyframes gradLoop{0%{background-position:0% 50%}100%{background-position:100% 50%}}
 
   /* nav: underline-grow + hover */
   .nav-r a:not(.navcta){position:relative;transition:color .25s ease;}
