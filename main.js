@@ -1451,8 +1451,8 @@ function initPriceRise3D(canvas){
      even if that's small, beats a hard clip. */
   const dropDist=Math.max(0,Math.min(cardH*0.5,clearBelow-20));
 
-  const cardDistance=0,verticalDistance=16,skew=2; /* subtle stack peek -- these are full-width content cards, not small fanned-out widgets, so no horizontal drift and only a light skew */
-  const config={ease:'power2.inOut',durDrop:0.7,durMove:0.6,durReturn:0.6,promoteOverlap:0.8,returnDelay:0.1};
+  const cardDistance=0,verticalDistance=16,skew=-6; /* subtle stack peek -- these are full-width content cards, not small fanned-out widgets, so no horizontal drift. Negative skew tilts left. */
+  const config={ease:'sine.inOut',durDrop:0.45,durMove:0.4,durReturn:0.4,promoteOverlap:0.8,returnDelay:0.1}; /* sine.inOut is GSAP's smoothest standard ease (pure sinusoidal, no acceleration snap); durations cut ~35% for a faster cycle */
 
   const makeSlot=(i,total)=>({x:i*cardDistance,y:-i*verticalDistance,z:-i*cardDistance*1.5,zIndex:total-i});
   const placeNow=(el,slot)=>gsap.set(el,{x:slot.x,y:slot.y,z:slot.z,xPercent:0,yPercent:-50,
@@ -1481,9 +1481,9 @@ function initPriceRise3D(canvas){
     tl.call(()=>{order=[...rest,front];});
   }
 
-  let timer=setInterval(swap,5000);
+  let timer=setInterval(swap,3200);
   container.addEventListener('mouseenter',()=>clearInterval(timer));
-  container.addEventListener('mouseleave',()=>{timer=setInterval(swap,5000);});
+  container.addEventListener('mouseleave',()=>{timer=setInterval(swap,3200);});
   onWidthResize(()=>{
     cards.forEach(c=>{c.style.height='';});
     const h=Math.max(...cards.map(c=>c.getBoundingClientRect().height));
