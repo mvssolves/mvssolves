@@ -172,8 +172,8 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
      it lives inside the hero section and scrolls away with it, doesn't follow down the page.
      Desktop only per the ask; mobile keeps no top nav at all, same as before this change. */
   .option-wheel{
-    --ow-text-color:var(--muted);--ow-active-color:var(--ink);--ow-font-size:1.35rem;--ow-inset:32px;
-    position:absolute;top:50%;left:0;width:260px;height:220px;transform:translateY(-50%);
+    --ow-text-color:var(--muted);--ow-active-color:var(--ink);--ow-font-size:2rem;--ow-inset:44px;
+    position:absolute;top:50%;left:0;width:380px;height:340px;transform:translateY(-50%);
     z-index:5;overflow:hidden;cursor:grab;user-select:none;outline:none;display:block;
   }
   @media(max-width:900px){.option-wheel{display:none;}}
@@ -1106,8 +1106,9 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   <div id="optionWheel" class="option-wheel" role="listbox" tabindex="0" aria-label="Site navigation" data-lenis-prevent>
     <div class="option-wheel__item" data-href="#top">Home</div>
     <div class="option-wheel__item" data-href="#about">About</div>
+    <div class="option-wheel__item" data-href="#testimonials">Testimonials</div>
     <div class="option-wheel__item" data-href="#pricing">Pricing</div>
-    <div class="option-wheel__item" data-href="/faq">FAQ</div>
+    <div class="option-wheel__item" data-href="#book">Book a call</div>
   </div>
   <div class="h-wrap">
     <h1 class="flick">
