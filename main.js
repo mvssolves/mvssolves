@@ -106,7 +106,7 @@ if(!reduce&&isDesktop){
   gsap.utils.toArray('.hiw-step, .trust-card, .testi-card, .tier, .book-copy, .book-cal').forEach(el=>{
     gsap.fromTo(el,{opacity:0,y:26,filter:'blur(8px)'},{
       opacity:1,y:0,filter:'blur(0px)',duration:.9,ease:'power2.out',
-      scrollTrigger:{trigger:el,start:'top 88%',...(isDesktop?{toggleActions:'play none play reverse'}:{once:true})}
+      scrollTrigger:{trigger:el,start:'top 88%',once:true}
     });
   });
 })();
@@ -637,19 +637,16 @@ function playHeroReveal(){
 }
 
 
-/* section heading reveals. Mobile: once:true on every scrollTrigger below — without it, GSAP's
-   default toggleActions ('play none none reverse') un-plays each reveal (fades back to its "from"
-   state) the moment you scroll back up past its start point, then replays it scrolling back down.
-   With this many reveals stacked down the page, any bit of scroll wobble (trackpad, momentum
-   overshoot) made half the page flicker in/out — that's the "flickering" complaint. once:true
-   plays each reveal exactly once and leaves it in its end state for good. Confirmed as the real
-   cause of "mobile scroll logic is a bit messed up" once replay was mistakenly applied there.
-   Desktop: explicitly wants the opposite -- reveals should replay every time you scroll back up
-   past them and back down again, not just play once and stay. toggleActions 'play none play
-   reverse' reverses on scrolling back up past the start point (onLeaveBack) and re-plays on the
-   next entry (onEnter) -- same wobble-flicker tradeoff the once:true fix above avoided, accepted
-   here because it's an explicit desktop-only request. */
-  const rt=isDesktop?{toggleActions:'play none play reverse'}:{once:true};
+/* section heading reveals. once:true on every scrollTrigger below, both viewports -- without it,
+   GSAP's default toggleActions ('play none none reverse') un-plays each reveal (fades back to its
+   "from" state) the moment you scroll back up past its start point, then replays it scrolling back
+   down. With this many reveals stacked down the page, any bit of scroll wobble (trackpad, momentum
+   overshoot) made half the page flicker in/out. Tried a replay-on-scroll variant on mobile, then on
+   desktop (per two rounds of explicit requests) -- both times it reintroduced exactly this same
+   flicker, reported back as "mobile scroll logic messed up" and then "site feels drained, missing
+   reveals/hover" once it moved to desktop. Reverted for good: once:true is the stable, proven
+   behavior every other pin/reveal effect on this page already relies on. */
+  const rt={once:true};
 if(!reduce){
   gsap.utils.toArray('.section h2:not(.h2-split):not(:has(.kt-text))').forEach(el=>{
     gsap.from(el,{y:32,opacity:0,duration:1.05,ease:'power4.out',
@@ -679,12 +676,10 @@ if(!reduce){
   });
   /* kinetic-letter reveal -- reused loading-veil effect (see shared.js/#ktVeil), applied to the
      two headings that had no letter/word treatment (pricing, book). Pure class toggle, CSS
-     drives the actual per-letter transition. once:true always here regardless of viewport --
-     it's a class toggle (kt-in), not a tween, reversing it needs a class removal on leave-back too. */
+     drives the actual per-letter transition. Plays once and stays, same as everything else above. */
   gsap.utils.toArray('.kt-text').forEach(el=>{
-    ScrollTrigger.create({trigger:el,start:'top 86%',fastScrollEnd:true,
-      onEnter:()=>el.classList.add('kt-in'),
-      onLeaveBack:()=>{if(isDesktop)el.classList.remove('kt-in');}});
+    ScrollTrigger.create({trigger:el,start:'top 86%',once:true,fastScrollEnd:true,
+      onEnter:()=>el.classList.add('kt-in')});
   });
   gsap.utils.toArray('.section .sub, .lab').forEach(el=>{
     gsap.from(el,{y:30,opacity:0,duration:0.9,ease:'power3.out',

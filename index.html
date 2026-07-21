@@ -360,10 +360,17 @@
   @media(max-width:900px){
     /* feat-stack no longer forced into a flex column here -- the fold-stack pin effect (main.js)
        now also runs on mobile, and pinSpacing:false collapse depends on stages sitting in normal
-       block flow one after another, not flex items separated by a fixed gap. min-height:0 stays --
-       stage height is driven entirely by its real card content (measured live in JS), which is
-       what keeps mobile stages compact instead of forcing a 65vh floor like desktop. */
-    .feat-stage{min-height:0;padding:64px 0 20px;}
+       block flow one after another, not flex items separated by a fixed gap.
+       Stage went through min-height:0 first (height = just the compact card) -- looked right at
+       rest but broke mid-scroll: a transparent stage that's barely taller than its own small card
+       left the ADJACENT stage's tags and the next section's heading visibly bleeding through above
+       and below the pinned card (reported from a real phone screenshot). The "stage transparent,
+       only the card covers" design (see comment above .feat-stage) only holds when the card is
+       nearly the stage's full height, which compacting the cards for mobile broke. Matching
+       desktop's 65vh + an opaque bg fixes it the same way desktop never had this bug: the whole
+       pinned block is a solid white sheet, compact card just centered inside it, nothing behind
+       can show through regardless of how small the card itself is. */
+    .feat-stage{min-height:65vh;padding:64px 0 20px;background:var(--bg);}
   }
   .feat-card{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:12px;
     overflow:hidden;background:var(--bg);transition:border-color .3s ease,box-shadow .3s ease;}
@@ -768,8 +775,10 @@
   /* hero's fill button used to grow (padding-left jump above) to make room for a swap-icon that
      doesn't exist on this button anymore -- it was just an unexplained size change on hover.
      Fixed size, text-only hover treatment instead: tracks out slightly + brightens. */
-  .h-cta .btn-fill{transition:transform .12s ease,opacity .25s ease,letter-spacing .3s ease;}
-  .h-cta .btn-fill:hover{opacity:1;letter-spacing:.04em;}
+  /* text-only hover, not a "button" hover -- box (padding/size/bg) never moves on hover, only the
+     label color shifts. No shape change means no reserved dead space is possible here again. */
+  .h-cta .btn-fill{transition:color .25s ease;}
+  .h-cta .btn-fill:hover{color:var(--accent);}
   .alc-row{transition:padding-left .25s ease,color .25s ease;}
   .alc-row:hover{padding-left:8px;color:var(--ink);}
   .tier:active{transform:translateY(-2px);}
