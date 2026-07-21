@@ -688,20 +688,29 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   .trust-card h3{font-family:'Nohemi',sans-serif;font-weight:700;font-size:16.5px;letter-spacing:-.01em;color:var(--ink);}
   .trust-card p{color:var(--soft);font-size:14px;line-height:1.6;max-width:32ch;}
 
-  /* about -- founder bio, centered single column, sits directly above testimonials. */
-  #about .wrap{max-width:640px;text-align:center;}
-  #about p{color:var(--soft);font-size:16px;line-height:1.7;margin-top:18px;}
+  /* about -- founder bio, centered single column, sits directly above testimonials. Why-me
+     timeline runs horizontal on desktop (dots along a top line); collapses to the original
+     vertical dot-line on mobile, see media query below. */
+  #about .wrap{max-width:960px;text-align:center;}
+  #about p{color:var(--soft);font-size:16px;line-height:1.7;margin:18px auto 0;max-width:60ch;}
   #about .about-points{list-style:none;margin:24px auto 0;padding:0;font-size:14.5px;display:inline-block;text-align:left;}
   #about .about-points li{padding:6px 0 6px 26px;position:relative;color:var(--text);}
   #about .about-points li::before{content:"✓";position:absolute;left:0;font-weight:800;color:var(--accent);}
   #about .why-lab{margin-top:44px;}
-  #about .why-timeline{margin:0 auto;max-width:400px;text-align:left;position:relative;padding-left:28px;}
-  #about .why-timeline::before{content:'';position:absolute;left:4px;top:6px;bottom:6px;width:1px;background:var(--line-strong);}
-  #about .why-item{position:relative;padding-bottom:28px;}
-  #about .why-item:last-child{padding-bottom:0;}
-  #about .why-item::before{content:'';position:absolute;left:-28px;top:3px;width:9px;height:9px;border-radius:50%;background:var(--accent);}
+  #about .why-timeline{margin:20px auto 0;max-width:900px;display:flex;justify-content:space-between;gap:12px;position:relative;padding-top:24px;}
+  #about .why-timeline::before{content:'';position:absolute;left:0;right:0;top:5px;height:1px;background:var(--line-strong);}
+  #about .why-item{position:relative;flex:1;padding:0 6px;text-align:center;}
+  #about .why-item::before{content:'';position:absolute;left:50%;top:-19px;transform:translateX(-50%);width:9px;height:9px;border-radius:50%;background:var(--accent);}
   #about .why-date{display:block;font-family:'Roboto',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);margin-bottom:4px;}
-  #about .why-item p{margin:0;color:var(--text);font-size:15px;line-height:1.5;max-width:34ch;}
+  #about .why-item p{margin:0 auto;color:var(--text);font-size:14px;line-height:1.5;max-width:none;}
+  @media(max-width:900px){
+    #about .why-timeline{display:block;max-width:400px;margin:20px auto 0;padding-top:0;padding-left:28px;}
+    #about .why-timeline::before{left:4px;right:auto;top:6px;bottom:6px;height:auto;width:1px;}
+    #about .why-item{padding:0 0 28px;text-align:left;}
+    #about .why-item:last-child{padding-bottom:0;}
+    #about .why-item::before{left:-28px;top:3px;transform:none;}
+    #about .why-item p{max-width:34ch;margin:0;}
+  }
 
   /* testimonials -- DEMO content, placeholder quotes pending real client reviews. Not for
      production publish as-is; layout/trust-impact preview only. Same card language as .trust-card.
@@ -1222,6 +1231,8 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
     <div class="why-timeline">
       <div class="why-item"><span class="why-date">2 years ago</span><p>Started in marketing and sales — learned the trade hands-on, no classroom.</p></div>
       <div class="why-item"><span class="why-date">1 year ago</span><p>Founded MVS Solves. Went solo on purpose — no layers between me and the client.</p></div>
+      <div class="why-item"><span class="why-date">First 30 days</span><p>Onboarded 15 new clients.</p></div>
+      <div class="why-item"><span class="why-date">3 months in</span><p>Helped 6 businesses hit 5 figures.</p></div>
       <div class="why-item"><span class="why-date">Today</span><p>Every project still runs through me personally. That's not changing as this grows.</p></div>
     </div>
   </div>
