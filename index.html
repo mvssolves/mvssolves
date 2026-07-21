@@ -1519,6 +1519,84 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   </div>
 </section>
 
+<!-- WEBSITE GRADER -->
+<section class="section" id="grader">
+  <div class="wrap">
+    <div class="lab">Free tool</div>
+    <h2 class="h2-split h2-split-alt"><span class="word"><span>Grade</span></span> <span class="word"><span>your</span></span> <span class="word"><span>site.</span></span></h2>
+    <p class="sub" style="max-width:520px;margin:16px auto 0;text-align:center;">Paste your URL, get a real speed score and the top 3 things hurting it — takes about 15 seconds.</p>
+
+    <div style="max-width:640px;margin:40px auto 0;background:var(--bg-2);border:1px solid var(--line);border-radius:20px;padding:36px 40px;">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <input type="url" id="graderUrl" placeholder="yourwebsite.com" style="flex:1;min-width:200px;background:var(--bg);border:1px solid var(--line-strong);border-radius:10px;padding:14px 16px;font-size:15px;color:var(--ink);outline:none;">
+        <button id="graderBtn" class="btn btn-fill" type="button">Grade it →</button>
+      </div>
+      <div id="graderResult" style="margin-top:24px;display:none;">
+        <div id="graderLoading" style="text-align:center;color:var(--soft);font-size:14px;padding:20px 0;display:none;">Running a real speed test on your site — 10-20 seconds...</div>
+        <div id="graderError" style="text-align:center;color:var(--soft);font-size:14px;padding:20px 0;display:none;">Couldn't grade that URL — check it's correct and try again.</div>
+        <div id="graderScoreBlock" style="display:none;">
+          <div style="text-align:center;padding-bottom:20px;border-bottom:1px solid var(--line);margin-bottom:20px;">
+            <div style="color:var(--soft);font-size:12.5px;margin-bottom:6px;">Mobile speed score</div>
+            <div id="graderScore" style="font-weight:700;font-size:44px;color:var(--ink);">--</div>
+          </div>
+          <div style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Top fixes</div>
+          <ul id="graderFixes" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script>(function(){
+  var url=document.getElementById('graderUrl'),btn=document.getElementById('graderBtn'),
+      result=document.getElementById('graderResult'),loading=document.getElementById('graderLoading'),
+      err=document.getElementById('graderError'),scoreBlock=document.getElementById('graderScoreBlock'),
+      scoreEl=document.getElementById('graderScore'),fixesEl=document.getElementById('graderFixes');
+  if(!btn)return;
+  function reset(){result.style.display='block';loading.style.display='none';err.style.display='none';scoreBlock.style.display='none';}
+  function showLoading(){reset();loading.style.display='block';}
+  function showError(){reset();err.style.display='block';}
+  function showScore(score,fixes){
+    reset();scoreBlock.style.display='block';
+    scoreEl.textContent=score;
+    scoreEl.style.color=score>=90?'#1a9e5c':score>=50?'#c98a1a':'#d9432e';
+    fixesEl.innerHTML='';
+    if(!fixes.length){
+      var li=document.createElement('li');li.style.cssText='color:var(--soft);font-size:14px;';
+      li.textContent='No major issues found — solid setup.';fixesEl.appendChild(li);
+    }
+    fixes.forEach(function(f){
+      var li=document.createElement('li');
+      li.style.cssText='display:flex;gap:10px;align-items:flex-start;color:var(--text);font-size:14px;';
+      li.innerHTML='<span style="color:var(--muted);flex-shrink:0;">—</span><span>'+f+'</span>';
+      fixesEl.appendChild(li);
+    });
+  }
+  function grade(){
+    var v=url.value.trim();
+    if(!v)return;
+    if(!/^https?:\/\//i.test(v))v='https://'+v;
+    showLoading();
+    var api='https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url='+encodeURIComponent(v)+'&strategy=mobile&category=performance&key=AIzaSyC4y4aPMZlVc4e-vqrr_4KijGZ8ca81Pjo';
+    fetch(api).then(function(r){if(!r.ok)throw new Error('bad response');return r.json();})
+      .then(function(data){
+        var lr=data.lighthouseResult;
+        if(!lr||!lr.categories||!lr.categories.performance)throw new Error('no result');
+        var score=Math.round(lr.categories.performance.score*100);
+        var audits=lr.audits||{};
+        var opportunities=Object.keys(audits)
+          .map(function(k){return audits[k];})
+          .filter(function(a){return a.score!==null&&a.score<0.9&&a.title;})
+          .sort(function(a,b){return (a.score||0)-(b.score||0);})
+          .slice(0,3)
+          .map(function(a){return a.title;});
+        showScore(score,opportunities);
+      })
+      .catch(function(){showError();});
+  }
+  btn.addEventListener('click',grade);
+  url.addEventListener('keydown',function(e){if(e.key==='Enter')grade();});
+})();</script>
+
 <!-- BOOK -->
 <section class="section" id="book">
   <canvas class="book-3d" id="book3d" aria-hidden="true"></canvas>
