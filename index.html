@@ -785,13 +785,18 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
     animation:gradLoop 3s ease-in-out infinite alternate;}
   @keyframes gradLoop{0%{background-position:0% 50%}100%{background-position:100% 50%}}
 
-  /* RotatingText (react-bits, ported to vanilla JS+GSAP -- see main.js) -- "your business" cycles
-     through a few outcome words, sliding vertically like an odometer. Rotated as one phrase, not
-     per-character: background-clip:text (the .grad gradient above) only clips a single element's
-     own direct text -- splitting into per-char inline-block spans (the reference component's
-     default) would break the gradient across separate boxes, same issue already hit once this
-     session with the pricing .sub shine-sweep. */
-  .rot-wrap{display:inline-block;overflow:hidden;vertical-align:bottom;}
+  /* RotatingText (react-bits, ported to vanilla JS+GSAP -- see main.js) -- "your" stays static,
+     only the trailing noun (business/bookings/revenue/growth) flip-rotates. Rotated as one word,
+     not per-character: background-clip:text (the .grad gradient above) only clips a single
+     element's own direct text -- splitting into per-char inline-block spans (the reference
+     component's default) would break the gradient across separate boxes, same issue already hit
+     once this session with the pricing .sub shine-sweep. */
+  /* overflow:hidden dropped -- was only needed to clip the old vertical-slide transit, and
+     clipping a 3D-rotated child can flatten/break the flip in some browsers. perspective added
+     instead so the rotateX flip below (main.js) actually reads as a flip-clock digit, not a
+     flat squash. */
+  .rot-wrap{display:inline-block;perspective:400px;vertical-align:bottom;}
+  #heroRot{display:inline-block;}
 
   /* nav: underline-grow + hover */
   .nav-r a:not(.navcta){position:relative;transition:color .25s ease;}
@@ -1044,7 +1049,7 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
     <h1 class="flick">
       <span class="line"><span class="ft">Real</span></span>
       <span class="line"><span class="ft">Conversion</span></span>
-      <span class="line"><span class="ft">for <span class="rot-wrap"><span class="ft aw grad" id="heroRot">your business</span></span></span></span>
+      <span class="line"><span class="ft">for <span class="ft aw grad">your</span> <span class="rot-wrap"><span class="ft aw grad" id="heroRot">business</span></span></span></span>
     </h1>
     <p class="h-sub">The work is so good it's free for 7 days — prove it to yourself before you spend a cent.</p>
   </div>
