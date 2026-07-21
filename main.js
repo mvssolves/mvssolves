@@ -691,10 +691,18 @@ if(!reduce){
      identical reveal -- capabilities keeps the original vertical mask-wipe; trust (.h2-split-alt)
      gets a scale/tilt-up entrance; testimonials (.h2-split-side) alternates words in from left/
      right instead of straight up. Distinct feel per section instead of the same effect x3. */
-  gsap.utils.toArray('.h2-split:not(.h2-split-alt):not(.h2-split-side)').forEach(h=>{
+  gsap.utils.toArray('.h2-split:not(.h2-split-alt):not(.h2-split-side):not(.h2-split-gradual)').forEach(h=>{
     const words=h.querySelectorAll('.word>span');
     gsap.fromTo(words,{yPercent:110,opacity:0},{yPercent:0,opacity:1,duration:0.7,stagger:0.05,
       ease:'power3.out',scrollTrigger:{trigger:h,start:'top 86%',fastScrollEnd:true,...rt}});
+  });
+  /* how-it-works heading — GradualSpacingText (Eldora UI): letters assemble in from a slight
+     offset, staggered per-char, instead of whole words rising as blocks like every other
+     h2-split heading. Plain text now (no .word markup), so splitChars runs directly. */
+  gsap.utils.toArray('.h2-split-gradual').forEach(h=>{
+    const chars=splitChars(h);
+    gsap.fromTo(chars,{opacity:0,x:-10},{opacity:1,x:0,duration:0.5,stagger:0.035,ease:'power2.out',
+      scrollTrigger:{trigger:h,start:'top 86%',fastScrollEnd:true,...rt}});
   });
   gsap.utils.toArray('.h2-split-alt').forEach(h=>{
     const words=h.querySelectorAll('.word>span');
