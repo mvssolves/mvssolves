@@ -1573,13 +1573,12 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
      no src — see CLAUDE.md). All four now genuinely defer and execute in this relative order
      only after HTML parsing completes, so parsing/painting the page never waits on them. -->
 <!-- missed-call calculator popup -- teases the inline calculator in the Automated Receptionist
-     section, fires once per browser session, 6s after load. sessionStorage (not localStorage) so
-     it comes back if they close the tab and return later, but never twice in one visit. -->
-<div id="calcPopup" style="position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(10,10,10,.6);backdrop-filter:blur(3px);">
-  <div style="position:relative;max-width:440px;width:100%;background:var(--bg);border:1px solid var(--line);border-radius:20px;padding:36px 32px;box-shadow:0 30px 80px -20px rgba(0,0,0,.4);">
+     section, fires every page load (refresh), 6s in, fades in/out. -->
+<div id="calcPopup" style="position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(10,10,10,.6);backdrop-filter:blur(3px);opacity:0;transition:opacity .35s ease;">
+  <div style="position:relative;max-width:440px;width:100%;background:var(--bg);border:1px solid var(--line);border-radius:20px;padding:36px 32px;box-shadow:0 30px 80px -20px rgba(0,0,0,.4);transform:translateY(10px) scale(.97);transition:transform .35s cubic-bezier(.16,1,.3,1);">
     <button id="calcPopupClose" aria-label="Close" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border:none;background:var(--surface);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--soft);font-size:16px;line-height:1;">✕</button>
     <div style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-ink);background:var(--accent);display:inline-block;padding:5px 12px;border-radius:999px;font-weight:700;margin-bottom:16px;">Free tool</div>
-    <h3 style="font-family:inherit;font-weight:700;letter-spacing:-.02em;font-size:22px;color:var(--ink);margin-bottom:8px;">👀 What's a missed call costing you?</h3>
+    <h3 style="font-family:inherit;font-weight:700;letter-spacing:-.02em;font-size:22px;color:var(--ink);margin-bottom:8px;">What's a missed call costing you?</h3>
     <p style="color:var(--soft);font-size:14px;line-height:1.5;margin-bottom:24px;">Punch in two numbers, see the real dollar cost — takes 5 seconds.</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
       <div>
@@ -1607,15 +1606,20 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   wireCalc('calcJobValuePopup','calcMissedPopup','calcOutPopup');
   var popup=document.getElementById('calcPopup');
   if(!popup)return;
-  function close(){popup.style.display='none';}
-  function open(){popup.style.display='flex';sessionStorage.setItem('mvsCalcPopupShown','1');}
+  var card=popup.firstElementChild;
+  function close(){
+    popup.style.opacity='0';card.style.transform='translateY(10px) scale(.97)';
+    setTimeout(function(){popup.style.display='none';},350);
+  }
+  function open(){
+    popup.style.display='flex';
+    requestAnimationFrame(function(){popup.style.opacity='1';card.style.transform='translateY(0) scale(1)';});
+  }
   document.getElementById('calcPopupClose').addEventListener('click',close);
   popup.addEventListener('click',function(e){if(e.target===popup)close();});
   document.getElementById('calcPopupCta').addEventListener('click',close);
   document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
-  if(!sessionStorage.getItem('mvsCalcPopupShown')){
-    setTimeout(open,6000);
-  }
+  setTimeout(open,6000);
 })();</script>
 
 <script src="/shared.js" defer></script>
