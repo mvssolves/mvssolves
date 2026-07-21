@@ -324,11 +324,14 @@
      anything else. feat-stage 1 still pins and covers IT once you scroll further -- only the
      hero->cap-head handoff changed, the cards-folding-over-each-other part is untouched. Kept at
      65vh so the heading still reads as its own beat, not a cramped inline strip. */
-  /* flex-end, not center -- on desktop the heading sat dead-center of this 65vh block, leaving a
-     big empty gap between it and the first card below. Bottom-aligning brings it down closer to
-     the cards it introduces (mobile's min-height:0 override makes this a no-op there -- no extra
-     vertical space to redistribute when height already equals content). */
-  .cap-head{min-height:65vh;display:flex;align-items:flex-end;justify-content:center;position:relative;padding-bottom:48px;}
+  /* flex-end fixed the gap AFTER the heading, but made the gap BEFORE it worse: cap-head isn't
+     pinned, it just scrolls up in normal flow while hero stays pinned underneath (see main.js) --
+     bottom-aligning the heading in a 65vh block moved ALL the empty space to the top of that
+     block, so scrolling through it now means a long stretch of blank white before the heading
+     even appears ("dead space on the scroll animation"). Shrinking the block itself (65vh -> 40vh)
+     is the actual fix -- less empty space overall, not just relocated, so both the walk-up and the
+     gap after stay short. */
+  .cap-head{min-height:40vh;display:flex;align-items:flex-end;justify-content:center;position:relative;padding-bottom:32px;}
   /* #capabilities .wrap{z-index:2} (this file, general rule) otherwise beats a plain .cap-head
      selector on specificity and wins regardless of source order -- match it to actually override. */
   #capabilities .cap-head{z-index:0;}
