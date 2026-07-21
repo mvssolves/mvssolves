@@ -9,6 +9,8 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/mask-icon.svg" color="#0a0a0a">
+<meta name="theme-color" content="#0a0a0a">
 <meta name="description" content="I build what your competition is dreaming of — websites, booking &amp; AI automation, built end-to-end by one person.">
 <meta name="author" content="Martin · MVS Solves">
 <meta name="robots" content="index,follow">
@@ -711,7 +713,15 @@
      demoted to a quiet secondary link rather than a second filled button beside the widget. */
   .book-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:40px;margin-top:46px;align-items:start;}
   @media(max-width:900px){.book-grid{grid-template-columns:1fr;}}
-  #cal-embed{min-height:620px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--bg-2);}
+  #cal-embed{min-height:620px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--bg-2);position:relative;}
+  /* calendar-grid skeleton -- shimmering cells standing in for the real Cal.com month view while
+     it loads, instead of a dead empty box. Dark-theme version of the one on /book-a-call. */
+  .cal-skeleton{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:28px;height:100%;box-sizing:border-box;}
+  .cal-skeleton .sk-cell{aspect-ratio:1;border-radius:6px;
+    background:linear-gradient(100deg,rgba(255,255,255,.05) 30%,rgba(255,255,255,.11) 50%,rgba(255,255,255,.05) 70%);
+    background-size:200% 100%;animation:skShimmer 1.6s ease-in-out infinite;}
+  @keyframes skShimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+  @media(prefers-reduced-motion:reduce){.cal-skeleton .sk-cell{animation:none;}}
   .book-note{font-family:'Roboto',monospace;font-size:12.5px;color:var(--muted);margin-top:14px;text-align:center;}
   .book-sub{color:var(--soft);font-size:16px;line-height:1.6;margin-top:16px;max-width:46ch;}
   .book-points{list-style:none;margin:26px 0 0;padding:0;font-size:14.5px;}
@@ -1412,7 +1422,14 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
       </div>
       <div class="book-cal">
-        <div id="cal-embed"></div>
+        <div id="cal-embed">
+          <div class="cal-skeleton" id="calSkeleton" aria-hidden="true">
+            <div class="sk-cell" style="animation-delay:0ms"></div><div class="sk-cell" style="animation-delay:80ms"></div><div class="sk-cell" style="animation-delay:160ms"></div><div class="sk-cell" style="animation-delay:240ms"></div><div class="sk-cell" style="animation-delay:320ms"></div><div class="sk-cell" style="animation-delay:400ms"></div><div class="sk-cell" style="animation-delay:480ms"></div>
+            <div class="sk-cell" style="animation-delay:80ms"></div><div class="sk-cell" style="animation-delay:160ms"></div><div class="sk-cell" style="animation-delay:240ms"></div><div class="sk-cell" style="animation-delay:320ms"></div><div class="sk-cell" style="animation-delay:400ms"></div><div class="sk-cell" style="animation-delay:480ms"></div><div class="sk-cell" style="animation-delay:560ms"></div>
+            <div class="sk-cell" style="animation-delay:160ms"></div><div class="sk-cell" style="animation-delay:240ms"></div><div class="sk-cell" style="animation-delay:320ms"></div><div class="sk-cell" style="animation-delay:400ms"></div><div class="sk-cell" style="animation-delay:480ms"></div><div class="sk-cell" style="animation-delay:560ms"></div><div class="sk-cell" style="animation-delay:640ms"></div>
+            <div class="sk-cell" style="animation-delay:240ms"></div><div class="sk-cell" style="animation-delay:320ms"></div><div class="sk-cell" style="animation-delay:400ms"></div><div class="sk-cell" style="animation-delay:480ms"></div><div class="sk-cell" style="animation-delay:560ms"></div><div class="sk-cell" style="animation-delay:640ms"></div><div class="sk-cell" style="animation-delay:720ms"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

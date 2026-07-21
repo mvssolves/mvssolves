@@ -8,6 +8,8 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/mask-icon.svg" color="#0a0a0a">
+<meta name="theme-color" content="#f6f5f3">
 <meta name="description" content="Book a free 30-minute call with Martin — talk through what you want to fix, build, or automate, and leave with a real plan. No pitch deck.">
 <meta name="author" content="Martin · MVS Solves">
 <meta name="robots" content="index,follow">
@@ -305,6 +307,20 @@
     0%,100% { transform: translateY(0) rotate(-3deg); }
     50% { transform: translateY(-6px) rotate(3deg); }
   }
+  /* calendar-grid skeleton -- shimmering cells standing in for the real Cal.com month view while
+     it loads, instead of dead space or a static "loading" line. */
+  .cal-skeleton {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
+    width: 100%; max-width: 320px; margin-bottom: 20px;
+  }
+  .cal-skeleton .sk-cell {
+    aspect-ratio: 1; border-radius: 6px;
+    background: linear-gradient(100deg, rgba(10,10,10,.06) 30%, rgba(10,10,10,.12) 50%, rgba(10,10,10,.06) 70%);
+    background-size: 200% 100%;
+    animation: skShimmer 1.6s ease-in-out infinite;
+  }
+  @keyframes skShimmer { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+  @media (prefers-reduced-motion: reduce){ .cal-skeleton .sk-cell{ animation:none; } }
   .cal-placeholder h4 {
     font-family: 'Nohemi', sans-serif; font-weight: 600;
     font-size: 26px; color: var(--espresso); margin-bottom: 8px;
@@ -460,6 +476,12 @@
 
             <div id="cal-embed">
               <div class="cal-placeholder" id="cal-placeholder">
+                <div class="cal-skeleton" aria-hidden="true">
+                  <div class="sk-cell" style="animation-delay:0ms"></div><div class="sk-cell" style="animation-delay:80ms"></div><div class="sk-cell" style="animation-delay:160ms"></div><div class="sk-cell" style="animation-delay:240ms"></div><div class="sk-cell" style="animation-delay:320ms"></div><div class="sk-cell" style="animation-delay:400ms"></div><div class="sk-cell" style="animation-delay:480ms"></div>
+                  <div class="sk-cell" style="animation-delay:80ms"></div><div class="sk-cell" style="animation-delay:160ms"></div><div class="sk-cell" style="animation-delay:240ms"></div><div class="sk-cell" style="animation-delay:320ms"></div><div class="sk-cell" style="animation-delay:400ms"></div><div class="sk-cell" style="animation-delay:480ms"></div><div class="sk-cell" style="animation-delay:560ms"></div>
+                  <div class="sk-cell" style="animation-delay:160ms"></div><div class="sk-cell" style="animation-delay:240ms"></div><div class="sk-cell" style="animation-delay:320ms"></div><div class="sk-cell" style="animation-delay:400ms"></div><div class="sk-cell" style="animation-delay:480ms"></div><div class="sk-cell" style="animation-delay:560ms"></div><div class="sk-cell" style="animation-delay:640ms"></div>
+                  <div class="sk-cell" style="animation-delay:240ms"></div><div class="sk-cell" style="animation-delay:320ms"></div><div class="sk-cell" style="animation-delay:400ms"></div><div class="sk-cell" style="animation-delay:480ms"></div><div class="sk-cell" style="animation-delay:560ms"></div><div class="sk-cell" style="animation-delay:640ms"></div><div class="sk-cell" style="animation-delay:720ms"></div>
+                </div>
                 <div class="ph-mark">☕</div>
                 <h4>Calendar loading…</h4>
                 <p>Slots are live. Pick one and you'll get an invite straight away.</p>

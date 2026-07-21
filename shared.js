@@ -137,6 +137,65 @@ let lenis;
   check();
 })();
 
+/* scroll progress bar -- thin fixed line across the top, fills as the page scrolls. Injected
+   here (not per-page HTML) so every page gets it from one edit. Brand blue, matches the
+   text-selection colour and the cal.com embed accent -- one consistent blue across the site. */
+(function(){
+  const bar=document.createElement('div');
+  bar.id='scrollBar';
+  bar.style.cssText='position:fixed;top:0;left:0;height:3px;width:100%;transform:scaleX(0);transform-origin:left;background:#00eeff;z-index:999;pointer-events:none;';
+  if(!reduce)bar.style.transition='transform 100ms linear';
+  document.documentElement.appendChild(bar);
+  let pending=false;
+  function update(){
+    const h=document.documentElement.scrollHeight-window.innerHeight;
+    bar.style.transform='scaleX('+(h>0?Math.min(window.scrollY/h,1):0)+')';
+  }
+  window.addEventListener('scroll',()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;update();});},{passive:true});
+  window.addEventListener('resize',update,{passive:true});
+  update();
+})();
+
+/* tab-blur title swap -- when the visitor tabs away, the title changes to a little nudge, then
+   reverts on return. Purely a personality touch, no functional purpose. */
+(function(){
+  const original=document.title;
+  const away="Come back? 👋";
+  document.addEventListener('visibilitychange',()=>{
+    document.title=document.hidden?away:original;
+  });
+})();
+
+/* click-to-copy on mailto/tel links -- copies the address/number to clipboard alongside the
+   normal mailto/tel action (doesn't prevent default, so the mail/phone app still opens). Small
+   toast confirms the copy for anyone who just wants the address, not a mail client popup. */
+(function(){
+  if(!navigator.clipboard)return;
+  let toastEl=null,toastT=null;
+  function toast(msg){
+    if(!toastEl){
+      toastEl=document.createElement('div');
+      toastEl.style.cssText='position:fixed;left:50%;bottom:28px;transform:translate(-50%,12px);'
+        +'background:#0a0a0a;color:#fff;font:600 13px/1 -apple-system,sans-serif;padding:11px 18px;'
+        +'border-radius:999px;z-index:1000;opacity:0;transition:opacity 200ms ease,transform 200ms ease;'
+        +'pointer-events:none;box-shadow:0 8px 24px -6px rgba(0,0,0,.4);';
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent=msg;
+    clearTimeout(toastT);
+    requestAnimationFrame(()=>{toastEl.style.opacity='1';toastEl.style.transform='translate(-50%,0)';});
+    toastT=setTimeout(()=>{toastEl.style.opacity='0';toastEl.style.transform='translate(-50%,12px)';},1600);
+  }
+  document.addEventListener('click',function(e){
+    const a=e.target.closest('a[href^="mailto:"],a[href^="tel:"]');
+    if(!a)return;
+    const href=a.getAttribute('href');
+    const isMail=href.indexOf('mailto:')===0;
+    const value=decodeURIComponent(href.slice(isMail?7:4).split('?')[0]);
+    navigator.clipboard.writeText(value).then(()=>toast((isMail?'Email':'Number')+' copied — '+value)).catch(()=>{});
+  });
+})();
+
 /* page-fade transition -- fades content out on internal link click, then navigates natively.
    Fade-in on arrival is pure CSS (body{animation:pageFadeIn...} on every page) so it can never
    get stuck invisible even if this script fails to run -- worst case on failure is just a normal

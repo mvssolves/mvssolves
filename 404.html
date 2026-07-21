@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Page not found — MVS Solves</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/mask-icon.svg" color="#0a0a0a">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="robots" content="noindex,follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0a; --ink:#ffffff; --soft:#c8c3ba; --muted:#98938a; --accent:#e8a94b; --accent-ink:#160d02;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background:var(--bg); color:var(--soft);
+    font-family:'JetBrains Mono',monospace;
+    display:flex; align-items:center; justify-content:center;
+    min-height:100svh; padding:24px; position:relative; overflow:hidden;
+  }
+  #glow{
+    position:fixed; inset:-20%; z-index:0; pointer-events:none;
+    background:radial-gradient(closest-side, rgba(232,169,75,.16), transparent 70%);
+    filter:blur(60px); animation:drift 14s ease-in-out infinite;
+  }
+  @keyframes drift{
+    0%,100%{ transform:translate(-6%,-4%) scale(1); }
+    50%{ transform:translate(6%,4%) scale(1.08); }
+  }
+  @media (prefers-reduced-motion: reduce){ #glow{ animation:none; } }
+  main{ position:relative; z-index:1; max-width:520px; width:100%; text-align:center; }
+  .logo{
+    display:inline-flex; align-items:center; gap:10px; margin-bottom:48px;
+    font-family:'Space Grotesk',sans-serif; font-weight:700; letter-spacing:-.02em;
+    font-size:17px; color:var(--ink);
+  }
+  .logo-mark{
+    width:28px; height:28px; border-radius:8px; background:var(--ink); color:var(--accent-ink);
+    display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; flex-shrink:0;
+  }
+  .badge{
+    display:inline-flex; align-items:center; gap:8px; margin-bottom:28px;
+    padding:6px 14px; border:1px solid rgba(232,169,75,.35); border-radius:999px;
+    font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent);
+  }
+  h1{
+    font-family:'Space Grotesk',sans-serif; font-weight:700; letter-spacing:-.02em;
+    line-height:1.05; font-size:clamp(30px,6vw,44px); color:var(--ink); margin-bottom:18px;
+  }
+  p{ font-size:14.5px; line-height:1.7; color:var(--muted); max-width:420px; margin:0 auto 34px; }
+  .row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  a.btn{
+    display:inline-flex; align-items:center; gap:8px; padding:13px 26px;
+    font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; text-decoration:none;
+    border-radius:999px; transition:transform .2s ease, background .2s ease, border-color .2s ease;
+  }
+  a.btn-fill{ background:var(--ink); color:#0a0a0a; }
+  a.btn-fill:hover{ background:var(--accent); transform:translateY(-1px); }
+  a.btn-line{ border:1px solid rgba(255,255,255,.18); color:var(--soft); }
+  a.btn-line:hover{ border-color:rgba(255,255,255,.4); color:var(--ink); transform:translateY(-1px); }
+  footer{ margin-top:40px; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#4a4a4a; }
+  ::selection{background:#00eeff;color:#0a0a0a;}
+</style>
+</head>
+<body>
+  <div id="glow" aria-hidden="true"></div>
+  <main>
+    <div class="logo"><span class="logo-mark">M</span>MVS Solves</div>
+    <div class="badge">404</div>
+    <h1>That page doesn't exist.</h1>
+    <p>The link's broken or the page moved. Head back home or grab a slot on the calendar — either way you'll land somewhere useful.</p>
+    <div class="row">
+      <a class="btn btn-fill" href="/">Back to home</a>
+      <a class="btn btn-line" href="/book-a-call">Book a call</a>
+    </div>
+    <footer>MVS Solves</footer>
+  </main>
+</body>
+</html>
