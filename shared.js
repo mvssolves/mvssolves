@@ -7,6 +7,86 @@
 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let lenis;
 
+/* button shine sweep -- a diagonal light band sweeps across .btn-fill on hover, pure CSS (::after
+   masked by overflow:hidden + a transform sweep), injected once here so it reaches every page's
+   buttons without editing 6 separate <style> blocks. Desktop-only via the hover:hover media query
+   itself, same intent as the JS-driven effects below but doesn't need prefers-reduced-motion
+   gating in JS since transform-on-hover is inert until a real hover event fires. */
+(function(){
+  const css=`@media (hover:hover) and (pointer:fine){
+    .btn-fill{position:relative;overflow:hidden;}
+    .btn-fill::after{content:'';position:absolute;inset:0;pointer-events:none;
+      background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.35) 46%,rgba(255,255,255,.55) 50%,rgba(255,255,255,.35) 54%,transparent 70%);
+      transform:translateX(-120%);transition:transform .6s cubic-bezier(.2,.8,.2,1);}
+    .btn-fill:hover::after{transform:translateX(120%);}
+  }
+  @media (prefers-reduced-motion: reduce){ .btn-fill::after{ transition:none!important; } }`;
+  const style=document.createElement('style');
+  style.textContent=css;
+  document.head.appendChild(style);
+})();
+
+/* desktop "lighting" pass -- cursor glow, magnetic buttons, card spotlight, button shine sweep.
+   Gated on real mouse + fine pointer (not just viewport width) so a touch laptop or tablet with a
+   trackpad doesn't get a phantom cursor light stuck mid-screen -- these all read state off actual
+   mousemove, nothing to fall back to on touch. One shared implementation, ships to all 6 pages. */
+(function(){
+  const canHover=window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+  if(reduce||!canHover)return;
+
+  /* ambient cursor glow -- soft blue light that follows the mouse across the whole page, the
+     "PC is missing lighting" ask in its simplest form. Plain alpha-composited radial gradient, NOT
+     mix-blend-mode:screen -- screen blend only ever brightens, so against this page's white/light
+     backgrounds (most of the site) it was a complete no-op, invisible regardless of opacity. Plain
+     compositing tints correctly over light AND dark sections. CSS transition on transform does the
+     trailing/smoothing instead of a JS rAF-lerp loop -- simpler, one less moving part that can silently
+     stop working, and the browser's compositor handles the interpolation for free. */
+  const glow=document.createElement('div');
+  glow.id='cursorGlow';
+  glow.style.cssText='position:fixed;top:0;left:0;width:460px;height:460px;margin:-230px 0 0 -230px;'
+    +'border-radius:50%;pointer-events:none;z-index:40;opacity:0;'
+    +'background:radial-gradient(circle,rgba(0,238,255,.14) 0%,rgba(0,238,255,.05) 45%,transparent 72%);'
+    +'transition:opacity .4s ease,transform .12s linear;will-change:transform;';
+  document.documentElement.appendChild(glow);
+  window.addEventListener('mousemove',e=>{
+    glow.style.transform='translate3d('+e.clientX+'px,'+e.clientY+'px,0)';
+    glow.style.opacity='1';
+  },{passive:true});
+  document.addEventListener('mouseleave',()=>{glow.style.opacity='0';});
+
+  /* magnetic buttons -- any .btn pulls a few px toward the cursor while hovered, springs back on
+     leave. Classic premium micro-interaction, costs one mousemove + one transform per button. */
+  document.querySelectorAll('.btn').forEach(btn=>{
+    btn.style.transition='transform .3s cubic-bezier(.34,1.56,.64,1)';
+    btn.addEventListener('mousemove',e=>{
+      const r=btn.getBoundingClientRect();
+      const mx=(e.clientX-r.left-r.width/2)*0.25;
+      const my=(e.clientY-r.top-r.height/2)*0.35;
+      btn.style.transform='translate('+mx+'px,'+my+'px)';
+    });
+    btn.addEventListener('mouseleave',()=>{btn.style.transform='';});
+  });
+
+  /* card spotlight -- a soft blue light tracking the cursor inside cards/tiles/hover-targets,
+     faded in only while hovered. Appended as an overlay div rather than requiring every card to
+     carry its own ::before in CSS, so this reaches every page's cards from one place. */
+  const cardSel='.feat-card,.testi-card,.tier,.trust-card,.cal-card,.hover-target';
+  document.querySelectorAll(cardSel).forEach(card=>{
+    if(getComputedStyle(card).position==='static')card.style.position='relative';
+    const spot=document.createElement('div');
+    spot.style.cssText='position:absolute;inset:0;pointer-events:none;opacity:0;border-radius:inherit;'
+      +'transition:opacity .35s ease;z-index:0;';
+    card.appendChild(spot);
+    card.addEventListener('mousemove',e=>{
+      const r=card.getBoundingClientRect();
+      const mx=e.clientX-r.left,my=e.clientY-r.top;
+      spot.style.background='radial-gradient(240px circle at '+mx+'px '+my+'px,rgba(0,238,255,.12),transparent 70%)';
+      spot.style.opacity='1';
+    });
+    card.addEventListener('mouseleave',()=>{spot.style.opacity='0';});
+  });
+})();
+
 /* kinetic-type loading veil -- one shared implementation (was a plain fade+logo, copy-pasted
    per subpage, homepage had none at all). Letters start scattered (random offset/rotation/blur
    per span, set inline via --kx/--ky/--kr in the HTML) and spring into place staggered by
