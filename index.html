@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google-site-verification" content="ZtO1idXhZNEdwCWEoK2SGHLS-nC4Q6HmfW1AcKsdb7c" />
+<script>/* landing here via a cross-page anchor link (e.g. /book-a-call -> /#capabilities) --
+  the browser jumps to the fragment natively before main.js runs. Cancel that jump now, main.js
+  replays it as a smooth Lenis scroll once it's ready. */
+if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</script>
 <title>MVS Solves — Your unfair advantage</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
@@ -663,6 +667,7 @@
      other cards on the page. Icon moves to its own left column, text left-aligned next to it --
      the big centered statement above still carries the section, these read as a quiet, orderly
      list underneath it rather than 3 more centered mini-hero cards. */
+  .trust-cta{margin-top:22px;}
   .trust-row{display:flex;gap:20px;margin-top:46px;flex-wrap:wrap;}
   .trust-card{flex:1 1 260px;background:var(--surface);border-radius:8px;padding:32px 28px;
     display:flex;align-items:flex-start;text-align:left;gap:18px;
@@ -1167,6 +1172,7 @@
 <section class="section" id="trust">
   <div class="wrap">
     <h2 class="h2-split h2-split-alt"><span class="word"><span>One</span></span> <span class="word"><span>piece</span></span> <span class="word"><span>away</span></span> <span class="word"><span>from</span></span> <span class="word"><span>exponential</span></span> <span class="word"><span>growth.</span></span></h2>
+    <a class="btn btn-ghost trust-cta" href="#testimonials">★ Testimonials</a>
     <div class="trust-row">
       <div class="trust-card">
         <div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 13l4 4L19 7"/></svg></div>
