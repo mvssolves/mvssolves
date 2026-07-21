@@ -1380,43 +1380,6 @@ function initPriceRise3D(canvas){
 /* the global background canvas (#bgfx) lives in shared.js now (loaded on every page, not just
    this one) -- was duplicated inline per-page before, this is the single copy. */
 
-/* fold-stack — hero pins, then cap-head, then each of the 3 feat-cards pins in turn while the
-   next one rises from the bottom edge to cover it: pinSpacing:false collapses each pinned link's
-   reserved flow space, so the next link is already sitting exactly one viewport below at rest --
-   normal scrolling alone carries its top edge up 1:1, no tween needed. The one rule this whole
-   chain depends on: a pinned link's PIN DURATION (its end:'+=N%') must equal that same link's
-   REAL rendered height, or its follower either arrives early (dead time before it's visible) or
-   late (a gap of bare page once the pin releases before the follower has finished covering it).
-   Every link's duration is measured live off its own real height (see heroPct/stagePct below) --
-   NOT hardcoded percentages matched to a CSS vh value -- because content can render taller than
-   its min-height floor (confirmed on hero, and on feat-stage 2 specifically: its extra .feat-claim
-   line made it taller than the other two cards at some viewport sizes, which showed up as card 2
-   and card 3 visibly overlapping mid-scroll). Ascending z-index per link (CSS) is what makes each
-   incoming one actually paint OVER the one it covers. Last stage keeps pinSpacing:true (default)
-   so it reserves its own space and How It Works flows on normally after -- the effect covers only
-   this stack, nothing beyond it. Desktop only, matching every other pin/scrub effect in this file
-   -- now runs on mobile too (explicitly requested): the mobile CSS (index.html, 900px block) no
-   longer forces feat-stack into a flex column, stages sit in normal block flow same as desktop,
-   just shorter (mobile cards are compacted, so stagePct below measures a smaller real height and
-   pin duration shrinks to match automatically). */
-(function(){
-  const hero=document.getElementById('top');
-  const cap=document.getElementById('capabilities');
-  const capHead=document.querySelector('.cap-head');
-  if(!hero||!cap||!capHead||reduce)return;
-  /* hero pins briefly, then #capabilities (opaque bg + higher z-index, see CSS) rises up from the
-     bottom edge and covers it -- back to the original fold intent, just shorter. This chain's one
-     hard rule: pin duration must equal the pinned element's REAL rendered height, or the follower
-     arrives early (gap) or late. min-height:74vh on hero (CSS) is a FLOOR, not its actual height --
-     measured live it renders taller (788px vs the 666px 74vh implied at a 900px viewport, extra
-     content pushing past the floor), so a hardcoded '+=74%' undershoots and reopens the gap this
-     rule exists to prevent. Measuring hero's real height and converting to a vh-equivalent string
-     at setup keeps the two numbers honestly equal regardless of how tall the content actually
-     renders. */
-  const heroPct=()=>'+='+(hero.getBoundingClientRect().height/window.innerHeight*100)+'%';
-  ScrollTrigger.create({trigger:hero,start:'top top',end:heroPct,pin:true,pinSpacing:false,invalidateOnRefresh:true});
-})();
-
 /* CardSwap (React Bits component, ported to vanilla JS+GSAP -- no React/build step on this site).
    Replaces the old scroll-pin fold-stack for the 3 service cards: instead of pinning to scroll
    position, the front card drops away and cycles to the back of the stack on a timer, the next
