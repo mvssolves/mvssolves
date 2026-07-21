@@ -1424,12 +1424,19 @@ function initPriceRise3D(canvas){
      even if that's small, beats a hard clip. */
   const dropDist=Math.max(0,Math.min(cardH*0.5,clearBelow-20));
 
-  const verticalDistance=26,zStep=40,scaleStep=0.03,skew=-8; /* zStep+scaleStep give real depth (further-back cards recede and shrink slightly) instead of just a flat y-offset -- .feat-stack's perspective (CSS) was doing nothing on its own since z was always 0 before. verticalDistance bumped up alongside it -- the shrink from perspective foreshortening was pulling the back cards fully inside the front card's silhouette with no visible peek. Negative skew tilts left. */
-  const config={ease:'sine.inOut',durDrop:0.45,durMove:0.4,durReturn:0.4,promoteOverlap:0.8,returnDelay:0.1}; /* sine.inOut is GSAP's smoothest standard ease (pure sinusoidal, no acceleration snap); durations cut ~35% for a faster cycle */
+  /* real 3D instead of the flat skewY hack: skewY shears a rectangle into a parallelogram, which
+     never actually reads as "3D" -- it's a 2D distortion. rotationX (tilts the card back into the
+     screen, foreshortening it against the container's perspective) plus rotationZ (in-plane fan
+     tilt, like a hand of cards) is what a real card actually does. zStep pushes each layer back
+     further so the perspective has real depth to work with, scaleStep shrinks with distance. */
+  const verticalDistance=22,zStep=90,scaleStep=0.055,fanTilt=-7,fanStep=-5,tiltBackStep=10;
+  const config={ease:'sine.inOut',durDrop:0.6,durMove:0.55,durReturn:0.5,promoteOverlap:0.3,returnDelay:0.15}; /* less overlap than before (0.8 -> 0.3) so the drop and the promote-forward motion read as two distinct visible beats instead of blurring into one simultaneous blob */
 
-  const makeSlot=(i,total)=>({y:-i*verticalDistance,z:-i*zStep,scale:1-i*scaleStep,zIndex:total-i});
+  const makeSlot=(i,total)=>({y:-i*verticalDistance,z:-i*zStep,scale:1-i*scaleStep,
+    rotationZ:fanTilt+i*fanStep,rotationX:-i*tiltBackStep,zIndex:total-i});
   const placeNow=(el,slot)=>gsap.set(el,{x:0,y:slot.y,z:slot.z,scale:slot.scale,xPercent:0,yPercent:-50,
-    skewY:skew,transformOrigin:'center center',zIndex:slot.zIndex,opacity:1,force3D:true});
+    rotationZ:slot.rotationZ,rotationX:slot.rotationX,transformOrigin:'center center',
+    zIndex:slot.zIndex,opacity:1,force3D:true});
 
   const total=cards.length;
   let order=cards.map((_,i)=>i);
@@ -1440,21 +1447,23 @@ function initPriceRise3D(canvas){
     const [front,...rest]=order;
     const elFront=cards[front];
     const tl=gsap.timeline();
-    tl.to(elFront,{y:'+='+dropDist,opacity:0,duration:config.durDrop,ease:config.ease});
+    tl.to(elFront,{y:'+='+dropDist,rotationZ:'-=6',opacity:0,duration:config.durDrop,ease:config.ease});
     tl.addLabel('promote','-='+(config.durDrop*config.promoteOverlap));
     rest.forEach((idx,i)=>{
       const el=cards[idx],slot=makeSlot(i,total);
       tl.set(el,{zIndex:slot.zIndex},'promote');
-      tl.to(el,{y:slot.y,z:slot.z,scale:slot.scale,duration:config.durMove,ease:config.ease},'promote+='+(i*0.12));
+      tl.to(el,{y:slot.y,z:slot.z,scale:slot.scale,rotationZ:slot.rotationZ,rotationX:slot.rotationX,
+        duration:config.durMove,ease:config.ease},'promote+='+(i*0.12));
     });
     const backSlot=makeSlot(total-1,total);
     tl.addLabel('return','promote+='+(config.durMove*config.returnDelay));
-    tl.set(elFront,{y:backSlot.y-dropDist,z:backSlot.z,scale:backSlot.scale,zIndex:backSlot.zIndex},'return');
+    tl.set(elFront,{y:backSlot.y-dropDist,z:backSlot.z,scale:backSlot.scale,
+      rotationZ:backSlot.rotationZ,rotationX:backSlot.rotationX,zIndex:backSlot.zIndex},'return');
     tl.to(elFront,{y:backSlot.y,opacity:1,duration:config.durReturn,ease:config.ease},'return');
     tl.call(()=>{order=[...rest,front];});
   }
 
-  setInterval(swap,3200);
+  setInterval(swap,4200); /* bumped alongside the longer, less-overlapped swap animation so there's a clear resting beat between cycles instead of the next swap firing mid-motion */
   onWidthResize(()=>{
     cards.forEach(c=>{c.style.height='';});
     const h=Math.max(...cards.map(c=>c.getBoundingClientRect().height));
