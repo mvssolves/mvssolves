@@ -1701,15 +1701,42 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   var count=items.length;
   var rowH=Math.max(parseFloat(getComputedStyle(items[0]).fontSize)*1.4,1);
   var curve=2,tilt=14.5,blur=3.75,fade=0.18,minOpacity=0.15,smoothing=250;
-  var pos=0,target=0,raf=null,last=0;
+  var pos=0,target=0,raf=null,last=0,lastSelected=0;
 
-  function clamp(v){return Math.min(Math.max(v,0),count-1);}
+  /* loop:true -- wheel wraps infinitely (FAQ -> Home going forward, Home -> FAQ going back)
+     instead of stopping dead at the first/last item. */
+  function wrap(v){return ((v%count)+count)%count;}
+
+  /* short synth tick on selection change (Web Audio oscillator) -- no soundUrl asset shipped with
+     this site, so a generated beep stands in for the original component's soundUrl/soundVolume
+     props rather than pointing at a file that doesn't exist. Lazily creates the AudioContext on
+     first real interaction (autoplay policy), throttled so a fast scroll/drag can't spam it. */
+  var audioCtx=null,lastTick=0;
+  function playTick(){
+    if(reduce)return;
+    var now=performance.now();
+    if(now-lastTick<70)return;
+    lastTick=now;
+    try{
+      if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+      var osc=audioCtx.createOscillator(),gain=audioCtx.createGain();
+      osc.type='sine';osc.frequency.value=720;
+      gain.gain.setValueAtTime(0.09,audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+0.08);
+      osc.connect(gain);gain.connect(audioCtx.destination);
+      osc.start();osc.stop(audioCtx.currentTime+0.08);
+    }catch(e){}
+  }
 
   function layout(){
     var tiltRad=tilt*Math.PI/180;
     var R=tiltRad>0.0005?rowH/tiltRad:0;
+    var selected=wrap(Math.round(pos));
+    if(selected!==lastSelected){lastSelected=selected;playTick();}
     items.forEach(function(el,i){
-      var d=i-pos,dist=Math.abs(d),x=0,y=d*rowH,rot=0;
+      var d=i-pos;
+      d=wrap(d);if(d>count/2)d-=count;
+      var dist=Math.abs(d),x=0,y=d*rowH,rot=0;
       if(R>0){
         var ang=Math.max(-Math.PI/2,Math.min(Math.PI/2,d*tiltRad));
         y=R*Math.sin(ang);x=-R*(1-Math.cos(ang))*curve;rot=ang*180/Math.PI;
@@ -1718,7 +1745,7 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
       el.style.opacity=String(reduce?1:Math.max(minOpacity,1-dist*fade));
       el.style.filter=(!reduce&&blur>0)?'blur('+(dist*blur).toFixed(2)+'px)':'none';
       el.style.setProperty('--ow-p',Math.max(0,1-Math.min(dist,1)).toFixed(4));
-      el.classList.toggle('option-wheel__item--selected',Math.round(pos)===i);
+      el.classList.toggle('option-wheel__item--selected',i===selected);
     });
   }
 
@@ -1728,12 +1755,13 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
     var next=pos+(target-pos)*k;
     var settled=Math.abs(target-next)<0.001;
     pos=settled?target:next;
+    if(settled){pos=wrap(pos);target=pos;} /* keep the numbers bounded once resting, not an ever-growing counter */
     layout();
     raf=settled?null:requestAnimationFrame(frame);
   }
   function startLoop(){if(raf!=null)return;last=performance.now();raf=requestAnimationFrame(frame);}
   function setTarget(v,snap){
-    target=clamp(snap?Math.round(v):v);
+    target=snap?Math.round(v):v;
     startLoop();
   }
   layout(); /* paint the resting curve immediately, don't wait for the first interaction */
