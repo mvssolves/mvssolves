@@ -1400,7 +1400,7 @@ function initPriceRise3D(canvas){
   cards.forEach(c=>{c.style.height='';});
   const cardH=Math.max(...cards.map(c=>c.getBoundingClientRect().height));
   cards.forEach(c=>{c.style.height=cardH+'px';});
-  container.style.height=(cardH+40)+'px'; /* + slack for the small vertical stack offset below */
+  container.style.height=(cardH+70)+'px'; /* + slack for the vertical stack offset below (2 layers * verticalDistance) */
   /* #capabilities has overflow:hidden (CSS) -- the drop distance can't exceed the real clear space
      below the stack or the card gets hard-clipped mid-animation instead of smoothly leaving view.
      Measuring the actual gap (not guessing a fixed px value) so this stays safe on any viewport;
@@ -1414,11 +1414,11 @@ function initPriceRise3D(canvas){
      even if that's small, beats a hard clip. */
   const dropDist=Math.max(0,Math.min(cardH*0.5,clearBelow-20));
 
-  const cardDistance=0,verticalDistance=16,skew=12; /* subtle stack peek -- these are full-width content cards, not small fanned-out widgets, so no horizontal drift. Positive skew tilts right. */
+  const verticalDistance=26,zStep=40,scaleStep=0.03,skew=-8; /* zStep+scaleStep give real depth (further-back cards recede and shrink slightly) instead of just a flat y-offset -- .feat-stack's perspective (CSS) was doing nothing on its own since z was always 0 before. verticalDistance bumped up alongside it -- the shrink from perspective foreshortening was pulling the back cards fully inside the front card's silhouette with no visible peek. Negative skew tilts left. */
   const config={ease:'sine.inOut',durDrop:0.45,durMove:0.4,durReturn:0.4,promoteOverlap:0.8,returnDelay:0.1}; /* sine.inOut is GSAP's smoothest standard ease (pure sinusoidal, no acceleration snap); durations cut ~35% for a faster cycle */
 
-  const makeSlot=(i,total)=>({x:i*cardDistance,y:-i*verticalDistance,z:-i*cardDistance*1.5,zIndex:total-i});
-  const placeNow=(el,slot)=>gsap.set(el,{x:slot.x,y:slot.y,z:slot.z,xPercent:0,yPercent:-50,
+  const makeSlot=(i,total)=>({y:-i*verticalDistance,z:-i*zStep,scale:1-i*scaleStep,zIndex:total-i});
+  const placeNow=(el,slot)=>gsap.set(el,{x:0,y:slot.y,z:slot.z,scale:slot.scale,xPercent:0,yPercent:-50,
     skewY:skew,transformOrigin:'center center',zIndex:slot.zIndex,opacity:1,force3D:true});
 
   const total=cards.length;
@@ -1435,22 +1435,20 @@ function initPriceRise3D(canvas){
     rest.forEach((idx,i)=>{
       const el=cards[idx],slot=makeSlot(i,total);
       tl.set(el,{zIndex:slot.zIndex},'promote');
-      tl.to(el,{x:slot.x,y:slot.y,z:slot.z,duration:config.durMove,ease:config.ease},'promote+='+(i*0.12));
+      tl.to(el,{y:slot.y,z:slot.z,scale:slot.scale,duration:config.durMove,ease:config.ease},'promote+='+(i*0.12));
     });
     const backSlot=makeSlot(total-1,total);
     tl.addLabel('return','promote+='+(config.durMove*config.returnDelay));
-    tl.set(elFront,{x:backSlot.x,y:backSlot.y-dropDist,z:backSlot.z,zIndex:backSlot.zIndex},'return');
+    tl.set(elFront,{y:backSlot.y-dropDist,z:backSlot.z,scale:backSlot.scale,zIndex:backSlot.zIndex},'return');
     tl.to(elFront,{y:backSlot.y,opacity:1,duration:config.durReturn,ease:config.ease},'return');
     tl.call(()=>{order=[...rest,front];});
   }
 
-  let timer=setInterval(swap,3200);
-  container.addEventListener('mouseenter',()=>clearInterval(timer));
-  container.addEventListener('mouseleave',()=>{timer=setInterval(swap,3200);});
+  setInterval(swap,3200);
   onWidthResize(()=>{
     cards.forEach(c=>{c.style.height='';});
     const h=Math.max(...cards.map(c=>c.getBoundingClientRect().height));
     cards.forEach(c=>{c.style.height=h+'px';});
-    container.style.height=(h+40)+'px';
+    container.style.height=(h+70)+'px';
   });
 })();
