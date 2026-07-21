@@ -1132,6 +1132,28 @@ function playHeroRevealWhenReady(){
   else window.addEventListener('load',playHeroReveal,{once:true});
 }
 document.addEventListener('mvs:veilDone',playHeroRevealWhenReady,{once:true});
+
+/* RotatingText (react-bits), ported to vanilla JS+GSAP -- no React/motion lib on this site.
+   Rotates the whole phrase as one unit rather than the reference's per-character split: the
+   .grad gradient (index.html) uses background-clip:text, which only clips a single element's
+   OWN direct text -- splitting into per-char inline-block spans would put the actual characters
+   in separate boxes and break the gradient across them (the .rot-cur span below is the gradient
+   element itself, so it has to keep holding real text directly, not nested child spans). */
+(function(){
+  if(reduce||typeof gsap==='undefined')return;
+  const el=document.getElementById('heroRot');
+  if(!el)return;
+  const texts=['your business','your bookings','your revenue','your growth'];
+  let i=0;
+  setInterval(()=>{
+    gsap.to(el,{yPercent:-120,opacity:0,duration:0.4,ease:'power2.in',onComplete:()=>{
+      i=(i+1)%texts.length;
+      el.textContent=texts[i];
+      gsap.fromTo(el,{yPercent:100,opacity:0},{yPercent:0,opacity:1,duration:0.5,ease:'back.out(1.6)'});
+    }});
+  },2400);
+})();
+
 /* integrations backdrop — sparse node network reclaims the "connected systems" motif the
    hero used to use (now free since hero moved to the torus knot). Kept faint/ambient since
    the colorful brand-logo marquee sits on top of it and must stay the visual focus. */
