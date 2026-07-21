@@ -347,49 +347,16 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
      the file, so a bare .cap-head rule here silently lost. Combined selector wins regardless of
      source order. */
   @media(max-width:900px){.cap-head{min-height:0;padding-bottom:0;}.wrap.cap-head{padding-top:64px;}}
-  .feat-stack{position:relative;}
-  /* stage itself is transparent on purpose -- only the card (which already carries its own
-     background below) should read as the thing sliding/covering. An opaque stage bg would make
-     the whole viewport-height block ride along as one flat sheet instead of just the card. */
-  /* 65vh, not 100vh -- each fold used to demand a full viewport-height of scroll to complete,
-     which read as slow ("need to come up sooner"). Shrinking the stage height directly shortens
-     the scroll distance each pin consumes (verified empirically: end:'+=100%' resolves as 100%
-     of the pinned element's OWN height, so this stays exactly 1:1 with no gap -- see the hero
-     pin's matching end:'+=65%' below, which has to be changed together with this). */
-  /* extra top padding, not symmetric -- the fixed nav (z-index:60, always above these pinned
-     stages) visually eats into the top of the viewport while a card is locked in place, so a
-     mathematically-centered card reads as sitting slightly too high against the actual visible
-     area beneath the nav. Biases it down to compensate, height/pin math untouched. */
-  .feat-stage{position:relative;min-height:65vh;display:flex;align-items:center;justify-content:center;
-    padding:96px 0 60px;}
-  /* targets the Nth top-level slot under #featStack, not .feat-stage:nth-child directly -- GSAP's
-     pin:true (main.js) wraps each pinned .feat-stage in its own auto-generated .pin-spacer div on
-     desktop, so every .feat-stage becomes an only-child and :nth-child(1) matched all three of
-     them identically (confirmed via computed-style: all read z-index:1, not 1/2/3 -- silently
-     harmless only because equal z-index still paints in DOM order, which happens to match anyway).
-     Matches both forms: the slot IS .feat-stage (mobile, unpinned) or CONTAINS it (desktop, spacer-
-     wrapped). */
-  #featStack>div:nth-child(1).feat-stage,#featStack>div:nth-child(1)>.feat-stage{z-index:1;}
-  #featStack>div:nth-child(2).feat-stage,#featStack>div:nth-child(2)>.feat-stage{z-index:2;}
-  #featStack>div:nth-child(3).feat-stage,#featStack>div:nth-child(3)>.feat-stage{z-index:3;}
-  .feat-stage .feat-card{width:100%;}
-  @media(max-width:900px){
-    /* feat-stack no longer forced into a flex column here -- the fold-stack pin effect (main.js)
-       now also runs on mobile, and pinSpacing:false collapse depends on stages sitting in normal
-       block flow one after another, not flex items separated by a fixed gap.
-       Stage went through min-height:0 first (height = just the compact card) -- looked right at
-       rest but broke mid-scroll: a transparent stage that's barely taller than its own small card
-       left the ADJACENT stage's tags and the next section's heading visibly bleeding through above
-       and below the pinned card (reported from a real phone screenshot). The "stage transparent,
-       only the card covers" design (see comment above .feat-stage) only holds when the card is
-       nearly the stage's full height, which compacting the cards for mobile broke. Matching
-       desktop's 65vh + an opaque bg fixes it the same way desktop never had this bug: the whole
-       pinned block is a solid white sheet, compact card just centered inside it, nothing behind
-       can show through regardless of how small the card itself is. */
-    .feat-stage{min-height:65vh;padding:64px 0 20px;background:var(--bg);}
-  }
-  .feat-card{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:12px;
-    overflow:hidden;background:var(--bg);transition:border-color .3s ease,box-shadow .3s ease;}
+  /* CardSwap (React Bits, ported to vanilla JS+GSAP -- see main.js): the 3 service cards live
+     absolutely-positioned inside this one perspective container and auto-cycle on a timer instead
+     of pinning to scroll position. Height is set inline by JS (tallest card's real rendered
+     height), same "measure real content, don't hardcode" rule the old fold-stack used. */
+  .feat-stack{position:relative;perspective:1400px;margin:40px 0 20px;}
+  .feat-card{position:absolute;top:50%;left:0;width:100%;display:flex;align-items:stretch;
+    border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--bg);
+    box-shadow:0 30px 70px -30px rgba(10,10,10,.22);
+    transition:border-color .3s ease,box-shadow .3s ease;will-change:transform;
+    backface-visibility:hidden;-webkit-backface-visibility:hidden;}
   .feat-card:hover{border-color:var(--line-strong);box-shadow:0 20px 40px -28px rgba(10,10,10,.18);}
   .feat-visual{flex:0 0 42%;position:relative;background:linear-gradient(155deg,var(--surface) 0%,var(--bg-2) 100%);
     display:flex;align-items:center;justify-content:center;overflow:hidden;min-height:260px;}
@@ -410,8 +377,8 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
      monochrome linework + one accent detail each, matching the site's restrained palette. */
   .feat-illo{width:100%;max-width:230px;height:auto;position:relative;z-index:1;
     animation:breathe 6s ease-in-out infinite;}
-  #featStack>div:nth-child(2) .feat-illo{animation-delay:.7s;}
-  #featStack>div:nth-child(3) .feat-illo{animation-delay:1.4s;}
+  #featStack .feat-card:nth-of-type(2) .feat-illo{animation-delay:.7s;}
+  #featStack .feat-card:nth-of-type(3) .feat-illo{animation-delay:1.4s;}
   @keyframes breathe{0%,100%{transform:scale(1) translateY(0);}50%{transform:scale(1.035) translateY(-5px);}}
   @media(prefers-reduced-motion:reduce){.feat-illo{animation:none;}}
   .feat-body{flex:1;padding:40px 44px;display:flex;flex-direction:column;justify-content:center;
@@ -991,7 +958,6 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
        font floors kept above ~12px (readability), everything else (spacing, icon box, heading)
        took the full 30% cut. */
     #capabilities .cap-head h2{font-size:clamp(22px,6.3vw,32px);}
-    .feat-stage{min-height:46vh;padding:45px 0 14px;}
     .feat-body{padding:10px 11px 11px;}
     .feat-body h3{font-size:14px;}
     .feat-body p{margin-top:4px;font-size:12px;}
@@ -1093,80 +1059,76 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   <div class="wrap cap-head">
     <h2 class="h2-split"><span class="word"><span>Your</span></span> <span class="word"><span>entire</span></span> <span class="word"><span>workflow.</span></span></h2>
   </div>
+  <div class="wrap">
   <div class="feat-stack" id="featStack">
-    <div class="feat-stage"><div class="wrap">
-      <div class="feat-card">
-        <div class="feat-visual"><div class="fi">W</div>
-          <svg class="feat-illo" viewBox="0 0 160 120" fill="none" aria-hidden="true">
-            <rect x="10" y="10" width="100" height="70" rx="6" stroke="var(--ink)" stroke-width="2.4"/>
-            <line x1="10" y1="24" x2="110" y2="24" stroke="var(--ink)" stroke-width="2.4"/>
-            <circle cx="18" cy="17" r="2" fill="var(--ink)"/>
-            <circle cx="25" cy="17" r="2" fill="var(--ink)"/>
-            <circle cx="32" cy="17" r="2" fill="var(--ink)"/>
-            <line x1="20" y1="36" x2="70" y2="36" stroke="var(--line-strong)" stroke-width="2.4"/>
-            <line x1="20" y1="46" x2="90" y2="46" stroke="var(--line-strong)" stroke-width="2.4"/>
-            <rect x="20" y="58" width="30" height="12" rx="6" fill="var(--accent)"/>
-            <path d="M115 45 Q135 45 140 65 Q142 80 130 90" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round"/>
-            <circle cx="128" cy="94" r="5" fill="var(--accent)"/>
-          </svg>
-        </div>
-        <div class="feat-body">
-          <div class="feat-ghost" aria-hidden="true">01</div>
-          <div class="feat-kicker">01 — Web &amp; Funnels</div>
-          <h3>Website &amp; funnels, built to convert.</h3>
-          <p>A fast, professional site engineered around one job: turning visitors into booked clients — live in days, not months.</p>
-          <div class="feat-tags"><span class="feat-tag">Conversion-built</span><span class="feat-tag">Live in days</span><span class="feat-tag">Mobile-first</span></div>
-        </div>
+    <div class="feat-card">
+      <div class="feat-visual"><div class="fi">W</div>
+        <svg class="feat-illo" viewBox="0 0 160 120" fill="none" aria-hidden="true">
+          <rect x="10" y="10" width="100" height="70" rx="6" stroke="var(--ink)" stroke-width="2.4"/>
+          <line x1="10" y1="24" x2="110" y2="24" stroke="var(--ink)" stroke-width="2.4"/>
+          <circle cx="18" cy="17" r="2" fill="var(--ink)"/>
+          <circle cx="25" cy="17" r="2" fill="var(--ink)"/>
+          <circle cx="32" cy="17" r="2" fill="var(--ink)"/>
+          <line x1="20" y1="36" x2="70" y2="36" stroke="var(--line-strong)" stroke-width="2.4"/>
+          <line x1="20" y1="46" x2="90" y2="46" stroke="var(--line-strong)" stroke-width="2.4"/>
+          <rect x="20" y="58" width="30" height="12" rx="6" fill="var(--accent)"/>
+          <path d="M115 45 Q135 45 140 65 Q142 80 130 90" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round"/>
+          <circle cx="128" cy="94" r="5" fill="var(--accent)"/>
+        </svg>
       </div>
-    </div></div>
-    <div class="feat-stage"><div class="wrap">
-      <div class="feat-card">
-        <div class="feat-visual"><div class="fi">A</div>
-          <svg class="feat-illo" viewBox="0 0 160 120" fill="none" aria-hidden="true">
-            <path d="M38 34 L72 24" stroke="var(--line-strong)" stroke-width="2"/>
-            <path d="M89 24 L120 40" stroke="var(--line-strong)" stroke-width="2"/>
-            <path d="M35 38 L55 74" stroke="var(--line-strong)" stroke-width="2"/>
-            <path d="M68 84 L107 93" stroke="var(--line-strong)" stroke-width="2"/>
-            <path d="M124 53 L118 87" stroke="var(--line-strong)" stroke-width="2"/>
-            <circle cx="30" cy="30" r="10" stroke="var(--ink)" stroke-width="2.4"/>
-            <circle cx="80" cy="20" r="10" stroke="var(--ink)" stroke-width="2.4"/>
-            <circle cx="130" cy="45" r="12" fill="var(--accent)"/>
-            <circle cx="60" cy="80" r="10" stroke="var(--ink)" stroke-width="2.4"/>
-            <circle cx="115" cy="95" r="10" stroke="var(--ink)" stroke-width="2.4"/>
-          </svg>
-        </div>
-        <div class="feat-body">
-          <div class="feat-ghost" aria-hidden="true">02</div>
-          <div class="feat-kicker">02 — Automation</div>
-          <h3>Automations that run while you sleep.</h3>
-          <p>Make / n8n workflows wired end-to-end and error-handled, so the boring admin happens without you touching it.</p>
-          <div class="feat-tags"><span class="feat-tag">Make / n8n</span><span class="feat-tag">Error-handled</span><span class="feat-tag">Runs 24/7</span></div>
-          <p class="feat-claim">Same standard I run my own business on — no fragile duct-tape chains, no silent failures.</p>
-        </div>
+      <div class="feat-body">
+        <div class="feat-ghost" aria-hidden="true">01</div>
+        <div class="feat-kicker">01 — Web &amp; Funnels</div>
+        <h3>Website &amp; funnels, built to convert.</h3>
+        <p>A fast, professional site engineered around one job: turning visitors into booked clients — live in days, not months.</p>
+        <div class="feat-tags"><span class="feat-tag">Conversion-built</span><span class="feat-tag">Live in days</span><span class="feat-tag">Mobile-first</span></div>
       </div>
-    </div></div>
-    <div class="feat-stage"><div class="wrap">
-      <div class="feat-card">
-        <div class="feat-visual"><div class="fi">AI</div>
-          <svg class="feat-illo" viewBox="0 0 160 120" fill="none" aria-hidden="true">
-            <path d="M20 20 h90 a10 10 0 0 1 10 10 v40 a10 10 0 0 1 -10 10 h-55 l-20 18 v-18 h-15 a10 10 0 0 1 -10 -10 v-40 a10 10 0 0 1 10 -10 z" stroke="var(--ink)" stroke-width="2.4"/>
-            <line x1="35" y1="48" x2="35" y2="58" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
-            <line x1="48" y1="40" x2="48" y2="66" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
-            <line x1="61" y1="45" x2="61" y2="61" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
-            <line x1="74" y1="36" x2="74" y2="70" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
-            <line x1="87" y1="44" x2="87" y2="62" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
-            <line x1="100" y1="50" x2="100" y2="56" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <div class="feat-body">
-          <div class="feat-ghost" aria-hidden="true">03</div>
-          <div class="feat-kicker">03 — AI Assistants</div>
-          <h3>AI assistants, in your own voice.</h3>
-          <p>Booking, FAQs and replies trained on your business, not a generic chatbot template. Never off the clock.</p>
-          <div class="feat-tags"><span class="feat-tag">Booking &amp; replies</span><span class="feat-tag">Trained on your voice</span><span class="feat-tag">Always on</span></div>
-        </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-visual"><div class="fi">A</div>
+        <svg class="feat-illo" viewBox="0 0 160 120" fill="none" aria-hidden="true">
+          <path d="M38 34 L72 24" stroke="var(--line-strong)" stroke-width="2"/>
+          <path d="M89 24 L120 40" stroke="var(--line-strong)" stroke-width="2"/>
+          <path d="M35 38 L55 74" stroke="var(--line-strong)" stroke-width="2"/>
+          <path d="M68 84 L107 93" stroke="var(--line-strong)" stroke-width="2"/>
+          <path d="M124 53 L118 87" stroke="var(--line-strong)" stroke-width="2"/>
+          <circle cx="30" cy="30" r="10" stroke="var(--ink)" stroke-width="2.4"/>
+          <circle cx="80" cy="20" r="10" stroke="var(--ink)" stroke-width="2.4"/>
+          <circle cx="130" cy="45" r="12" fill="var(--accent)"/>
+          <circle cx="60" cy="80" r="10" stroke="var(--ink)" stroke-width="2.4"/>
+          <circle cx="115" cy="95" r="10" stroke="var(--ink)" stroke-width="2.4"/>
+        </svg>
       </div>
-    </div></div>
+      <div class="feat-body">
+        <div class="feat-ghost" aria-hidden="true">02</div>
+        <div class="feat-kicker">02 — Automation</div>
+        <h3>Automations that run while you sleep.</h3>
+        <p>Make / n8n workflows wired end-to-end and error-handled, so the boring admin happens without you touching it.</p>
+        <div class="feat-tags"><span class="feat-tag">Make / n8n</span><span class="feat-tag">Error-handled</span><span class="feat-tag">Runs 24/7</span></div>
+        <p class="feat-claim">Same standard I run my own business on — no fragile duct-tape chains, no silent failures.</p>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-visual"><div class="fi">AI</div>
+        <svg class="feat-illo" viewBox="0 0 160 120" fill="none" aria-hidden="true">
+          <path d="M20 20 h90 a10 10 0 0 1 10 10 v40 a10 10 0 0 1 -10 10 h-55 l-20 18 v-18 h-15 a10 10 0 0 1 -10 -10 v-40 a10 10 0 0 1 10 -10 z" stroke="var(--ink)" stroke-width="2.4"/>
+          <line x1="35" y1="48" x2="35" y2="58" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
+          <line x1="48" y1="40" x2="48" y2="66" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
+          <line x1="61" y1="45" x2="61" y2="61" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
+          <line x1="74" y1="36" x2="74" y2="70" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
+          <line x1="87" y1="44" x2="87" y2="62" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
+          <line x1="100" y1="50" x2="100" y2="56" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="feat-body">
+        <div class="feat-ghost" aria-hidden="true">03</div>
+        <div class="feat-kicker">03 — AI Assistants</div>
+        <h3>AI assistants, in your own voice.</h3>
+        <p>Booking, FAQs and replies trained on your business, not a generic chatbot template. Never off the clock.</p>
+        <div class="feat-tags"><span class="feat-tag">Booking &amp; replies</span><span class="feat-tag">Trained on your voice</span><span class="feat-tag">Always on</span></div>
+      </div>
+    </div>
+  </div>
   </div>
 </section>
 

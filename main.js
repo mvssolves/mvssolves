@@ -1403,28 +1403,7 @@ function initPriceRise3D(canvas){
   const hero=document.getElementById('top');
   const cap=document.getElementById('capabilities');
   const capHead=document.querySelector('.cap-head');
-  const stages=[...document.querySelectorAll('#featStack .feat-stage')];
-  /* runs on mobile too (explicit ask: match desktop's scroll style) -- first attempt disabled this
-     chain below 901px entirely after a "laggy/cards don't scroll" report. Tried forcing
-     pinType:'transform' + anticipatePin:1 next (theory: iOS repaints on position:fixed pins) --
-     made it WORSE, reported back as the laggiest it's been. anticipatePin is documented to fight
-     pins with a dynamically-measured end value (heroPct/stagePct below recompute off real
-     rendered height, not a fixed number) -- likely what actually regressed here. Reverted both,
-     back to GSAP's own default pin-mode detection, which is what was already working before either
-     "fix". If mobile scroll needs more work from here, change ONE variable at a time and get a real
-     device confirmation before layering on the next guess -- two blind swings in a row both missed. */
-  if(!hero||!cap||!capHead||reduce||!stages.length)return;
-  /* the 3 feat-cards also need to be the same height as each other, not just their stages --
-     card 2's extra .feat-claim line otherwise makes IT (and its icon rectangle, which stretches to
-     match) visibly taller than cards 1 and 3 ("its not even same size"). Equalizing to the tallest
-     card's own natural height, before any pin-duration math below runs, so stage heights (measured
-     next) are genuinely uniform for the same reason, not just coincidentally close. */
-  const cards=[...document.querySelectorAll('#featStack .feat-card')];
-  if(cards.length){
-    cards.forEach(c=>{c.style.minHeight='';});
-    const maxCardH=Math.max(...cards.map(c=>c.getBoundingClientRect().height));
-    cards.forEach(c=>{c.style.minHeight=maxCardH+'px';});
-  }
+  if(!hero||!cap||!capHead||reduce)return;
   /* hero pins briefly, then #capabilities (opaque bg + higher z-index, see CSS) rises up from the
      bottom edge and covers it -- back to the original fold intent, just shorter. This chain's one
      hard rule: pin duration must equal the pinned element's REAL rendered height, or the follower
@@ -1436,22 +1415,79 @@ function initPriceRise3D(canvas){
      renders. */
   const heroPct=()=>'+='+(hero.getBoundingClientRect().height/window.innerHeight*100)+'%';
   ScrollTrigger.create({trigger:hero,start:'top top',end:heroPct,pin:true,pinSpacing:false,invalidateOnRefresh:true});
-  /* each card's own pin duration also has to match ITS real height, same rule as hero above --
-     hardcoded '+=65%' assumed every card renders at exactly the 65vh floor, but card 2
-     (Automations) carries an extra .feat-claim line the other two don't, so it can render taller
-     than 65vh depending on viewport size/width -- exactly the kind of mismatch that left card 2
-     and card 3 visibly overlapping (both partially on screen at once) at a wider window than this
-     was tested at. Measuring each stage's own real height fixes it regardless of viewport or which
-     card has more content. */
-  /* last stage: pinSpacing:true on desktop (proven correct there -- How It Works reserves the
-     card's real space and flows on cleanly after). Removing it broke desktop (how-it-works content
-     rendered behind/through the still-pinned last card, no reserved space at all). Mobile needed
-     pinSpacing:false instead -- measured a real GSAP quirk there where pinSpacing:true reserved
-     DOUBLE the card's real height (889px spacer for a 445px card), leaving a dead gap. Two
-     different bugs, two different fixes -- branch on viewport instead of picking one for both. */
-  stages.forEach((stage,i)=>{
-    const isLast=i===stages.length-1;
-    const stagePct=()=>'+='+(stage.getBoundingClientRect().height/window.innerHeight*100)+'%';
-    ScrollTrigger.create({trigger:stage,start:'top top',end:stagePct,pin:true,pinSpacing:isLast&&isDesktop,invalidateOnRefresh:true});
+})();
+
+/* CardSwap (React Bits component, ported to vanilla JS+GSAP -- no React/build step on this site).
+   Replaces the old scroll-pin fold-stack for the 3 service cards: instead of pinning to scroll
+   position, the front card drops away and cycles to the back of the stack on a timer, the next
+   card promoting to front. Same makeSlot/placeNow/swap recipe as the source component; the drop
+   distance and slot offsets are scaled up from its 500px/60px/70px defaults to suit these large
+   content cards instead of the small fixed-size cards the original demo targets. Runs on every
+   viewport -- unlike the scroll-pin version, nothing here depends on scroll position, so there's
+   no separate mobile pin-jank class of bug to worry about. */
+(function(){
+  if(reduce||typeof gsap==='undefined')return;
+  const container=document.getElementById('featStack');
+  const cards=[...document.querySelectorAll('#featStack .feat-card')];
+  if(!container||cards.length<2)return;
+
+  /* cards carry different amounts of copy (card 2 has an extra .feat-claim line) -- equalize to
+     the tallest card's own natural height first, same "measure real content" rule the old
+     fold-stack used, so the stack container's height (set below) matches what's actually on screen. */
+  cards.forEach(c=>{c.style.height='';});
+  const cardH=Math.max(...cards.map(c=>c.getBoundingClientRect().height));
+  cards.forEach(c=>{c.style.height=cardH+'px';});
+  container.style.height=(cardH+40)+'px'; /* + slack for the small vertical stack offset below */
+  /* #capabilities has overflow:hidden (CSS) -- the drop distance can't exceed the real clear space
+     below the stack or the card gets hard-clipped mid-animation instead of smoothly leaving view.
+     Measuring the actual gap (not guessing a fixed px value) so this stays safe on any viewport;
+     20px safety margin, floor of 60px so the drop still reads as real motion even if the section
+     is snug. */
+  const cap=document.getElementById('capabilities');
+  const clearBelow=cap?cap.getBoundingClientRect().bottom-container.getBoundingClientRect().bottom:9999;
+  /* no lower floor here on purpose -- a floor that ignores clearBelow (e.g. min 60px) can still
+     exceed the real safe space on a tight mobile viewport (measured: 76px clear, a 60px floor
+     left only 16px margin instead of the intended 20px). Clamping to whatever's actually safe,
+     even if that's small, beats a hard clip. */
+  const dropDist=Math.max(0,Math.min(cardH*0.5,clearBelow-20));
+
+  const cardDistance=0,verticalDistance=16,skew=2; /* subtle stack peek -- these are full-width content cards, not small fanned-out widgets, so no horizontal drift and only a light skew */
+  const config={ease:'power2.inOut',durDrop:0.7,durMove:0.6,durReturn:0.6,promoteOverlap:0.8,returnDelay:0.1};
+
+  const makeSlot=(i,total)=>({x:i*cardDistance,y:-i*verticalDistance,z:-i*cardDistance*1.5,zIndex:total-i});
+  const placeNow=(el,slot)=>gsap.set(el,{x:slot.x,y:slot.y,z:slot.z,xPercent:0,yPercent:-50,
+    skewY:skew,transformOrigin:'center center',zIndex:slot.zIndex,opacity:1,force3D:true});
+
+  const total=cards.length;
+  let order=cards.map((_,i)=>i);
+  cards.forEach((c,i)=>placeNow(c,makeSlot(i,total)));
+
+  function swap(){
+    if(order.length<2)return;
+    const [front,...rest]=order;
+    const elFront=cards[front];
+    const tl=gsap.timeline();
+    tl.to(elFront,{y:'+='+dropDist,opacity:0,duration:config.durDrop,ease:config.ease});
+    tl.addLabel('promote','-='+(config.durDrop*config.promoteOverlap));
+    rest.forEach((idx,i)=>{
+      const el=cards[idx],slot=makeSlot(i,total);
+      tl.set(el,{zIndex:slot.zIndex},'promote');
+      tl.to(el,{x:slot.x,y:slot.y,z:slot.z,duration:config.durMove,ease:config.ease},'promote+='+(i*0.12));
+    });
+    const backSlot=makeSlot(total-1,total);
+    tl.addLabel('return','promote+='+(config.durMove*config.returnDelay));
+    tl.set(elFront,{x:backSlot.x,y:backSlot.y-dropDist,z:backSlot.z,zIndex:backSlot.zIndex},'return');
+    tl.to(elFront,{y:backSlot.y,opacity:1,duration:config.durReturn,ease:config.ease},'return');
+    tl.call(()=>{order=[...rest,front];});
+  }
+
+  let timer=setInterval(swap,5000);
+  container.addEventListener('mouseenter',()=>clearInterval(timer));
+  container.addEventListener('mouseleave',()=>{timer=setInterval(swap,5000);});
+  onWidthResize(()=>{
+    cards.forEach(c=>{c.style.height='';});
+    const h=Math.max(...cards.map(c=>c.getBoundingClientRect().height));
+    cards.forEach(c=>{c.style.height=h+'px';});
+    container.style.height=(h+40)+'px';
   });
 })();
