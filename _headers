@@ -1,6 +1,9 @@
 /main.js
   Cache-Control: no-store
 
+/shared.js
+  Cache-Control: no-store
+
 /
   Cache-Control: no-store
 

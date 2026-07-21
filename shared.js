@@ -41,13 +41,21 @@ let lenis;
   if(!cv||reduce)return;
   const mono=document.body.hasAttribute('data-bg-mono');
   const ctx=cv.getContext('2d');
-  const dpr=Math.min(window.devicePixelRatio||1,1.25);
+  /* narrow (phone) screens get a lower DPR cap and roughly a third the particle count -- this
+     canvas repaints every OTHER rAF already (the hr flip below), but on a phone GPU/CPU that's
+     still real per-frame cost competing with the browser's own touch-scroll compositing, which is
+     exactly the kind of thing that reads as "choppy/laggy/jittery" scrolling even though nothing
+     here is technically broken. Reported after the redesign shipped -- this canvas is the one
+     thing running continuously on every single page, unlike everything else which is gated to
+     desktop or paused off-screen. */
+  const narrow=window.innerWidth<700;
+  const dpr=Math.min(window.devicePixelRatio||1,narrow?1:1.25);
   let w=0,h=0,pts=[];
   function resize(){
     w=window.innerWidth;h=window.innerHeight;
     cv.width=w*dpr;cv.height=h*dpr;cv.style.width=w+'px';cv.style.height=h+'px';
     ctx.setTransform(dpr,0,0,dpr,0,0);
-    const n=Math.round(w*h/8000);
+    const n=Math.round(w*h/(narrow?22000:8000));
     pts=Array.from({length:n},()=>({
       x:Math.random()*w,y:Math.random()*h,
       r:Math.random()*1.3+0.3,
