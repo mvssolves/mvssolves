@@ -1307,15 +1307,19 @@ function initPriceRise3D(canvas){
   const cap=document.getElementById('capabilities');
   const capHead=document.querySelector('.cap-head');
   const stages=[...document.querySelectorAll('#featStack .feat-stage')];
-  /* desktop only -- a chained pin (hero, then 3 cards in sequence) fights native touch momentum
-     scroll on mobile: reported as "laggy" scroll and cards "not scrolling properly" (mid-pin
-     ScrollTrigger recalculation stutters against the browser's own touch-scroll compositor, the
-     same class of problem the bgfx canvas in shared.js already works around for narrow viewports).
-     Falls back to plain stacked block-flow scroll on mobile -- the CSS for that (index.html, 900px
-     block) already renders the cards in normal flow without this JS, just without the pin/cover
-     visual. isDesktop is a load-time snapshot (see matchMedia reload listener above), consistent
-     with every other desktop-only effect in this file. */
-  if(!hero||!cap||!capHead||reduce||!stages.length||!isDesktop)return;
+  /* runs on mobile too (explicit ask: match desktop's scroll style) -- first attempt disabled this
+     chain below 901px entirely after a "laggy/cards don't scroll" report. Root cause wasn't mobile
+     vs desktop, it was GSAP ScrollTrigger's default pin implementation: absent an explicit
+     pinType, it auto-detects 'fixed' (position:fixed) vs 'transform' based on the trigger's
+     transformed ancestors -- on iOS Safari specifically, position:fixed pinning forces a style
+     recalc/repaint on every scroll tick (compositor can't just move a layer, it has to ask the
+     browser chrome/URL-bar-hide logic where "fixed" even means right now), which is exactly what
+     reads as stutter fighting native touch-scroll momentum. pinType:'transform' (set on both
+     ScrollTrigger.create calls below) forces GPU-composited transform-based pinning instead --
+     same visual pin, no repaint-per-tick cost. anticipatePin:1 removes a small pre-pin snap/jump
+     GSAP otherwise leaves at the moment a pin engages, which reads as an extra stutter on a
+     touch-scroll flick. */
+  if(!hero||!cap||!capHead||reduce||!stages.length)return;
   /* the 3 feat-cards also need to be the same height as each other, not just their stages --
      card 2's extra .feat-claim line otherwise makes IT (and its icon rectangle, which stretches to
      match) visibly taller than cards 1 and 3 ("its not even same size"). Equalizing to the tallest
@@ -1337,7 +1341,7 @@ function initPriceRise3D(canvas){
      at setup keeps the two numbers honestly equal regardless of how tall the content actually
      renders. */
   const heroPct=()=>'+='+(hero.getBoundingClientRect().height/window.innerHeight*100)+'%';
-  ScrollTrigger.create({trigger:hero,start:'top top',end:heroPct,pin:true,pinSpacing:false,invalidateOnRefresh:true});
+  ScrollTrigger.create({trigger:hero,start:'top top',end:heroPct,pin:true,pinSpacing:false,pinType:'transform',anticipatePin:1,invalidateOnRefresh:true});
   /* each card's own pin duration also has to match ITS real height, same rule as hero above --
      hardcoded '+=65%' assumed every card renders at exactly the 65vh floor, but card 2
      (Automations) carries an extra .feat-claim line the other two don't, so it can render taller
@@ -1354,6 +1358,6 @@ function initPriceRise3D(canvas){
   stages.forEach((stage,i)=>{
     const isLast=i===stages.length-1;
     const stagePct=()=>'+='+(stage.getBoundingClientRect().height/window.innerHeight*100)+'%';
-    ScrollTrigger.create({trigger:stage,start:'top top',end:stagePct,pin:true,pinSpacing:isLast&&isDesktop,invalidateOnRefresh:true});
+    ScrollTrigger.create({trigger:stage,start:'top top',end:stagePct,pin:true,pinSpacing:isLast&&isDesktop,pinType:'transform',anticipatePin:1,invalidateOnRefresh:true});
   });
 })();

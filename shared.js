@@ -26,36 +26,14 @@ let lenis;
   document.head.appendChild(style);
 })();
 
-/* desktop "lighting" pass -- cursor glow, magnetic buttons, card spotlight, button shine sweep.
-   Gated on real mouse + fine pointer (not just viewport width) so a touch laptop or tablet with a
-   trackpad doesn't get a phantom cursor light stuck mid-screen -- these all read state off actual
-   mousemove, nothing to fall back to on touch. One shared implementation, ships to all 6 pages. */
+/* desktop "lighting" pass -- magnetic buttons, card spotlight, button shine sweep. (Ambient cursor
+   glow lived here too -- removed per explicit ask, read as low quality.) Gated on real mouse +
+   fine pointer (not just viewport width) so a touch laptop/tablet doesn't get a phantom hover
+   state -- these all read off actual mousemove, nothing to fall back to on touch. One shared
+   implementation, ships to all 6 pages. */
 (function(){
   const canHover=window.matchMedia('(hover:hover) and (pointer:fine)').matches;
   if(reduce||!canHover)return;
-
-  /* ambient cursor glow -- soft blue light that follows the mouse across the whole page, the
-     "PC is missing lighting" ask in its simplest form. Plain alpha-composited radial gradient, NOT
-     mix-blend-mode:screen -- screen blend only ever brightens, so against this page's white/light
-     backgrounds (most of the site) it was a complete no-op, invisible regardless of opacity. Plain
-     compositing tints correctly over light AND dark sections. CSS transition on transform does the
-     trailing/smoothing instead of a JS rAF-lerp loop -- simpler, one less moving part that can silently
-     stop working, and the browser's compositor handles the interpolation for free. */
-  const glow=document.createElement('div');
-  glow.id='cursorGlow';
-  glow.style.cssText='position:fixed;top:0;left:0;width:640px;height:640px;margin:-320px 0 0 -320px;'
-    +'border-radius:50%;pointer-events:none;z-index:40;opacity:0;'
-    +'background:radial-gradient(circle,rgba(190,247,255,.16) 0%,rgba(0,238,255,.09) 22%,rgba(0,238,255,.035) 46%,transparent 70%);'
-    +'filter:blur(2px);'
-    /* slow eased transition on transform (not the earlier 0.12s linear snap) is what actually reads
-       as a "glow" -- a soft light chasing the cursor with a bit of lag, not a rigid dot glued to it. */
-    +'transition:opacity .5s ease,transform .7s cubic-bezier(.16,1,.3,1);will-change:transform;';
-  document.documentElement.appendChild(glow);
-  window.addEventListener('mousemove',e=>{
-    glow.style.transform='translate3d('+e.clientX+'px,'+e.clientY+'px,0)';
-    glow.style.opacity='1';
-  },{passive:true});
-  document.addEventListener('mouseleave',()=>{glow.style.opacity='0';});
 
   /* magnetic buttons -- any .btn pulls a few px toward the cursor while hovered, springs back on
      leave. Classic premium micro-interaction, costs one mousemove + one transform per button. */
