@@ -103,7 +103,7 @@ if(!reduce&&isDesktop){
    fade-in on top of that would fight it. */
 (function(){
   if(reduce||typeof gsap==='undefined'||typeof ScrollTrigger==='undefined')return;
-  gsap.utils.toArray('.hiw-step, .trust-card, .testi-card, .tier, .book-copy, .book-cal').forEach(el=>{
+  gsap.utils.toArray('.hiw-step, .trust-card, .testi-card, .tier, .book-copy, .book-cal, #about > .wrap > p').forEach(el=>{
     gsap.fromTo(el,{opacity:0,y:26,filter:'blur(8px)'},{
       opacity:1,y:0,filter:'blur(0px)',duration:.9,ease:'power2.out',
       scrollTrigger:{trigger:el,start:'top 88%',once:true}
@@ -700,10 +700,23 @@ if(!reduce){
      every section's own .sub copy line -- reuses the fade-up above (this just layers the shine
      class on top, doesn't replace it), one more animated element per section instead of hand-
      building a new effect per section. */
-  gsap.utils.toArray('.section .sub').forEach(el=>{
+  gsap.utils.toArray('.section .sub, #about > .wrap > p').forEach(el=>{
     el.classList.add('shine-text');
     ScrollTrigger.create({trigger:el,start:'top 88%',fastScrollEnd:true,once:true,
       onEnter:()=>el.classList.add('shine-in')});
+  });
+  /* why-me timeline -- connecting line draws in (class toggle, CSS transition drives the actual
+     scaleX/scaleY so it works for both the horizontal desktop layout and vertical mobile one
+     without duplicating JS per breakpoint), dots+copy stagger up same as the nume-style reveal
+     above but scoped so each item lands in sequence instead of all at once. */
+  gsap.utils.toArray('.why-timeline').forEach(tl=>{
+    const items=tl.querySelectorAll('.why-item');
+    ScrollTrigger.create({trigger:tl,start:'top 85%',fastScrollEnd:true,once:true,
+      onEnter:()=>tl.classList.add('why-in')});
+    gsap.fromTo(items,{opacity:0,y:22,filter:'blur(6px)'},{
+      opacity:1,y:0,filter:'blur(0px)',duration:.8,stagger:.12,ease:'power2.out',
+      scrollTrigger:{trigger:tl,start:'top 85%',fastScrollEnd:true,once:true}
+    });
   });
   /* eyebrow labels — matrix-style scramble-to-real-text decode, seen in the reference video.
      Layers on top of the fade above; .lab is already monospace so glyph-width stays stable. */

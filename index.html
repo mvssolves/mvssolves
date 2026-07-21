@@ -691,18 +691,28 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   /* about -- founder bio, centered single column, sits directly above testimonials. Why-me
      timeline runs horizontal on desktop (dots along a top line); collapses to the original
      vertical dot-line on mobile, see media query below. */
-  #about .wrap{max-width:960px;text-align:center;}
+  #about .wrap{max-width:960px;text-align:center;display:flex;flex-direction:column;}
   #about p{color:var(--soft);font-size:16px;line-height:1.7;margin:18px auto 0;max-width:60ch;}
   #about .why-lab{margin-top:44px;}
   #about .why-timeline{margin:20px auto 0;max-width:900px;display:flex;justify-content:space-between;gap:12px;position:relative;padding-top:24px;}
-  #about .why-timeline::before{content:'';position:absolute;left:0;right:0;top:5px;height:1px;background:var(--line-strong);}
+  /* line-draw-in on scroll -- .why-in toggled by ScrollTrigger (main.js), CSS transition does the
+     actual reveal so the same class works for both the horizontal (scaleX) and vertical mobile
+     (scaleY, see below) layouts without branching the JS per breakpoint. */
+  #about .why-timeline::before{content:'';position:absolute;left:0;right:0;top:5px;height:1px;background:var(--line-strong);
+    transform-origin:left center;transform:scaleX(0);transition:transform 1s cubic-bezier(.16,1,.3,1);}
+  #about .why-timeline.why-in::before{transform:scaleX(1);}
   #about .why-item{position:relative;flex:1;padding:0 6px;text-align:center;}
   #about .why-item::before{content:'';position:absolute;left:50%;top:-19px;transform:translateX(-50%);width:9px;height:9px;border-radius:50%;background:var(--accent);}
   #about .why-date{display:block;font-family:'Roboto',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);margin-bottom:4px;}
   #about .why-item p{margin:0 auto;color:var(--text);font-size:14px;line-height:1.5;max-width:none;}
   @media(max-width:900px){
+    /* goal statement reads before the timeline on mobile (flex order only -- desktop keeps
+       source order, nothing to override there). */
+    #about .goal-p{order:1;}
+    #about .why-block{order:2;}
     #about .why-timeline{display:block;max-width:400px;margin:20px auto 0;padding-top:0;padding-left:28px;}
-    #about .why-timeline::before{left:4px;right:auto;top:6px;bottom:6px;height:auto;width:1px;}
+    #about .why-timeline::before{left:4px;right:auto;top:6px;bottom:6px;height:auto;width:1px;transform-origin:top center;transform:scaleY(0);}
+    #about .why-timeline.why-in::before{transform:scaleY(1);}
     #about .why-item{padding:0 0 28px;text-align:left;}
     #about .why-item:last-child{padding-bottom:0;}
     #about .why-item::before{left:-28px;top:3px;transform:none;}
@@ -1216,15 +1226,17 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
     <div class="lab">About</div>
     <h2 class="h2-split h2-split-side"><span class="word"><span>The</span></span> <span class="word"><span>person</span></span> <span class="word"><span class="serif">building it.</span></span></h2>
     <p>I'm Martin van Staden — self-taught, no agency background. Started in marketing and sales two years ago and built MVS Solves because most agencies stack layers between you and the actual work. Every project is mine alone — strategy, design, build, delivery. 20-hour days when a client needs it, because I'm hungry for your business to grow as much as mine. Whoever I'm working with is my only priority until it's done.</p>
-    <div class="lab why-lab">Why me?</div>
-    <div class="why-timeline">
-      <div class="why-item"><span class="why-date">2 years ago</span><p>Started in marketing and sales — learned the trade hands-on, no classroom.</p></div>
-      <div class="why-item"><span class="why-date">1 year ago</span><p>Founded MVS Solves. Went solo on purpose — no layers between me and the client.</p></div>
-      <div class="why-item"><span class="why-date">First 30 days</span><p>Onboarded 15 new clients.</p></div>
-      <div class="why-item"><span class="why-date">3 months in</span><p>Helped 6 businesses hit 5 figures.</p></div>
-      <div class="why-item"><span class="why-date">Today</span><p>Every project still runs through me personally. That's not changing as this grows.</p></div>
+    <div class="why-block">
+      <div class="lab why-lab">Why me?</div>
+      <div class="why-timeline">
+        <div class="why-item"><span class="why-date">2 years ago</span><p>Started in marketing and sales — learned the trade hands-on, no classroom.</p></div>
+        <div class="why-item"><span class="why-date">1 year ago</span><p>Founded MVS Solves. Went solo on purpose — no layers between me and the client.</p></div>
+        <div class="why-item"><span class="why-date">First 30 days</span><p>Onboarded 15 new clients.</p></div>
+        <div class="why-item"><span class="why-date">3 months in</span><p>Helped 6 businesses hit 5 figures.</p></div>
+        <div class="why-item"><span class="why-date">Today</span><p>Every project still runs through me personally. That's not changing as this grows.</p></div>
+      </div>
     </div>
-    <p>My goal is simple — grow your business, get you real results, and leave it better than I found it. If that's not happening, I'm not done.</p>
+    <p class="goal-p">My goal is simple — grow your business, get you real results, and leave it better than I found it. If that's not happening, I'm not done.</p>
   </div>
 </section>
 
