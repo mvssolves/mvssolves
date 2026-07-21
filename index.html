@@ -1103,7 +1103,7 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
 </nav>
 
 <header class="hero" id="top">
-  <div id="optionWheel" class="option-wheel" role="listbox" tabindex="0" aria-label="Site navigation">
+  <div id="optionWheel" class="option-wheel" role="listbox" tabindex="0" aria-label="Site navigation" data-lenis-prevent>
     <div class="option-wheel__item" data-href="#top">Home</div>
     <div class="option-wheel__item" data-href="#about">About</div>
     <div class="option-wheel__item" data-href="#pricing">Pricing</div>
@@ -1768,7 +1768,7 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
 
   var wheelTimer;
   root.addEventListener('wheel',function(e){
-    e.preventDefault();
+    e.preventDefault();e.stopPropagation();
     var delta=e.deltaMode===1?e.deltaY*24:e.deltaY;
     var step=Math.max(-1,Math.min(1,delta/rowH));
     setTarget(target+step,false);
