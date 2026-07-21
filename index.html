@@ -280,6 +280,12 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   /* neon flicker — random letters dip opacity in snappy ticks, like a flickering sign (JS-driven) */
   h1.flick .ch{display:inline-block;}
   .h-sub{margin:24px auto 0;max-width:560px;font-size:clamp(15px,1.5vw,18px);color:var(--text);line-height:1.55;text-align:center;}
+  /* one-shot gradient shine sweep -- plays once on load (JS toggles .shine-in after the fade-up
+     above completes), text-clip gradient sweeping left-to-right then settling to plain color. */
+  .shine-text{background-image:linear-gradient(100deg,var(--text) 40%,#00eeff 50%,var(--text) 60%);
+    background-size:300% 100%;background-position:150% 0;-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .shine-text.shine-in{background-position:-150% 0;transition:background-position 1.1s cubic-bezier(.2,.7,.2,1);}
+  @media(prefers-reduced-motion:reduce){.shine-text{background:none;-webkit-text-fill-color:currentColor;color:var(--text);}}
   .h-cta{margin-top:28px;display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;}
   /* nume's actual CTA buttons measured much more compact than MVS's original: ~11.5px/19px
      padding, 13.4px font, weight 500 -- not the chunky 16px/26px/700 MVS had. */
@@ -1147,7 +1153,7 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
     <div class="hiw-layout">
       <div class="hiw-head">
         <div class="lab">Process</div>
-        <h2>How it works.</h2>
+        <h2 class="h2-split"><span class="word"><span>How</span></span> <span class="word"><span>it</span></span> <span class="word"><span>works.</span></span></h2>
         <p class="hiw-sub">Three steps. No account managers, no discovery decks, no six-week onboarding.</p>
       </div>
       <div class="hiw-timeline">

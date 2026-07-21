@@ -631,6 +631,17 @@ function playHeroReveal(){
   const fadeIn=(el,delay)=>{if(!el)return;gsap.fromTo(el,{opacity:0,y:14},{opacity:1,y:0,duration:0.6,delay,ease:'power2.out'});};
   fadeIn(document.querySelector('.navcta'),0);
   document.querySelectorAll('h1 .line').forEach((span,i)=>fadeIn(span,i*0.1));
+  /* hero lede gets its own entrance -- was the one piece of above-the-fold copy with zero
+     animation (h1 already has its per-line flick reveal). Fade-up + a one-shot gradient shine
+     sweep across the text (CSS in index.html, .shine-text/.shine-in), triggered here rather than
+     via ScrollTrigger since above-the-fold content needs to play on LOAD, not on scroll-into-view
+     (it's already in view at load). */
+  const sub=document.querySelector('.h-sub');
+  if(sub){
+    sub.classList.add('shine-text');
+    gsap.fromTo(sub,{opacity:0,y:14},{opacity:1,y:0,duration:0.6,delay:0.25,ease:'power2.out',
+      onComplete:()=>sub.classList.add('shine-in')});
+  }
   /* CTA buttons no longer fade in after the headline -- reported as reading like a bug
      ("buttons not fully visible yet") rather than a polish flourish. Render at full opacity
      immediately instead of staggering in. */
@@ -684,6 +695,15 @@ if(!reduce){
   gsap.utils.toArray('.section .sub, .lab').forEach(el=>{
     gsap.from(el,{y:30,opacity:0,duration:0.9,ease:'power3.out',
       scrollTrigger:{trigger:el,start:'top 88%',fastScrollEnd:true,...rt}});
+  });
+  /* same gradient shine sweep as the hero lede (index.html .shine-text/.shine-in), extended to
+     every section's own .sub copy line -- reuses the fade-up above (this just layers the shine
+     class on top, doesn't replace it), one more animated element per section instead of hand-
+     building a new effect per section. */
+  gsap.utils.toArray('.section .sub').forEach(el=>{
+    el.classList.add('shine-text');
+    ScrollTrigger.create({trigger:el,start:'top 88%',fastScrollEnd:true,once:true,
+      onEnter:()=>el.classList.add('shine-in')});
   });
   /* eyebrow labels — matrix-style scramble-to-real-text decode, seen in the reference video.
      Layers on top of the fade above; .lab is already monospace so glyph-width stays stable. */
