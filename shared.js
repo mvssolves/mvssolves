@@ -74,9 +74,19 @@ let lenis;
   window.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;},{passive:true});
   document.addEventListener('mouseleave',()=>{mx=null;my=null;});
   const REPEL_R=110,REPEL_F=18;
+  /* on phones, the exact moment a scroll gesture starts is when the browser's compositor most
+     needs the main thread free -- this canvas draws unconditionally regardless of scroll state,
+     competing right at that handoff (reported as "grab the screen and it hitches"). Skipping the
+     draw entirely while a touch-scroll is active (narrow viewports only; desktop untouched) frees
+     the main thread for exactly the window that matters, resuming ~150ms after scroll settles. */
+  let scrolling=false,scrollT=null;
+  if(narrow)window.addEventListener('scroll',()=>{
+    scrolling=true;clearTimeout(scrollT);scrollT=setTimeout(()=>{scrolling=false;},150);
+  },{passive:true});
   let running=true,t=0,hr=false;
   function frame(){
     if(!running)return;
+    if(scrolling){requestAnimationFrame(frame);return;}
     hr=!hr;if(!hr){requestAnimationFrame(frame);return;}
     t+=0.032;
     ctx.clearRect(0,0,w,h);

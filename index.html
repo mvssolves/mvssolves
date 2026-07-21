@@ -350,8 +350,12 @@
   #featStack>div:nth-child(3).feat-stage,#featStack>div:nth-child(3)>.feat-stage{z-index:3;}
   .feat-stage .feat-card{width:100%;}
   @media(max-width:900px){
-    .feat-stack{display:flex;flex-direction:column;gap:20px;}
-    .feat-stage{min-height:0;padding:0;}
+    /* feat-stack no longer forced into a flex column here -- the fold-stack pin effect (main.js)
+       now also runs on mobile, and pinSpacing:false collapse depends on stages sitting in normal
+       block flow one after another, not flex items separated by a fixed gap. min-height:0 stays --
+       stage height is driven entirely by its real card content (measured live in JS), which is
+       what keeps mobile stages compact instead of forcing a 65vh floor like desktop. */
+    .feat-stage{min-height:0;padding:64px 0 20px;}
   }
   .feat-card{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:12px;
     overflow:hidden;background:var(--bg);transition:border-color .3s ease,box-shadow .3s ease;}
@@ -849,14 +853,21 @@
        Smaller clamp ceiling, less top padding (nav is already compact here), tighter gaps between
        headline/sub/CTA/trust-row so the whole block reads as one composed unit instead of four
        oversized pieces stacked with room to spare. */
-    .hero{min-height:100vh;min-height:100svh;padding:90px 20px 40px;justify-content:center;gap:24px;}
-    h1{font-size:clamp(36px,10.5vw,52px);}
+    .hero{min-height:100vh;min-height:100svh;padding:90px 20px 40px;justify-content:center;gap:20px;}
+    /* bigger/more impactful headline, smaller secondary sub -- was reading as one flat block of
+       similar-weight text, headline needs to dominate. */
+    h1{font-size:clamp(42px,13vw,58px);}
     h2{font-size:clamp(28px,7.5vw,44px);}
-    .h-sub{font-size:clamp(11px,2.6vw,12px);}
-    .h-cta{margin-top:10px;gap:10px;flex-direction:column;align-items:center;}
-    .h-cta .btn{justify-content:center;padding:13px 20px;font-size:13.5px;}
-    .h-cta .btn-fill{padding-right:52px;}
-    .h-cta .btn-fill:hover{padding-left:52px;padding-right:20px;}
+    .h-sub{font-size:11px;margin-top:14px;}
+    /* CTAs side by side (was stacked column), smaller pills so both fit one row on a 375px screen */
+    .h-cta{margin-top:16px;gap:8px;flex-direction:row;align-items:center;flex-wrap:nowrap;}
+    .h-cta .btn{justify-content:center;padding:11px 14px;font-size:12px;gap:6px;}
+    .h-cta .btn-fill{padding-right:34px;}
+    .h-cta .btn-fill:hover{padding-left:34px;padding-right:14px;}
+    /* trust row ("7 days free/no build fee/cancel anytime") -- default gap/font was wide enough
+       that 3 items wrapped to 2 lines on a phone; tightened so it sits as one compact row. */
+    .h-trust{gap:10px;font-size:10.5px;margin-top:14px;}
+    .h-trust svg{width:12px;height:12px;}
     .hero-stat{padding:5px 12px;font-size:10px;}
     .cap{padding:16px;}
     .cap .ci{width:26px;height:26px;font-size:11px;}
@@ -893,8 +904,14 @@
        still reads fine from the heading + ghost-number treatment alone (ghost is already
        display:none below 900px). */
     .feat-kicker{display:none;}
-    .feat-body{padding:22px 20px 26px;}
-    .feat-tags{gap:8px;margin-top:14px;}
+    /* section heading ("Your entire workflow.") bumped bigger -- card content below tightened
+       to compensate so the cards read smaller/more compact overall, not just the heading. */
+    #capabilities .cap-head h2{font-size:clamp(32px,9vw,46px);}
+    .feat-body{padding:18px 18px 20px;}
+    .feat-body h3{font-size:22px;}
+    .feat-body p{margin-top:8px;font-size:13.5px;}
+    .feat-claim{margin-top:12px;}
+    .feat-tags{gap:8px;margin-top:10px;}
     .feat-tag{font-size:11px;padding:7px 12px;}
     /* kept subtle on mobile too — a bordered pill read as a second CTA competing with "Get
        package" below it. Slightly bigger tap padding only (already added above), no visual bulk. */
@@ -911,11 +928,13 @@
        fighting the scroll gesture for attention. */
     .feat-illo{animation:none;}
     /* book section: same oversized-desktop-block issue as hero/capabilities. */
-    .book-copy h2{font-size:clamp(28px,8vw,40px);}
-    .book-sub{font-size:14px;margin-top:12px;}
-    .book-points{margin:18px 0 0;font-size:13.5px;}
-    .book-points li{padding:5px 0 5px 24px;}
-    .book-alt{margin-top:20px;font-size:12.5px;}
+    /* heading was reading smaller than the description block beneath it -- bigger heading,
+       tighter/smaller description so the heading actually dominates like a heading should. */
+    .book-copy h2{font-size:clamp(36px,11vw,48px);}
+    .book-sub{font-size:13px;margin-top:8px;}
+    .book-points{margin:14px 0 0;font-size:13px;}
+    .book-points li{padding:4px 0 4px 24px;}
+    .book-alt{margin-top:16px;font-size:12.5px;}
   }
 
 
@@ -1097,7 +1116,7 @@
 <!-- TRUST -->
 <section class="section" id="trust">
   <div class="wrap">
-    <h2 class="h2-split"><span class="word"><span>One</span></span> <span class="word"><span>piece</span></span> <span class="word"><span>away</span></span> <span class="word"><span>from</span></span> <span class="word"><span>exponential</span></span> <span class="word"><span>growth.</span></span></h2>
+    <h2 class="h2-split h2-split-alt"><span class="word"><span>One</span></span> <span class="word"><span>piece</span></span> <span class="word"><span>away</span></span> <span class="word"><span>from</span></span> <span class="word"><span>exponential</span></span> <span class="word"><span>growth.</span></span></h2>
     <div class="trust-row">
       <div class="trust-card">
         <div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 13l4 4L19 7"/></svg></div>
@@ -1120,7 +1139,7 @@
 <section class="section" id="testimonials">
   <div class="wrap">
     <div class="lab">Testimonials</div>
-    <h2 class="h2-split"><span class="word"><span>My</span></span> <span class="word"><span>client</span></span> <span class="word"><span class="serif">testimonials</span></span></h2>
+    <h2 class="h2-split h2-split-side"><span class="word"><span>My</span></span> <span class="word"><span>client</span></span> <span class="word"><span class="serif">testimonials</span></span></h2>
     <div class="testi-carousel">
     <div class="testi-grid" id="testiGrid">
       <div class="testi-card">

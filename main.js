@@ -106,7 +106,7 @@ if(!reduce&&isDesktop){
   gsap.utils.toArray('.hiw-step, .trust-card, .testi-card, .tier, .book-copy, .book-cal').forEach(el=>{
     gsap.fromTo(el,{opacity:0,y:26,filter:'blur(8px)'},{
       opacity:1,y:0,filter:'blur(0px)',duration:.9,ease:'power2.out',
-      scrollTrigger:{trigger:el,start:'top 88%',once:true}
+      scrollTrigger:{trigger:el,start:'top 88%',...(isDesktop?{once:true}:{toggleActions:'play none play reverse'})}
     });
   });
 })();
@@ -637,33 +637,57 @@ function playHeroReveal(){
 }
 
 
-/* section heading reveals. once:true on every scrollTrigger below — without it, GSAP's default
-   toggleActions ('play none none reverse') un-plays each reveal (fades back to its "from" state)
-   the moment you scroll back up past its start point, then replays it scrolling back down. With
-   this many reveals stacked down the page, any bit of scroll wobble (trackpad, momentum overshoot)
-   made half the page flicker in/out — that's the "flickering" complaint. once:true plays each
-   reveal exactly once and leaves it in its end state for good. */
+/* section heading reveals. Desktop: once:true on every scrollTrigger below — without it, GSAP's
+   default toggleActions ('play none none reverse') un-plays each reveal (fades back to its "from"
+   state) the moment you scroll back up past its start point, then replays it scrolling back down.
+   With this many reveals stacked down the page, any bit of scroll wobble (trackpad, momentum
+   overshoot) made half the page flicker in/out — that's the "flickering" complaint. once:true
+   plays each reveal exactly once and leaves it in its end state for good.
+   Mobile: explicitly wants the opposite -- reveals should replay every time you scroll back up
+   past them and back down again, not just play once and stay. toggleActions 'play none play
+   reverse' reverses on scrolling back up past the start point (onLeaveBack) and re-plays on the
+   next entry (onEnter) -- same wobble-flicker tradeoff the once:true fix above avoided, accepted
+   here because it's an explicit mobile-only request. */
+  const rt=isDesktop?{once:true}:{toggleActions:'play none play reverse'};
 if(!reduce){
   gsap.utils.toArray('.section h2:not(.h2-split):not(:has(.kt-text))').forEach(el=>{
     gsap.from(el,{y:32,opacity:0,duration:1.05,ease:'power4.out',
-      scrollTrigger:{trigger:el,start:'top 86%',once:true,fastScrollEnd:true}});
+      scrollTrigger:{trigger:el,start:'top 86%',fastScrollEnd:true,...rt}});
   });
-  /* sections 01-03 only: per-word mask reveal instead of the flat fade above */
-  gsap.utils.toArray('.h2-split').forEach(h=>{
+  /* sections 01-03 share the .h2-split markup (per-word split spans) but no longer share one
+     identical reveal -- capabilities keeps the original vertical mask-wipe; trust (.h2-split-alt)
+     gets a scale/tilt-up entrance; testimonials (.h2-split-side) alternates words in from left/
+     right instead of straight up. Distinct feel per section instead of the same effect x3. */
+  gsap.utils.toArray('.h2-split:not(.h2-split-alt):not(.h2-split-side)').forEach(h=>{
     const words=h.querySelectorAll('.word>span');
     gsap.fromTo(words,{yPercent:110,opacity:0},{yPercent:0,opacity:1,duration:0.7,stagger:0.05,
-      ease:'power3.out',scrollTrigger:{trigger:h,start:'top 86%',once:true,fastScrollEnd:true}});
+      ease:'power3.out',scrollTrigger:{trigger:h,start:'top 86%',fastScrollEnd:true,...rt}});
+  });
+  gsap.utils.toArray('.h2-split-alt').forEach(h=>{
+    const words=h.querySelectorAll('.word>span');
+    gsap.fromTo(words,{scale:0.6,rotationX:-50,opacity:0,transformOrigin:'50% 100%'},
+      {scale:1,rotationX:0,opacity:1,duration:0.65,stagger:0.06,ease:'back.out(1.6)',
+        scrollTrigger:{trigger:h,start:'top 86%',fastScrollEnd:true,...rt}});
+  });
+  gsap.utils.toArray('.h2-split-side').forEach(h=>{
+    const words=[...h.querySelectorAll('.word>span')];
+    words.forEach((w,i)=>{
+      gsap.fromTo(w,{xPercent:i%2?40:-40,opacity:0},{xPercent:0,opacity:1,duration:0.7,delay:i*0.08,
+        ease:'power3.out',scrollTrigger:{trigger:h,start:'top 86%',fastScrollEnd:true,...rt}});
+    });
   });
   /* kinetic-letter reveal -- reused loading-veil effect (see shared.js/#ktVeil), applied to the
      two headings that had no letter/word treatment (pricing, book). Pure class toggle, CSS
-     drives the actual per-letter transition. */
+     drives the actual per-letter transition. once:true always here regardless of viewport --
+     it's a class toggle (kt-in), not a tween, reversing it needs a class removal on leave-back too. */
   gsap.utils.toArray('.kt-text').forEach(el=>{
-    ScrollTrigger.create({trigger:el,start:'top 86%',once:true,fastScrollEnd:true,
-      onEnter:()=>el.classList.add('kt-in')});
+    ScrollTrigger.create({trigger:el,start:'top 86%',fastScrollEnd:true,
+      onEnter:()=>el.classList.add('kt-in'),
+      onLeaveBack:()=>{if(!isDesktop)el.classList.remove('kt-in');}});
   });
   gsap.utils.toArray('.section .sub, .lab').forEach(el=>{
     gsap.from(el,{y:30,opacity:0,duration:0.9,ease:'power3.out',
-      scrollTrigger:{trigger:el,start:'top 88%',once:true,fastScrollEnd:true}});
+      scrollTrigger:{trigger:el,start:'top 88%',fastScrollEnd:true,...rt}});
   });
   /* eyebrow labels — matrix-style scramble-to-real-text decode, seen in the reference video.
      Layers on top of the fade above; .lab is already monospace so glyph-width stays stable. */
@@ -705,13 +729,13 @@ if(!reduce){
     const targets=[slot.querySelector('.tier'),slot.querySelector('.trust-badge')].filter(Boolean);
     gsap.fromTo(targets,{y:46-i*6,scale:0.92,opacity:0},
       {y:0,scale:1,opacity:1,duration:0.85,delay:i*0.12,ease:'power3.out',
-        scrollTrigger:{trigger:'.tiers',start:'top 88%',once:true,fastScrollEnd:true}});
+        scrollTrigger:{trigger:'.tiers',start:'top 88%',fastScrollEnd:true,...rt}});
   });
   /* book/closing (05) — copy and calendar converge from opposite sides */
   gsap.fromTo('.book-grid>div:first-child',{opacity:0,x:-40},
-    {opacity:1,x:0,duration:0.9,ease:'power3.out',scrollTrigger:{trigger:'.book-grid',start:'top 85%',once:true,fastScrollEnd:true}});
+    {opacity:1,x:0,duration:0.9,ease:'power3.out',scrollTrigger:{trigger:'.book-grid',start:'top 85%',fastScrollEnd:true,...rt}});
   gsap.fromTo('.book-grid>div:last-child',{opacity:0,x:40},
-    {opacity:1,x:0,duration:0.9,ease:'power3.out',scrollTrigger:{trigger:'.book-grid',start:'top 85%',once:true,fastScrollEnd:true}});
+    {opacity:1,x:0,duration:0.9,ease:'power3.out',scrollTrigger:{trigger:'.book-grid',start:'top 85%',fastScrollEnd:true,...rt}});
   /* hero content drifts up on scroll — desktop only. scrub:true recalculates every scroll tick,
      right at the hero->01 handoff — the exact spot users felt lag on mobile. */
   if(isDesktop){
@@ -792,7 +816,11 @@ if(!reduce){
   if(reduce){ds.forEach(d=>d.classList.add('active'));return;}
   let pending=false, ih=window.innerHeight;
   const mob=window.matchMedia('(max-width:900px)').matches;
-  const MAXBLUR=mob?3:7;               // blur is the priciest filter on mobile — cap it low
+  /* filter:blur() forces a repaint of every slab it touches, every scroll frame -- the single
+     priciest per-frame style write in this whole file. Capping it low (3px) still paid that cost
+     every frame; killing it outright on mobile (rotate+opacity only, both GPU-composited, no
+     repaint) removes it as a jank source instead of just shrinking it. */
+  const MAXBLUR=mob?0:7;
   const prev=new Map();                // last written values per slab, so we skip redundant style writes
   function upd(){
     const railR=rail.getBoundingClientRect();
@@ -1271,13 +1299,16 @@ function initPriceRise3D(canvas){
    incoming one actually paint OVER the one it covers. Last stage keeps pinSpacing:true (default)
    so it reserves its own space and How It Works flows on normally after -- the effect covers only
    this stack, nothing beyond it. Desktop only, matching every other pin/scrub effect in this file
-   -- mobile keeps everything simply stacked, no pin. */
+   -- now runs on mobile too (explicitly requested): the mobile CSS (index.html, 900px block) no
+   longer forces feat-stack into a flex column, stages sit in normal block flow same as desktop,
+   just shorter (mobile cards are compacted, so stagePct below measures a smaller real height and
+   pin duration shrinks to match automatically). */
 (function(){
   const hero=document.getElementById('top');
   const cap=document.getElementById('capabilities');
   const capHead=document.querySelector('.cap-head');
   const stages=[...document.querySelectorAll('#featStack .feat-stage')];
-  if(!hero||!cap||!capHead||reduce||!isDesktop||!stages.length)return;
+  if(!hero||!cap||!capHead||reduce||!stages.length)return;
   /* the 3 feat-cards also need to be the same height as each other, not just their stages --
      card 2's extra .feat-claim line otherwise makes IT (and its icon rectangle, which stretches to
      match) visibly taller than cards 1 and 3 ("its not even same size"). Equalizing to the tallest
@@ -1307,9 +1338,15 @@ function initPriceRise3D(canvas){
      and card 3 visibly overlapping (both partially on screen at once) at a wider window than this
      was tested at. Measuring each stage's own real height fixes it regardless of viewport or which
      card has more content. */
-  stages.forEach((stage,i)=>{
-    const isLast=i===stages.length-1;
+  /* last stage used to keep pinSpacing:true (default) so it reserved its own space and How It
+     Works flowed on right after -- on mobile this reserved DOUBLE the real height (measured: 889px
+     spacer for a 445px card), leaving a dead white gap before How It Works. pinSpacing:false on
+     every stage (last included) sidesteps that GSAP reserve math entirely: How It Works simply
+     rises to meet/cover the last card exactly like each card already covers the one before it --
+     same continuous fold language, one more link in the same chain, no separate reserve-space
+     bug surface. */
+  stages.forEach(stage=>{
     const stagePct=()=>'+='+(stage.getBoundingClientRect().height/window.innerHeight*100)+'%';
-    ScrollTrigger.create({trigger:stage,start:'top top',end:stagePct,pin:true,pinSpacing:isLast,invalidateOnRefresh:true});
+    ScrollTrigger.create({trigger:stage,start:'top top',end:stagePct,pin:true,pinSpacing:false,invalidateOnRefresh:true});
   });
 })();
