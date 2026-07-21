@@ -862,7 +862,7 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   .btn-ghost:hover::before{transform:scaleX(1);}
   .btn-fill{position:relative;overflow:hidden;}
   .btn-fill::after{content:'';position:absolute;top:0;left:-40%;width:35%;height:100%;background:linear-gradient(110deg,transparent,rgba(255,255,255,.28),transparent);transform:skewX(-18deg);pointer-events:none;}
-  .btn-fill:hover::after{animation:shine .7s ease;}
+  .btn-fill:hover::after{animation:shine 1.1s linear infinite;}
   @keyframes shine{from{left:-40%;}to{left:130%;}}
 
   /* pause hero sheen when scrolled away (perf) */
