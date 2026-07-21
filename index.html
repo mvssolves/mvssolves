@@ -773,12 +773,15 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
      flat color, so this needs no extra guard here. */
   h1{color:var(--ink);}
   h1 .aw{text-shadow:none;}
-  /* 800%, not 300% -- "your business" is a 2-word phrase now (was just "business" alone). At
-     300% a two-word span can put each word on a completely different gradient stop (one white,
-     one cyan) at the same instant, part of the phrase reading as invisible -- hit this exact bug
-     earlier in this session with the same fix. */
+  /* 450%, not 300% (the old value) or 800% (overcorrected): at 300% a two-word phrase could put
+     each word on a completely different gradient stop (one white, one cyan) at the same instant,
+     reading as invisible. 800% fixed that but the 0%->100% keyframe sweep then only ever samples
+     the two narrow end-slices of the gradient (never passing through the middle at all), so the
+     sweep motion itself became barely visible -- "not moving side to side anymore" complaint.
+     450% is the middle ground: wide enough that both words stay a similar shade, narrow enough
+     that the sweep still visibly passes through the white highlight each cycle. */
   h1 .grad{text-shadow:none;background-image:linear-gradient(90deg,#00eeff 0%,#ffffff 45%,#ffffff 55%,#00eeff 100%);
-    background-size:800% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+    background-size:450% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
     animation:gradLoop 3s ease-in-out infinite alternate;}
   @keyframes gradLoop{0%{background-position:0% 50%}100%{background-position:100% 50%}}
 
