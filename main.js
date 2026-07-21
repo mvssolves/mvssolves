@@ -805,6 +805,16 @@ if(!reduce){
   if(isDesktop){
     gsap.to('.h-wrap',{yPercent:-8,ease:'none',scrollTrigger:{trigger:'#top',start:'top top',end:'bottom top',scrub:true}});
   }
+  /* icon/number "pop" — layered ON TOP of the once:true reveals above, doesn't touch them.
+     Replays every time you scroll back into view, either direction — but uses restart-only
+     toggleActions ('restart none none restart'), NOT the default reverse-on-leaveBack that's
+     documented above (~line 672) as the actual cause of the old flicker bug: reverse un-plays
+     the instant you wobble backward past the trigger; restart only re-fires once you've fully
+     left and come back, so a bit of scroll bounce near the threshold can't retrigger it mid-air. */
+  gsap.utils.toArray('.hiw-num, .trust-card .ti').forEach(el=>{
+    gsap.fromTo(el,{scale:0.4,rotation:-25,opacity:0},{scale:1,rotation:0,opacity:1,duration:.6,ease:'back.out(1.8)',
+      scrollTrigger:{trigger:el,start:'top 88%',fastScrollEnd:true,toggleActions:'restart none none restart'}});
+  });
 }
 
 /* pause hero sheen when scrolled past — kills off-screen repaint cost */
