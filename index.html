@@ -117,7 +117,9 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   .lab{font-family:'Roboto',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--ink);margin-bottom:26px;display:flex;align-items:center;justify-content:center;gap:10px;}
   .lab::before{content:'';width:24px;height:2px;background:var(--accent);}
-  h2{font-weight:700;letter-spacing:-.025em;line-height:1.0;font-size:clamp(44px,9vw,88px);color:var(--ink);text-align:center;}
+  /* -7deg matches the CardSwap cards' front-card tilt (main.js fanTilt) -- same signature angle
+     applied sitewide to every section heading now, not just the capabilities cards. */
+  h2{font-weight:700;letter-spacing:-.025em;line-height:1.0;font-size:clamp(44px,9vw,88px);color:var(--ink);text-align:center;transform:rotate(-7deg);}
   h2 .serif{color:var(--ink);}
   /* one global background canvas (#bgfx) sits behind everything — sections are transparent so the
      single drifting sparkle field shows through the whole site instead of each section painting
@@ -1071,7 +1073,6 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
 <section class="section" id="capabilities">
   <div class="wrap cap-head">
     <h2 class="h2-split"><span class="word"><span>The</span></span> <span class="word"><span>workflow</span></span> <span class="word"><span>you</span></span> <span class="word"><span>need.</span></span></h2>
-    <p class="sub" style="max-width:480px;margin:16px auto 0;text-align:center;">Site, automations, and follow-up — working together, not three separate tools.</p>
   </div>
   <div class="wrap">
   <div class="feat-stack" id="featStack">
@@ -1150,7 +1151,6 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
       <div class="hiw-head">
         <div class="lab">Process</div>
         <h2 class="h2-split h2-split-gradual">How it works.</h2>
-        <p class="hiw-sub">Three steps. No account managers, no discovery decks, no six-week onboarding.</p>
       </div>
       <div class="hiw-timeline">
         <div class="hiw-step">
@@ -1295,7 +1295,6 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
     <h2><span class="kt-text">
       <span style="white-space:nowrap"><span style="--kx:-14px;--ky:10px;--kr:-7deg;transition-delay:0ms">P</span><span style="--kx:10px;--ky:-8px;--kr:6deg;transition-delay:25ms">r</span><span style="--kx:-8px;--ky:14px;--kr:-10deg;transition-delay:50ms">i</span><span style="--kx:12px;--ky:12px;--kr:8deg;transition-delay:75ms">c</span><span style="--kx:-16px;--ky:-6px;--kr:5deg;transition-delay:100ms">i</span><span style="--kx:6px;--ky:16px;--kr:-6deg;transition-delay:125ms">n</span><span style="--kx:-10px;--ky:-12px;--kr:9deg;transition-delay:150ms">g</span></span>
     </span></h2>
-    <p class="sub">Pay monthly, zero build fee — or own it outright.</p>
     <div class="price-controls">
     <div class="toggle" id="modeToggle">
       <button class="on" data-mode="monthly">Monthly</button>
@@ -1445,7 +1444,6 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   <div class="wrap">
     <div class="lab">24/7 Front Desk</div>
     <h2 class="h2-split"><span class="word"><span>Automated</span></span> <span class="word"><span>Receptionist.</span></span></h2>
-    <p class="sub" style="max-width:560px;margin:16px auto 0;text-align:center;">Never miss a call again — books, qualifies, and answers 24/7, on top of any plan above.</p>
 
     <div class="calc-card" style="max-width:640px;margin:40px auto 0;background:var(--bg-2);border:1px solid var(--line);border-radius:20px;padding:36px 40px;">
       <div style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:20px;text-align:center;">What's a missed call actually costing you?</div>
@@ -1470,15 +1468,20 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
         <div style="color:var(--muted);font-size:12px;margin-top:10px;">missed calls/week × avg job value × 4.33 weeks × 30% would've booked</div>
       </div>
     </div>
-    <script>(function(){
-      var jv=document.getElementById('calcJobValue'),mc=document.getElementById('calcMissed'),out=document.getElementById('calcOut');
-      if(!jv||!mc||!out)return;
-      function calc(){
-        var v=(parseFloat(jv.value)||0)*(parseFloat(mc.value)||0)*4.33*0.3;
-        out.textContent='$'+Math.round(v).toLocaleString('en-US');
+    <script>
+      /* shared by the inline calculator here AND the popup version (added lower in the page) --
+         one calc formula, wired to whichever set of input/output ids is passed in. */
+      function wireCalc(jvId,mcId,outId){
+        var jv=document.getElementById(jvId),mc=document.getElementById(mcId),out=document.getElementById(outId);
+        if(!jv||!mc||!out)return;
+        function calc(){
+          var v=(parseFloat(jv.value)||0)*(parseFloat(mc.value)||0)*4.33*0.3;
+          out.textContent='$'+Math.round(v).toLocaleString('en-US');
+        }
+        jv.addEventListener('input',calc);mc.addEventListener('input',calc);calc();
       }
-      jv.addEventListener('input',calc);mc.addEventListener('input',calc);calc();
-    })();</script>
+      wireCalc('calcJobValue','calcMissed','calcOut');
+    </script>
 
     <div class="ai-recep-card" style="max-width:820px;margin:32px auto 0;background:var(--bg-2);border:1px solid var(--line);border-radius:20px;padding:44px 40px;display:grid;grid-template-columns:1fr 1fr;gap:40px;">
       <div>
@@ -1521,7 +1524,6 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
         <h2 id="bookH2"><span class="kt-text">
           <span style="white-space:nowrap"><span style="--kx:-14px;--ky:10px;--kr:-7deg;transition-delay:0ms">B</span><span style="--kx:10px;--ky:-8px;--kr:6deg;transition-delay:25ms">o</span><span style="--kx:-8px;--ky:14px;--kr:-10deg;transition-delay:50ms">o</span><span style="--kx:12px;--ky:12px;--kr:8deg;transition-delay:75ms">k</span></span> <span style="white-space:nowrap"><span style="--kx:6px;--ky:16px;--kr:-6deg;transition-delay:125ms">y</span><span style="--kx:-10px;--ky:-12px;--kr:9deg;transition-delay:150ms">o</span><span style="--kx:14px;--ky:-14px;--kr:-8deg;transition-delay:175ms">u</span><span style="--kx:-14px;--ky:10px;--kr:-7deg;transition-delay:200ms">r</span></span> <span style="white-space:nowrap"><span style="--kx:-8px;--ky:14px;--kr:-10deg;transition-delay:250ms">f</span><span style="--kx:12px;--ky:12px;--kr:8deg;transition-delay:275ms">r</span><span style="--kx:-16px;--ky:-6px;--kr:5deg;transition-delay:300ms">e</span><span style="--kx:6px;--ky:16px;--kr:-6deg;transition-delay:325ms">e</span></span> <span style="white-space:nowrap"><span style="--kx:14px;--ky:-14px;--kr:-8deg;transition-delay:375ms">c</span><span style="--kx:-14px;--ky:10px;--kr:-7deg;transition-delay:400ms">a</span><span style="--kx:10px;--ky:-8px;--kr:6deg;transition-delay:425ms">l</span><span style="--kx:-8px;--ky:14px;--kr:-10deg;transition-delay:450ms">l</span><span style="--kx:12px;--ky:12px;--kr:8deg;transition-delay:475ms">.</span></span>
         </span></h2>
-        <p class="book-sub">30 minutes. We look at what's slow or broken and you leave with a plan — build it with me or take it and run.</p>
         <ul class="book-points">
           <li>Free discovery call, no obligation</li>
           <li>Talk directly to the person building it</li>
@@ -1565,6 +1567,52 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
 <!-- externalized so defer works correctly (defer is a documented no-op on inline scripts with
      no src — see CLAUDE.md). All four now genuinely defer and execute in this relative order
      only after HTML parsing completes, so parsing/painting the page never waits on them. -->
+<!-- missed-call calculator popup -- teases the inline calculator in the Automated Receptionist
+     section, fires once per browser session, 6s after load. sessionStorage (not localStorage) so
+     it comes back if they close the tab and return later, but never twice in one visit. -->
+<div id="calcPopup" style="position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(10,10,10,.6);backdrop-filter:blur(3px);">
+  <div style="position:relative;max-width:440px;width:100%;background:var(--bg);border:1px solid var(--line);border-radius:20px;padding:36px 32px;box-shadow:0 30px 80px -20px rgba(0,0,0,.4);">
+    <button id="calcPopupClose" aria-label="Close" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border:none;background:var(--surface);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--soft);font-size:16px;line-height:1;">✕</button>
+    <div style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-ink);background:var(--accent);display:inline-block;padding:5px 12px;border-radius:999px;font-weight:700;margin-bottom:16px;">Free tool</div>
+    <h3 style="font-family:inherit;font-weight:700;letter-spacing:-.02em;font-size:22px;color:var(--ink);margin-bottom:8px;">👀 What's a missed call costing you?</h3>
+    <p style="color:var(--soft);font-size:14px;line-height:1.5;margin-bottom:24px;">Punch in two numbers, see the real dollar cost — takes 5 seconds.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+      <div>
+        <label for="calcJobValuePopup" style="display:block;font-size:12.5px;color:var(--soft);margin-bottom:6px;">Avg. job value</label>
+        <div style="display:flex;align-items:center;background:var(--bg-2);border:1px solid var(--line-strong);border-radius:10px;padding:0 12px;">
+          <span style="color:var(--muted);font-size:14px;">$</span>
+          <input type="number" id="calcJobValuePopup" value="250" min="0" style="width:100%;border:0;background:none;padding:10px 6px;font-size:14px;color:var(--ink);font-weight:600;outline:none;">
+        </div>
+      </div>
+      <div>
+        <label for="calcMissedPopup" style="display:block;font-size:12.5px;color:var(--soft);margin-bottom:6px;">Missed calls / wk</label>
+        <div style="display:flex;align-items:center;background:var(--bg-2);border:1px solid var(--line-strong);border-radius:10px;padding:0 12px;">
+          <input type="number" id="calcMissedPopup" value="5" min="0" style="width:100%;border:0;background:none;padding:10px 6px;font-size:14px;color:var(--ink);font-weight:600;outline:none;">
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;padding:16px 0;background:var(--bg-2);border-radius:12px;margin-bottom:20px;">
+      <div style="color:var(--soft);font-size:12.5px;margin-bottom:4px;">Estimated revenue lost</div>
+      <div style="font-weight:700;font-size:30px;color:var(--ink);"><span id="calcOutPopup">$0</span><small style="font-size:14px;color:var(--muted);font-weight:600;">/mo</small></div>
+    </div>
+    <a href="#ai-receptionist" id="calcPopupCta" class="btn btn-fill" style="width:100%;justify-content:center;">See how to fix it →</a>
+  </div>
+</div>
+<script>(function(){
+  wireCalc('calcJobValuePopup','calcMissedPopup','calcOutPopup');
+  var popup=document.getElementById('calcPopup');
+  if(!popup)return;
+  function close(){popup.style.display='none';}
+  function open(){popup.style.display='flex';sessionStorage.setItem('mvsCalcPopupShown','1');}
+  document.getElementById('calcPopupClose').addEventListener('click',close);
+  popup.addEventListener('click',function(e){if(e.target===popup)close();});
+  document.getElementById('calcPopupCta').addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+  if(!sessionStorage.getItem('mvsCalcPopupShown')){
+    setTimeout(open,6000);
+  }
+})();</script>
+
 <script src="/shared.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
