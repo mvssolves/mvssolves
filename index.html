@@ -322,7 +322,11 @@
      anything else. feat-stage 1 still pins and covers IT once you scroll further -- only the
      hero->cap-head handoff changed, the cards-folding-over-each-other part is untouched. Kept at
      65vh so the heading still reads as its own beat, not a cramped inline strip. */
-  .cap-head{min-height:65vh;display:flex;align-items:center;justify-content:center;position:relative;}
+  /* flex-end, not center -- on desktop the heading sat dead-center of this 65vh block, leaving a
+     big empty gap between it and the first card below. Bottom-aligning brings it down closer to
+     the cards it introduces (mobile's min-height:0 override makes this a no-op there -- no extra
+     vertical space to redistribute when height already equals content). */
+  .cap-head{min-height:65vh;display:flex;align-items:flex-end;justify-content:center;position:relative;padding-bottom:48px;}
   /* #capabilities .wrap{z-index:2} (this file, general rule) otherwise beats a plain .cap-head
      selector on specificity and wins regardless of source order -- match it to actually override. */
   #capabilities .cap-head{z-index:0;}
@@ -330,7 +334,7 @@
      padding:0 36px (and its 600px override) resets padding-top:0 at equal specificity, later in
      the file, so a bare .cap-head rule here silently lost. Combined selector wins regardless of
      source order. */
-  @media(max-width:900px){.cap-head{min-height:0;}.wrap.cap-head{padding-top:64px;}}
+  @media(max-width:900px){.cap-head{min-height:0;padding-bottom:0;}.wrap.cap-head{padding-top:64px;}}
   .feat-stack{position:relative;}
   /* stage itself is transparent on purpose -- only the card (which already carries its own
      background below) should read as the thing sliding/covering. An opaque stage bg would make
@@ -778,7 +782,13 @@
   /* text-only hover, not a "button" hover -- box (padding/size/bg) never moves on hover, only the
      label color shifts. No shape change means no reserved dead space is possible here again. */
   .h-cta .btn-fill{transition:color .25s ease;}
-  .h-cta .btn-fill:hover{color:var(--accent);}
+  /* explicit resets, not just color -- the sitewide base .btn-fill:hover rule (used by OTHER CTAs
+     that DO have a swap-icon) sets opacity:0.88 and asymmetric padding-left:60px/padding-right:26px
+     for its icon-reveal animation. CSS cascades per-property: this override only ever set `color`,
+     so those other properties kept applying from the lower-specificity base rule anyway -- that
+     was the actual, still-live source of the "dead space on hover" report. Every property the base
+     hover rule touches needs an explicit reset here, not just the one property we care about. */
+  .h-cta .btn-fill:hover{color:var(--accent);opacity:1;padding-left:20px;padding-right:20px;}
   .alc-row{transition:padding-left .25s ease,color .25s ease;}
   .alc-row:hover{padding-left:8px;color:var(--ink);}
   .tier:active{transform:translateY(-2px);}
@@ -922,24 +932,27 @@
     .feat-kicker{display:none;}
     /* section heading ("Your entire workflow.") bumped bigger -- card content below tightened
        to compensate so the cards read smaller/more compact overall, not just the heading. */
-    #capabilities .cap-head h2{font-size:clamp(32px,9vw,46px);}
-    /* second compaction pass -- first pass wasn't enough. Pushed every dimension down again:
-       smaller heading/body text, tighter margins, smaller icon panel/tag pills. */
-    .feat-body{padding:14px 16px 16px;}
-    .feat-body h3{font-size:19px;}
-    .feat-body p{margin-top:6px;font-size:13px;}
-    .feat-claim{margin-top:8px;}
-    .feat-tags{gap:6px;margin-top:8px;}
-    .feat-tag{font-size:10.5px;padding:6px 10px;}
+    /* third pass -- explicit ask to shrink the WHOLE section ~30%, not just the cards: heading,
+       stage height/padding, and every card dimension scaled down together this time. Body text/tag
+       font floors kept above ~12px (readability), everything else (spacing, icon box, heading)
+       took the full 30% cut. */
+    #capabilities .cap-head h2{font-size:clamp(22px,6.3vw,32px);}
+    .feat-stage{min-height:46vh;padding:45px 0 14px;}
+    .feat-body{padding:10px 11px 11px;}
+    .feat-body h3{font-size:14px;}
+    .feat-body p{margin-top:4px;font-size:12px;}
+    .feat-claim{margin-top:6px;}
+    .feat-tags{gap:4px;margin-top:6px;}
+    .feat-tag{font-size:10px;padding:4px 7px;}
     /* kept subtle on mobile too — a bordered pill read as a second CTA competing with "Get
        package" below it. Slightly bigger tap padding only (already added above), no visual bulk. */
     /* the icon illustration panel ("the big squares") was still the full 180px/230px-wide desktop
        proportions on a 375px-wide phone -- roughly half the viewport given to a decorative icon
        before any real content. Shrunk box + illustration together so the ratio actually matches a
        phone, not just the box height. */
-    .feat-visual{min-height:68px;padding:10px 0;}
-    .feat-illo{max-width:76px;}
-    .feat-visual .fi{width:20px;height:20px;font-size:9px;top:8px;left:8px;}
+    .feat-visual{min-height:48px;padding:7px 0;}
+    .feat-illo{max-width:53px;}
+    .feat-visual .fi{width:14px;height:14px;font-size:8px;top:6px;left:6px;}
     /* breathing icon animation: fine as a subtle desktop detail, but perpetual motion sitting in
        the viewport WHILE the user is also trying to touch-scroll past it is exactly the kind of
        thing that reads as jittery even when technically cheap -- off on phones, nothing left
