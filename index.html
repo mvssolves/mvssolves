@@ -830,7 +830,12 @@
   @media(max-width:600px){
     .wrap{padding:0 20px;}
     nav{padding:14px 20px;}
-    .section{padding:80px 0;}
+    /* was 80px -- every section stacking that same padding top+bottom on a page already this
+       long is most of what read as "cluttered and busy": nine sections x 160px of dead air each
+       adds up to a lot of scrolling before you even reach the next thing. Tightened site-wide,
+       not just pricing -- the earlier mobile pass only touched individual components (tier cards,
+       hero, cap cards), never the rhythm between sections itself. */
+    .section{padding:56px 0;}
     /* integrations reads cramped on mobile — network backdrop + carousel need more room to
        breathe than the shared section padding gives every other section. */
     #integrations{padding:110px 0;min-height:640px;display:flex;align-items:center;}
@@ -857,6 +862,30 @@
     .tier .price{font-size:26px;}
     .tier ul{margin:12px 0;}
     .tier li{padding:4px 0 4px 20px;}
+    .tier .badge{font-size:9px;padding:2px 7px;margin-bottom:9px;}
+    /* toggle + currency switcher were stacking with a big gap between them and reading as two
+       unrelated loose controls floating above the cards ("busy") -- pack them into one tight row
+       instead, sized down to match how much less space a phone has to spare. */
+    .price-controls{gap:10px;margin-top:20px;}
+    .toggle{padding:3px;font-size:12px;}
+    .toggle button{padding:7px 14px;}
+    .curr-dd{font-size:12.5px;}
+    /* trust cards were carrying the same padding/icon size as desktop straight into a full-width
+       stacked column -- same "oversized component on a small screen" issue as the tier cards. */
+    .trust-row{gap:12px;margin-top:28px;}
+    .trust-card{padding:22px 20px;gap:14px;}
+    .trust-card .ti{width:42px;height:42px;border-radius:11px;}
+    .trust-card .ti svg{width:19px;height:19px;}
+    .trust-card h3{font-size:15px;}
+    .trust-card p{font-size:13px;}
+    /* feat-cards (capabilities): kicker label sitting directly above a heading saying almost the
+       same thing read as one redundant extra line per card, x3 -- drop it here only, the numbering
+       still reads fine from the heading + ghost-number treatment alone (ghost is already
+       display:none below 900px). */
+    .feat-kicker{display:none;}
+    .feat-body{padding:22px 20px 26px;}
+    .feat-tags{gap:8px;margin-top:14px;}
+    .feat-tag{font-size:11px;padding:7px 12px;}
     /* kept subtle on mobile too — a bordered pill read as a second CTA competing with "Get
        package" below it. Slightly bigger tap padding only (already added above), no visual bulk. */
   }
