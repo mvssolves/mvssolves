@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[Redesign skeleton — structure only]</title>
+<!--
+  STRUCTURE-ONLY SKELETON. Not the live site, not linked from it, not pushed.
+  Mirrors NeoLeaf's (neoleaf.bytetown.agency) actual section order and scroll
+  mechanics -- stripped of their design entirely. White canvas, system font,
+  template words in brackets. No palette/font decisions yet -- that's a
+  separate pass once this structure is approved.
+
+  Section order matches what was observed on the reference (studied via
+  screen recording + live inspection, not their source code):
+  Nav -> Hero (3D-scene placeholder) -> tag marquee -> Technology ->
+  Products (card grid) -> Expertise (stats + tabs) -> Key Features
+  (dark cards) -> Footer (halftone + wordmark bleed).
+
+  Scroll mechanics reproduced structurally:
+  - word-by-word heading reveal SCRUBBED to scroll position (not a timed
+    play-once) -- this was the actual technique identified on their site,
+    confirmed by watching "Technology that will make this revolution in AI"
+    reveal progressively as the page scrolled past it.
+  - horizontal auto-scrolling tag marquee under the hero.
+  - card-grid entrance lift, also scroll-scrubbed, not timed.
+-->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#111;background:#fff;line-height:1.5;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
+  section{padding:96px 0;border-top:1px dashed #ccc;}
+  section:first-of-type{border-top:none;}
+  .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:10px;}
+  h1,h2,h3{font-weight:700;letter-spacing:-.01em;}
+  h2{font-size:clamp(28px,4vw,44px);margin-bottom:16px;}
+  h3{font-size:18px;margin-bottom:8px;}
+  p{color:#555;max-width:60ch;}
+  .tag{display:inline-block;background:#f2f2f2;border:1px solid #ddd;border-radius:999px;padding:10px 18px;font-size:13px;}
+  .btn{display:inline-block;padding:12px 24px;border-radius:999px;border:1px solid #111;font-size:14px;font-weight:600;text-decoration:none;color:#111;}
+  .btn.filled{background:#111;color:#fff;}
+
+  /* NAV */
+  nav{position:sticky;top:0;background:#fff;z-index:10;border-bottom:1px solid #eee;}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;max-width:1180px;margin:0 auto;}
+  .nav-links{display:flex;gap:28px;font-size:14px;}
+  .nav-links a{color:#333;text-decoration:none;}
+
+  /* HERO */
+  .hero{padding-top:64px;position:relative;overflow:hidden;}
+  .hero-3d-placeholder{height:60vh;min-height:420px;background:repeating-linear-gradient(135deg,#f4f4f4,#f4f4f4 20px,#ececec 20px,#ececec 40px);
+    border:1px dashed #bbb;display:flex;align-items:center;justify-content:center;color:#999;font-size:13px;margin-bottom:40px;}
+  .hero h1{font-size:clamp(36px,6vw,64px);max-width:16ch;margin-bottom:20px;}
+  .hero-sub{max-width:50ch;margin-bottom:28px;}
+  .hero-ctas{display:flex;gap:14px;align-items:center;}
+
+  /* MARQUEE */
+  .marquee{overflow:hidden;white-space:nowrap;border-top:1px dashed #ccc;border-bottom:1px dashed #ccc;padding:20px 0;margin-top:56px;}
+  .marquee-track{display:inline-flex;gap:14px;animation:marquee 22s linear infinite;}
+  .marquee-track span{font-size:14px;color:#666;}
+  @keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+  @media(prefers-reduced-motion:reduce){.marquee-track{animation:none;}}
+
+  /* CARD GRIDS (products / key features) */
+  .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-top:32px;}
+  .card{border:1px solid #ddd;border-radius:12px;padding:28px;}
+  .card.dark{background:#111;color:#fff;}
+  .card.dark p{color:#aaa;}
+  .card.wide{grid-column:1/-1;display:flex;gap:24px;align-items:center;flex-wrap:wrap;}
+  .card.wide .img-placeholder{flex:1;min-width:200px;height:220px;background:repeating-linear-gradient(45deg,#eee,#eee 10px,#f7f7f7 10px,#f7f7f7 20px);border:1px dashed #bbb;}
+  .card.wide .card-copy{flex:1;min-width:200px;}
+  .icon-placeholder{width:32px;height:32px;border:1px dashed #999;border-radius:8px;margin-bottom:14px;}
+
+  /* EXPERTISE (stats + tabs) */
+  .tab-row{display:flex;gap:10px;margin:20px 0;flex-wrap:wrap;}
+  .tab{border:1px solid #ddd;border-radius:999px;padding:8px 16px;font-size:13px;color:#555;}
+  .tab.active{border-color:#111;color:#111;font-weight:600;}
+  .expertise-layout{display:flex;gap:48px;flex-wrap:wrap;align-items:flex-start;margin-top:24px;}
+  .expertise-copy{flex:1;min-width:260px;}
+  .expertise-visual{flex:1;min-width:260px;height:280px;background:repeating-linear-gradient(45deg,#eee,#eee 10px,#f7f7f7 10px,#f7f7f7 20px);border:1px dashed #bbb;}
+  .stats-row{display:flex;gap:40px;margin-top:28px;flex-wrap:wrap;}
+  .stat-num{font-size:44px;font-weight:800;}
+  .stat-label{color:#888;font-size:13px;max-width:20ch;}
+
+  /* FOOTER */
+  footer{background:#111;color:#fff;padding:80px 32px 0;overflow:hidden;position:relative;}
+  .foot-inner{max-width:1180px;margin:0 auto;display:flex;gap:48px;flex-wrap:wrap;justify-content:space-between;padding-bottom:48px;border-bottom:1px solid #333;}
+  .foot-col{min-width:160px;}
+  .foot-col h3{font-size:13px;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;}
+  .foot-col a{display:block;color:#ccc;text-decoration:none;font-size:14px;margin-bottom:8px;}
+  .foot-cta{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+  .foot-email{background:transparent;border:1px solid #444;border-radius:999px;padding:12px 18px;color:#fff;font-size:14px;min-width:220px;}
+  .foot-wordmark{font-size:clamp(80px,18vw,220px);font-weight:800;line-height:.8;color:rgba(255,255,255,.06);
+    text-align:center;white-space:nowrap;overflow:hidden;margin-top:20px;user-select:none;}
+  .foot-legal{max-width:1180px;margin:0 auto;padding:20px 0;font-size:12px;color:#666;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div><strong>[Logo]</strong></div>
+    <div class="nav-links">
+      <a href="#technology">[Nav 1 — Technology]</a>
+      <a href="#products">[Nav 2 — Products]</a>
+      <a href="#expertise">[Nav 3 — Expertise]</a>
+      <a href="#features">[Nav 4 — Key Features]</a>
+    </div>
+    <a class="btn filled" href="#">[Nav CTA]</a>
+  </div>
+</nav>
+
+<!-- HERO — their hero is a continuously-running 3D scene (cube field / receding block
+     landscape) behind the headline. Out of scope for this pass per explicit priority call
+     (deprioritized as "just an entry point"); placeholder box marks where it goes. -->
+<header class="hero wrap">
+  <div class="hero-3d-placeholder">[hero 3D scene placeholder — lowest priority, build later]</div>
+  <div class="eyebrow">[Eyebrow label]</div>
+  <h1>[Hero headline — template words go here]</h1>
+  <p class="hero-sub">[Hero subheadline — one or two lines of supporting copy, template placeholder text goes here.]</p>
+  <div class="hero-ctas">
+    <a class="btn filled" href="#">[Primary CTA]</a>
+    <a class="btn" href="#">[Secondary CTA]</a>
+  </div>
+</header>
+
+<!-- MARQUEE — horizontal auto-scrolling tag strip, observed directly under their hero. -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track" id="marqueeTrack">
+    <span>[tag one]</span><span>·</span><span>[tag two]</span><span>·</span><span>[tag three]</span><span>·</span>
+    <span>[tag four]</span><span>·</span><span>[tag five]</span><span>·</span><span>[tag six]</span><span>·</span>
+    <span>[tag seven]</span><span>·</span><span>[tag eight]</span><span>·</span>
+  </div>
+</div>
+
+<!-- TECHNOLOGY -->
+<section id="technology" class="wrap">
+  <div class="eyebrow">[Eyebrow — Technology]</div>
+  <h2 class="scrub-reveal">[Technology section heading — template words]</h2>
+  <p>[Body paragraph one — template placeholder copy describing this section's real content once written.]</p>
+  <p style="margin-top:10px;">[Body paragraph two — template placeholder copy.]</p>
+</section>
+
+<!-- PRODUCTS — card grid: 2 small cards + 1 wide card w/ image placeholder, matches their
+     AI LLM / Computer Vision / Image Generation layout shape. -->
+<section id="products" class="wrap">
+  <div class="eyebrow">[Eyebrow — Products]</div>
+  <h2 class="scrub-reveal">[Products section heading]</h2>
+  <div class="card-grid">
+    <div class="card lift-card"><div class="icon-placeholder"></div><h3>[Product one]</h3><p>[Template copy placeholder.]</p></div>
+    <div class="card lift-card"><div class="icon-placeholder"></div><h3>[Product two]</h3><p>[Template copy placeholder.]</p></div>
+    <div class="card wide lift-card">
+      <div class="img-placeholder"></div>
+      <div class="card-copy"><div class="icon-placeholder"></div><h3>[Product three — wide]</h3><p>[Template copy placeholder for the larger featured card.]</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERTISE — stat numbers + tab-pill row + a copy/visual split, matches their
+     "We have huge expertise" layout shape. -->
+<section id="expertise" class="wrap">
+  <div class="eyebrow">[Eyebrow — Expertise]</div>
+  <h2 class="scrub-reveal">[Expertise section heading]</h2>
+  <div class="tab-row">
+    <div class="tab active">[Tab one]</div>
+    <div class="tab">[Tab two]</div>
+    <div class="tab">[Tab three]</div>
+    <div class="tab">[Tab four]</div>
+  </div>
+  <div class="expertise-layout">
+    <div class="expertise-copy">
+      <p>[Body copy placeholder describing this expertise area — template words.]</p>
+      <div class="stats-row">
+        <div><div class="stat-num">[N]</div><div class="stat-label">[stat label placeholder]</div></div>
+        <div><div class="stat-num">[N]</div><div class="stat-label">[stat label placeholder]</div></div>
+      </div>
+    </div>
+    <div class="expertise-visual" aria-hidden="true">[image/mockup placeholder]</div>
+  </div>
+</section>
+
+<!-- KEY FEATURES — dark cards row, matches their "The best in the business" layout. -->
+<section id="features" class="wrap">
+  <div class="eyebrow">[Eyebrow — Key Features]</div>
+  <h2 class="scrub-reveal">[Key Features section heading]</h2>
+  <div class="card-grid">
+    <div class="card dark lift-card"><div class="icon-placeholder" style="border-color:#555;"></div><h3>[Feature one]</h3><p>[Template copy placeholder.]</p></div>
+    <div class="card dark lift-card"><div class="icon-placeholder" style="border-color:#555;"></div><h3>[Feature two]</h3><p>[Template copy placeholder.]</p></div>
+    <div class="card dark lift-card"><div class="icon-placeholder" style="border-color:#555;"></div><h3>[Feature three]</h3><p>[Template copy placeholder.]</p></div>
+  </div>
+</section>
+
+<!-- FOOTER — halftone dot texture + bleeding wordmark, matches their footer shape. -->
+<footer>
+  <div class="foot-inner">
+    <div class="foot-col">
+      <h3>[Col 1 title]</h3>
+      <a href="#">[link]</a><a href="#">[link]</a><a href="#">[link]</a>
+    </div>
+    <div class="foot-col">
+      <h3>[Col 2 title]</h3>
+      <a href="#">[link]</a><a href="#">[link]</a>
+    </div>
+    <div class="foot-col">
+      <h3>[Still have questions?]</h3>
+      <div class="foot-cta">
+        <input class="foot-email" type="email" placeholder="[enter your email]">
+        <a class="btn filled" href="#">[Send]</a>
+      </div>
+    </div>
+  </div>
+  <div class="foot-wordmark" aria-hidden="true">[WORDMARK]</div>
+  <div class="foot-legal wrap">[legal placeholder] · © [year]</div>
+</footer>
+
+<script>
+/* Lenis smooth scroll -- same library the live site uses, needed for ScrollTrigger's scrub
+   to feel consistent with the rest of the eventual real build rather than raw native scroll. */
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+gsap.registerPlugin(ScrollTrigger);
+if(!reduce){
+  const lenis = new Lenis({duration:1.2});
+  lenis.on('scroll', ScrollTrigger.update);
+  function raf(time){lenis.raf(time);requestAnimationFrame(raf);}
+  requestAnimationFrame(raf);
+}
+
+/* word-by-word reveal SCRUBBED to scroll position -- the core mechanic identified on the
+   reference site. Progress IS scroll position, not a timed once-off play. */
+function scrollScrubReveal(el){
+  const words = el.textContent.trim().split(/\s+/);
+  el.textContent = '';
+  const spans = words.map((w,i)=>{
+    const s = document.createElement('span');
+    s.style.display = 'inline-block'; s.style.opacity = '.15'; s.textContent = w;
+    el.appendChild(s);
+    if(i < words.length-1) el.appendChild(document.createTextNode(' '));
+    return s;
+  });
+  if(reduce){spans.forEach(s=>s.style.opacity='1');return;}
+  gsap.to(spans,{opacity:1,stagger:0.15,ease:'none',
+    scrollTrigger:{trigger:el,start:'top 85%',end:'top 40%',scrub:true}});
+}
+document.querySelectorAll('.scrub-reveal').forEach(scrollScrubReveal);
+
+/* card-grid entrance lift, same scrub reasoning -- rises + fades in tied to scroll, not timed. */
+if(!reduce){
+  gsap.utils.toArray('.lift-card').forEach(card=>{
+    gsap.fromTo(card,{y:50,opacity:0},{y:0,opacity:1,ease:'none',
+      scrollTrigger:{trigger:card,start:'top 95%',end:'top 65%',scrub:true}});
+  });
+}
+
+/* marquee track duplicated once so the 50%-translateX loop has no visible seam. */
+const track = document.getElementById('marqueeTrack');
+track.innerHTML += track.innerHTML;
+</script>
+
+</body>
+</html>
