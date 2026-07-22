@@ -173,12 +173,12 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
      it replaces; mobile keeps no top nav. --effect (0..1) is driven per item by a rAF lerp in JS. */
   .line-sidebar{
     --accent-color:var(--accent);--text-color:var(--muted);
-    --max-shift:18px;--item-gap:22px;
-    --font-size:1.35rem;--smoothing:100ms;
+    --max-shift:18px;--item-gap:36px;
+    --font-size:1.1rem;--smoothing:100ms;
     position:absolute;top:32px;left:50%;transform:translateX(-50%);z-index:5;display:block;
   }
   @media(max-width:900px){.line-sidebar{display:none;}}
-  .line-sidebar__list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--item-gap);}
+  .line-sidebar__list{list-style:none;margin:0;padding:0;display:flex;flex-direction:row;align-items:center;gap:var(--item-gap);}
   .line-sidebar__item{position:relative;cursor:pointer;}
   .line-sidebar__item::before{content:'';position:absolute;inset:-6px -48px;}
   .line-sidebar__label{
@@ -1758,10 +1758,12 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
 
   list.addEventListener('pointermove',function(e){
     var rect=list.getBoundingClientRect();
-    var pointerY=e.clientY-rect.top;
+    /* horizontal row -- proximity tracks X distance, not Y (every item shares the same Y in a
+       row, which is why they all lit up together instead of one at a time before this fix). */
+    var pointerX=e.clientX-rect.left;
     items.forEach(function(el,i){
-      var center=el.offsetTop+el.offsetHeight/2;
-      var dist=Math.abs(pointerY-center);
+      var center=el.offsetLeft+el.offsetWidth/2;
+      var dist=Math.abs(pointerX-center);
       var p=Math.max(0,1-dist/proximityRadius);
       targets[i]=p*p*(3-2*p); /* smooth falloff curve */
     });
@@ -1878,11 +1880,28 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
      live audio levels. Runs unconditionally once started -- an IntersectionObserver-driven
      play/pause gate here (tried first) never resumed reliably, so simplicity wins over the
      marginal off-screen perf saving. Desktop-only + reduced-motion-off, same as everything else
-     on this page. */
-<script>window.addEventListener('load',function(){
-  if(reduce||typeof anime==='undefined'||!window.matchMedia('(min-width:901px)').matches)return;
-  if(!document.getElementById('featStack'))return;
+     on this page.
 
+     Polls instead of waiting on 'load'/'DOMContentLoaded' -- both were tried and neither fired
+     this listener reliably in real testing (confirmed live: manually re-running this exact setup
+     via the console worked instantly, proving the animation code itself was always correct; the
+     event it was waiting on just never came). Polling for the one thing this code actually depends
+     on (anime + #featStack existing) sidesteps whatever is eating that event, at the cost of a
+     few harmless checks every 100ms until it fires once. */
+<script>(function(){
+  var tries=0;
+  var poll=setInterval(function(){
+    tries++;
+    if(reduce||!window.matchMedia('(min-width:901px)').matches){clearInterval(poll);return;}
+    if(typeof anime==='undefined'||!document.getElementById('featStack')){
+      if(tries>100)clearInterval(poll); /* ~10s safety valve, don't poll forever */
+      return;
+    }
+    clearInterval(poll);
+    run();
+  },100);
+
+  function run(){
   anime({targets:'#featStack .feat-card:nth-of-type(1) .fx-dot',opacity:[1,.25],
     delay:anime.stagger(180),duration:500,direction:'alternate',loop:true,easing:'easeInOutSine'});
   anime({targets:'#featStack .feat-card:nth-of-type(1) .fx-cursor-path',strokeDashoffset:[70,0],
@@ -1902,6 +1921,7 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
     anime({targets:el,y1:53-half,y2:53+half,duration:420+i*35,direction:'alternate',loop:true,
       delay:i*90,easing:'easeInOutSine'});
   });
-});</script>
+  }
+})();</script>
 </body>
 </html>
