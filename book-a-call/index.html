@@ -335,6 +335,51 @@
   .cal-footnote {
     margin-top: 18px; font-size: 13px; color: var(--ink-mute); text-align: center;
   }
+
+  /* booking consent gate -- sits on top of the calendar until agreed, then fades out for good
+     (localStorage-remembered). Dark card matches the cookie-banner treatment elsewhere on-site. */
+  .cal-gate {
+    position: absolute; inset: 0; z-index: 5;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; padding: 40px 34px;
+    background: var(--espresso); color: #fff;
+    transition: opacity .35s ease, visibility .35s ease;
+  }
+  .cal-gate.gate-out { opacity: 0; visibility: hidden; pointer-events: none; }
+  .cal-gate-mark {
+    font-size: 40px; margin-bottom: 14px;
+    animation: gateWiggle 2.6s ease-in-out infinite;
+  }
+  @keyframes gateWiggle {
+    0%,100% { transform: rotate(-6deg); }
+    50% { transform: rotate(6deg); }
+  }
+  @media (prefers-reduced-motion: reduce) { .cal-gate-mark { animation: none; } }
+  .cal-gate h4 {
+    font-family: 'Nohemi', sans-serif; font-weight: 600;
+    font-size: 24px; margin-bottom: 8px; color: #fff;
+  }
+  .cal-gate p {
+    max-width: 320px; font-size: 14px; line-height: 1.5; color: rgba(255,255,255,.7);
+    margin-bottom: 22px;
+  }
+  .cal-gate-check {
+    display: flex; align-items: flex-start; gap: 10px; max-width: 340px;
+    font-size: 13.5px; line-height: 1.5; color: rgba(255,255,255,.85);
+    text-align: left; margin-bottom: 22px; cursor: pointer;
+  }
+  .cal-gate-check input {
+    accent-color: var(--brass); width: 17px; height: 17px; flex: none; margin-top: 1px; cursor: pointer;
+  }
+  .cal-gate-check a { color: var(--brass); text-decoration: underline; }
+  .cal-gate button {
+    background: var(--brass); border: none; color: var(--espresso);
+    padding: 12px 28px; border-radius: 999px; font: inherit; font-size: 14.5px; font-weight: 700;
+    cursor: pointer; transition: opacity .2s ease, transform .15s ease;
+  }
+  .cal-gate button:disabled { opacity: .35; cursor: not-allowed; }
+  .cal-gate button:not(:disabled):hover { transform: scale(1.03); }
+  .cal-gate button:not(:disabled):active { transform: scale(.97); }
   .cal-footnote a { color: var(--espresso); border-bottom: 1px solid var(--rule); padding-bottom: 1px; }
   .cal-footnote a:hover { border-color: var(--espresso); }
 
@@ -475,6 +520,16 @@
             </div>
 
             <div id="cal-embed">
+              <div class="cal-gate" id="calGate">
+                <div class="cal-gate-mark">🤝</div>
+                <h4>Before we lock in a time</h4>
+                <p>Quick one — need you to agree to the fine print first.</p>
+                <label class="cal-gate-check">
+                  <input type="checkbox" id="calGateCheckbox">
+                  <span>I agree to the <a href="/terms-of-service" target="_blank">Terms of Service</a> and <a href="/privacy-policy" target="_blank">Privacy Policy</a></span>
+                </label>
+                <button type="button" id="calGateBtn" disabled>Let's talk →</button>
+              </div>
               <div class="cal-placeholder" id="cal-placeholder">
                 <div class="cal-skeleton" aria-hidden="true">
                   <div class="sk-cell" style="animation-delay:0ms"></div><div class="sk-cell" style="animation-delay:80ms"></div><div class="sk-cell" style="animation-delay:160ms"></div><div class="sk-cell" style="animation-delay:240ms"></div><div class="sk-cell" style="animation-delay:320ms"></div><div class="sk-cell" style="animation-delay:400ms"></div><div class="sk-cell" style="animation-delay:480ms"></div>
@@ -575,6 +630,27 @@
     });
     obs.observe(target, { childList: true, subtree: true });
     setTimeout(() => obs.disconnect(), 8000);
+  })();
+
+  /* booking consent gate -- remembers the visitor's agreement so it only shows once per browser */
+  (function () {
+    const KEY = 'mvsBookingConsent';
+    const gate = document.getElementById('calGate');
+    const checkbox = document.getElementById('calGateCheckbox');
+    const btn = document.getElementById('calGateBtn');
+    if (!gate || !checkbox || !btn) return;
+
+    if (localStorage.getItem(KEY) === 'agreed') {
+      gate.classList.add('gate-out');
+      return;
+    }
+    checkbox.addEventListener('change', () => { btn.disabled = !checkbox.checked; });
+    btn.addEventListener('click', () => {
+      if (checkbox.checked) {
+        localStorage.setItem(KEY, 'agreed');
+        gate.classList.add('gate-out');
+      }
+    });
   })();
 </script>
 
