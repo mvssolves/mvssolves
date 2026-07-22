@@ -323,7 +323,7 @@ let lenis;
     const target=document.querySelector(href);
     if(!target)return;
     e.preventDefault();
-    if(lenis&&lenis.scrollTo)lenis.scrollTo(target,{duration:reduce?0:1.2});
+    if(lenis&&lenis.scrollTo)lenis.scrollTo(target,{duration:reduce?0:2.4});
     else target.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
   },true);
 })();
