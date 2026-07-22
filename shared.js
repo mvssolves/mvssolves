@@ -327,3 +327,63 @@ let lenis;
     else target.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
   },true);
 })();
+
+/* cookie consent -- the leadsy.ai analytics tag used to load unconditionally in every page's
+   <head>; it's been removed from all 6 head blocks and now loads ONLY here, ONLY after consent.
+   Banner shows once; choice persists in localStorage. A "Cookie Preferences" footer link (added
+   sitewide) re-opens it so a visitor can change their mind later. */
+(function(){
+  const KEY='mvsCookieConsent';
+  function loadAnalytics(){
+    if(document.getElementById('vtag-ai-js'))return;
+    const s=document.createElement('script');
+    s.id='vtag-ai-js';s.async=true;s.src='https://r2.leadsy.ai/tag.js';
+    s.setAttribute('data-pid','1i8GLIec7Xhnf3LzZ');s.setAttribute('data-version','062024');
+    document.head.appendChild(s);
+  }
+
+  let banner,onKeydown;
+  function closeBanner(){
+    if(!banner)return;
+    document.removeEventListener('keydown',onKeydown);
+    banner.style.opacity='0';banner.style.transform='translateY(12px)';
+    setTimeout(()=>banner.remove(),250);
+    banner=null;
+  }
+  function showBanner(){
+    if(banner)return;
+    banner=document.createElement('div');
+    banner.setAttribute('role','dialog');
+    banner.setAttribute('aria-label','Cookie preferences');
+    banner.style.cssText='position:fixed;left:16px;right:16px;bottom:16px;z-index:9000;max-width:480px;'+
+      'margin:0 auto;background:#0a0a0a;color:#fff;border-radius:16px;padding:18px 20px;'+
+      'box-shadow:0 12px 32px rgba(0,0,0,.25);font-family:"Roboto",-apple-system,sans-serif;'+
+      'font-size:13.5px;line-height:1.5;opacity:0;transform:translateY(12px);'+
+      'transition:opacity .3s ease,transform .3s ease;';
+    banner.innerHTML='<p style="margin:0 0 12px;color:rgba(255,255,255,.85);">We use cookies for basic site analytics. '+
+      '<a href="/privacy-policy" style="color:#00eeff;text-decoration:underline;">Privacy Policy</a></p>'+
+      '<div style="display:flex;gap:10px;justify-content:flex-end;">'+
+      '<button type="button" id="cookieDecline" style="background:none;border:1px solid rgba(255,255,255,.3);color:#fff;'+
+      'padding:8px 16px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;">Decline</button>'+
+      '<button type="button" id="cookieAccept" style="background:#00eeff;border:none;color:#0a0a0a;'+
+      'padding:8px 16px;border-radius:999px;font-size:13px;font-weight:700;cursor:pointer;">Accept</button></div>';
+    document.body.appendChild(banner);
+    requestAnimationFrame(()=>{banner.style.opacity='1';banner.style.transform='translateY(0)';});
+    banner.querySelector('#cookieAccept').addEventListener('click',()=>{
+      localStorage.setItem(KEY,'granted');loadAnalytics();closeBanner();
+    });
+    banner.querySelector('#cookieDecline').addEventListener('click',()=>{
+      localStorage.setItem(KEY,'denied');closeBanner();
+    });
+    onKeydown=e=>{if(e.key==='Escape')closeBanner();};
+    document.addEventListener('keydown',onKeydown);
+  }
+
+  const consent=localStorage.getItem(KEY);
+  if(consent==='granted')loadAnalytics();
+  else if(consent!=='denied')showBanner();
+
+  document.addEventListener('click',function(e){
+    if(e.target.closest('[data-cookie-settings]')){e.preventDefault();showBanner();}
+  });
+})();

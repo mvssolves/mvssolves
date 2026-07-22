@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Security — MVS Solves</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/mask-icon.svg" color="#0a0a0a">
+<meta name="theme-color" content="#f6f5f3">
+<meta name="description" content="How MVS Solves protects client and end-customer data, and how to report a security issue.">
+<meta name="author" content="Martin · MVS Solves">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://mvssolves.com/security">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MVS Solves">
+<meta property="og:title" content="Security — MVS Solves">
+<meta property="og:description" content="How MVS Solves protects client and end-customer data, and how to report a security issue.">
+<meta property="og:url" content="https://mvssolves.com/security">
+<meta property="og:image" content="https://mvssolves.com/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap">
+</noscript>
+<style>
+  :root{
+    --bg:#ffffff; --bg-2:#f6f5f3; --surface:#efeee9;
+    --ink:#0a0a0a; --text:#1c1a17; --soft:#4c4944; --muted:#8a8680;
+    --line:rgba(10,10,10,0.10); --line-strong:rgba(10,10,10,0.18);
+    --accent:#00eeff; --accent-ink:#0a0a0a;
+    --maxw:760px;
+
+    --dur-instant:120ms; --dur-fast:200ms; --dur-normal:300ms; --dur-slow:500ms; --dur-slower:900ms;
+    --ease-default:cubic-bezier(.4,0,.2,1); --ease-out:cubic-bezier(0,0,.2,1);
+    --ease-spring:cubic-bezier(.34,1.56,.64,1); --ease-glide:cubic-bezier(.16,1,.3,1);
+    --icon-xs:22px; --icon-sm:30px; --icon-md:44px; --icon-lg:56px; --icon-xl:96px;
+    --icon-stroke:2.4;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Regular.ttf') format('truetype');font-weight:400;font-display:swap;}
+  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Bold.ttf') format('truetype');font-weight:700;font-display:swap;}
+  body{background:var(--bg);color:var(--text);font-family:'Roboto',-apple-system,"Helvetica Neue",sans-serif;
+    font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;
+    animation:pageFadeIn var(--dur-normal) var(--ease-default);}
+  @keyframes pageFadeIn{from{opacity:0}to{opacity:1}}
+  @media(prefers-reduced-motion:reduce){body{animation:none;}}
+  #bgfx{position:fixed;inset:0;width:100%;height:100%;z-index:-2;pointer-events:none;display:block;background:var(--bg);}
+  a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--line-strong);text-underline-offset:2px;}
+  ::selection{background:#00eeff;color:#0a0a0a;}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:inherit;}
+  a:hover{text-decoration-color:var(--ink);}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 36px;width:100%;}
+  h1{font-family:'Nohemi',sans-serif;letter-spacing:-.02em;color:var(--ink);font-size:clamp(32px,6vw,52px);line-height:1.05;}
+  h2{font-family:'Nohemi',sans-serif;letter-spacing:-.01em;color:var(--ink);font-size:19px;margin-top:38px;margin-bottom:10px;}
+  p,li{color:var(--soft);}
+  p{margin:12px 0;}
+  ul{margin:12px 0;padding-left:22px;}
+  li{margin:5px 0;}
+  strong{color:var(--text);font-weight:700;}
+  nav{position:sticky;top:0;left:0;right:0;z-index:60;padding:20px 36px;display:flex;align-items:center;
+    justify-content:space-between;background:rgba(255,255,255,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  @media(max-width:768px){nav{background:rgba(255,255,255,.96);backdrop-filter:none;-webkit-backdrop-filter:none;}}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px;letter-spacing:-.02em;}
+  .logo .mk{width:28px;height:28px;border-radius:8px;background:#0a0a0a;color:#fff;display:flex;align-items:center;
+    justify-content:center;font-weight:800;font-family:'Roboto',monospace;font-size:13px;}
+  nav .back{font-size:13.5px;color:var(--muted);font-weight:600;}
+  nav .back:hover{color:var(--ink);}
+  .lab{font-family:'Roboto',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+  .lab::before{content:'';width:24px;height:2px;background:var(--accent);}
+  .hero{position:relative;padding:70px 0 20px;}
+  .meta{font-family:'Roboto',monospace;font-size:12.5px;color:var(--muted);margin-top:12px;}
+  main{padding:20px 0 70px;}
+  main .wrap{border-top:1px solid var(--line);padding-top:8px;}
+  footer{padding:30px 0 50px;text-align:center;color:var(--muted);font-size:13px;}
+  .flag{background:#fff8e1;border:1px solid #d9b400;padding:1px 6px;border-radius:3px;font-weight:700;color:#5c4a00;}
+  .kt-veil{position:fixed;inset:0;z-index:99998;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .5s var(--ease-default),visibility .5s;}
+  .kt-veil.kt-out{opacity:0;visibility:hidden;pointer-events:none;}
+  .kt-word{display:flex;gap:.05em;font-family:'Nohemi',sans-serif;font-weight:600;font-size:clamp(40px,9vw,96px);letter-spacing:-.02em;color:var(--ink);}
+  .kt-word span{display:inline-block;opacity:0;filter:blur(6px);
+    transform:translate(var(--kx),var(--ky)) rotate(var(--kr)) scale(1.4);
+    transition:opacity .5s var(--ease-out),filter .5s var(--ease-out),transform .6s var(--ease-spring);}
+  .kt-word span:nth-child(1){transition-delay:0ms;}
+  .kt-word span:nth-child(2){transition-delay:90ms;}
+  .kt-word span:nth-child(3){transition-delay:180ms;}
+  .kt-veil.kt-in .kt-word span{opacity:1;filter:blur(0);transform:translate(0,0) rotate(0) scale(1);}
+  @media(prefers-reduced-motion:reduce){.kt-veil{display:none!important;}}
+  @media(max-width:640px){nav{padding:16px 20px;}.wrap{padding:0 20px;}.hero{padding:50px 0 16px;}}
+  .to-top{position:fixed;right:22px;bottom:22px;z-index:70;width:44px;height:44px;display:flex;
+    align-items:center;justify-content:center;border-radius:999px;cursor:pointer;color:#fff;
+    background:rgba(10,10,10,.92);border:1px solid var(--line-strong);opacity:0;pointer-events:none;transform:translateY(12px);
+    transition:opacity .3s ease,transform .3s ease,background .25s ease;}
+  .to-top svg{width:20px;height:20px;}
+  .to-top.show{opacity:1;pointer-events:auto;transform:translateY(0);}
+  .to-top:hover{background:rgba(10,10,10,.75);}
+  @media(max-width:900px){.to-top{right:14px;bottom:14px;width:40px;height:40px;}}
+</style>
+</head>
+<body>
+
+<canvas id="bgfx" aria-hidden="true"></canvas>
+<div class="kt-veil" id="ktVeil" aria-hidden="true">
+  <div class="kt-word"><span style="--kx:-18px;--ky:14px;--kr:-8deg">M</span><span style="--kx:10px;--ky:-10px;--kr:6deg">V</span><span style="--kx:-6px;--ky:18px;--kr:-11deg">S</span></div>
+</div>
+
+<button id="toTop" class="to-top" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+</button>
+
+<nav>
+  <a class="logo" href="/"><span class="mk">M</span> MVS Solves</a>
+  <a class="back" href="/">← Back to site</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="lab">Trust</div>
+    <h1>Security</h1>
+    <p class="meta">Last updated: July 22, 2026</p>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <p>MVS Solves handles client data and, where a Service involves it, your end-customers' data. Here's how that's protected.</p>
+
+    <h2>1. Infrastructure</h2>
+    <p>Websites and services built by MVS Solves run on established, reputable third-party infrastructure (hosting, payments, scheduling, and automation platforms) rather than self-hosted, unmanaged servers — so the underlying platform security, patching, and uptime are handled by providers whose full-time job that is.</p>
+
+    <h2>2. Encryption in Transit</h2>
+    <p>Sites and services built by MVS Solves are served over HTTPS. Data submitted through forms, bookings, or payments is encrypted in transit.</p>
+
+    <h2>3. Payments</h2>
+    <p>Payments are handled entirely by a third-party payment processor. MVS Solves does not directly collect or store full card numbers on its own systems.</p>
+
+    <h2>4. Access Control</h2>
+    <p>Access to client systems, hosting accounts, and business tools is limited to what's needed to deliver the Services, and credentials are not shared or reused across unrelated systems.</p>
+
+    <h2>5. Data Minimization</h2>
+    <p>MVS Solves processes end-customer personal information (where applicable, per the <a href="/data-processing-agreement">Data Processing Agreement</a>) only as needed to operate the Service you've purchased — not for our own separate use.</p>
+
+    <h2>6. Reporting a Security Issue</h2>
+    <p>If you believe you've found a security vulnerability affecting mvssolves.com or a site/service built by MVS Solves, please report it responsibly: email <a href="mailto:martin@mvssolves.com">martin@mvssolves.com</a> with details and steps to reproduce. Please do not publicly disclose an issue before we've had a reasonable chance to address it.</p>
+
+    <h2>7. Related Policies</h2>
+    <p>See also the <a href="/privacy-policy">Privacy Policy</a>, <a href="/data-processing-agreement">Data Processing Agreement</a>, and <a href="/terms-of-service">Terms of Service</a>.</p>
+  </div>
+</main>
+
+<footer>MVS Solves — martin@mvssolves.com</footer>
+
+<script src="/shared.js" defer></script>
+
+</body>
+</html>
