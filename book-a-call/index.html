@@ -288,6 +288,7 @@
     color: var(--mocha);
   }
 
+  .cal-gate-wrap { position: relative; }
   #cal-embed { min-height: 640px; width: 100%; overflow: hidden; position: relative; }
   #cal-embed iframe { background: transparent !important; }
 
@@ -519,7 +520,7 @@
               <span class="meta">30 min · free</span>
             </div>
 
-            <div id="cal-embed">
+            <div class="cal-gate-wrap">
               <div class="cal-gate" id="calGate">
                 <div class="cal-gate-mark">🤝</div>
                 <h4>Before we lock in a time</h4>
@@ -530,6 +531,7 @@
                 </label>
                 <button type="button" id="calGateBtn" disabled>Let's talk →</button>
               </div>
+              <div id="cal-embed">
               <div class="cal-placeholder" id="cal-placeholder">
                 <div class="cal-skeleton" aria-hidden="true">
                   <div class="sk-cell" style="animation-delay:0ms"></div><div class="sk-cell" style="animation-delay:80ms"></div><div class="sk-cell" style="animation-delay:160ms"></div><div class="sk-cell" style="animation-delay:240ms"></div><div class="sk-cell" style="animation-delay:320ms"></div><div class="sk-cell" style="animation-delay:400ms"></div><div class="sk-cell" style="animation-delay:480ms"></div>
@@ -544,6 +546,7 @@
                   Trouble? <a href="mailto:martin@mvssolves.com?subject=Booking%20a%20call">Email Martin →</a>
                 </div>
               </div>
+            </div>
             </div>
           </div>
         </div>
