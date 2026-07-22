@@ -167,25 +167,42 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   nav.legacy-unused{position:fixed;top:0;left:0;right:0;z-index:60;padding:20px 36px;display:flex;align-items:center;gap:16px;
     justify-content:flex-end;}
 
-  /* OptionWheel -- ported from React Bits (vanilla JS/CSS, no React on this site). Replaces the
-     pill nav above. position:absolute against .hero (which is position:relative), NOT fixed --
-     it lives inside the hero section and scrolls away with it, doesn't follow down the page.
-     Desktop only per the ask; mobile keeps no top nav at all, same as before this change. */
-  .option-wheel{
-    --ow-text-color:var(--muted);--ow-active-color:var(--ink);--ow-font-size:2rem;--ow-inset:44px;
-    position:absolute;top:24px;left:-40px;width:380px;height:340px;
-    z-index:5;overflow:hidden;cursor:grab;user-select:none;outline:none;display:block;
+  /* LineSidebar -- ported from React Bits (vanilla JS/CSS, no React on this site). Replaces the
+     old OptionWheel spinner. position:absolute against .hero (which is position:relative), NOT
+     fixed -- lives inside the hero section, scrolls away with it. Desktop only, same as the wheel
+     it replaces; mobile keeps no top nav. --effect (0..1) is driven per item by a rAF lerp in JS. */
+  .line-sidebar{
+    --accent-color:var(--accent);--text-color:var(--muted);--marker-color:var(--line-strong);
+    --marker-length:44px;--marker-gap:0px;--tick-scale:.5;--max-shift:18px;--item-gap:22px;
+    --font-size:1.35rem;--smoothing:100ms;
+    position:absolute;top:24px;left:0;z-index:5;display:block;
+    padding-left:calc(var(--marker-length) + var(--marker-gap) + 40px);
   }
-  @media(max-width:900px){.option-wheel{display:none;}}
-  .option-wheel__item{
-    position:absolute;top:50%;left:var(--ow-inset);white-space:nowrap;
-    font-size:var(--ow-font-size);line-height:1;font-weight:500;letter-spacing:-.01em;
-    transform-origin:left center;cursor:pointer;will-change:transform,opacity,filter;
-    font-family:'Nohemi',sans-serif;
-    color:color-mix(in srgb,var(--ow-active-color) calc(var(--ow-p,0) * 100%),var(--ow-text-color));
+  @media(max-width:900px){.line-sidebar{display:none;}}
+  .line-sidebar__list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--item-gap);}
+  .line-sidebar__item{position:relative;cursor:pointer;}
+  .line-sidebar__item::before{content:'';position:absolute;inset:-6px -48px;}
+  .line-sidebar__label{
+    position:relative;display:inline-flex;align-items:baseline;
+    font-family:'Nohemi',sans-serif;font-size:var(--font-size);line-height:1.2;font-weight:500;letter-spacing:-.01em;
+    color:color-mix(in srgb,var(--accent-color) calc(var(--effect,0) * 100%),var(--text-color));
+    transform:translateX(calc(var(--effect,0) * var(--max-shift)));
   }
-  .option-wheel__item--selected{font-weight:700;}
-  @media(prefers-reduced-motion:reduce){.option-wheel__item{transition:none;}}
+  .line-sidebar__item[aria-current="true"] .line-sidebar__label{font-weight:700;}
+  .line-sidebar__marker{
+    position:absolute;top:50%;left:calc(-1 * var(--marker-length) - var(--marker-gap));
+    height:1px;width:var(--marker-length);
+    background-color:color-mix(in srgb,var(--accent-color) calc(var(--effect,0) * 100%),var(--marker-color));
+    transform-origin:left center;transform:translateY(-50%) scaleX(calc(.7 + var(--effect,0) * .5));
+  }
+  .line-sidebar__item:not(:last-child)::after{
+    content:'';position:absolute;top:calc(100% + var(--item-gap) / 2);
+    left:calc(-1 * var(--marker-length) - var(--marker-gap));
+    height:1px;width:calc(var(--marker-length) * var(--tick-scale));
+    background-color:var(--marker-color);opacity:.5;
+    transform-origin:left center;transform:translateY(-50%) scaleX(calc(.7 + var(--effect,0) * .6));
+  }
+  @media(prefers-reduced-motion:reduce){.line-sidebar__label,.line-sidebar__marker,.line-sidebar__item::after{transition:none;}}
   .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:17px;color:var(--ink);white-space:nowrap;flex-shrink:0;
     background:rgba(10,10,10,.05);border:1px solid var(--line);border-radius:999px;padding:8px 16px 8px 8px;}
   /* explicit inverted chip (dark square, white letter) -- this is a fixed badge treatment,
@@ -1103,13 +1120,15 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
 </nav>
 
 <header class="hero" id="top">
-  <div id="optionWheel" class="option-wheel" role="listbox" tabindex="0" aria-label="Site navigation" data-lenis-prevent>
-    <div class="option-wheel__item" data-href="#top">Home</div>
-    <div class="option-wheel__item" data-href="#about">About</div>
-    <div class="option-wheel__item" data-href="#testimonials">Proof</div>
-    <div class="option-wheel__item" data-href="#pricing">Pricing</div>
-    <div class="option-wheel__item" data-href="#book">Book</div>
-  </div>
+  <nav id="lineSidebar" class="line-sidebar" aria-label="Site navigation">
+    <ul class="line-sidebar__list">
+      <li class="line-sidebar__item" data-href="#top"><span class="line-sidebar__marker" aria-hidden="true"></span><span class="line-sidebar__label">Home</span></li>
+      <li class="line-sidebar__item" data-href="#about"><span class="line-sidebar__marker" aria-hidden="true"></span><span class="line-sidebar__label">About</span></li>
+      <li class="line-sidebar__item" data-href="#testimonials"><span class="line-sidebar__marker" aria-hidden="true"></span><span class="line-sidebar__label">Proof</span></li>
+      <li class="line-sidebar__item" data-href="#pricing"><span class="line-sidebar__marker" aria-hidden="true"></span><span class="line-sidebar__label">Pricing</span></li>
+      <li class="line-sidebar__item" data-href="#book"><span class="line-sidebar__marker" aria-hidden="true"></span><span class="line-sidebar__label">Book</span></li>
+    </ul>
+  </nav>
   <div class="h-wrap">
     <h1 class="flick">
       <span class="line"><span class="ft">Real</span></span>
@@ -1688,121 +1707,60 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
 })();</script>
 
-<!-- OptionWheel nav -- ported from React Bits (vanilla, no React on this site). DOM+CSS transform
-     wheel, not canvas -- much lighter than the other two ported components on this page. Replaces
-     the old pill nav; items come from the markup itself (data-href + text) rather than a JS array,
-     so the menu stays editable in the HTML like every other nav link on the site. -->
+<!-- LineSidebar nav -- ported from React Bits (vanilla JS, no React on this site). Proximity-based
+     label shift/color, driven by a single rAF lerp loop so color+shift+marker scale stay in sync
+     with no CSS transitions to stagger. Replaces the OptionWheel spinner above. -->
 <script>(function(){
-  var root=document.getElementById('optionWheel');
+  var root=document.getElementById('lineSidebar');
   if(!root)return;
-  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var items=[...root.querySelectorAll('.option-wheel__item')];
+  var list=root.querySelector('.line-sidebar__list');
+  var items=[...root.querySelectorAll('.line-sidebar__item')];
   if(!items.length)return;
-  var count=items.length;
-  var rowH=Math.max(parseFloat(getComputedStyle(items[0]).fontSize)*1.4,1);
-  var curve=2,tilt=14.5,blur=3.75,fade=0.18,minOpacity=0.15,smoothing=250;
-  var pos=0,target=0,raf=null,last=0,lastSelected=0;
+  var proximityRadius=100,smoothing=100;
+  var targets=items.map(function(){return 0;}),current=items.map(function(){return 0;});
+  var activeIndex=null,raf=null,last=0;
 
-  /* loop:true -- wheel wraps infinitely (FAQ -> Home going forward, Home -> FAQ going back)
-     instead of stopping dead at the first/last item. */
-  function wrap(v){return ((v%count)+count)%count;}
-
-  /* short synth tick on selection change (Web Audio oscillator) -- no soundUrl asset shipped with
-     this site, so a generated beep stands in for the original component's soundUrl/soundVolume
-     props rather than pointing at a file that doesn't exist. Lazily creates the AudioContext on
-     first real interaction (autoplay policy), throttled so a fast scroll/drag can't spam it. */
-  var audioCtx=null,lastTick=0;
-  function playTick(){
-    if(reduce)return;
-    var now=performance.now();
-    if(now-lastTick<70)return;
-    lastTick=now;
-    try{
-      if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-      var osc=audioCtx.createOscillator(),gain=audioCtx.createGain();
-      osc.type='sine';osc.frequency.value=720;
-      gain.gain.setValueAtTime(0.09,audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+0.08);
-      osc.connect(gain);gain.connect(audioCtx.destination);
-      osc.start();osc.stop(audioCtx.currentTime+0.08);
-    }catch(e){}
-  }
-
-  function layout(){
-    var tiltRad=tilt*Math.PI/180;
-    var R=tiltRad>0.0005?rowH/tiltRad:0;
-    var selected=wrap(Math.round(pos));
-    if(selected!==lastSelected){lastSelected=selected;playTick();}
-    items.forEach(function(el,i){
-      var d=i-pos;
-      d=wrap(d);if(d>count/2)d-=count;
-      var dist=Math.abs(d),x=0,y=d*rowH,rot=0;
-      if(R>0){
-        var ang=Math.max(-Math.PI/2,Math.min(Math.PI/2,d*tiltRad));
-        y=R*Math.sin(ang);x=-R*(1-Math.cos(ang))*curve;rot=ang*180/Math.PI;
-      }
-      el.style.transform='translate('+x.toFixed(2)+'px, calc('+y.toFixed(2)+'px - 50%)) rotate('+rot.toFixed(3)+'deg)';
-      el.style.opacity=String(reduce?1:Math.max(minOpacity,1-dist*fade));
-      el.style.filter=(!reduce&&blur>0)?'blur('+(dist*blur).toFixed(2)+'px)':'none';
-      el.style.setProperty('--ow-p',Math.max(0,1-Math.min(dist,1)).toFixed(4));
-      el.classList.toggle('option-wheel__item--selected',i===selected);
-    });
-  }
-
-  function frame(now){
+  function runFrame(now){
     var dt=Math.min((now-last)/1000,0.05);last=now;
     var tau=Math.max(smoothing,1)/1000,k=1-Math.exp(-dt/tau);
-    var next=pos+(target-pos)*k;
-    var settled=Math.abs(target-next)<0.001;
-    pos=settled?target:next;
-    if(settled){pos=wrap(pos);target=pos;} /* keep the numbers bounded once resting, not an ever-growing counter */
-    layout();
-    raf=settled?null:requestAnimationFrame(frame);
+    var moving=false;
+    items.forEach(function(el,i){
+      var target=Math.max(targets[i]||0,activeIndex===i?1:0);
+      var cur=current[i]||0;
+      var next=cur+(target-cur)*k;
+      var settled=Math.abs(target-next)<0.0015;
+      var value=settled?target:next;
+      current[i]=value;
+      el.style.setProperty('--effect',value.toFixed(4));
+      if(!settled)moving=true;
+    });
+    raf=moving?requestAnimationFrame(runFrame):null;
   }
-  function startLoop(){if(raf!=null)return;last=performance.now();raf=requestAnimationFrame(frame);}
-  function setTarget(v,snap){
-    target=snap?Math.round(v):v;
+  function startLoop(){if(raf!=null)return;last=performance.now();raf=requestAnimationFrame(runFrame);}
+
+  list.addEventListener('pointermove',function(e){
+    var rect=list.getBoundingClientRect();
+    var pointerY=e.clientY-rect.top;
+    items.forEach(function(el,i){
+      var center=el.offsetTop+el.offsetHeight/2;
+      var dist=Math.abs(pointerY-center);
+      var p=Math.max(0,1-dist/proximityRadius);
+      targets[i]=p*p*(3-2*p); /* smooth falloff curve */
+    });
     startLoop();
-  }
-  layout(); /* paint the resting curve immediately, don't wait for the first interaction */
-
-  var wheelTimer;
-  root.addEventListener('wheel',function(e){
-    e.preventDefault();e.stopPropagation();
-    var delta=e.deltaMode===1?e.deltaY*24:e.deltaY;
-    var step=Math.max(-1,Math.min(1,delta/rowH));
-    setTarget(target+step,false);
-    clearTimeout(wheelTimer);
-    wheelTimer=setTimeout(function(){setTarget(target,true);},140);
-  },{passive:false});
-
-  root.addEventListener('keydown',function(e){
-    var d=null;
-    if(e.key==='ArrowUp'||e.key==='ArrowLeft')d=-1;
-    else if(e.key==='ArrowDown'||e.key==='ArrowRight')d=1;
-    if(d===null)return;
-    e.preventDefault();
-    setTarget(Math.round(target)+d,true);
   });
-
-  var dragY=null,dragStart=0,dragMoved=false;
-  root.addEventListener('pointerdown',function(e){dragY=e.clientY;dragStart=target;dragMoved=false;root.style.cursor='grabbing';});
-  root.addEventListener('pointermove',function(e){
-    if(dragY===null)return;
-    var dy=e.clientY-dragY;
-    if(!dragMoved&&Math.abs(dy)>4)dragMoved=true;
-    if(dragMoved)setTarget(dragStart-dy/rowH,false);
+  list.addEventListener('pointerleave',function(){
+    targets=targets.map(function(){return 0;});
+    startLoop();
   });
-  function endDrag(){if(dragY===null)return;dragY=null;root.style.cursor='grab';if(dragMoved)setTarget(target,true);}
-  root.addEventListener('pointerup',endDrag);
-  root.addEventListener('pointercancel',endDrag);
 
   items.forEach(function(el,i){
     el.addEventListener('click',function(){
-      if(dragMoved)return;
-      setTarget(i,true);
+      activeIndex=i;
+      items.forEach(function(o,j){o.setAttribute('aria-current',j===i?'true':'false');});
+      startLoop();
       var href=el.getAttribute('data-href');
-      if(href)setTimeout(function(){location.href=href;},180);
+      if(href)location.href=href;
     });
   });
 })();</script>
