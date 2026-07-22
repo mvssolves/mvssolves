@@ -1859,49 +1859,33 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
      piece (individual dots/nodes/links/bars) instead of the whole SVG breathing as one flat
      group. Browser mockup gets a drawn cursor + blinking dots, the automation nodes light up
      node-by-node with a signal pulse along the connecting lines, the AI waveform bars bounce like
-     live audio levels. Paused/resumed via IntersectionObserver (onVisibilityChange, main.js) --
-     12 concurrent rAF-ticked instances is real per-frame cost to leave running once #featStack has
-     scrolled off-screen, so nothing here ticks while it's out of view. */
-<script>document.addEventListener('DOMContentLoaded',function(){
-  /* deferred scripts (anime.js) load+execute before DOMContentLoaded, but this inline script
-     (no defer) would otherwise run immediately at parse time, before anime.js exists on window --
-     waiting for DOMContentLoaded guarantees the CDN script has already run. */
+     live audio levels. Runs unconditionally once started -- an IntersectionObserver-driven
+     play/pause gate here (tried first) never resumed reliably, so simplicity wins over the
+     marginal off-screen perf saving. Desktop-only + reduced-motion-off, same as everything else
+     on this page. */
+<script>window.addEventListener('load',function(){
   if(reduce||typeof anime==='undefined'||!window.matchMedia('(min-width:901px)').matches)return;
-  const stack=document.getElementById('featStack');
-  if(!stack||typeof onVisibilityChange!=='function')return;
+  if(!document.getElementById('featStack'))return;
 
-  const instances=[];
-  function add(opts){instances.push(anime(opts));}
-
-  add({targets:'#featStack .feat-card:nth-of-type(1) .fx-dot',opacity:[1,.25],
+  anime({targets:'#featStack .feat-card:nth-of-type(1) .fx-dot',opacity:[1,.25],
     delay:anime.stagger(180),duration:500,direction:'alternate',loop:true,easing:'easeInOutSine'});
-  add({targets:'#featStack .feat-card:nth-of-type(1) .fx-cursor-path',strokeDashoffset:[70,0],
+  anime({targets:'#featStack .feat-card:nth-of-type(1) .fx-cursor-path',strokeDashoffset:[70,0],
     duration:900,easing:'easeOutQuad',loop:true,delay:400});
-  add({targets:'#featStack .feat-card:nth-of-type(1) .fx-cursor-dot',scale:[0.6,1.15,1],
+  anime({targets:'#featStack .feat-card:nth-of-type(1) .fx-cursor-dot',scale:[0.6,1.15,1],
     duration:900,easing:'easeOutElastic(1,.6)',loop:true,delay:400});
-  add({targets:'#featStack .feat-card:nth-of-type(1) .fx-bar',scale:[1,1.06],
+  anime({targets:'#featStack .feat-card:nth-of-type(1) .fx-bar',scale:[1,1.06],
     duration:1400,direction:'alternate',loop:true,easing:'easeInOutSine'});
 
-  add({targets:'#featStack .feat-card:nth-of-type(2) .fx-node',scale:[1,1.18,1],
+  anime({targets:'#featStack .feat-card:nth-of-type(2) .fx-node',scale:[1,1.18,1],
     delay:anime.stagger(220),duration:700,loop:true,easing:'easeInOutQuad'});
-  add({targets:'#featStack .feat-card:nth-of-type(2) .fx-link',opacity:[.3,1,.3],
+  anime({targets:'#featStack .feat-card:nth-of-type(2) .fx-link',opacity:[.3,1,.3],
     delay:anime.stagger(220),duration:700,loop:true,easing:'easeInOutQuad'});
 
   document.querySelectorAll('#featStack .feat-card:nth-of-type(3) .fx-bar-line').forEach(function(el,i){
     const half=[5,13,8,17,9,3][i]||8;
-    add({targets:el,y1:53-half,y2:53+half,duration:420+i*35,direction:'alternate',loop:true,
+    anime({targets:el,y1:53-half,y2:53+half,duration:420+i*35,direction:'alternate',loop:true,
       delay:i*90,easing:'easeInOutSine'});
   });
-
-  function applyVisible(visible){
-    instances.forEach(function(inst){visible?inst.play():inst.pause();});
-  }
-  /* IntersectionObserver's first callback is async and its exact timing isn't guaranteed --
-     check synchronously right now too so correctness never depends on that callback landing
-     before someone looks at the section. The observer below just keeps it in sync from here. */
-  const r=stack.getBoundingClientRect();
-  applyVisible(r.top<window.innerHeight&&r.bottom>0);
-  onVisibilityChange(stack,applyVisible);
 });</script>
 </body>
 </html>
