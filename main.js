@@ -37,6 +37,8 @@ function gradualSpacingHeading(el){
 function scaleLetterText(el){
   if(!el||reduce||!isDesktop)return;
   const chars=splitChars(el);
+  el.__fxChars=chars; /* stashed so fontWeightText (below) can reuse the same split instead of
+    re-splitting -- calling splitChars twice on one element would blow away these listeners. */
   chars.forEach(ch=>{
     ch.style.transition='transform .4s cubic-bezier(.175,.885,.32,1.275),filter .4s cubic-bezier(.175,.885,.32,1.275),text-shadow .4s cubic-bezier(.175,.885,.32,1.275)';
     ch.style.position='relative';
@@ -60,7 +62,25 @@ function scaleLetterText(el){
   chars.forEach((ch,i)=>ch.addEventListener('mouseenter',()=>apply(i)));
   el.addEventListener('mouseleave',()=>apply(-1));
 }
-document.querySelectorAll('.scale-fx').forEach(scaleLetterText);
+/* FontWeightText (Eldora UI) — ported from the real registry source, with one real substitution:
+   the source animates font-variation-settings ("wght" axis) on a variable font. Nohemi (this
+   site's hero font) only ships static weight cuts, no variable file -- font-variation-settings
+   on it is a total no-op. Same idea, real available weights instead: animates the actual
+   font-weight property between two static Nohemi cuts (400/800), alternating, staggered by
+   distance from the text's center letter exactly like the source's mappedIndex logic. Runs
+   alongside scaleLetterText (different CSS properties, no conflict) -- reuses its already-split
+   chars via el.__fxChars instead of re-splitting, which would destroy those hover listeners. */
+function fontWeightText(el,{duration=1.5,delayMultiplier=0.25}={}){
+  if(!el||reduce||!isDesktop)return;
+  const chars=el.__fxChars||splitChars(el);
+  const n=chars.length;
+  chars.forEach((ch,i)=>{
+    ch.classList.add('fw-breath');
+    ch.style.animationDuration=duration+'s';
+    ch.style.animationDelay=((i-n/2)*delayMultiplier)+'s';
+  });
+}
+document.querySelectorAll('.scale-fx').forEach(el=>{scaleLetterText(el);fontWeightText(el);});
 /* mobile browser chrome (address bar) collapsing/expanding on scroll fires resize events that
    only ever change height, never width — the 3D scenes below were recomputing full renderer
    size + camera matrices on every one of those, which is what read as a frame hop tied to
