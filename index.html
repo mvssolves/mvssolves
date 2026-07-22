@@ -1893,9 +1893,15 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
       delay:i*90,easing:'easeInOutSine'});
   });
 
-  onVisibilityChange(stack,function(visible){
+  function applyVisible(visible){
     instances.forEach(function(inst){visible?inst.play():inst.pause();});
-  });
+  }
+  /* IntersectionObserver's first callback is async and its exact timing isn't guaranteed --
+     check synchronously right now too so correctness never depends on that callback landing
+     before someone looks at the section. The observer below just keeps it in sync from here. */
+  const r=stack.getBoundingClientRect();
+  applyVisible(r.top<window.innerHeight&&r.bottom>0);
+  onVisibilityChange(stack,applyVisible);
 });</script>
 </body>
 </html>
