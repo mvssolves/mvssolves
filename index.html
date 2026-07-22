@@ -172,11 +172,11 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
      fixed -- lives inside the hero section, scrolls away with it. Desktop only, same as the wheel
      it replaces; mobile keeps no top nav. --effect (0..1) is driven per item by a rAF lerp in JS. */
   .line-sidebar{
-    --accent-color:var(--accent);--text-color:var(--muted);--marker-color:var(--line-strong);
-    --marker-length:44px;--marker-gap:0px;--tick-scale:.5;--max-shift:18px;--item-gap:22px;
+    --accent-color:var(--accent);--text-color:var(--muted);
+    --max-shift:18px;--item-gap:22px;
     --font-size:1.35rem;--smoothing:100ms;
     position:absolute;top:80px;left:-16px;z-index:5;display:block;
-    padding-left:calc(var(--marker-length) + var(--marker-gap) + 40px);
+    padding-left:40px;
   }
   @media(max-width:900px){.line-sidebar{display:none;}}
   .line-sidebar__list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--item-gap);}
@@ -194,20 +194,7 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   .ls-ripple{position:absolute;border-radius:50%;background:color-mix(in srgb,var(--accent-color) 55%,transparent);
     transform:scale(0);pointer-events:none;animation:ls-ripple .5s ease-out forwards;}
   @keyframes ls-ripple{to{transform:scale(2.6);opacity:0;}}
-  .line-sidebar__marker{
-    position:absolute;top:50%;left:calc(-1 * var(--marker-length) - var(--marker-gap));
-    height:1px;width:var(--marker-length);
-    background-color:color-mix(in srgb,var(--accent-color) calc(var(--effect,0) * 100%),var(--marker-color));
-    transform-origin:left center;transform:translateY(-50%) scaleX(calc(.7 + var(--effect,0) * .5));
-  }
-  .line-sidebar__item:not(:last-child)::after{
-    content:'';position:absolute;top:calc(100% + var(--item-gap) / 2);
-    left:calc(-1 * var(--marker-length) - var(--marker-gap));
-    height:1px;width:calc(var(--marker-length) * var(--tick-scale));
-    background-color:var(--marker-color);opacity:.5;
-    transform-origin:left center;transform:translateY(-50%) scaleX(calc(.7 + var(--effect,0) * .6));
-  }
-  @media(prefers-reduced-motion:reduce){.line-sidebar__label,.line-sidebar__marker,.line-sidebar__item::after{transition:none;}}
+  @media(prefers-reduced-motion:reduce){.line-sidebar__label{transition:none;}}
   .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:17px;color:var(--ink);white-space:nowrap;flex-shrink:0;
     background:rgba(10,10,10,.05);border:1px solid var(--line);border-radius:999px;padding:8px 16px 8px 8px;}
   /* explicit inverted chip (dark square, white letter) -- this is a fixed badge treatment,
@@ -1139,11 +1126,11 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
 <header class="hero" id="top">
   <nav id="lineSidebar" class="line-sidebar" aria-label="Site navigation">
     <ul class="line-sidebar__list">
-      <li class="line-sidebar__item" data-href="#top"><span class="line-sidebar__marker" aria-hidden="true"></span><span class="line-sidebar__label">Home</span></li>
-      <li class="line-sidebar__item" data-href="#about"><span class="line-sidebar__marker" aria-hidden="true"></span><span class="line-sidebar__label">About</span></li>
-      <li class="line-sidebar__item" data-href="#testimonials"><span class="line-sidebar__marker" aria-hidden="true"></span><span class="line-sidebar__label">Proof</span></li>
-      <li class="line-sidebar__item" data-href="#pricing"><span class="line-sidebar__marker" aria-hidden="true"></span><span class="line-sidebar__label">Pricing</span></li>
-      <li class="line-sidebar__item" data-href="#book"><span class="line-sidebar__marker" aria-hidden="true"></span><span class="line-sidebar__label">Book</span></li>
+      <li class="line-sidebar__item" data-href="#top"><span class="line-sidebar__label">Home</span></li>
+      <li class="line-sidebar__item" data-href="#about"><span class="line-sidebar__label">About</span></li>
+      <li class="line-sidebar__item" data-href="#testimonials"><span class="line-sidebar__label">Proof</span></li>
+      <li class="line-sidebar__item" data-href="#pricing"><span class="line-sidebar__label">Pricing</span></li>
+      <li class="line-sidebar__item" data-href="#book"><span class="line-sidebar__label">Book</span></li>
     </ul>
   </nav>
   <div class="h-wrap">
