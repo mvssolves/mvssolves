@@ -839,6 +839,10 @@ if(!reduce){
 /* same pause-off-screen treatment for the glitch heading (clip-path/text-shadow keyframes) */
 (function(){const glitch=document.querySelector('.glitch-hover');if(!glitch)return;
   onVisibilityChange(glitch,visible=>glitch.classList.toggle('spin-off',!visible));})();
+/* same pause-off-screen treatment for the trust cards' spinning border (3 of them, same recipe) */
+document.querySelectorAll('.trust-card').forEach(card=>{
+  onVisibilityChange(card,visible=>card.classList.toggle('spin-off',!visible));
+});
 
 /* Premium feature callouts — fade in once, desktop only */
 if(isDesktop&&!reduce){
