@@ -358,7 +358,6 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   .h-trust{margin-top:20px;display:flex;gap:22px;align-items:center;justify-content:center;flex-wrap:wrap;
     font-size:13px;color:var(--muted);}
   .h-trust span{display:inline-flex;align-items:center;gap:7px;}
-  .h-trust svg{width:15px;height:15px;color:var(--ok);flex-shrink:0;}
   /* GradualSpacingText (main.js splitChars) wraps each letter of a .btn/.h-trust-span's text into
      an .fx-char span for the per-letter assemble-in entrance. Both containers use flex `gap` for
      icon/label spacing -- once their text is split, that gap applies between every single letter
@@ -1026,7 +1025,6 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
     /* trust row ("7 days free/no build fee/cancel anytime") -- default gap/font was wide enough
        that 3 items wrapped to 2 lines on a phone; tightened so it sits as one compact row. */
     .h-trust{gap:10px;font-size:10.5px;margin-top:14px;}
-    .h-trust svg{width:12px;height:12px;}
     .hero-stat{padding:5px 12px;font-size:10px;}
     .cap{padding:16px;}
     .cap .ci{width:26px;height:26px;font-size:11px;}
@@ -1162,9 +1160,9 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
       <a class="btn btn-ghost" href="#testimonials">★ Testimonials</a>
     </div>
     <div class="h-trust">
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M5 13l4 4L19 7"/></svg><span class="gs-text">7 days free, Build plan</span></span>
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M5 13l4 4L19 7"/></svg><span class="gs-text">No build fee</span></span>
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M5 13l4 4L19 7"/></svg><span class="gs-text">Cancel anytime</span></span>
+      <span><span class="gs-text">7 days free, Build plan</span></span>
+      <span><span class="gs-text">No build fee</span></span>
+      <span><span class="gs-text">Cancel anytime</span></span>
     </div>
   </div>
   <!-- h-logos block removed: only had one real client (Browne's Mobile Detailing) and you
