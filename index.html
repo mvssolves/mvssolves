@@ -355,7 +355,12 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   .h-logos-row{margin-top:22px;display:flex;gap:40px;align-items:center;justify-content:center;flex-wrap:wrap;}
   .h-logo{font-weight:700;font-size:15px;color:var(--muted);letter-spacing:-.01em;opacity:.7;transition:opacity .25s ease;}
   .h-logo:hover{opacity:1;}
-  .h-wrap{position:relative;z-index:3;max-width:var(--maxw);margin:0 auto;width:100%;}
+  .h-wrap{position:relative;z-index:3;max-width:var(--maxw);margin:24px auto 0;width:100%;}
+  /* nudge the heading/sub down a touch from dead-center, and push the CTA row/trust badges the
+     rest of the way toward the bottom of the hero -- auto margin eats all remaining flex space
+     regardless of the column's justify-content:center, so this alone separates the two blocks
+     without needing to change the hero's overall centering. */
+  .h-bottom{margin-top:auto;}
 
   /* nume-style feature cards -- measured 1:1 off nume.ai's .overview-item-content DOM: it's a
      FLEX ROW (image ~42.5% left, text right, equal height), not a stacked image-over-text card
@@ -1887,7 +1892,7 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
      via the console worked instantly, proving the animation code itself was always correct; the
      event it was waiting on just never came). Polling for the one thing this code actually depends
      on (anime + #featStack existing) sidesteps whatever is eating that event, at the cost of a
-     few harmless checks every 100ms until it fires once. */
+     few harmless checks every 100ms until it fires once. -->
 <script>(function(){
   var tries=0;
   var poll=setInterval(function(){
