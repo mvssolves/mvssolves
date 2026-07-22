@@ -54,7 +54,11 @@
   :root{--nav-h:72px;}
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#111;background:#fff;line-height:1.5;}
-  .wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
+  /* full viewport width, small edge gutter -- NOT a centered narrow column. Confirmed on the
+     reference: nav/hero/cards run near edge-to-edge on a real desktop viewport, not capped to
+     a ~1200px centered block with big dead margins either side. Paragraph text still reads
+     fine -- <p> has its own max-width:60ch typographic cap independent of this. */
+  .wrap{padding:0 40px;}
   section{padding:96px 0;}
   .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:10px;font-family:monospace;}
   h1,h2,h3{font-weight:700;letter-spacing:-.01em;}
@@ -67,7 +71,7 @@
 
   /* NAV */
   nav{position:sticky;top:0;background:#fff;z-index:20;border-bottom:1px solid #eee;}
-  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;max-width:1180px;margin:0 auto;}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;}
   .nav-links{display:flex;gap:28px;font-size:14px;}
   .nav-links a{color:#333;text-decoration:none;}
 
@@ -94,8 +98,12 @@
 
   /* HERO */
   .hero{padding:48px 0;}
-  .hero-3d-placeholder{height:50vh;min-height:340px;background:repeating-linear-gradient(135deg,#f4f4f4,#f4f4f4 20px,#ececec 20px,#ececec 40px);
-    border:1px dashed #bbb;display:flex;align-items:center;justify-content:center;color:#999;font-size:13px;margin-bottom:40px;}
+  /* full-bleed, zero gutter -- confirmed on the reference: the hero visual runs literally edge
+     to edge (no side margin at all), unlike everything else which keeps the ~40px gutter. Breaks
+     out of the parent .hero.wrap's padding via negative margin + calc width instead of moving it
+     in the markup. */
+  .hero-3d-placeholder{height:64vh;min-height:420px;background:repeating-linear-gradient(135deg,#f4f4f4,#f4f4f4 20px,#ececec 20px,#ececec 40px);
+    border:1px dashed #bbb;display:flex;align-items:center;justify-content:center;color:#999;font-size:13px;margin:0 -40px 40px;width:calc(100% + 80px);}
   .hero h1{font-size:clamp(36px,6vw,64px);max-width:16ch;margin-bottom:20px;}
   .hero-sub{max-width:50ch;margin-bottom:28px;}
   .hero-ctas{display:flex;gap:14px;align-items:center;}
@@ -135,8 +143,8 @@
   .feature-card p{color:#aaa;margin:0;}
 
   /* FOOTER */
-  footer{background:#111;color:#fff;padding:80px 32px 0;overflow:hidden;}
-  .foot-inner{max-width:1180px;margin:0 auto;display:flex;gap:48px;flex-wrap:wrap;justify-content:space-between;padding-bottom:48px;border-bottom:1px solid #333;}
+  footer{background:#111;color:#fff;padding:80px 40px 0;overflow:hidden;}
+  .foot-inner{display:flex;gap:48px;flex-wrap:wrap;justify-content:space-between;padding-bottom:48px;border-bottom:1px solid #333;}
   .foot-col{min-width:160px;}
   .foot-col h3{font-size:13px;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;}
   .foot-col a{display:block;color:#ccc;text-decoration:none;font-size:14px;margin-bottom:8px;}
@@ -252,7 +260,7 @@
      something distinct to rise over, matching the reference's marquee+heading bridge before
      its footer. -->
 <div class="team-block wrap" id="teamBlock">
-  <div class="marquee" aria-hidden="true" style="width:100vw;margin-left:calc(50% - 50vw);">
+  <div class="marquee" aria-hidden="true" style="margin:0 -40px;width:calc(100% + 80px);">
     <div class="marquee-track" id="marqueeTrack2">
       <span>[tag a]</span><span>·</span><span>[tag b]</span><span>·</span><span>[tag c]</span><span>·</span>
       <span>[tag d]</span><span>·</span><span>[tag e]</span><span>·</span><span>[tag f]</span><span>·</span>
