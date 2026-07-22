@@ -173,7 +173,7 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
      Desktop only per the ask; mobile keeps no top nav at all, same as before this change. */
   .option-wheel{
     --ow-text-color:var(--muted);--ow-active-color:var(--ink);--ow-font-size:2rem;--ow-inset:44px;
-    position:absolute;top:50%;left:0;width:380px;height:340px;transform:translateY(-50%);
+    position:absolute;top:120px;left:0;width:380px;height:340px;
     z-index:5;overflow:hidden;cursor:grab;user-select:none;outline:none;display:block;
   }
   @media(max-width:900px){.option-wheel{display:none;}}
@@ -1686,7 +1686,6 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   popup.addEventListener('click',function(e){if(e.target===popup)close();});
   document.getElementById('calcPopupCta').addEventListener('click',close);
   document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
-  setTimeout(open,6000);
 })();</script>
 
 <!-- OptionWheel nav -- ported from React Bits (vanilla, no React on this site). DOM+CSS transform
