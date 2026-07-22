@@ -328,6 +328,13 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
     background-size:300% 100%;background-position:150% 0;-webkit-background-clip:text;background-clip:text;color:transparent;}
   .shine-text.shine-in{background-position:-150% 0;transition:background-position 1.1s cubic-bezier(.2,.7,.2,1);}
   @media(prefers-reduced-motion:reduce){.shine-text{background:none;-webkit-text-fill-color:currentColor;color:var(--text);}}
+  /* background-clip:text (the shine-sweep trick above) only works on one continuous text node --
+     GradualSpacingText (main.js splitChars) wraps this same element's letters into individual
+     .fx-char spans for the assemble-in entrance, and each of those tiny boxes inherits
+     color:transparent from the parent with no background of its own to clip-reveal, rendering
+     fully invisible instead of "settled to plain color". Force solid, visible text for the split
+     case; the letter-assemble entrance itself is untouched. */
+  .shine-text:has(.fx-char){background:none;-webkit-text-fill-color:currentColor;color:var(--text);}
   .h-cta{margin-top:28px;display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;}
   /* nume's actual CTA buttons measured much more compact than MVS's original: ~11.5px/19px
      padding, 13.4px font, weight 500 -- not the chunky 16px/26px/700 MVS had. */
@@ -352,6 +359,12 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
     font-size:13px;color:var(--muted);}
   .h-trust span{display:inline-flex;align-items:center;gap:7px;}
   .h-trust svg{width:15px;height:15px;color:var(--ok);flex-shrink:0;}
+  /* GradualSpacingText (main.js splitChars) wraps each letter of a .btn/.h-trust-span's text into
+     an .fx-char span for the per-letter assemble-in entrance. Both containers use flex `gap` for
+     icon/label spacing -- once their text is split, that gap applies between every single letter
+     too, reading as broken wide letter-spacing instead of the intended assemble animation. Zero
+     the gap only when the flex children ARE the split letters; untouched otherwise. */
+  :is(.btn,.h-trust span):has(.fx-char){gap:0;}
   .h-logos{margin-top:64px;text-align:center;}
   .h-logos-lab{font-family:'Roboto',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
   .h-logos-row{margin-top:22px;display:flex;gap:40px;align-items:center;justify-content:center;flex-wrap:wrap;}
