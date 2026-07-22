@@ -30,43 +30,6 @@ function gradualSpacingHeading(el){
   gsap.set(chars,{opacity:0,x:-10}); /* explicit set, not relying on fromTo's immediateRender under paused:true */
   return {chars,tween:gsap.to(chars,{opacity:1,x:0,duration:0.5,stagger:0.035,ease:'power2.out',paused:true})};
 }
-/* DockText (Eldora UI) — ported from the real registry source (motion/react + mouse-position
-   hover), 1:1 logic just swapped to GSAP: nearest letter to the cursor X gets scaleY 1.3638,
-   falling off 0.1 per letter of distance, floor 1. transform-origin bottom matches down=false
-   (the component's default -- this site never uses down=true). */
-function dockText(el){
-  if(!el||reduce||!isDesktop)return;
-  const chars=splitChars(el);
-  gsap.set(chars,{transformOrigin:'bottom'});
-  /* letter center-X positions cached once (+ on resize) instead of re-measured with
-     getBoundingClientRect on every mousemove -- that was the actual lag: a layout read per
-     letter, tens of times a second. mousemove itself is also rAF-throttled below so at most
-     one recompute + one batch of tweens happens per rendered frame, not per raw event. */
-  let centers=[];
-  function measure(){
-    const rect=el.getBoundingClientRect();
-    centers=chars.map(ch=>{const r=ch.getBoundingClientRect();return r.left+r.width/2-rect.left;});
-  }
-  measure();
-  window.addEventListener('resize',measure,{passive:true});
-  let raf=null,lastX=0;
-  el.addEventListener('mousemove',e=>{
-    lastX=e.clientX-el.getBoundingClientRect().left;
-    if(raf)return;
-    raf=requestAnimationFrame(()=>{
-      raf=null;
-      let hoveredIndex=null;
-      centers.forEach((cx,i)=>{if(Math.abs(lastX-cx)<=10)hoveredIndex=i;});
-      chars.forEach((ch,i)=>{
-        const scaleY=hoveredIndex===null?1:Math.max(1,1.3638-Math.abs(i-hoveredIndex)*0.1);
-        gsap.to(ch,{scaleY,duration:.5,ease:'elastic.out(1,0.6)',overwrite:'auto'});
-      });
-    });
-  },{passive:true});
-  el.addEventListener('mouseleave',()=>{
-    gsap.to(chars,{scaleY:1,duration:.5,ease:'elastic.out(1,0.6)',overwrite:'auto'});
-  });
-}
 /* ScaleLetterText (Eldora UI) — ported 1:1 from the real registry source. That component has no
    motion/react dependency either (plain inline style + CSS transition), so this is a direct
    translation, not an approximation: hovered letter + its 2 nearest neighbors lift/scale/tilt in
@@ -97,7 +60,6 @@ function scaleLetterText(el){
   chars.forEach((ch,i)=>ch.addEventListener('mouseenter',()=>apply(i)));
   el.addEventListener('mouseleave',()=>apply(-1));
 }
-dockText(document.querySelector('.dock-fx'));
 document.querySelectorAll('.scale-fx').forEach(scaleLetterText);
 /* mobile browser chrome (address bar) collapsing/expanding on scroll fires resize events that
    only ever change height, never width — the 3D scenes below were recomputing full renderer
