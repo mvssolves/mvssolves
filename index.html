@@ -1781,7 +1781,9 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
       var href=el.getAttribute('data-href');
       if(!href)return;
       var target=document.querySelector(href);
-      if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
+      if(!target)return;
+      if(typeof lenis!=='undefined'&&lenis&&lenis.scrollTo)lenis.scrollTo(target,{duration:1.2});
+      else target.scrollIntoView({behavior:'smooth',block:'start'});
     });
   });
 })();</script>
