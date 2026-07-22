@@ -51,13 +51,17 @@ let lenis;
      leave. Classic premium micro-interaction, costs one mousemove + one transform per button. */
   document.querySelectorAll('.btn').forEach(btn=>{
     btn.style.transition='transform .3s cubic-bezier(.34,1.56,.64,1)';
+    /* will-change set only for the hover window, not permanently in CSS -- a compositor layer per
+       button for the page's whole lifetime is real GPU memory across 20+ buttons/page for a
+       transform that only ever moves on this mousemove/mouseleave pair. */
+    btn.addEventListener('mouseenter',()=>{btn.style.willChange='transform';});
     btn.addEventListener('mousemove',e=>{
       const r=btn.getBoundingClientRect();
       const mx=(e.clientX-r.left-r.width/2)*0.25;
       const my=(e.clientY-r.top-r.height/2)*0.35;
       btn.style.transform='translate('+mx+'px,'+my+'px)';
     });
-    btn.addEventListener('mouseleave',()=>{btn.style.transform='';});
+    btn.addEventListener('mouseleave',()=>{btn.style.transform='';btn.style.willChange='auto';});
   });
 
   /* card spotlight -- a soft blue light tracking the cursor inside cards/tiles/hover-targets,

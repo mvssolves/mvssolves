@@ -836,6 +836,9 @@ if(!reduce){
 /* same pause-off-screen treatment for the Launch card's spinning border */
 (function(){const launch=document.querySelector('.tier.launch');if(!launch)return;
   onVisibilityChange(launch,visible=>launch.classList.toggle('spin-off',!visible));})();
+/* same pause-off-screen treatment for the glitch heading (clip-path/text-shadow keyframes) */
+(function(){const glitch=document.querySelector('.glitch-hover');if(!glitch)return;
+  onVisibilityChange(glitch,visible=>glitch.classList.toggle('spin-off',!visible));})();
 
 /* Premium feature callouts — fade in once, desktop only */
 if(isDesktop&&!reduce){

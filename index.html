@@ -329,7 +329,7 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   /* solid black pill, white text -- explicit inverted chip regardless of the page's light/dark
      ink token, same reasoning as .logo-mark. Still used by other buttons sitewide (pricing,
      book section) that keep their own swap-icon glide until those sections get redesigned. */
-  .btn-fill{background:#0a0a0a;color:#fff;will-change:transform;padding-right:60px;}
+  .btn-fill{background:#0a0a0a;color:#fff;padding-right:60px;}
   /* the hero pill has no swap-icon span -- drop the reserved right-padding just for this one button. */
   /* this button has no .swap-icon span (unlike other CTAs) -- the asymmetric right padding below
      was reserved space for an icon-reveal animation that was never here, pure dead space. Matches
@@ -526,6 +526,9 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   .glitch-hover::before{left:-10px;text-shadow:5px 0 #00eeff;
     animation:glitchAnim 2s infinite linear alternate-reverse,glitchToggle 2s steps(1) infinite .4s;}
   @media(prefers-reduced-motion:reduce){.glitch-hover::after,.glitch-hover::before{animation:none;opacity:0;}}
+  /* paused off-screen -- clip-path/text-shadow keyframes aren't compositor-only (real per-frame
+     paint cost), was running unconditionally forever regardless of scroll position. */
+  .glitch-hover.spin-off::after,.glitch-hover.spin-off::before{animation-play-state:paused;}
   @keyframes glitchToggle{0%,49%{opacity:0;}50%,100%{opacity:1;}}
 
   /* fuzzy text -- ported from React Bits' FuzzyText (vanilla canvas, no React on this site).
@@ -1823,7 +1826,15 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   var state=build();
   window.addEventListener('resize',function(){state=build();},{passive:true});
 
+  /* pause the rAF loop entirely once this heading scrolls off-screen -- was ticking forever
+     regardless of scroll position (a self-contained IntersectionObserver here, not the shared
+     onVisibilityChange helper in main.js, since that script loads later via defer and wouldn't
+     exist yet at this point in a non-deferred inline script). */
+  var visible=true;
+  new IntersectionObserver(function(entries){visible=entries[0].isIntersecting;},{rootMargin:'50px'}).observe(host);
+
   function frame(ts){
+    if(!visible){requestAnimationFrame(frame);return;}
     if(ts-lastFrameTime<frameDuration){requestAnimationFrame(frame);return;}
     lastFrameTime=ts;
     ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -1846,35 +1857,44 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
 
 <!-- capabilities illustration motion -- anime.js drives each card's SVG illustration piece by
      piece (individual dots/nodes/links/bars) instead of the whole SVG breathing as one flat
-     group. Replaces the CSS `breathe` keyframe on .feat-illo (removed below) with real per-element
-     choreography: browser mockup gets a drawn cursor + blinking dots, the automation nodes light
-     up node-by-node with a signal pulse along the connecting lines, the AI waveform bars bounce
-     like live audio levels. All three loop independently and forever -- the cards cycle in/out via
-     CardSwap (main.js) so there's no "only animate when visible" gating to bother with. */
+     group. Browser mockup gets a drawn cursor + blinking dots, the automation nodes light up
+     node-by-node with a signal pulse along the connecting lines, the AI waveform bars bounce like
+     live audio levels. Paused/resumed via IntersectionObserver (onVisibilityChange, main.js) --
+     12 concurrent rAF-ticked instances is real per-frame cost to leave running once #featStack has
+     scrolled off-screen, so nothing here ticks while it's out of view. */
 <script>document.addEventListener('DOMContentLoaded',function(){
   /* deferred scripts (anime.js) load+execute before DOMContentLoaded, but this inline script
      (no defer) would otherwise run immediately at parse time, before anime.js exists on window --
      waiting for DOMContentLoaded guarantees the CDN script has already run. */
   if(reduce||typeof anime==='undefined'||!window.matchMedia('(min-width:901px)').matches)return;
+  const stack=document.getElementById('featStack');
+  if(!stack||typeof onVisibilityChange!=='function')return;
 
-  anime({targets:'#featStack .feat-card:nth-of-type(1) .fx-dot',opacity:[1,.25],
+  const instances=[];
+  function add(opts){instances.push(anime(opts));}
+
+  add({targets:'#featStack .feat-card:nth-of-type(1) .fx-dot',opacity:[1,.25],
     delay:anime.stagger(180),duration:500,direction:'alternate',loop:true,easing:'easeInOutSine'});
-  anime({targets:'#featStack .feat-card:nth-of-type(1) .fx-cursor-path',strokeDashoffset:[70,0],
+  add({targets:'#featStack .feat-card:nth-of-type(1) .fx-cursor-path',strokeDashoffset:[70,0],
     duration:900,easing:'easeOutQuad',loop:true,delay:400});
-  anime({targets:'#featStack .feat-card:nth-of-type(1) .fx-cursor-dot',scale:[0.6,1.15,1],
+  add({targets:'#featStack .feat-card:nth-of-type(1) .fx-cursor-dot',scale:[0.6,1.15,1],
     duration:900,easing:'easeOutElastic(1,.6)',loop:true,delay:400});
-  anime({targets:'#featStack .feat-card:nth-of-type(1) .fx-bar',scale:[1,1.06],
+  add({targets:'#featStack .feat-card:nth-of-type(1) .fx-bar',scale:[1,1.06],
     duration:1400,direction:'alternate',loop:true,easing:'easeInOutSine'});
 
-  anime({targets:'#featStack .feat-card:nth-of-type(2) .fx-node',scale:[1,1.18,1],
+  add({targets:'#featStack .feat-card:nth-of-type(2) .fx-node',scale:[1,1.18,1],
     delay:anime.stagger(220),duration:700,loop:true,easing:'easeInOutQuad'});
-  anime({targets:'#featStack .feat-card:nth-of-type(2) .fx-link',opacity:[.3,1,.3],
+  add({targets:'#featStack .feat-card:nth-of-type(2) .fx-link',opacity:[.3,1,.3],
     delay:anime.stagger(220),duration:700,loop:true,easing:'easeInOutQuad'});
 
   document.querySelectorAll('#featStack .feat-card:nth-of-type(3) .fx-bar-line').forEach(function(el,i){
     const half=[5,13,8,17,9,3][i]||8;
-    anime({targets:el,y1:53-half,y2:53+half,duration:420+i*35,direction:'alternate',loop:true,
+    add({targets:el,y1:53-half,y2:53+half,duration:420+i*35,direction:'alternate',loop:true,
       delay:i*90,easing:'easeInOutSine'});
+  });
+
+  onVisibilityChange(stack,function(visible){
+    instances.forEach(function(inst){visible?inst.play():inst.pause();});
   });
 });</script>
 </body>
