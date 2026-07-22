@@ -681,22 +681,32 @@ function playHeroReveal(){
   document.dispatchEvent(new Event('mvs:reveal'));
   if(reduce)return;
   const fadeIn=(el,delay)=>{if(!el)return;gsap.fromTo(el,{opacity:0,y:14},{opacity:1,y:0,duration:0.6,delay,ease:'power2.out'});};
+  /* GradualSpacingText (Eldora UI) on load, not scroll -- reuses gradualSpacingHeading (letter
+     assemble from a slight offset) instead of a whole-block fade, requested for the nav pill,
+     lede, CTAs, and trust row on top of what already had entrances. gradualSpacingHeading
+     returns a PAUSED tween by design (its other callers trigger it via ScrollTrigger); here it's
+     just played immediately with a delay to slot into the existing cascade timing below. */
+  const gsPlay=(el,delay)=>{const g=gradualSpacingHeading(el);if(g)gsap.delayedCall(delay,()=>g.tween.play());};
+  document.querySelectorAll('.nav-links a').forEach((a,i)=>gsPlay(a,i*0.06));
   fadeIn(document.querySelector('.navcta'),0);
   document.querySelectorAll('h1 .line').forEach((span,i)=>fadeIn(span,i*0.1));
   /* hero lede gets its own entrance -- was the one piece of above-the-fold copy with zero
-     animation (h1 already has its per-line flick reveal). Fade-up + a one-shot gradient shine
-     sweep across the text (CSS in index.html, .shine-text/.shine-in), triggered here rather than
-     via ScrollTrigger since above-the-fold content needs to play on LOAD, not on scroll-into-view
-     (it's already in view at load). */
+     animation (h1 already has its per-line flick reveal). Letter-assemble instead of a flat
+     fade-up, then a one-shot gradient shine sweep across the settled text (CSS in index.html,
+     .shine-text/.shine-in), triggered here rather than via ScrollTrigger since above-the-fold
+     content needs to play on LOAD, not on scroll-into-view (it's already in view at load). */
   const sub=document.querySelector('.h-sub');
   if(sub){
     sub.classList.add('shine-text');
-    gsap.fromTo(sub,{opacity:0,y:14},{opacity:1,y:0,duration:0.6,delay:0.25,ease:'power2.out',
-      onComplete:()=>sub.classList.add('shine-in')});
+    const g=gradualSpacingHeading(sub);
+    if(g){g.tween.eventCallback('onComplete',()=>sub.classList.add('shine-in'));gsap.delayedCall(0.25,()=>g.tween.play());}
   }
-  /* CTA buttons no longer fade in after the headline -- reported as reading like a bug
-     ("buttons not fully visible yet") rather than a polish flourish. Render at full opacity
-     immediately instead of staggering in. */
+  /* CTAs + trust row now get the same letter-assemble entrance -- reverses an earlier call to
+     render them at full opacity immediately (had read as "buttons not fully visible yet"); this
+     time explicitly requested, and letter-assemble reads as an intentional flourish rather than
+     a slow-loading bug the way a flat fade-up did. */
+  document.querySelectorAll('.h-cta .btn').forEach((btn,i)=>gsPlay(btn,0.4+i*0.08));
+  document.querySelectorAll('.h-trust .gs-text').forEach((el,i)=>gsPlay(el,0.58+i*0.06));
 }
 
 
