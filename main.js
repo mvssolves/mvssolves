@@ -1025,13 +1025,13 @@ if(!reduce){
     updateMore();
     if(!reduce)gsap.fromTo(panel,{opacity:0,y:-8},{opacity:1,y:0,duration:0.22,ease:'power2.out'});
   }
-  function select(item){
+  function select(item,{silent}={}){
     const curr=item.dataset.curr;
     btnSym.textContent=item.dataset.sym;
     btnCode.textContent=item.dataset.curr.toUpperCase();
     items.forEach(i=>{i.classList.toggle('on',i===item);i.setAttribute('aria-selected',i===item?'true':'false');});
     ALL.forEach(c=>tiers.classList.toggle('curr-'+c,curr===c));
-    if(!reduce){
+    if(!reduce&&!silent){
       const prices=tiers.querySelectorAll(curr==='usd'?'.cur-usd':'.cur-'+curr);
       gsap.fromTo(prices,{opacity:0,y:-24},{opacity:1,y:0,duration:1.5,ease:'power2.out',overwrite:true});
     }
@@ -1042,9 +1042,31 @@ if(!reduce){
     e.stopPropagation();
     dd.classList.contains('open')?closeList():openList();
   });
-  items.forEach(item=>item.addEventListener('click',()=>select(item)));
+  items.forEach(item=>item.addEventListener('click',()=>{
+    select(item);
+    try{localStorage.setItem('mvs_curr',item.dataset.curr);}catch(e){}
+  }));
   document.addEventListener('click',e=>{if(!dd.contains(e.target))closeList();});
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeList();});
+
+  /* geo auto-currency: manual pick (localStorage) always wins over detection */
+  const COUNTRY_CURR={ZA:'zar',GB:'gbp',AU:'aud',CA:'cad',NG:'ngn',KE:'kes',AE:'aed',IN:'inr',
+    BR:'brl',MX:'mxn',JP:'jpy',CN:'cny',SG:'sgd',CH:'chf',SE:'sek',NO:'nok',DK:'dkk',NZ:'nzd',
+    DE:'eur',FR:'eur',IT:'eur',ES:'eur',NL:'eur',IE:'eur',PT:'eur',AT:'eur',BE:'eur',FI:'eur',
+    GR:'eur',LU:'eur',SK:'eur',SI:'eur',EE:'eur',LV:'eur',LT:'eur',CY:'eur',MT:'eur'};
+  let saved;
+  try{saved=localStorage.getItem('mvs_curr');}catch(e){}
+  if(saved){
+    const match=items.find(i=>i.dataset.curr===saved);
+    if(match)select(match,{silent:true});
+  }else{
+    fetch('/api/geo').then(r=>r.json()).then(({country})=>{
+      const curr=COUNTRY_CURR[country];
+      if(!curr)return; // US or unmapped country: USD default stays
+      const match=items.find(i=>i.dataset.curr===curr);
+      if(match)select(match,{silent:true});
+    }).catch(()=>{});
+  }
 })();
 
 /* in-page anchor jumps — smooth scroll, no wipe overlay */
