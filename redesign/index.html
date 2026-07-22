@@ -8,67 +8,108 @@
   STRUCTURE-ONLY SKELETON. Not the live site, not linked from it, not pushed.
   Mirrors NeoLeaf's (neoleaf.bytetown.agency) actual section order and scroll
   mechanics -- stripped of their design entirely. White canvas, system font,
-  template words in brackets. No palette/font decisions yet -- that's a
-  separate pass once this structure is approved.
+  template words in brackets. No palette/font decisions yet.
 
-  Section order matches what was observed on the reference (studied via
-  screen recording + live inspection, not their source code):
-  Nav -> Hero (3D-scene placeholder) -> tag marquee -> Technology ->
-  Products (card grid) -> Expertise (stats + tabs) -> Key Features
-  (dark cards) -> Footer (halftone + wordmark bleed).
+  MOTION PASS 2 -- rebuilt from frame-by-frame analysis of a screen recording
+  of the reference site (not their source, their site was broken/loading-stuck
+  when checked live). Confirmed mechanics now reproduced:
 
-  Scroll mechanics reproduced structurally:
-  - word-by-word heading reveal SCRUBBED to scroll position (not a timed
-    play-once) -- this was the actual technique identified on their site,
-    confirmed by watching "Technology that will make this revolution in AI"
-    reveal progressively as the page scrolled past it.
-  - horizontal auto-scrolling tag marquee under the hero.
-  - card-grid entrance lift, also scroll-scrubbed, not timed.
+  - section stack-and-cover: each major section is position:sticky, higher
+    z-index than the one before it, opaque bg + rounded top corners, so the
+    next section physically rises up and covers the previous one as you
+    scroll (seen white-covers-black, black-covers-white, hero-covered-by-
+    Technology -- happens at every section boundary). Pure CSS, no
+    ScrollTrigger pin needed for this part -- sticky stacking does it natively.
+  - on-load hero intro (NOT scroll-triggered): eyebrow/heading/subhead/CTAs
+    stagger up the instant the page loads, hero visual placeholder settles
+    from a blurred/scaled state to sharp. Confirmed: this plays before the
+    user ever touches scroll.
+  - blur-decode paragraph reveal: body copy resolves from blurred/dim to
+    sharp, scroll-scrubbed (distinct from the word-opacity heading reveal --
+    confirmed as its own effect on the Technology + Expertise paragraphs).
+  - scramble-decode on eyebrow/label text -- reused verbatim from main.js's
+    proven scrambleReveal() (that function's own comment says it was built
+    from watching this exact reference video, so it's already the right fit).
+  - count-up stat numbers, re-triggered on tab click (confirmed: Expertise
+    section's tab row swaps copy AND animates the stat numbers to new
+    values, not a static swap).
+  - scroll-pinned accordion for Key Features: cards stack with one "active"
+    (expanded) and the rest collapsed to slim bars, advancing by scroll
+    progress while the whole block stays pinned -- confirmed via the
+    Custom/Flex/Performance card sequence collapsing into a bar stack.
+
+  Honest note: the live mvssolves.com site's own CSS comments describe a
+  near-identical "hero pins while capabilities rises over it" effect
+  (search index.html for "fold-behind") -- but there is no `pin:` anywhere
+  in main.js or index.html anymore. That mechanic was removed at some point
+  and the comments never cleaned up. Nothing here was copied from working
+  live-site code for the cover effect; it's rebuilt fresh from the reference
+  footage. scrambleReveal() is the one piece that IS real, live, reused
+  verbatim.
 -->
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <style>
+  :root{--nav-h:72px;}
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#111;background:#fff;line-height:1.5;}
   .wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
-  section{padding:96px 0;border-top:1px dashed #ccc;}
-  section:first-of-type{border-top:none;}
-  .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:10px;}
+  section{padding:96px 0;}
+  .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:10px;font-family:monospace;}
   h1,h2,h3{font-weight:700;letter-spacing:-.01em;}
   h2{font-size:clamp(28px,4vw,44px);margin-bottom:16px;}
   h3{font-size:18px;margin-bottom:8px;}
   p{color:#555;max-width:60ch;}
   .tag{display:inline-block;background:#f2f2f2;border:1px solid #ddd;border-radius:999px;padding:10px 18px;font-size:13px;}
-  .btn{display:inline-block;padding:12px 24px;border-radius:999px;border:1px solid #111;font-size:14px;font-weight:600;text-decoration:none;color:#111;}
+  .btn{display:inline-block;padding:12px 24px;border-radius:999px;border:1px solid #111;font-size:14px;font-weight:600;text-decoration:none;color:#111;cursor:pointer;background:none;}
   .btn.filled{background:#111;color:#fff;}
 
   /* NAV */
-  nav{position:sticky;top:0;background:#fff;z-index:10;border-bottom:1px solid #eee;}
+  nav{position:sticky;top:0;background:#fff;z-index:20;border-bottom:1px solid #eee;}
   .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;max-width:1180px;margin:0 auto;}
   .nav-links{display:flex;gap:28px;font-size:14px;}
   .nav-links a{color:#333;text-decoration:none;}
 
+  /* STACK LAYERS -- each rises and covers the one before it as you scroll.
+     top:var(--nav-h) (not 0) so a layer sticks right below the nav instead
+     of behind it (nav has higher z-index and would otherwise paint over
+     the top ~72px of whatever's stuck at top:0). */
+  .hero-block,#technology,#products,#expertise,.team-block{
+    position:sticky;top:var(--nav-h);background:#fff;min-height:calc(100vh - var(--nav-h));
+  }
+  #technology,#products,#expertise,.team-block{
+    border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);
+    display:flex;flex-direction:column;justify-content:center;
+  }
+  .hero-block{z-index:1;display:flex;flex-direction:column;justify-content:center;}
+  #technology{z-index:2;}
+  #products{z-index:3;}
+  #expertise{z-index:4;}
+  #features{position:relative;z-index:5;background:#fff;border-radius:32px 32px 0 0;
+    box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);min-height:calc(100vh - var(--nav-h));
+    display:flex;flex-direction:column;justify-content:center;}
+  .team-block{z-index:6;text-align:center;align-items:center;min-height:60vh;}
+  footer{position:relative;z-index:7;border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);}
+
   /* HERO */
-  .hero{padding-top:64px;position:relative;overflow:hidden;}
-  .hero-3d-placeholder{height:60vh;min-height:420px;background:repeating-linear-gradient(135deg,#f4f4f4,#f4f4f4 20px,#ececec 20px,#ececec 40px);
+  .hero{padding:48px 0;}
+  .hero-3d-placeholder{height:50vh;min-height:340px;background:repeating-linear-gradient(135deg,#f4f4f4,#f4f4f4 20px,#ececec 20px,#ececec 40px);
     border:1px dashed #bbb;display:flex;align-items:center;justify-content:center;color:#999;font-size:13px;margin-bottom:40px;}
   .hero h1{font-size:clamp(36px,6vw,64px);max-width:16ch;margin-bottom:20px;}
   .hero-sub{max-width:50ch;margin-bottom:28px;}
   .hero-ctas{display:flex;gap:14px;align-items:center;}
 
   /* MARQUEE */
-  .marquee{overflow:hidden;white-space:nowrap;border-top:1px dashed #ccc;border-bottom:1px dashed #ccc;padding:20px 0;margin-top:56px;}
+  .marquee{overflow:hidden;white-space:nowrap;border-top:1px dashed #ccc;border-bottom:1px dashed #ccc;padding:20px 0;}
   .marquee-track{display:inline-flex;gap:14px;animation:marquee 22s linear infinite;}
   .marquee-track span{font-size:14px;color:#666;}
   @keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
   @media(prefers-reduced-motion:reduce){.marquee-track{animation:none;}}
 
-  /* CARD GRIDS (products / key features) */
+  /* CARD GRIDS (products) */
   .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-top:32px;}
   .card{border:1px solid #ddd;border-radius:12px;padding:28px;}
-  .card.dark{background:#111;color:#fff;}
-  .card.dark p{color:#aaa;}
   .card.wide{grid-column:1/-1;display:flex;gap:24px;align-items:center;flex-wrap:wrap;}
   .card.wide .img-placeholder{flex:1;min-width:200px;height:220px;background:repeating-linear-gradient(45deg,#eee,#eee 10px,#f7f7f7 10px,#f7f7f7 20px);border:1px dashed #bbb;}
   .card.wide .card-copy{flex:1;min-width:200px;}
@@ -76,8 +117,8 @@
 
   /* EXPERTISE (stats + tabs) */
   .tab-row{display:flex;gap:10px;margin:20px 0;flex-wrap:wrap;}
-  .tab{border:1px solid #ddd;border-radius:999px;padding:8px 16px;font-size:13px;color:#555;}
-  .tab.active{border-color:#111;color:#111;font-weight:600;}
+  .tab{border:1px solid #ddd;border-radius:999px;padding:8px 16px;font-size:13px;color:#555;cursor:pointer;background:none;font-family:inherit;}
+  .tab.active{border-color:#111;color:#111;font-weight:600;background:#f2f2f2;}
   .expertise-layout{display:flex;gap:48px;flex-wrap:wrap;align-items:flex-start;margin-top:24px;}
   .expertise-copy{flex:1;min-width:260px;}
   .expertise-visual{flex:1;min-width:260px;height:280px;background:repeating-linear-gradient(45deg,#eee,#eee 10px,#f7f7f7 10px,#f7f7f7 20px);border:1px dashed #bbb;}
@@ -85,8 +126,16 @@
   .stat-num{font-size:44px;font-weight:800;}
   .stat-label{color:#888;font-size:13px;max-width:20ch;}
 
+  /* KEY FEATURES -- scroll-pinned accordion: one card expanded, rest collapsed to bars */
+  .feature-stack{margin-top:32px;max-width:640px;}
+  .feature-card{background:#111;color:#fff;border-radius:14px;padding:20px 26px;margin-bottom:12px;overflow:hidden;}
+  .feature-card h3{margin:0;color:#fff;}
+  .fc-body{max-height:0;opacity:0;margin-top:0;transition:max-height .45s ease,opacity .35s ease,margin-top .45s ease;}
+  .feature-card.is-active .fc-body{max-height:160px;opacity:1;margin-top:10px;}
+  .feature-card p{color:#aaa;margin:0;}
+
   /* FOOTER */
-  footer{background:#111;color:#fff;padding:80px 32px 0;overflow:hidden;position:relative;}
+  footer{background:#111;color:#fff;padding:80px 32px 0;overflow:hidden;}
   .foot-inner{max-width:1180px;margin:0 auto;display:flex;gap:48px;flex-wrap:wrap;justify-content:space-between;padding-bottom:48px;border-bottom:1px solid #333;}
   .foot-col{min-width:160px;}
   .foot-col h3{font-size:13px;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;}
@@ -113,39 +162,40 @@
   </div>
 </nav>
 
-<!-- HERO — their hero is a continuously-running 3D scene (cube field / receding block
-     landscape) behind the headline. Out of scope for this pass per explicit priority call
-     (deprioritized as "just an entry point"); placeholder box marks where it goes. -->
-<header class="hero wrap">
-  <div class="hero-3d-placeholder">[hero 3D scene placeholder — lowest priority, build later]</div>
-  <div class="eyebrow">[Eyebrow label]</div>
-  <h1>[Hero headline — template words go here]</h1>
-  <p class="hero-sub">[Hero subheadline — one or two lines of supporting copy, template placeholder text goes here.]</p>
-  <div class="hero-ctas">
-    <a class="btn filled" href="#">[Primary CTA]</a>
-    <a class="btn" href="#">[Secondary CTA]</a>
-  </div>
-</header>
-
-<!-- MARQUEE — horizontal auto-scrolling tag strip, observed directly under their hero. -->
-<div class="marquee" aria-hidden="true">
-  <div class="marquee-track" id="marqueeTrack">
-    <span>[tag one]</span><span>·</span><span>[tag two]</span><span>·</span><span>[tag three]</span><span>·</span>
-    <span>[tag four]</span><span>·</span><span>[tag five]</span><span>·</span><span>[tag six]</span><span>·</span>
-    <span>[tag seven]</span><span>·</span><span>[tag eight]</span><span>·</span>
+<!-- HERO -- sticky stack layer 1. Their hero is a continuously-running 3D scene (cube field
+     that de-glitches into a tree render on load) behind the headline. Out of scope for this
+     pass per explicit priority call; placeholder box marks where it goes, but it DOES now get
+     the confirmed on-load settle animation (blur+scale -> sharp) even without real 3D content. -->
+<div class="hero-block" id="heroBlock">
+  <header class="hero wrap">
+    <div class="hero-3d-placeholder" id="hero3d">[hero 3D scene placeholder — lowest priority, build later]</div>
+    <div class="eyebrow hero-intro-el">[Eyebrow label]</div>
+    <h1 class="hero-intro-el">[Hero headline — template words go here]</h1>
+    <p class="hero-sub hero-intro-el">[Hero subheadline — one or two lines of supporting copy, template placeholder text goes here.]</p>
+    <div class="hero-ctas hero-intro-el">
+      <a class="btn filled" href="#">[Primary CTA]</a>
+      <a class="btn" href="#">[Secondary CTA]</a>
+    </div>
+  </header>
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track" id="marqueeTrack">
+      <span>[tag one]</span><span>·</span><span>[tag two]</span><span>·</span><span>[tag three]</span><span>·</span>
+      <span>[tag four]</span><span>·</span><span>[tag five]</span><span>·</span><span>[tag six]</span><span>·</span>
+      <span>[tag seven]</span><span>·</span><span>[tag eight]</span><span>·</span>
+    </div>
   </div>
 </div>
 
-<!-- TECHNOLOGY -->
+<!-- TECHNOLOGY -- stack layer 2, rises and covers the hero layer. -->
 <section id="technology" class="wrap">
   <div class="eyebrow">[Eyebrow — Technology]</div>
   <h2 class="scrub-reveal">[Technology section heading — template words]</h2>
-  <p>[Body paragraph one — template placeholder copy describing this section's real content once written.]</p>
-  <p style="margin-top:10px;">[Body paragraph two — template placeholder copy.]</p>
+  <p class="blur-reveal">[Body paragraph one — template placeholder copy describing this section's real content once written.]</p>
+  <p class="blur-reveal" style="margin-top:10px;">[Body paragraph two — template placeholder copy.]</p>
 </section>
 
-<!-- PRODUCTS — card grid: 2 small cards + 1 wide card w/ image placeholder, matches their
-     AI LLM / Computer Vision / Image Generation layout shape. -->
+<!-- PRODUCTS -- stack layer 3, covers Technology. Card grid: 2 small cards + 1 wide card w/
+     image placeholder, matches their AI LLM / Computer Vision / Image Generation layout shape. -->
 <section id="products" class="wrap">
   <div class="eyebrow">[Eyebrow — Products]</div>
   <h2 class="scrub-reveal">[Products section heading]</h2>
@@ -159,41 +209,60 @@
   </div>
 </section>
 
-<!-- EXPERTISE — stat numbers + tab-pill row + a copy/visual split, matches their
-     "We have huge expertise" layout shape. -->
+<!-- EXPERTISE -- stack layer 4, covers Products. Stat numbers count up (re-triggered on tab
+     click, not just on first scroll-into-view), tab row swaps copy, matches their
+     "We have huge expertise" behavior. -->
 <section id="expertise" class="wrap">
   <div class="eyebrow">[Eyebrow — Expertise]</div>
   <h2 class="scrub-reveal">[Expertise section heading]</h2>
-  <div class="tab-row">
-    <div class="tab active">[Tab one]</div>
-    <div class="tab">[Tab two]</div>
-    <div class="tab">[Tab three]</div>
-    <div class="tab">[Tab four]</div>
+  <div class="tab-row" id="expertiseTabs">
+    <button class="tab active" data-stat1="12" data-stat2="8">[Tab one]</button>
+    <button class="tab" data-stat1="6" data-stat2="20">[Tab two]</button>
+    <button class="tab" data-stat1="30" data-stat2="15">[Tab three]</button>
+    <button class="tab" data-stat1="9" data-stat2="40">[Tab four]</button>
   </div>
   <div class="expertise-layout">
     <div class="expertise-copy">
-      <p>[Body copy placeholder describing this expertise area — template words.]</p>
+      <p class="blur-reveal">[Body copy placeholder describing this expertise area — template words.]</p>
       <div class="stats-row">
-        <div><div class="stat-num">[N]</div><div class="stat-label">[stat label placeholder]</div></div>
-        <div><div class="stat-num">[N]</div><div class="stat-label">[stat label placeholder]</div></div>
+        <div><div class="stat-num" data-stat="1">0</div><div class="stat-label">[stat label placeholder]</div></div>
+        <div><div class="stat-num" data-stat="2">0</div><div class="stat-label">[stat label placeholder]</div></div>
       </div>
     </div>
     <div class="expertise-visual" aria-hidden="true">[image/mockup placeholder]</div>
   </div>
 </section>
 
-<!-- KEY FEATURES — dark cards row, matches their "The best in the business" layout. -->
+<!-- KEY FEATURES -- NOT a sticky-cover layer. This one is GSAP ScrollTrigger pin:true on the
+     card stack itself: block stays pinned while scroll progress advances an "active" index
+     through the cards, each expanding from a slim bar while the others collapse. Matches the
+     Custom/Flex/Performance/Scalability sequence observed on the reference. -->
 <section id="features" class="wrap">
   <div class="eyebrow">[Eyebrow — Key Features]</div>
   <h2 class="scrub-reveal">[Key Features section heading]</h2>
-  <div class="card-grid">
-    <div class="card dark lift-card"><div class="icon-placeholder" style="border-color:#555;"></div><h3>[Feature one]</h3><p>[Template copy placeholder.]</p></div>
-    <div class="card dark lift-card"><div class="icon-placeholder" style="border-color:#555;"></div><h3>[Feature two]</h3><p>[Template copy placeholder.]</p></div>
-    <div class="card dark lift-card"><div class="icon-placeholder" style="border-color:#555;"></div><h3>[Feature three]</h3><p>[Template copy placeholder.]</p></div>
+  <div class="feature-stack" id="featureStack">
+    <div class="feature-card is-active"><h3>[Feature one]</h3><div class="fc-body"><p>[Template copy placeholder.]</p></div></div>
+    <div class="feature-card"><h3>[Feature two]</h3><div class="fc-body"><p>[Template copy placeholder.]</p></div></div>
+    <div class="feature-card"><h3>[Feature three]</h3><div class="fc-body"><p>[Template copy placeholder.]</p></div></div>
   </div>
 </section>
 
-<!-- FOOTER — halftone dot texture + bleeding wordmark, matches their footer shape. -->
+<!-- TEAM BRIDGE -- stack layer 6, covers Key Features, gets covered by the footer in turn.
+     Minimal on purpose (structure only) -- exists so the footer's cover-transition has
+     something distinct to rise over, matching the reference's marquee+heading bridge before
+     its footer. -->
+<div class="team-block wrap" id="teamBlock">
+  <div class="marquee" aria-hidden="true" style="width:100vw;margin-left:calc(50% - 50vw);">
+    <div class="marquee-track" id="marqueeTrack2">
+      <span>[tag a]</span><span>·</span><span>[tag b]</span><span>·</span><span>[tag c]</span><span>·</span>
+      <span>[tag d]</span><span>·</span><span>[tag e]</span><span>·</span><span>[tag f]</span><span>·</span>
+    </div>
+  </div>
+  <h2 class="scrub-reveal" style="max-width:20ch;margin:32px auto 0;">[Team/collaboration section heading]</h2>
+  <a class="btn filled" href="#" style="margin-top:24px;">[CTA]</a>
+</div>
+
+<!-- FOOTER -- last layer, covers the team bridge. Halftone-style wordmark bleed. -->
 <footer>
   <div class="foot-inner">
     <div class="foot-col">
@@ -217,8 +286,6 @@
 </footer>
 
 <script>
-/* Lenis smooth scroll -- same library the live site uses, needed for ScrollTrigger's scrub
-   to feel consistent with the rest of the eventual real build rather than raw native scroll. */
 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 gsap.registerPlugin(ScrollTrigger);
 if(!reduce){
@@ -228,16 +295,33 @@ if(!reduce){
   requestAnimationFrame(raf);
 }
 
-/* word-by-word reveal SCRUBBED to scroll position -- the core mechanic identified on the
-   reference site. Progress IS scroll position, not a timed once-off play. */
+/* marquee tracks duplicated once each so the 50%-translateX loop has no visible seam. */
+['marqueeTrack','marqueeTrack2'].forEach(id=>{
+  const t=document.getElementById(id);
+  if(t) t.innerHTML += t.innerHTML;
+});
+
+/* ON-LOAD HERO INTRO -- confirmed NOT scroll-triggered: plays the instant the page loads,
+   before the user touches scroll. Visual placeholder settles from blurred/scaled to sharp,
+   text elements stagger up after it. */
+(function(){
+  const ph=document.getElementById('hero3d');
+  const introEls=document.querySelectorAll('.hero-intro-el');
+  if(reduce)return;
+  const tl=gsap.timeline({defaults:{ease:'power3.out'}});
+  if(ph)tl.from(ph,{opacity:0,scale:1.05,filter:'blur(20px)',duration:1.1});
+  tl.from(introEls,{y:24,opacity:0,duration:.7,stagger:.12},'-=0.65');
+})();
+
+/* word-by-word heading reveal, SCRUBBED to scroll position. */
 function scrollScrubReveal(el){
-  const words = el.textContent.trim().split(/\s+/);
-  el.textContent = '';
-  const spans = words.map((w,i)=>{
-    const s = document.createElement('span');
-    s.style.display = 'inline-block'; s.style.opacity = '.15'; s.textContent = w;
+  const words=el.textContent.trim().split(/\s+/);
+  el.textContent='';
+  const spans=words.map((w,i)=>{
+    const s=document.createElement('span');
+    s.style.display='inline-block';s.style.opacity='.15';s.textContent=w;
     el.appendChild(s);
-    if(i < words.length-1) el.appendChild(document.createTextNode(' '));
+    if(i<words.length-1)el.appendChild(document.createTextNode(' '));
     return s;
   });
   if(reduce){spans.forEach(s=>s.style.opacity='1');return;}
@@ -246,7 +330,40 @@ function scrollScrubReveal(el){
 }
 document.querySelectorAll('.scrub-reveal').forEach(scrollScrubReveal);
 
-/* card-grid entrance lift, same scrub reasoning -- rises + fades in tied to scroll, not timed. */
+/* BLUR-DECODE paragraph reveal -- distinct effect from the heading word-reveal above.
+   Confirmed on the reference: body copy resolves from blurred/dim to sharp as you scroll
+   past it, tied to scroll position (not a timed play). */
+function blurDecodeReveal(el){
+  if(reduce)return;
+  gsap.fromTo(el,{filter:'blur(6px)',opacity:.35},{filter:'blur(0px)',opacity:1,ease:'none',
+    scrollTrigger:{trigger:el,start:'top 92%',end:'top 55%',scrub:true}});
+}
+document.querySelectorAll('.blur-reveal').forEach(blurDecodeReveal);
+
+/* SCRAMBLE-DECODE on eyebrow/label text -- ported verbatim from main.js (proven, live on
+   mvssolves.com already; that function's own comment says it was built from watching this
+   exact reference video for the "eyebrow labels" treatment). */
+(function(){
+  if(reduce)return;
+  const SCRAMBLE='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  function scrambleReveal(el){
+    const final=el.textContent,total=18;let frame=0;
+    const iv=setInterval(()=>{
+      frame++;
+      el.textContent=final.split('').map((c,i)=>{
+        if(c===' ')return c;
+        const revealAt=Math.floor((i/final.length)*total)+4;
+        return frame>=revealAt?c:SCRAMBLE[Math.floor(Math.random()*SCRAMBLE.length)];
+      }).join('');
+      if(frame>=total+4){el.textContent=final;clearInterval(iv);}
+    },35);
+  }
+  document.querySelectorAll('.eyebrow').forEach(el=>{
+    ScrollTrigger.create({trigger:el,start:'top 90%',once:true,onEnter:()=>scrambleReveal(el)});
+  });
+})();
+
+/* card-grid entrance lift, scroll-scrubbed. */
 if(!reduce){
   gsap.utils.toArray('.lift-card').forEach(card=>{
     gsap.fromTo(card,{y:50,opacity:0},{y:0,opacity:1,ease:'none',
@@ -254,9 +371,43 @@ if(!reduce){
   });
 }
 
-/* marquee track duplicated once so the 50%-translateX loop has no visible seam. */
-const track = document.getElementById('marqueeTrack');
-track.innerHTML += track.innerHTML;
+/* EXPERTISE tabs -- click swaps active tab AND re-triggers count-up on the stat numbers
+   (confirmed: this is an animated re-count, not a static text swap). Also fires once on
+   first scroll-into-view so the numbers don't sit at 0 before any interaction. */
+(function(){
+  const tabs=[...document.querySelectorAll('#expertiseTabs .tab')];
+  const statEls=[...document.querySelectorAll('#expertise .stat-num')];
+  if(!tabs.length||!statEls.length)return;
+  function countUp(el,target){
+    if(reduce){el.textContent=target+'+';return;}
+    const obj={v:+el.textContent||0};
+    gsap.to(obj,{v:target,duration:1,ease:'power2.out',onUpdate:()=>{el.textContent=Math.round(obj.v)+'+';}});
+  }
+  function activate(tab){
+    tabs.forEach(t=>t.classList.toggle('active',t===tab));
+    countUp(statEls[0],+tab.dataset.stat1);
+    countUp(statEls[1],+tab.dataset.stat2);
+  }
+  tabs.forEach(t=>t.addEventListener('click',()=>activate(t)));
+  ScrollTrigger.create({trigger:'#expertise .stats-row',start:'top 85%',once:true,
+    onEnter:()=>activate(tabs[0])});
+})();
+
+/* KEY FEATURES -- scroll-pinned accordion. Block pins in place; scroll progress through the
+   pinned distance advances which card is "active" (expanded) vs collapsed to a bar. */
+(function(){
+  const stack=document.getElementById('featureStack');
+  if(!stack||reduce)return;
+  const cards=[...stack.querySelectorAll('.feature-card')];
+  if(cards.length<2)return;
+  ScrollTrigger.create({
+    trigger:stack,start:'top '+72+'px',end:'+='+(cards.length*70)+'%',pin:true,scrub:true,
+    onUpdate(self){
+      const idx=Math.min(cards.length-1,Math.floor(self.progress*cards.length));
+      cards.forEach((c,i)=>c.classList.toggle('is-active',i===idx));
+    }
+  });
+})();
 </script>
 
 </body>
