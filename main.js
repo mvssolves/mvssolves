@@ -35,23 +35,34 @@ function gradualSpacingHeading(el){
    falling off 0.1 per letter of distance, floor 1. transform-origin bottom matches down=false
    (the component's default -- this site never uses down=true). */
 function dockText(el){
-  if(!el||reduce)return;
+  if(!el||reduce||!isDesktop)return;
   const chars=splitChars(el);
   gsap.set(chars,{transformOrigin:'bottom'});
-  el.addEventListener('mousemove',e=>{
+  /* letter center-X positions cached once (+ on resize) instead of re-measured with
+     getBoundingClientRect on every mousemove -- that was the actual lag: a layout read per
+     letter, tens of times a second. mousemove itself is also rAF-throttled below so at most
+     one recompute + one batch of tweens happens per rendered frame, not per raw event. */
+  let centers=[];
+  function measure(){
     const rect=el.getBoundingClientRect();
-    const mouseX=e.clientX-rect.left;
-    let hoveredIndex=null;
-    chars.forEach((ch,i)=>{
-      const r=ch.getBoundingClientRect();
-      const centerX=r.left+r.width/2-rect.left;
-      if(Math.abs(mouseX-centerX)<=10)hoveredIndex=i;
+    centers=chars.map(ch=>{const r=ch.getBoundingClientRect();return r.left+r.width/2-rect.left;});
+  }
+  measure();
+  window.addEventListener('resize',measure,{passive:true});
+  let raf=null,lastX=0;
+  el.addEventListener('mousemove',e=>{
+    lastX=e.clientX-el.getBoundingClientRect().left;
+    if(raf)return;
+    raf=requestAnimationFrame(()=>{
+      raf=null;
+      let hoveredIndex=null;
+      centers.forEach((cx,i)=>{if(Math.abs(lastX-cx)<=10)hoveredIndex=i;});
+      chars.forEach((ch,i)=>{
+        const scaleY=hoveredIndex===null?1:Math.max(1,1.3638-Math.abs(i-hoveredIndex)*0.1);
+        gsap.to(ch,{scaleY,duration:.5,ease:'elastic.out(1,0.6)',overwrite:'auto'});
+      });
     });
-    chars.forEach((ch,i)=>{
-      const scaleY=hoveredIndex===null?1:Math.max(1,1.3638-Math.abs(i-hoveredIndex)*0.1);
-      gsap.to(ch,{scaleY,duration:.5,ease:'elastic.out(1,0.6)',overwrite:'auto'});
-    });
-  });
+  },{passive:true});
   el.addEventListener('mouseleave',()=>{
     gsap.to(chars,{scaleY:1,duration:.5,ease:'elastic.out(1,0.6)',overwrite:'auto'});
   });
@@ -61,7 +72,7 @@ function dockText(el){
    translation, not an approximation: hovered letter + its 2 nearest neighbors lift/scale/tilt in
    fake 3D via perspective+rotateX+translateZ, brightness climbs, falls off with distance. */
 function scaleLetterText(el){
-  if(!el||reduce)return;
+  if(!el||reduce||!isDesktop)return;
   const chars=splitChars(el);
   chars.forEach(ch=>{
     ch.style.transition='transform .4s cubic-bezier(.175,.885,.32,1.275),filter .4s cubic-bezier(.175,.885,.32,1.275),text-shadow .4s cubic-bezier(.175,.885,.32,1.275)';
