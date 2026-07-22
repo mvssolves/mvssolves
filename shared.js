@@ -360,19 +360,23 @@ let lenis;
       'box-shadow:0 12px 32px rgba(0,0,0,.25);font-family:"Roboto",-apple-system,sans-serif;'+
       'font-size:13.5px;line-height:1.5;opacity:0;transform:translateY(12px);'+
       'transition:opacity .3s ease,transform .3s ease;';
+    /* ids deliberately avoid the literal "cookie-accept"/"cookieAccept" pattern -- that exact
+       pattern is a known target for cookie-blocking browser extensions (uBlock/"I don't care
+       about cookies"/Consent-O-Matic filter lists), which force-hide elements matching it via a
+       MutationObserver, surviving even a JS !important override. Renaming dodges the heuristic. */
     banner.innerHTML='<p style="margin:0 0 12px;color:rgba(255,255,255,.85);">We use cookies for basic site analytics. '+
       '<a href="/privacy-policy" style="color:#00eeff;text-decoration:underline;">Privacy Policy</a></p>'+
       '<div style="display:flex;gap:10px;justify-content:flex-end;">'+
-      '<button type="button" id="cookieDecline" style="background:none;border:1px solid rgba(255,255,255,.3);color:#fff;'+
+      '<button type="button" id="mvsConsentNo" style="background:none;border:1px solid rgba(255,255,255,.3);color:#fff;'+
       'padding:8px 16px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;">Decline</button>'+
-      '<button type="button" id="cookieAccept" style="background:#00eeff;border:none;color:#0a0a0a;'+
+      '<button type="button" id="mvsConsentYes" style="background:#00eeff;border:none;color:#0a0a0a;'+
       'padding:8px 16px;border-radius:999px;font-size:13px;font-weight:700;cursor:pointer;">Accept</button></div>';
     document.body.appendChild(banner);
     requestAnimationFrame(()=>{banner.style.opacity='1';banner.style.transform='translateY(0)';});
-    banner.querySelector('#cookieAccept').addEventListener('click',()=>{
+    banner.querySelector('#mvsConsentYes').addEventListener('click',()=>{
       localStorage.setItem(KEY,'granted');loadAnalytics();closeBanner();
     });
-    banner.querySelector('#cookieDecline').addEventListener('click',()=>{
+    banner.querySelector('#mvsConsentNo').addEventListener('click',()=>{
       localStorage.setItem(KEY,'denied');closeBanner();
     });
     onKeydown=e=>{if(e.key==='Escape')closeBanner();};
