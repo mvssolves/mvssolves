@@ -30,57 +30,6 @@ function gradualSpacingHeading(el){
   gsap.set(chars,{opacity:0,x:-10}); /* explicit set, not relying on fromTo's immediateRender under paused:true */
   return {chars,tween:gsap.to(chars,{opacity:1,x:0,duration:0.5,stagger:0.035,ease:'power2.out',paused:true})};
 }
-/* ScaleLetterText (Eldora UI) — ported 1:1 from the real registry source. That component has no
-   motion/react dependency either (plain inline style + CSS transition), so this is a direct
-   translation, not an approximation: hovered letter + its 2 nearest neighbors lift/scale/tilt in
-   fake 3D via perspective+rotateX+translateZ, brightness climbs, falls off with distance. */
-function scaleLetterText(el){
-  if(!el||reduce||!isDesktop)return;
-  const chars=splitChars(el);
-  el.__fxChars=chars; /* stashed so fontWeightText (below) can reuse the same split instead of
-    re-splitting -- calling splitChars twice on one element would blow away these listeners. */
-  chars.forEach(ch=>{
-    ch.style.transition='transform .4s cubic-bezier(.175,.885,.32,1.275),filter .4s cubic-bezier(.175,.885,.32,1.275),text-shadow .4s cubic-bezier(.175,.885,.32,1.275)';
-    ch.style.position='relative';
-  });
-  function apply(hoveredIndex){
-    chars.forEach((ch,i)=>{
-      const isHovered=hoveredIndex===i;
-      const distance=hoveredIndex>=0?Math.abs(i-hoveredIndex):Infinity;
-      let scale=1,translateY=0,rotateX=0,brightness=1;
-      if(hoveredIndex>=0){
-        if(isHovered){scale=1.4;translateY=-20;rotateX=-15;brightness=1.3;}
-        else if(distance===1){scale=1.2;translateY=-10;rotateX=-8;brightness=1.15;}
-        else if(distance===2){scale=1.1;translateY=-5;rotateX=-4;brightness=1.08;}
-      }
-      ch.style.transform=`perspective(1000px) translateY(${translateY}px) rotateX(${rotateX}deg) scale(${scale}) translateZ(${isHovered?30:distance<=2?15:0}px)`;
-      ch.style.filter=`brightness(${brightness})`;
-      ch.style.textShadow=distance<=2?'0 2px 6px rgba(10,10,10,.15)':'0 1px 2px rgba(10,10,10,.08)';
-      ch.style.zIndex=isHovered?10:distance<=2?5:1;
-    });
-  }
-  chars.forEach((ch,i)=>ch.addEventListener('mouseenter',()=>apply(i)));
-  el.addEventListener('mouseleave',()=>apply(-1));
-}
-/* FontWeightText (Eldora UI) — ported from the real registry source, with one real substitution:
-   the source animates font-variation-settings ("wght" axis) on a variable font. Nohemi (this
-   site's hero font) only ships static weight cuts, no variable file -- font-variation-settings
-   on it is a total no-op. Same idea, real available weights instead: animates the actual
-   font-weight property between two static Nohemi cuts (400/800), alternating, staggered by
-   distance from the text's center letter exactly like the source's mappedIndex logic. Runs
-   alongside scaleLetterText (different CSS properties, no conflict) -- reuses its already-split
-   chars via el.__fxChars instead of re-splitting, which would destroy those hover listeners. */
-function fontWeightText(el,{duration=1.5,delayMultiplier=0.25}={}){
-  if(!el||reduce||!isDesktop)return;
-  const chars=el.__fxChars||splitChars(el);
-  const n=chars.length;
-  chars.forEach((ch,i)=>{
-    ch.classList.add('fw-breath');
-    ch.style.animationDuration=duration+'s';
-    ch.style.animationDelay=((i-n/2)*delayMultiplier)+'s';
-  });
-}
-document.querySelectorAll('.scale-fx').forEach(el=>{scaleLetterText(el);fontWeightText(el);});
 /* mobile browser chrome (address bar) collapsing/expanding on scroll fires resize events that
    only ever change height, never width — the 3D scenes below were recomputing full renderer
    size + camera matrices on every one of those, which is what read as a frame hop tied to

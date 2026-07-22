@@ -859,13 +859,6 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
      flat color, so this needs no extra guard here. */
   h1{color:var(--ink);}
   h1 .aw{text-shadow:none;}
-  /* FontWeightText (Eldora UI, ported in main.js) -- font-weight, not font-variation-settings:
-     Nohemi here is static weight cuts only, no variable font, so the real component's "wght"
-     axis approach is a no-op on this typeface. Real available weights instead: snaps between
-     the actual 400 and 800 cuts rather than morphing smoothly between them. */
-  .fw-breath{display:inline-block;animation-name:fwBreath;animation-timing-function:cubic-bezier(.37,0,.63,1);
-    animation-iteration-count:infinite;animation-direction:alternate;animation-fill-mode:both;}
-  @keyframes fwBreath{0%{font-weight:400;}100%{font-weight:800;}}
   /* 450%, not 300% (the old value) or 800% (overcorrected): at 300% a two-word phrase could put
      each word on a completely different gradient stop (one white, one cyan) at the same instant,
      reading as invisible. 800% fixed that but the 0%->100% keyframe sweep then only ever samples
@@ -1144,9 +1137,9 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
   </nav>
   <div class="h-wrap">
     <h1 class="flick">
-      <span class="line"><span class="ft scale-fx">Real</span></span>
-      <span class="line"><span class="ft scale-fx">Systems</span></span>
-      <span class="line"><span class="ft"><span class="scale-fx">for</span> <span class="ft aw grad">your business</span></span></span>
+      <span class="line"><span class="ft">Real</span></span>
+      <span class="line"><span class="ft">Systems</span></span>
+      <span class="line"><span class="ft">for <span class="ft aw grad">your business</span></span></span>
     </h1>
     <p class="h-sub">The system is so good it's free for 7 days — prove it to yourself before you spend a cent.</p>
   </div>
