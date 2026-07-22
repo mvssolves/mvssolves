@@ -310,3 +310,19 @@ let lenis;
     setTimeout(function(){location.href=href;},300);
   },true);
 })();
+
+/* same-page anchor scroll -- every "#section" button/link on the site smooth-scrolls to its
+   target without ever writing a hash into the address bar (no location.hash, no history entry). */
+(function(){
+  document.addEventListener('click',function(e){
+    if(e.defaultPrevented||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+    const a=e.target.closest('a[href^="#"]');
+    if(!a)return;
+    const href=a.getAttribute('href');
+    if(!href||href.length<2)return;
+    const target=document.querySelector(href);
+    if(!target)return;
+    e.preventDefault();
+    target.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
+  },true);
+})();
