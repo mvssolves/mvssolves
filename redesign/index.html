@@ -67,6 +67,13 @@
   .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:10px;font-family:monospace;}
   h1,h2,h3{font-weight:700;letter-spacing:-.01em;}
   h2{font-size:clamp(28px,4vw,44px);margin-bottom:16px;}
+  /* typewriter caret -- only present while the heading is actually typing */
+  .is-typing::after{content:'';display:inline-block;width:3px;height:.85em;margin-left:4px;
+    background:currentColor;vertical-align:-.08em;animation:caret .8s steps(1) infinite;}
+  @keyframes caret{0%,49%{opacity:1;}50%,100%{opacity:0;}}
+  /* headings that animate per-word/char need a stable minimum height so the section doesn't
+     reflow as characters land */
+  .fx-type,.fx-alt,.fx-rise,.fx-mask{min-height:1.15em;}
   h3{font-size:18px;margin-bottom:8px;}
   p{color:#555;max-width:60ch;}
   .tag{display:inline-block;background:#f2f2f2;border:1px solid #ddd;border-radius:999px;padding:10px 18px;font-size:13px;}
@@ -93,8 +100,12 @@
      while resizing at the bottom. Now the scene's top edge is a pure geometric move with nothing
      fading over it, and the nav only solidifies once Technology is arriving. */
   nav.nav-clear{background:transparent;transition:none;}
-  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;}
-  .nav-links{display:flex;gap:28px;font-size:14px;}
+  /* links sit right next to the logo rather than being centred: space-between pushed the link
+     group into the middle of the bar, leaving it stranded far from the wordmark. The CTA is
+     pushed to the far right on its own with margin-left:auto. */
+  .nav-inner{display:flex;align-items:center;gap:40px;padding:18px 40px;}
+  .nav-links{display:flex;gap:26px;font-size:14px;}
+  .nav-inner>.btn{margin-left:auto;}
   .nav-links a{color:#333;text-decoration:none;}
 
   /* STACK LAYERS -- each rises and covers the one before it as you scroll.
@@ -214,7 +225,7 @@
   /* wordmark is the LAST thing in the footer, so it can only ever sit at the very bottom of the
      page -- it can't ride up over the columns or the Send CTA no matter the viewport, which was
      the recurring overlap bug. Sized to fit "MVS Solves" whole: no clipping, no bleed-off. */
-  .foot-bottom{position:relative;margin-top:24px;padding-top:16px;}
+  .foot-bottom{position:relative;margin-top:80px;padding-top:24px;}
   /* halftone dot field behind the wordmark, faded out toward the top so it dissolves into the
      footer rather than ending on a hard edge. */
   .foot-bottom::before{content:'';position:absolute;inset:0;pointer-events:none;
@@ -285,7 +296,7 @@
 <!-- TECHNOLOGY -- stack layer 2, rises and covers the hero layer. -->
 <section id="technology" class="wrap">
   <div class="eyebrow">[Eyebrow — Technology]</div>
-  <h2 class="scrub-reveal">[Technology section heading — template words]</h2>
+  <h2 class="fx-type">[Technology section heading — template words]</h2>
   <p class="blur-reveal">[Body paragraph one — template placeholder copy describing this section's real content once written.]</p>
   <p class="blur-reveal" style="margin-top:10px;">[Body paragraph two — template placeholder copy.]</p>
 </section>
@@ -294,7 +305,7 @@
      image placeholder, matches their AI LLM / Computer Vision / Image Generation layout shape. -->
 <section id="products" class="wrap">
   <div class="eyebrow">[Eyebrow — Products]</div>
-  <h2 class="scrub-reveal">[Products section heading]</h2>
+  <h2 class="fx-alt">[Products section heading]</h2>
   <div class="card-grid">
     <div class="card lift-card"><div class="icon-placeholder"></div><h3>[Product one]</h3><p>[Template copy placeholder.]</p></div>
     <div class="card lift-card"><div class="icon-placeholder"></div><h3>[Product two]</h3><p>[Template copy placeholder.]</p></div>
@@ -310,7 +321,7 @@
      "We have huge expertise" behavior. -->
 <section id="expertise" class="wrap">
   <div class="eyebrow">[Eyebrow — Expertise]</div>
-  <h2 class="scrub-reveal">[Expertise section heading]</h2>
+  <h2 class="fx-rise">[Expertise section heading]</h2>
   <div class="tab-row" id="expertiseTabs">
     <button class="tab active" data-stat1="12" data-stat2="8">[Tab one]</button>
     <button class="tab" data-stat1="6" data-stat2="20">[Tab two]</button>
@@ -335,7 +346,7 @@
      Custom/Flex/Performance/Scalability sequence observed on the reference. -->
 <section id="features" class="wrap">
   <div class="eyebrow">[Eyebrow — Key Features]</div>
-  <h2 class="scrub-reveal">[Key Features section heading]</h2>
+  <h2 class="fx-mask">[Key Features section heading]</h2>
   <div class="feature-stack" id="featureStack">
     <div class="feature-row lift-card">
       <div class="feat-num">01</div>
@@ -470,11 +481,12 @@ if(!reduce){
   if(right)copyTL.to(right,{opacity:1,y:0,duration:0.35},0.06);
   if(marq)copyTL.to(marq,{opacity:1,y:0,duration:0.35},0.14);
 
-  /* copy fires at 78% of the shrink, not at the end -- by that point the scene has visually
-     almost landed, so the CTA is already there as it settles rather than after it. Driven off
-     progress in onUpdate rather than onLeave (which only fires at a full 100%). */
+  /* fires only once the scene has fully landed. At 0.78 the scene was still receding, so the
+     CTA/subhead briefly appeared ON TOP of it -- the headline is the only thing allowed over the
+     scene. 0.995 rather than 1 purely so it can't be skipped by a scroll that overshoots the end
+     in a single frame. Since the runway is short this still reads as instant. */
   let popped=false;
-  const POP_AT=0.78;
+  const POP_AT=0.995;
 
   const tl=gsap.timeline({defaults:{ease:'none'},
     /* scrub:true, NOT a catch-up value: any catch-up means the scene lags behind the wheel and
@@ -499,6 +511,101 @@ if(!reduce){
      calculated against fallback-font metrics and the gap creeps back. */
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>ScrollTrigger.refresh());
 })();
+
+/* ---- TEXT REVEAL LIBRARY -------------------------------------------------------------------
+   Each section heading gets its OWN entrance rather than one effect repeated five times. All of
+   these are one-shot (once:true) on scroll-in, not scrubbed, so they play at their own tempo
+   instead of being dragged by the wheel. Helpers first, assignments at the bottom. */
+
+/* split into per-word <span>s, preserving real spaces between them */
+function splitWords(el){
+  const words=el.textContent.trim().split(/\s+/);
+  el.textContent='';
+  return words.map((w,i)=>{
+    const s=document.createElement('span');
+    s.style.display='inline-block';s.textContent=w;
+    el.appendChild(s);
+    if(i<words.length-1)el.appendChild(document.createTextNode(' '));
+    return s;
+  });
+}
+/* split into per-character <span>s. Spaces stay as plain text nodes so wrapping still works. */
+function splitChars(el){
+  const text=el.textContent;
+  el.textContent='';
+  const out=[];
+  [...text].forEach(ch=>{
+    if(ch===' '){el.appendChild(document.createTextNode(' '));return;}
+    const s=document.createElement('span');
+    s.style.display='inline-block';s.textContent=ch;
+    el.appendChild(s);out.push(s);
+  });
+  return out;
+}
+function onceIn(el,fn,start){
+  ScrollTrigger.create({trigger:el,start:start||'top 82%',once:true,onEnter:fn});
+}
+
+/* TYPEWRITER -- characters type in behind a blinking caret. */
+function fxType(el){
+  const full=el.textContent;
+  if(reduce)return;
+  el.textContent='';
+  el.classList.add('is-typing');
+  onceIn(el,()=>{
+    let i=0;
+    const iv=setInterval(()=>{
+      el.textContent=full.slice(0,++i);
+      if(i>=full.length){clearInterval(iv);el.classList.remove('is-typing');}
+    },26);
+  });
+}
+/* ALTERNATING -- words fly in from opposite sides, odd from the left, even from the right. */
+function fxAlt(el){
+  if(reduce)return;
+  const words=splitWords(el);
+  gsap.set(words,{opacity:0});
+  onceIn(el,()=>{
+    words.forEach((w,i)=>{
+      gsap.fromTo(w,{opacity:0,x:i%2?70:-70},
+        {opacity:1,x:0,duration:0.7,delay:i*0.07,ease:'power3.out'});
+    });
+  });
+}
+/* RISE -- characters tip up into place from below, with a slight 3D rotation. */
+function fxRise(el){
+  if(reduce)return;
+  const chars=splitChars(el);
+  gsap.set(el,{perspective:600});
+  gsap.set(chars,{opacity:0,y:34,rotateX:-75,transformOrigin:'50% 100%'});
+  onceIn(el,()=>{
+    gsap.to(chars,{opacity:1,y:0,rotateX:0,duration:0.6,stagger:0.028,ease:'back.out(1.7)'});
+  });
+}
+/* MASK -- each word slides up from behind its own clipping window. */
+function fxMask(el){
+  if(reduce)return;
+  const words=splitWords(el);
+  words.forEach(w=>{
+    const inner=document.createElement('span');
+    inner.style.display='inline-block';
+    inner.textContent=w.textContent;
+    w.textContent='';
+    w.style.overflow='hidden';
+    w.style.verticalAlign='bottom';
+    w.appendChild(inner);
+    w._inner=inner;
+  });
+  gsap.set(words.map(w=>w._inner),{yPercent:115});
+  onceIn(el,()=>{
+    gsap.to(words.map(w=>w._inner),{yPercent:0,duration:0.75,stagger:0.08,ease:'power4.out'});
+  });
+}
+
+document.querySelectorAll('.fx-type').forEach(fxType);
+document.querySelectorAll('.fx-alt').forEach(fxAlt);
+document.querySelectorAll('.fx-rise').forEach(fxRise);
+document.querySelectorAll('.fx-mask').forEach(fxMask);
 
 /* word-by-word heading reveal, SCRUBBED to scroll position. */
 function scrollScrubReveal(el){
