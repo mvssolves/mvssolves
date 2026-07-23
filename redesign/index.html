@@ -183,8 +183,12 @@
   /* placeholder restyled for the dark hero -- stands in for the video, so it reads as a dark
      panel rather than a light one punched into black. */
   .hero-3d-placeholder{position:absolute;top:0;left:0;right:0;height:100vh;will-change:height,top;
+    overflow:hidden;
     background:repeating-linear-gradient(135deg,#161618,#161618 20px,#1d1d20 20px,#1d1d20 40px);
     display:flex;align-items:center;justify-content:center;color:#6a6a72;font-size:13px;}
+  /* once the WebGL scene mounts, drop the placeholder stripes and label -- the canvas is the
+     content now. Kept as a fallback for no-WebGL / reduced-motion, where the scene never loads. */
+  .hero-3d-placeholder.has-scene{background:#0B0B0C;font-size:0;}
   /* absolutely anchored to the BOTTOM of the sticky viewport, not a flex child. As a flex child
      it was flex:1 in a column whose first item (the scene) already fills the whole 100vh, so its
      leftover space was zero -- it collapsed to 0 height and its content sat below the fold,
@@ -792,6 +796,12 @@ document.querySelectorAll('.fx-group').forEach(fxGroup);
   });
 })();
 </script>
+
+<!-- hero WebGL scene. type="module" is mandatory, not stylistic: modern three.js ships ESM only,
+     there is no UMD/global build to load with a plain <script src>. Module scripts are deferred
+     by default, so #hero3d exists by the time it runs. Kept in its own file so iterating on the
+     scene never touches this one. -->
+<script type="module" src="./hero-scene.js"></script>
 
 </body>
 </html>
