@@ -81,7 +81,9 @@
   /* no CSS transition on the background: it's tweened by the scrubbed timeline instead. A class
      toggle + transition fired once mid-scroll and read as a discrete flash right at the scene's
      top edge -- that was the "choppy top". Scrubbing the colour makes it track scroll smoothly. */
-  nav{position:fixed;top:0;left:0;right:0;background:#fff;z-index:20;border-bottom:1px solid #eee;}
+  /* no border-bottom: that hairline sat directly across the top of the hero scene and read as an
+     ugly seam. The nav separates from content by its background alone. */
+  nav{position:fixed;top:0;left:0;right:0;background:#fff;z-index:20;}
   .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;}
   .nav-links{display:flex;gap:28px;font-size:14px;}
   .nav-links a{color:#333;text-decoration:none;}
@@ -90,10 +92,8 @@
      top:var(--nav-h) (not 0) so a layer sticks right below the nav instead
      of behind it (nav has higher z-index and would otherwise paint over
      the top ~72px of whatever's stuck at top:0). */
-  #technology,#products,#expertise,.team-block{
+  #technology,#products,#expertise,#features,.team-block{
     position:sticky;top:var(--nav-h);background:#fff;min-height:calc(100vh - var(--nav-h));
-  }
-  #technology,#products,#expertise,.team-block{
     border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);
     display:flex;flex-direction:column;justify-content:center;
   }
@@ -111,9 +111,7 @@
   #technology{z-index:2;}
   #products{z-index:3;}
   #expertise{z-index:4;}
-  #features{position:relative;z-index:5;background:#fff;border-radius:32px 32px 0 0;
-    box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);min-height:calc(100vh - var(--nav-h));
-    display:flex;flex-direction:column;justify-content:center;}
+  #features{z-index:5;}
   .team-block{z-index:6;text-align:center;align-items:center;min-height:60vh;}
   footer{position:relative;z-index:7;border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);}
 
@@ -126,9 +124,11 @@
      flex child, forcing the flex container to re-layout on every scroll tick -- that's what the
      jitter was. Out of flow it resizes in isolation and nothing else has to be re-laid out.
      will-change promotes it to its own compositor layer so the resize doesn't repaint the nav. */
+  /* no dashed border: a dashed outline on an element whose height changes every frame makes the
+     dash pattern re-tile constantly, which shimmers along the moving edges. */
   .hero-3d-placeholder{position:absolute;top:0;left:0;right:0;height:100vh;will-change:height,top;
     background:repeating-linear-gradient(135deg,#f4f4f4,#f4f4f4 20px,#ececec 20px,#ececec 40px);
-    border:1px dashed #bbb;display:flex;align-items:center;justify-content:center;color:#999;font-size:13px;}
+    display:flex;align-items:center;justify-content:center;color:#999;font-size:13px;}
   /* absolutely anchored to the BOTTOM of the sticky viewport, not a flex child. As a flex child
      it was flex:1 in a column whose first item (the scene) already fills the whole 100vh, so its
      leftover space was zero -- it collapsed to 0 height and its content sat below the fold,
@@ -174,12 +174,12 @@
   .stat-num{font-size:44px;font-weight:800;}
   .stat-label{color:#888;font-size:13px;max-width:20ch;}
 
-  /* KEY FEATURES -- scroll-pinned accordion: one card expanded, rest collapsed to bars */
-  .feature-stack{margin-top:32px;max-width:640px;}
-  .feature-card{background:#111;color:#fff;border-radius:14px;padding:20px 26px;margin-bottom:12px;overflow:hidden;}
-  .feature-card h3{margin:0;color:#fff;}
-  .fc-body{max-height:0;opacity:0;margin-top:0;transition:max-height .45s ease,opacity .35s ease,margin-top .45s ease;}
-  .feature-card.is-active .fc-body{max-height:160px;opacity:1;margin-top:10px;}
+  /* KEY FEATURES -- same card grid as Products, just dark. No accordion, no collapse: every
+     card is fully open, and they enter with the shared .lift-card scroll animation. */
+  .feature-stack{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-top:32px;}
+  .feature-card{background:#111;color:#fff;border:1px solid #222;border-radius:12px;padding:28px;}
+  .feature-card h3{color:#fff;}
+  .fc-body{margin-top:10px;}
   .feature-card p{color:#aaa;margin:0;}
 
   /* FOOTER */
@@ -321,9 +321,9 @@
   <div class="eyebrow">[Eyebrow — Key Features]</div>
   <h2 class="scrub-reveal">[Key Features section heading]</h2>
   <div class="feature-stack" id="featureStack">
-    <div class="feature-card is-active"><h3>[Feature one]</h3><div class="fc-body"><p>[Template copy placeholder.]</p></div></div>
-    <div class="feature-card"><h3>[Feature two]</h3><div class="fc-body"><p>[Template copy placeholder.]</p></div></div>
-    <div class="feature-card"><h3>[Feature three]</h3><div class="fc-body"><p>[Template copy placeholder.]</p></div></div>
+    <div class="feature-card lift-card"><div class="icon-placeholder" style="border-color:#555;"></div><h3>[Feature one]</h3><div class="fc-body"><p>[Template copy placeholder.]</p></div></div>
+    <div class="feature-card lift-card"><div class="icon-placeholder" style="border-color:#555;"></div><h3>[Feature two]</h3><div class="fc-body"><p>[Template copy placeholder.]</p></div></div>
+    <div class="feature-card lift-card"><div class="icon-placeholder" style="border-color:#555;"></div><h3>[Feature three]</h3><div class="fc-body"><p>[Template copy placeholder.]</p></div></div>
   </div>
 </section>
 
@@ -461,8 +461,8 @@ if(!reduce){
      CSS transition. The toggle fired once, mid-scroll, as a discrete flash right at the scene's
      top edge -- that was the choppiness. As a tween it tracks scroll continuously. */
   tl.fromTo(navEl,
-    {backgroundColor:'rgba(255,255,255,0)',borderBottomColor:'rgba(0,0,0,0)'},
-    {backgroundColor:'rgba(255,255,255,1)',borderBottomColor:'rgba(238,238,238,1)',duration:0.55},0.25);
+    {backgroundColor:'rgba(255,255,255,0)'},
+    {backgroundColor:'rgba(255,255,255,1)',duration:0.55},0.25);
 
   /* the settled scene height is derived from the copy block's measured height, and web fonts
      land after this script runs -- so remeasure once they're in, or the scene keeps a height
@@ -550,27 +550,9 @@ if(!reduce){
     onEnter:()=>activate(tabs[0])});
 })();
 
-/* KEY FEATURES -- scroll-pinned accordion. Block pins in place; scroll progress through the
-   pinned distance advances which card is "active" (expanded) vs collapsed to a bar. */
-(function(){
-  const section=document.getElementById('features');
-  const stack=document.getElementById('featureStack');
-  if(!stack||!section||reduce)return;
-  const cards=[...stack.querySelectorAll('.feature-card')];
-  if(cards.length<2)return;
-  /* pin the whole SECTION, not just the card stack. Pinning the stack alone left the heading and
-     eyebrow free to keep scrolling, so the section rode up off the top of the viewport while the
-     cards stayed put. Pinning the section snaps it flush to the top, holds it there for the
-     accordion, then releases so the next section scrolls up over it. */
-  ScrollTrigger.create({
-    trigger:section,start:'top top',end:'+='+(cards.length*60)+'%',pin:true,pinSpacing:true,
-    anticipatePin:1,scrub:0.5,
-    onUpdate(self){
-      const idx=Math.min(cards.length-1,Math.floor(self.progress*cards.length));
-      cards.forEach((c,i)=>c.classList.toggle('is-active',i===idx));
-    }
-  });
-})();
+/* KEY FEATURES has no bespoke behaviour: it's a plain sticky cover-layer identical to
+   Technology / Products / Expertise, and its cards use the same .lift-card entrance as the
+   Products grid. The scroll-pinned accordion that used to live here made it the odd one out. */
 </script>
 
 </body>
