@@ -395,18 +395,24 @@
      also make "MVS Solves" wider, and it already runs the width of the page. scaleY grows the
      glyphs upward-to-downward only. transform-origin is pinned to the top so the stretch grows
      downward into the clip instead of pushing the word up into the legal row. */
-  .foot-wordmark{position:relative;z-index:1;display:flex;justify-content:center;
+  .foot-wordmark{position:relative;z-index:2;display:flex;justify-content:center;
     align-items:flex-end;font-size:clamp(40px,11.5vw,164px);font-weight:800;
     line-height:1.04;letter-spacing:-.02em;white-space:nowrap;
     user-select:none;pointer-events:none;perspective:900px;
     transform-origin:50% 0;transform:translateY(8%) scaleY(1.24);}
-  /* Each letter is its own body of water: a depth gradient for the base, two highlight bands
-     drifting across it in OPPOSITE directions at different rates (that crossing is what reads as
-     caustics rather than as a chrome sweep), and a static turbulence displacement giving the
-     glyph edges a wet wobble. The displacement is deliberately NOT animated -- a static filter
-     rasterises once and caches, whereas animating baseFrequency re-renders every letter every
-     frame. All the motion comes from the gradients and the 3D bob, which are far cheaper. */
+  /* Each letter is TWO nested elements, and that's the whole trick for the motion not looking
+     canned: the outer sways (rotateY / translateZ / drift) on one duration, the inner bobs
+     (translateY / rotateX / rotateZ / skew) on a different, deliberately non-matching one. Two
+     compound cycles that never line up means the letter's path doesn't visibly repeat, the way a
+     single keyframe on a single element always does. Per-letter --rx/--ry/--rz/--z/--a/--d1/--d2
+     are set from JS, so no two letters share an orbit either. */
   .wm-l{display:inline-block;transform-style:preserve-3d;
+    animation:wmSway var(--d1) ease-in-out infinite;
+    animation-delay:calc(var(--i) * -.53s);}
+  .wm-i{display:inline-block;transform-style:preserve-3d;
+    /* water surface: a depth gradient for the body, plus two highlight bands drifting across it
+       in OPPOSITE directions at different rates -- that crossing is what reads as caustics
+       rather than as a chrome sweep. */
     background-image:
       linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.95) 11%,rgba(255,255,255,0) 24%),
       linear-gradient(76deg,rgba(201,168,255,0) 0%,rgba(217,196,255,.85) 14%,rgba(201,168,255,0) 30%),
@@ -415,31 +421,58 @@
     background-repeat:repeat-x;
     -webkit-background-clip:text;background-clip:text;
     color:transparent;-webkit-text-fill-color:transparent;
-    animation:wmFlow 9s linear infinite,wmBob 6.5s ease-in-out infinite;
+    animation:wmFlow 9s linear infinite,wmBob var(--d2) ease-in-out infinite;
     /* negative delays start every letter mid-cycle, so the wave is already travelling across the
        word on first paint instead of all ten letters pulsing in unison */
-    animation-delay:calc(var(--i) * -.62s),calc(var(--i) * -.47s);}
+    animation-delay:calc(var(--i) * -.62s),calc(var(--i) * -.41s);}
   .wm-sp{display:inline-block;width:.26em;}
   @keyframes wmFlow{
     from{background-position:150% 0,-60% 0,0 0;}
     to{background-position:-150% 0,300% 0,0 0;}
   }
-  /* 3D bob: each letter floats and tilts on its own phase, like it's sitting on moving water */
+  /* outer: the letter swinging through depth */
+  @keyframes wmSway{
+    0%,100%{transform:translateX(0) translateZ(0) rotateY(0deg);}
+    33%{transform:translateX(.014em) translateZ(var(--z)) rotateY(var(--ry));}
+    66%{transform:translateX(-.016em) translateZ(calc(var(--z) * -.7)) rotateY(calc(var(--ry) * -1));}
+  }
+  /* inner: the letter riding the surface -- the skew is what keeps it from reading as a rigid
+     tile tipping back and forth. */
   @keyframes wmBob{
-    0%,100%{transform:translateY(0) translateZ(0) rotateX(0deg) rotateY(0deg);}
-    25%{transform:translateY(-.035em) translateZ(20px) rotateX(8deg) rotateY(-5deg);}
-    50%{transform:translateY(.022em) translateZ(0) rotateX(-6deg) rotateY(4deg);}
-    75%{transform:translateY(-.018em) translateZ(-16px) rotateX(5deg) rotateY(6deg);}
+    0%,100%{transform:translateY(0) rotateX(0deg) rotateZ(0deg) skewY(0deg);}
+    25%{transform:translateY(calc(var(--a) * -1)) rotateX(var(--rx)) rotateZ(var(--rz))
+        skewY(calc(var(--rz) * .3));}
+    50%{transform:translateY(calc(var(--a) * .62)) rotateX(calc(var(--rx) * -.8))
+        rotateZ(calc(var(--rz) * -.7)) skewY(0deg);}
+    75%{transform:translateY(calc(var(--a) * -.45)) rotateX(calc(var(--rx) * .5))
+        rotateZ(calc(var(--rz) * .4)) skewY(calc(var(--rz) * -.22));}
   }
   /* ripple gated behind a class the IntersectionObserver toggles -- three seeds cycled so the
      letters don't all wobble identically. */
-  .foot-wordmark.rippling .wm-l{filter:url(#waterWarp1);}
-  .foot-wordmark.rippling .wm-l:nth-child(3n+2){filter:url(#waterWarp2);}
-  .foot-wordmark.rippling .wm-l:nth-child(3n+3){filter:url(#waterWarp3);}
+  .foot-wordmark.rippling .wm-i{filter:url(#waterWarp1);}
+  .foot-wordmark.rippling .wm-l:nth-child(3n+2) .wm-i{filter:url(#waterWarp2);}
+  .foot-wordmark.rippling .wm-l:nth-child(3n+3) .wm-i{filter:url(#waterWarp3);}
+
+  /* blurred colour field behind the wordmark. One heavily-blurred layer that only ever has its
+     transform animated, so the browser rasterises the blur once and just moves the texture --
+     animating the blur radius itself would re-render it every frame. */
+  .foot-glow{position:absolute;inset:-40% -12% -60%;z-index:0;pointer-events:none;
+    filter:blur(72px);opacity:.6;
+    background:
+      radial-gradient(38% 62% at 20% 46%,rgba(144,112,223,.9),transparent 70%),
+      radial-gradient(34% 56% at 58% 62%,rgba(90,200,250,.55),transparent 70%),
+      radial-gradient(30% 52% at 84% 40%,rgba(230,245,54,.3),transparent 70%);
+    animation:glowDrift 19s ease-in-out infinite alternate;}
+  @keyframes glowDrift{
+    from{transform:translate3d(-3%,1%,0) scale(1);}
+    to{transform:translate3d(4%,-2%,0) scale(1.14);}
+  }
   .svg-defs{position:absolute;width:0;height:0;overflow:hidden;}
   @media(prefers-reduced-motion:reduce){
-    .wm-l{animation:none;}
-    .foot-wordmark.rippling .wm-l{filter:none;}
+    .wm-l,.wm-i,.foot-glow{animation:none;}
+    .foot-wordmark.rippling .wm-i,
+    .foot-wordmark.rippling .wm-l:nth-child(3n+2) .wm-i,
+    .foot-wordmark.rippling .wm-l:nth-child(3n+3) .wm-i{filter:none;}
   }
 
   /* CONTACT MODAL -- replaces the Cal.com booking flow. Own form, own styling, mail sent by
@@ -676,6 +709,7 @@
   <!-- wordmark sits LAST so it always lands at the very bottom of the page and can never ride
        up over the columns/CTA. Full text, no clipping, halftone dot field behind it. -->
   <div class="foot-bottom">
+    <div class="foot-glow" aria-hidden="true"></div>
     <div class="foot-wordmark" aria-hidden="true">MVS Solves</div>
   </div>
 </footer>
@@ -850,8 +884,12 @@ document.addEventListener('click',e=>{
   const wm=document.querySelector('.foot-wordmark');
   if(!wm)return;
 
-  /* split into per-letter elements so each one can carry its own water: --i drives the negative
-     animation-delays, so the flow and the bob travel across the word instead of pulsing as one. */
+  /* Split into per-letter outer+inner pairs. The outer sways, the inner bobs, and each gets its
+     own amplitudes, angles, depth and BOTH durations -- two cycles of different lengths per
+     letter, none of them shared, so nothing in the word ever falls back into step.
+     Values come from the index rather than Math.random so a reload gives the same wordmark
+     instead of a different one each time. The moduli are chosen to not share factors with the
+     letter count, which is what keeps neighbours from landing on matching values. */
   const text=wm.textContent.trim();
   wm.textContent='';
   let i=0;
@@ -862,11 +900,24 @@ document.addEventListener('click',e=>{
       wm.appendChild(sp);
       continue;
     }
-    const s=document.createElement('span');
-    s.className='wm-l';
-    s.style.setProperty('--i',i++);
-    s.textContent=ch;
-    wm.appendChild(s);
+    const n=i;
+    const outer=document.createElement('span');
+    outer.className='wm-l';
+    outer.style.setProperty('--i',n);
+    outer.style.setProperty('--rx',(7+(n*37)%10)+'deg');
+    outer.style.setProperty('--ry',(5+(n*53)%9)+'deg');
+    outer.style.setProperty('--rz',(((n*29)%9)-4)+'deg');
+    outer.style.setProperty('--z',(16+(n*41)%30)+'px');
+    outer.style.setProperty('--a',(0.022+((n*13)%6)/220).toFixed(4)+'em');
+    outer.style.setProperty('--d1',(5.4+((n*7)%14)/10).toFixed(2)+'s');
+    outer.style.setProperty('--d2',(7.1+((n*11)%19)/10).toFixed(2)+'s');
+
+    const inner=document.createElement('span');
+    inner.className='wm-i';
+    inner.textContent=ch;
+    outer.appendChild(inner);
+    wm.appendChild(outer);
+    i++;
   }
 
   if(!('IntersectionObserver' in window))return;

@@ -167,3 +167,20 @@ footer{background:var(--ink);color:#fff;padding:44px 40px 0;overflow:hidden;
 .form-msg.ok{color:#2f7d4f;}
 .form-msg.err{color:#c0335a;}
 @media(max-width:560px){.field-row{flex-direction:column;gap:0;}}
+
+/* Blurred colour field behind the subpage wordmark. Delivered as ::after rather than a real
+   element so the nine generated pages need no markup change. Only transform animates -- the
+   blur rasterises once and the texture is just moved. */
+.foot-bottom::after{content:'';position:absolute;inset:-40% -12% -60%;z-index:0;
+  pointer-events:none;filter:blur(72px);opacity:.55;
+  background:
+    radial-gradient(38% 62% at 20% 46%,rgba(144,112,223,.9),transparent 70%),
+    radial-gradient(34% 56% at 58% 62%,rgba(90,200,250,.55),transparent 70%),
+    radial-gradient(30% 52% at 84% 40%,rgba(230,245,54,.3),transparent 70%);
+  animation:glowDrift 19s ease-in-out infinite alternate;}
+.foot-wordmark{z-index:2;}
+@keyframes glowDrift{
+  from{transform:translate3d(-3%,1%,0) scale(1);}
+  to{transform:translate3d(4%,-2%,0) scale(1.14);}
+}
+@media(prefers-reduced-motion:reduce){.foot-bottom::after{animation:none;}}
