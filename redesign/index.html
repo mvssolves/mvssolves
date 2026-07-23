@@ -351,7 +351,18 @@
   .tstm-stars .off{color:#dfdfe6;}
   .tstm blockquote{font-size:14.5px;line-height:1.62;color:#3b3b44;margin:0 0 16px;flex:1;}
   .tstm-name{font-weight:700;font-size:14px;color:var(--ink);letter-spacing:-.01em;}
-  @media(prefers-reduced-motion:reduce){.tstm{transition:none;}}
+  /* filtered-out cards collapse rather than display:none so the remaining ones slide across
+     instead of snapping into place */
+  .tstm-hide{flex-basis:0;padding-left:0;padding-right:0;opacity:0;border-width:0;
+    margin-right:-16px;pointer-events:none;overflow:hidden;
+    transition:flex-basis .38s cubic-bezier(.2,.8,.2,1),opacity .22s ease,
+               padding .38s cubic-bezier(.2,.8,.2,1),margin .38s cubic-bezier(.2,.8,.2,1);}
+  .tstm{transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s ease,
+        border-color .28s ease,flex-basis .38s cubic-bezier(.2,.8,.2,1),opacity .28s ease,
+        padding .38s cubic-bezier(.2,.8,.2,1),margin .38s cubic-bezier(.2,.8,.2,1);}
+  @media(prefers-reduced-motion:reduce){
+    .tstm,.tstm-hide{transition:none;}
+  }
   .stats-row{display:flex;gap:40px;margin-top:28px;flex-wrap:wrap;}
   .stat-num{font-size:44px;font-weight:800;}
   /* ODOMETER digits. The window is exactly ONE line tall and every digit in the strip is exactly
@@ -622,7 +633,15 @@
 <section id="proof" class="wrap">
   <div class="eyebrow">Proof</div>
   <h2 class="fx-rise">Six businesses. Four figures to five. Two months.</h2>
-  <!-- tab row removed: this section is outcomes, not a service menu. Tabs belong in #services. -->
+  <!-- Tabs filter the client quotes by what the client actually talks about. They deliberately do
+       NOT swap the stat pair the way the old placeholder version did -- there is one real result
+       on record (six businesses, two months) and per-tab figures would have to be invented. -->
+  <div class="tab-row" id="proofTabs">
+    <button class="tab active" data-filter="all">All</button>
+    <button class="tab" data-filter="websites">Websites</button>
+    <button class="tab" data-filter="automation">Automation</button>
+    <button class="tab" data-filter="seo">Google &amp; SEO</button>
+  </div>
   <div class="expertise-layout">
     <div class="expertise-copy">
       <p class="fx-lines">Not redesigns. Every one of them was already getting interest — it was
@@ -639,37 +658,37 @@
   <!-- Client quotes, published verbatim as given. Do not reword these for punchiness -- edited
        copy stops being the client's words. Length trims are fine; rewrites are not. -->
   <div class="tstm-grid fx-group">
-    <figure class="tstm">
+    <figure class="tstm" data-theme="websites automation seo">
       <div class="tstm-stars" aria-label="5 out of 5">★★★★★</div>
       <blockquote>I originally just wanted a better-looking website, but ended up getting a whole booking system that actually brings in clients. Within a few weeks I was getting enquiries from Google instead of relying only on referrals. Martin was quick to respond, explained everything clearly, and had the site live much faster than I expected.</blockquote>
       <figcaption class="tstm-name">Braam</figcaption>
     </figure>
-    <figure class="tstm">
+    <figure class="tstm" data-theme="automation">
       <div class="tstm-stars" aria-label="5 out of 5">★★★★★</div>
       <blockquote>The biggest difference has been the automation. New leads can book online, I get notified instantly, and I don't have to spend time going back and forth over WhatsApp trying to organise appointments. Everything just works. If you're running a service business, this is honestly worth every cent.</blockquote>
       <figcaption class="tstm-name">David Chesane</figcaption>
     </figure>
-    <figure class="tstm">
+    <figure class="tstm" data-theme="websites automation">
       <div class="tstm-stars" aria-label="4 out of 5">★★★★<span class="off">★</span></div>
       <blockquote>I wanted something that looked professional without feeling over-designed. The website loads quickly, works perfectly on mobile, and clients have already commented on how easy it is to book. There were a few small tweaks during the build, but they were handled quickly and communication stayed excellent throughout.</blockquote>
       <figcaption class="tstm-name">Karishma Desai</figcaption>
     </figure>
-    <figure class="tstm">
+    <figure class="tstm" data-theme="seo">
       <div class="tstm-stars" aria-label="5 out of 5">★★★★★</div>
       <blockquote>I was surprised by how much thought went into the SEO and Google Business Profile optimisation, not just the website itself. Since going live I've had several people find me through Google searches, which almost never happened before. The whole experience felt organised and professional.</blockquote>
       <figcaption class="tstm-name">Leigh-Mari Niemand</figcaption>
     </figure>
-    <figure class="tstm">
+    <figure class="tstm" data-theme="websites automation">
       <div class="tstm-stars" aria-label="5 out of 5">★★★★★</div>
       <blockquote>Before working with MVS Solves my business relied almost entirely on social media. Now I have a proper website, online booking, and clients can find all the information they need without messaging me first. It saves me time every day and has made my business look far more established.</blockquote>
       <figcaption class="tstm-name">Mandela</figcaption>
     </figure>
-    <figure class="tstm">
+    <figure class="tstm" data-theme="websites automation">
       <div class="tstm-stars" aria-label="4 out of 5">★★★★<span class="off">★</span></div>
       <blockquote>Great experience from start to finish. Martin gave honest advice instead of trying to upsell features I didn't need. The website is fast, modern, and the automated enquiry system has made following up with potential clients much easier. Definitely recommend if you want something built properly.</blockquote>
       <figcaption class="tstm-name">Thamane Skosann</figcaption>
     </figure>
-    <figure class="tstm">
+    <figure class="tstm" data-theme="websites automation seo">
       <div class="tstm-stars" aria-label="5 out of 5">★★★★★</div>
       <blockquote>What stood out most was that this wasn't just another website. Everything was built around getting more enquiries and making the business easier to run. The booking system, contact forms, and Google optimisation all work together, and I've already noticed an increase in genuine leads coming through. Couldn't be happier with the result.</blockquote>
       <figcaption class="tstm-name">Yaaseen</figcaption>
@@ -1343,8 +1362,28 @@ function odometer(el, value){
   });
 }
 
-/* Proof stats. These used to be driven by a tab row; the tabs are gone (Proof is outcomes, not a
-   service menu), so each stat now just counts up to its own data-target. */
+/* Proof tabs filter the client quotes. Cards carry space-separated themes and can match more than
+   one tab, so the counts overlap by design -- a client who talks about both the site and the
+   booking system belongs under both. Cards are hidden with a class rather than removed so the
+   scroll strip keeps its position and nothing has to be re-rendered. */
+(function(){
+  const tabs=[...document.querySelectorAll('#proofTabs .tab')];
+  const cards=[...document.querySelectorAll('#proof .tstm')];
+  if(!tabs.length||!cards.length)return;
+  const strip=cards[0].parentElement;
+  tabs.forEach(tab=>tab.addEventListener('click',()=>{
+    const f=tab.dataset.filter;
+    tabs.forEach(t=>t.classList.toggle('active',t===tab));
+    cards.forEach(c=>{
+      const show=f==='all'||(c.dataset.theme||'').split(' ').includes(f);
+      c.classList.toggle('tstm-hide',!show);
+    });
+    strip.scrollTo({left:0,behavior:'smooth'});
+  }));
+})();
+
+/* Proof stats. These used to be driven by the tab row; the tabs now filter quotes instead, so each
+   stat just counts up to its own data-target. */
 (function(){
   const statEls=[...document.querySelectorAll('#proof .stat-num')];
   if(!statEls.length)return;
