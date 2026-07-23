@@ -1,25 +1,30 @@
 /* HERO SCENE -- live WebGL, not a video file.
 
-   ~26k points that travel between three forms -- a torus knot, a sphere, and a double helix --
-   and, crucially, do not simply cross-fade between them: each transition detonates the cloud
-   into a turbulent curl-noise storm and then reassembles it into the next shape. The violence of
-   that turbulence is what drives the colour, so the acid green only appears at the moment of
-   maximum chaos and the violet returns as order resolves. Order -> chaos -> order, on a loop.
+   26k points that travel through SIX recognisable forms, each one standing for something the
+   agency actually does, and detonate into a turbulent noise storm between every one:
 
-   Chosen over an AI-generated clip because it renders the palette exactly, loops with no seam,
-   reacts to the pointer, iterates for free, and ships as a few KB rather than megabytes of video
-   on the most load-sensitive element of the page.
+       website wireframe  ->  automation flow  ->  system layers
+             ->  growth chart  ->  global reach  ->  conversion funnel
 
-   Performance / correctness notes:
-   - all three target shapes live in attributes and the blend happens in the vertex shader; the
-     CPU only updates three float uniforms per frame, never a 26k-point loop
-   - noise is evaluated in GLSL, so the turbulence costs nothing on the main thread
-   - the canvas buffer is sized to the VIEWPORT, never to #hero3d. That element's height is
-     animated on every frame of the scroll, and resizing a WebGL context mid-scroll is what made
-     the first version glitch. A CSS transform scales the canvas in step with the host instead,
-     so the scene shrinks rather than being cropped, at zero per-frame cost.
+   The turbulence drives the colour, so the acid green only appears at the moment of maximum
+   chaos and the violet returns as each form resolves. Order -> chaos -> order, six times a loop.
+
+   ACCURACY is the whole game here. Points are distributed EVENLY ALONG REAL LINE SEGMENTS
+   (walking a segment list by arc length), not scattered into a volume. Random scattering is why
+   generic particle heroes read as fog -- even arc-length sampling is what makes a rectangle look
+   like a rectangle and a funnel look like a funnel.
+
+   Two position attributes (aFrom/aTo) rather than one per form: the CPU swaps the buffers at each
+   transition, which is an O(n) copy every ~7s. Six separate attributes would cost six times the
+   VRAM permanently to save a copy that happens twice a minute.
+
+   Other notes:
+   - noise runs in GLSL, so turbulence costs nothing on the main thread
+   - the canvas buffer is sized to the VIEWPORT, never to #hero3d, whose height animates every
+     scroll frame; resizing a WebGL context mid-scroll is what made an early version glitch. A
+     CSS transform scales it in step with the host instead, at zero per-frame cost.
    - stops rendering entirely when off-screen or on a hidden tab
-   - no-ops under prefers-reduced-motion, leaving the CSS placeholder visible */
+   - no-ops under prefers-reduced-motion */
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js';
 
 const host = document.getElementById('hero3d');
@@ -28,8 +33,149 @@ if (host && !reduce) init(host);
 
 function init(host) {
   const COUNT = 26000;
-  const CYCLE = 7.5;            // seconds per shape (incl. its transition)
+  const HOLD = 4.2;      // seconds a form stays readable
+  const MORPH = 2.6;     // seconds of detonation + reassembly between forms
 
+  /* ---- segment helpers ------------------------------------------------------------------- */
+  const S = [];                                   // scratch segment list, reused per form
+  const seg = (a, b) => S.push([a, b]);
+  const v = (x, y, z = 0) => new THREE.Vector3(x, y, z);
+
+  function rect(w, h, z = 0, cx = 0, cy = 0) {
+    const x = w / 2, y = h / 2;
+    seg(v(cx - x, cy - y, z), v(cx + x, cy - y, z));
+    seg(v(cx + x, cy - y, z), v(cx + x, cy + y, z));
+    seg(v(cx + x, cy + y, z), v(cx - x, cy + y, z));
+    seg(v(cx - x, cy + y, z), v(cx - x, cy - y, z));
+  }
+  function circle(r, steps, axis, off = 0, cx = 0, cy = 0, cz = 0) {
+    let prev = null;
+    for (let i = 0; i <= steps; i++) {
+      const a = (i / steps) * Math.PI * 2;
+      const c = Math.cos(a) * r, s = Math.sin(a) * r;
+      const p = axis === 'xy' ? v(cx + c, cy + s, cz + off)
+              : axis === 'xz' ? v(cx + c, cy + off, cz + s)
+              :                 v(cx + off, cy + c, cz + s);
+      if (prev) seg(prev, p);
+      prev = p;
+    }
+  }
+
+  /* Even arc-length sampling: walk the total length of the segment list and drop a point every
+     (total/COUNT). This is what gives the forms their edge definition. */
+  function bake(jitter = 0.018) {
+    const lens = S.map(([a, b]) => a.distanceTo(b));
+    const total = lens.reduce((x, y) => x + y, 0);
+    const out = new Float32Array(COUNT * 3);
+    let si = 0, walked = 0;
+    for (let i = 0; i < COUNT; i++) {
+      const d = (i / COUNT) * total;
+      while (si < S.length - 1 && walked + lens[si] < d) { walked += lens[si]; si++; }
+      const t = lens[si] > 0 ? (d - walked) / lens[si] : 0;
+      const [a, b] = S[si];
+      out[i * 3]     = a.x + (b.x - a.x) * t + (Math.random() - 0.5) * jitter;
+      out[i * 3 + 1] = a.y + (b.y - a.y) * t + (Math.random() - 0.5) * jitter;
+      out[i * 3 + 2] = a.z + (b.z - a.z) * t + (Math.random() - 0.5) * jitter;
+    }
+    S.length = 0;
+    return out;
+  }
+
+  /* ---- the six forms --------------------------------------------------------------------- */
+
+  /* 1. WEBSITE -- a browser window: chrome bar, traffic-light dots, hero block, two columns */
+  function formSite() {
+    rect(5.0, 3.4);
+    seg(v(-2.5, 0.85), v(2.5, 0.85));                    // chrome bar underline
+    [-2.2, -2.0, -1.8].forEach(x => circle(0.07, 12, 'xy', 0, x, 1.28));
+    rect(4.2, 1.0, 0.02, 0, 0.15);                       // hero block
+    rect(1.9, 0.9, 0.02, -1.15, -1.0);                   // column left
+    rect(1.9, 0.9, 0.02, 1.15, -1.0);                    // column right
+    return bake();
+  }
+
+  /* 2. AUTOMATION FLOW -- nodes wired together, the shape of a pipeline */
+  function formFlow() {
+    const n = [v(-2.6, 0.9), v(-0.9, 1.5), v(-0.9, -0.3), v(0.9, 0.9),
+               v(0.9, -1.4), v(2.6, 0.2), v(2.6, -1.9)];
+    n.forEach(p => circle(0.26, 18, 'xy', 0, p.x, p.y));
+    [[0, 1], [0, 2], [1, 3], [2, 3], [2, 4], [3, 5], [4, 5], [4, 6]]
+      .forEach(([a, b]) => seg(n[a], n[b]));
+    return bake();
+  }
+
+  /* 3. SYSTEM LAYERS -- stacked slabs, offset in depth */
+  function formLayers() {
+    for (let i = 0; i < 4; i++) {
+      const y = 1.35 - i * 0.9, z = -i * 0.45, w = 4.4 - i * 0.5;
+      rect(w, 0.55, z, 0, y);
+      seg(v(-w / 2, y - 0.275, z), v(-w / 2 + 0.35, y - 0.275, z - 0.35));   // depth cue
+      seg(v(w / 2, y - 0.275, z), v(w / 2 - 0.35, y - 0.275, z - 0.35));
+    }
+    return bake();
+  }
+
+  /* 4. GROWTH -- axes, rising bars, trend line */
+  function formChart() {
+    seg(v(-2.6, -1.8), v(2.6, -1.8));                    // x axis
+    seg(v(-2.6, -1.8), v(-2.6, 1.9));                    // y axis
+    const h = [0.7, 1.2, 1.7, 2.4, 3.2];
+    h.forEach((height, i) => {
+      const x = -1.9 + i * 0.95;
+      rect(0.6, height, 0, x, -1.8 + height / 2);
+    });
+    let prev = null;
+    h.forEach((height, i) => {
+      const p = v(-1.9 + i * 0.95, -1.8 + height + 0.28, 0.15);
+      if (prev) seg(prev, p);
+      prev = p;
+    });
+    return bake();
+  }
+
+  /* 5. REACH -- a wireframe globe */
+  function formGlobe() {
+    const R = 2.3;
+    for (let i = 1; i < 6; i++) {                        // latitudes
+      const y = -R + (i / 6) * 2 * R;
+      circle(Math.sqrt(Math.max(R * R - y * y, 0)), 40, 'xz', y);
+    }
+    for (let i = 0; i < 6; i++) {                        // longitudes
+      let prev = null;
+      for (let j = 0; j <= 40; j++) {
+        const a = (j / 40) * Math.PI * 2, lon = (i / 6) * Math.PI;
+        const p = v(R * Math.sin(a) * Math.cos(lon), R * Math.cos(a), R * Math.sin(a) * Math.sin(lon));
+        if (prev) seg(prev, p);
+        prev = p;
+      }
+    }
+    return bake();
+  }
+
+  /* 6. FUNNEL -- leads narrowing to conversion */
+  function formFunnel() {
+    const top = 2.6, bot = 0.55, hi = 1.9, lo = -1.9;
+    seg(v(-top, hi), v(top, hi));
+    seg(v(-bot, lo), v(bot, lo));
+    seg(v(-top, hi), v(-bot, lo));
+    seg(v(top, hi), v(bot, lo));
+    for (let i = 1; i < 4; i++) {                        // stage dividers
+      const t = i / 4, w = top + (bot - top) * t, y = hi + (lo - hi) * t;
+      seg(v(-w, y), v(w, y));
+    }
+    circle(0.3, 20, 'xy', 0, 0, lo - 0.75);              // the converted drop
+    return bake();
+  }
+
+  const forms = [formSite(), formFlow(), formLayers(), formChart(), formGlobe(), formFunnel()];
+  /* background tint per form -- near-black with a barely-there cast, so the page reads as one
+     colour but never feels static. Deliberately subtle: this is atmosphere, not a colour change. */
+  const tints = ['#0B0B0C', '#0C0A12', '#0A0C0E', '#0B0D0A', '#090B10', '#0D0A0E'];
+
+  const seed = new Float32Array(COUNT);
+  for (let i = 0; i < COUNT; i++) seed[i] = Math.random();
+
+  /* ---- renderer -------------------------------------------------------------------------- */
   const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setClearColor(0x000000, 0);
@@ -37,6 +183,16 @@ function init(host) {
     position: 'absolute', top: '50%', left: '50%',
     transform: 'translate(-50%,-50%)', display: 'block'
   });
+
+  /* soft glow behind the points, tinted per form. A DOM layer rather than more geometry: it costs
+     nothing to render and can't interfere with the additive blending of the particles. */
+  const glow = document.createElement('div');
+  Object.assign(glow.style, {
+    position: 'absolute', inset: '0', pointerEvents: 'none',
+    background: 'radial-gradient(62% 62% at 50% 46%, rgba(144,112,223,.16) 0%, transparent 70%)',
+    transition: 'opacity .6s ease'
+  });
+  host.appendChild(glow);
   host.appendChild(renderer.domElement);
   host.classList.add('has-scene');
 
@@ -44,55 +200,14 @@ function init(host) {
   const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
   camera.position.set(0, 0, 8.6);
 
-  /* ---- the three forms ------------------------------------------------------------------- */
-  const p0 = new Float32Array(COUNT * 3);   // torus knot
-  const p1 = new Float32Array(COUNT * 3);   // sphere
-  const p2 = new Float32Array(COUNT * 3);   // double helix
-  const seed = new Float32Array(COUNT);
-
-  const rand = (a, b) => a + Math.random() * (b - a);
-
-  for (let i = 0; i < COUNT; i++) {
-    const i3 = i * 3;
-
-    /* (2,3) torus knot, with points scattered in a tube around the curve so it reads as a solid
-       form rather than a wire */
-    const t = (i / COUNT) * Math.PI * 2;
-    const kr = 2 + Math.cos(3 * t);
-    const tubeA = rand(0, Math.PI * 2), tubeR = rand(0, 0.42);
-    p0[i3]     = kr * Math.cos(2 * t) * 0.82 + Math.cos(tubeA) * tubeR;
-    p0[i3 + 1] = kr * Math.sin(2 * t) * 0.82 + Math.sin(tubeA) * tubeR;
-    p0[i3 + 2] = Math.sin(3 * t) * 0.95 + Math.cos(tubeA * 1.7) * tubeR;
-
-    /* fibonacci sphere -- even coverage, no polar clumping */
-    const ft = i / COUNT;
-    const phi = Math.acos(1 - 2 * ft);
-    const theta = Math.PI * (1 + Math.sqrt(5)) * i;
-    const sr = 2.55 + rand(-0.12, 0.12);
-    p1[i3]     = sr * Math.sin(phi) * Math.cos(theta);
-    p1[i3 + 1] = sr * Math.sin(phi) * Math.sin(theta);
-    p1[i3 + 2] = sr * Math.cos(phi);
-
-    /* double helix -- two counter-offset strands with a light scatter around each */
-    const ht = i / COUNT;
-    const hAng = ht * Math.PI * 7 + (i % 2 ? Math.PI : 0);
-    const hRad = 1.55 + rand(-0.16, 0.16);
-    p2[i3]     = Math.cos(hAng) * hRad;
-    p2[i3 + 1] = (ht - 0.5) * 5.6 + rand(-0.04, 0.04);
-    p2[i3 + 2] = Math.sin(hAng) * hRad;
-
-    seed[i] = Math.random();
-  }
-
   const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(p0.slice(), 3)); // three requires it
-  geo.setAttribute('aP0', new THREE.BufferAttribute(p0, 3));
-  geo.setAttribute('aP1', new THREE.BufferAttribute(p1, 3));
-  geo.setAttribute('aP2', new THREE.BufferAttribute(p2, 3));
+  const aFrom = new THREE.BufferAttribute(forms[0].slice(), 3);
+  const aTo = new THREE.BufferAttribute(forms[1].slice(), 3);
+  geo.setAttribute('position', new THREE.BufferAttribute(forms[0].slice(), 3)); // three requires it
+  geo.setAttribute('aFrom', aFrom);
+  geo.setAttribute('aTo', aTo);
   geo.setAttribute('aSeed', new THREE.BufferAttribute(seed, 1));
 
-  /* Ashima 3D simplex noise -- the standard implementation, used here to drive the turbulence
-     that tears each shape apart between forms. */
   const NOISE = `
     vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
     vec4 mod289(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}
@@ -123,141 +238,96 @@ function init(host) {
     }`;
 
   const mat = new THREE.ShaderMaterial({
-    transparent: true,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending,
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     uniforms: {
-      uW: { value: new THREE.Vector3(1, 0, 0) },  // blend weights across the three forms
-      uTurb: { value: 0 },                        // 0 = settled, 1 = fully detonated
+      uMix: { value: 0 },
+      uTurb: { value: 0 },
       uTime: { value: 0 },
-      uSize: { value: 15.0 * Math.min(window.devicePixelRatio, 2) },
+      uSize: { value: 13.0 * Math.min(window.devicePixelRatio, 2) },
       uViolet: { value: new THREE.Color('#9070DF') },
       uLime: { value: new THREE.Color('#E6F536') },
-      uPull: { value: 0 },                                  // CTA magnetism strength
-      uPullPos: { value: new THREE.Vector3(0, -3.2, 0) },    // roughly where the CTA sits
-      uCalm: { value: 0 }                                   // 1 = idle, cloud expands and settles
+      uPull: { value: 0 },
+      uPullPos: { value: new THREE.Vector3(0, -3.2, 0) },
+      uCalm: { value: 0 }
     },
     vertexShader: NOISE + `
-      attribute vec3 aP0;
-      attribute vec3 aP1;
-      attribute vec3 aP2;
+      attribute vec3 aFrom;
+      attribute vec3 aTo;
       attribute float aSeed;
-      uniform vec3 uW;
-      uniform float uTurb;
-      uniform float uTime;
-      uniform float uSize;
-      uniform float uPull;
+      uniform float uMix, uTurb, uTime, uSize, uPull, uCalm;
       uniform vec3 uPullPos;
-      uniform float uCalm;
-      varying float vEnergy;
-      varying float vFade;
-      varying float vSeed;
-      varying float vSharp;
+      varying float vEnergy, vFade, vSeed, vSharp;
 
       void main(){
-        vec3 p = aP0 * uW.x + aP1 * uW.y + aP2 * uW.z;
+        /* per-point lag so the form assembles as a wave, not all at once */
+        float m = clamp((uMix - aSeed * 0.3) / 0.7, 0.0, 1.0);
+        m = m * m * (3.0 - 2.0 * m);
+        vec3 p = mix(aFrom, aTo, m);
 
-        /* idle: the whole cloud breathes outward and settles when nothing has been touched */
-        p *= 1.0 + uCalm * 0.42;
+        p *= 1.0 + uCalm * 0.3;
 
-        /* curl-ish turbulence: three offset noise samples give a divergence-free-looking flow,
-           far cheaper than a real curl and visually indistinguishable at this density */
-        float sc = 0.42;
-        float ts = uTime * 0.28;
+        float sc = 0.42, ts = uTime * 0.28;
         vec3 flow = vec3(
           snoise(p * sc + vec3(0.0, ts, 0.0)),
           snoise(p * sc + vec3(ts, 0.0, 5.2)),
           snoise(p * sc + vec3(3.1, 1.7, ts))
         );
+        float amp = uTurb * (0.55 + aSeed * 0.9);
+        p += flow * (amp * 2.2 + 0.05);
 
-        /* per-point lag so the cloud tears apart in a wave rather than uniformly */
-        float lag = 0.55 + aSeed * 0.9;
-        float amp = uTurb * lag;
-
-        /* a constant whisper of drift so the settled shapes still breathe */
-        p += flow * (amp * 2.35 + 0.075);
-
-        /* CTA MAGNETISM -- on CTA hover the nearest points lean toward it */
         vec3 toCta = uPullPos - p;
-        float dC = length(toCta);
-        float grab = uPull * (1.0 - smoothstep(0.0, 5.5, dC));
+        float grab = uPull * (1.0 - smoothstep(0.0, 5.5, length(toCta)));
         p += normalize(toCta + 0.0001) * grab * 2.0;
 
         vec4 mv = modelViewMatrix * vec4(p, 1.0);
         gl_Position = projectionMatrix * mv;
-        gl_PointSize = uSize * (0.55 + aSeed * 0.75) * (1.0 / -mv.z);
+        gl_PointSize = uSize * (0.55 + aSeed * 0.7) * (1.0 / -mv.z);
 
-        vEnergy = clamp(amp * 1.15 + length(flow) * 0.12 + grab * 0.4, 0.0, 1.0);
+        vEnergy = clamp(amp * 1.15 + length(flow) * 0.1 + grab * 0.4, 0.0, 1.0);
         vFade = smoothstep(15.0, 3.5, -mv.z);
-        /* fake depth of field: points near the focal plane stay tight, distant ones bloom soft.
-           Cheaper and safer than a post-processing pass, which fights additive blending. */
         vSharp = 1.0 - smoothstep(0.4, 3.0, abs(-mv.z - 8.6));
         vSeed = aSeed;
-      }
-    `,
+      }`,
     fragmentShader: `
-      uniform vec3 uViolet;
-      uniform vec3 uLime;
-      varying float vEnergy;
-      varying float vFade;
-      varying float vSeed;
-      varying float vSharp;
+      uniform vec3 uViolet, uLime;
+      varying float vEnergy, vFade, vSeed, vSharp;
       void main(){
         vec2 uv = gl_PointCoord - 0.5;
         float d = dot(uv, uv);
-        if(d > 0.25) discard;                       /* round points, not squares */
-        /* depth of field: in-focus points have a hard falloff, out-of-focus ones smear into a
-           soft disc and dim, so the cloud gains real depth instead of reading as a flat sheet */
+        if(d > 0.25) discard;
         float soft = smoothstep(0.25, mix(0.16, 0.0, vSharp), d) * mix(0.45, 1.0, vSharp);
-
-        /* the green is EARNED: it only shows where the cloud is being torn apart, so the palette
-           tracks the story instead of being sprinkled at random */
+        /* green is EARNED -- it only appears where the cloud is being torn apart */
         float g = smoothstep(0.25, 0.85, vEnergy + vSeed * 0.14);
         vec3 col = mix(uViolet, uLime, g);
-        col += g * 0.25;                            /* hot cores at peak chaos */
-
-        gl_FragColor = vec4(col, soft * vFade * 0.8);
-      }
-    `
+        col += g * 0.25;
+        gl_FragColor = vec4(col, soft * vFade * 0.82);
+      }`
   });
 
   const points = new THREE.Points(geo, mat);
   scene.add(points);
 
-  /* ---- input: parallax, repulsion, magnetism, detonation, idle --------------------------- */
+  /* ---- input ----------------------------------------------------------------------------- */
   const target = { x: 0, y: 0 }, eased = { x: 0, y: 0 };
-  let pull = 0, pullTo = 0;          // CTA magnetism, eased
-  let burst = 0;                     // click detonation, decays
-  let idle = 0, lastInput = 0;       // seconds since any interaction
+  let pull = 0, pullTo = 0, burst = 0, idle = 0, lastInput = 0;
 
-  /* world-space cursor: unproject the pointer onto the z=0 plane so repulsion happens where the
-     user actually sees their cursor, not at some arbitrary depth */
   const ndc = new THREE.Vector3();
   function toWorld(cx, cy) {
-    /* map against the CANVAS's own visual box, not the host. The canvas is viewport-sized and
-       CSS-scaled/centred inside the host, so the two rects differ -- using the host put the
-       repulsion centre somewhere other than under the actual cursor. getBoundingClientRect
-       reports the post-transform box, which is exactly what's needed here. */
     const r = renderer.domElement.getBoundingClientRect();
     ndc.set(((cx - r.left) / r.width) * 2 - 1, -((cy - r.top) / r.height) * 2 + 1, 0.5);
     ndc.unproject(camera);
     const dir = ndc.sub(camera.position).normalize();
     return camera.position.clone().add(dir.multiplyScalar(-camera.position.z / dir.z));
   }
-
-  /* pointer drives the parallax tilt only. Cursor repulsion was removed deliberately: pushing
-     points away from the pointer carves a circular void that reads as a magnifying-glass
-     artefact sitting on top of the artwork, rather than as the cloud reacting to you. */
+  /* pointer drives the parallax tilt only -- repulsion was removed deliberately, it carved a
+     circular void that read as a magnifying glass sitting on the artwork */
   window.addEventListener('pointermove', e => {
     target.x = (e.clientX / window.innerWidth - 0.5) * 2;
     target.y = (e.clientY / window.innerHeight - 0.5) * 2;
     lastInput = 0;
   }, { passive: true });
-
-  /* click anywhere on the scene forces an early explosion -- rewards poking at it */
   host.addEventListener('pointerdown', () => { burst = 1; lastInput = 0; });
 
-  /* CTA magnetism: the nearest points lean toward the button while it's hovered */
   const ctaWorld = new THREE.Vector3(0, -3.2, 0);
   const cta = document.querySelector('.hero-ctas .btn');
   if (cta) {
@@ -268,12 +338,9 @@ function init(host) {
     });
     cta.addEventListener('pointerleave', () => { pullTo = 0; });
   }
-
-  /* SCROLL VELOCITY -> turbulence. Measured off scrollY per frame rather than a scroll event so
-     it decays smoothly to zero instead of sticking at the last event's value. */
   let lastScroll = window.scrollY, scrollVel = 0;
 
-  /* ---- sizing -- viewport-keyed buffer, transform-scaled to the host ---------------------- */
+  /* ---- sizing ---------------------------------------------------------------------------- */
   function resize() {
     const w = window.innerWidth, h = window.innerHeight;
     renderer.setSize(w, h, false);
@@ -283,67 +350,61 @@ function init(host) {
     camera.updateProjectionMatrix();
     fit();
   }
-  /* scale, not crop: the buffer stays put and CSS shrinks it in step with #hero3d. `contain` fit
-     so the whole scene stays visible; the margin is invisible since host and section share a bg */
   function fit() {
-    const s = Math.min(host.clientWidth / window.innerWidth,
-                       host.clientHeight / window.innerHeight);
-    renderer.domElement.style.transform =
-      'translate(-50%,-50%) scale(' + Math.max(s, 0.05).toFixed(4) + ')';
+    const s = Math.min(host.clientWidth / window.innerWidth, host.clientHeight / window.innerHeight);
+    renderer.domElement.style.transform = 'translate(-50%,-50%) scale(' + Math.max(s, 0.05).toFixed(4) + ')';
   }
   let rt = null;
   window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resize, 120); });
-  new ResizeObserver(fit).observe(host);   /* cheap: sets a transform, never reallocates */
+  new ResizeObserver(fit).observe(host);
   resize();
 
-  /* ---- loop ------------------------------------------------------------------------------- */
-  let running = true, raf = null, t = 0;
+  /* ---- loop ------------------------------------------------------------------------------ */
+  let running = true, raf = null, t = 0, cur = 0, phase = 0, morphing = false;
   const clock = new THREE.Clock();
-  const w = new THREE.Vector3();
-  const scratchB = new THREE.Vector3();
+  const scratch = new THREE.Vector3();
+
+  function advance() {
+    /* buffer swap at the transition rather than holding all six forms in VRAM permanently */
+    cur = (cur + 1) % forms.length;
+    aFrom.array.set(forms[cur]);
+    aTo.array.set(forms[(cur + 1) % forms.length]);
+    aFrom.needsUpdate = aTo.needsUpdate = true;
+    glow.style.background =
+      `radial-gradient(62% 62% at 50% 46%, ${cur % 2 ? 'rgba(230,245,54,.10)' : 'rgba(144,112,223,.16)'} 0%, transparent 70%)`;
+    host.style.backgroundColor = tints[cur];
+  }
 
   function frame() {
     if (!running) return;
     raf = requestAnimationFrame(frame);
-    /* own accumulator with a clamped delta: THREE.Clock keeps running while paused off-screen,
-       so elapsed time would leap and the animation would snap on resume. Captured once -- a
-       second getDelta() call in the same frame returns ~0. */
     const dt = Math.min(clock.getDelta(), 0.05);
     t += dt;
+    phase += dt;
 
-    /* phase 0..3 across the three forms; `f` is progress within the current transition */
-    const phase = (t / CYCLE) % 3;
-    const idx = Math.floor(phase);
-    let f = phase - idx;
+    /* hold the form readable, then morph. uMix only moves during the morph window. */
+    let e = 0;
+    if (phase < HOLD) { e = 0; morphing = false; }
+    else {
+      const k = Math.min((phase - HOLD) / MORPH, 1);
+      e = k * k * (3 - 2 * k);
+      morphing = true;
+      if (k >= 1) { advance(); phase = 0; e = 0; }
+    }
+    mat.uniforms.uMix.value = e;
 
-    /* dwell: hold each form for the first 45% of its slot, then travel. Without the hold the
-       shapes never actually resolve and it reads as permanent soup. */
-    const travel = Math.max(0, (f - 0.45) / 0.55);
-    const e = travel * travel * (3 - 2 * travel);          // smoothstep
-
-    w.set(0, 0, 0);
-    w.setComponent(idx, 1 - e);
-    w.setComponent((idx + 1) % 3, e);
-    mat.uniforms.uW.value.copy(w);
-
-    /* --- ONE turbulence budget ---------------------------------------------------------------
-       Three sources feed it: the shape transition, scroll velocity, and click detonation. They
-       are summed and then hard-capped, because three independent sources each free to reach full
-       strength just produces noise -- the cloud reads as broken rather than reactive. */
+    /* ONE capped turbulence budget: transition + scroll velocity + click detonation. Three
+       uncapped sources just produce noise rather than reactivity. */
     const sy = window.scrollY;
-    /* per-frame delta rather than a scroll event: this decays smoothly to zero on its own
-       instead of sticking at whatever the last event reported */
     scrollVel += (Math.min(Math.abs(sy - lastScroll) / 34, 1) - scrollVel) * 0.22;
     lastScroll = sy;
-    burst *= 0.94;                                              // detonation decays
-
-    const transition = Math.sin(e * Math.PI) * 0.92;
-    mat.uniforms.uTurb.value = Math.min(1.15, transition + scrollVel * 0.95 + burst * 1.1);
+    burst *= 0.94;
+    mat.uniforms.uTurb.value = Math.min(1.15,
+      Math.sin(e * Math.PI) * 0.95 + scrollVel * 0.9 + burst * 1.1);
     mat.uniforms.uTime.value = t;
 
-    /* idle: after ~14s untouched the cloud expands and calms */
     lastInput += dt;
-    idle += (( lastInput > 6 ? 1 : 0 ) - idle) * 0.03;
+    idle += ((lastInput > 6 ? 1 : 0) - idle) * 0.03;
     mat.uniforms.uCalm.value = idle;
 
     pull += (pullTo - pull) * 0.10;
@@ -351,16 +412,13 @@ function init(host) {
 
     eased.x += (target.x - eased.x) * 0.045;
     eased.y += (target.y - eased.y) * 0.045;
-    points.rotation.y = t * 0.075 + eased.x * 0.4;
-    points.rotation.x = eased.y * 0.25;
+    /* forms are front-facing by design, so the idle spin is gentle -- a fast rotation would
+       destroy the readability the arc-length sampling exists to create */
+    points.rotation.y = Math.sin(t * 0.16) * 0.28 + eased.x * 0.38;
+    points.rotation.x = Math.sin(t * 0.11) * 0.10 + eased.y * 0.22;
 
-    /* the shader positions points in OBJECT space, but the cursor and CTA are captured in world
-       space -- and this object is rotating. Convert after the rotation is applied, or repulsion
-       lands somewhere other than under the actual cursor. */
     points.updateMatrixWorld();
-    /* scratch vectors reused rather than cloned -- this runs 60-120x a second, and two fresh
-       Vector3 allocations per frame is needless GC pressure on the hero */
-    mat.uniforms.uPullPos.value.copy(points.worldToLocal(scratchB.copy(ctaWorld)));
+    mat.uniforms.uPullPos.value.copy(points.worldToLocal(scratch.copy(ctaWorld)));
 
     renderer.render(scene, camera);
   }
@@ -371,5 +429,7 @@ function init(host) {
     { threshold: 0 }).observe(host);
   document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
 
+  host.style.transition = 'background-color 1.6s ease';
+  host.style.backgroundColor = tints[0];
   frame();
 }
