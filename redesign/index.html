@@ -758,15 +758,6 @@ function fxWords(el){
       {opacity:1,y:0,duration:0.5,stagger:0.022,ease:'power2.out',overwrite:true},0);
   });
 }
-/* SKEW -- body slides in from the side with a slight shear that straightens out. */
-function fxSkew(el){
-  if(reduce)return;
-  gsap.set(el,{opacity:0,x:-40,skewX:6});
-  replayIn(el,()=>{
-    gsap.fromTo(el,{opacity:0,x:-40,skewX:6},
-      {opacity:1,x:0,skewX:0,duration:0.8,ease:'power3.out',overwrite:true});
-  });
-}
 /* CLIP -- body is wiped in left-to-right behind a moving edge. */
 function fxClip(el){
   if(reduce)return;
@@ -793,7 +784,6 @@ document.querySelectorAll('.fx-rise').forEach(fxRise);
 document.querySelectorAll('.fx-mask').forEach(fxMask);
 document.querySelectorAll('.fx-scale').forEach(fxScale);
 document.querySelectorAll('.fx-words').forEach(fxWords);
-document.querySelectorAll('.fx-skew').forEach(fxSkew);
 document.querySelectorAll('.fx-clip').forEach(fxClip);
 document.querySelectorAll('.fx-group').forEach(fxGroup);
 
