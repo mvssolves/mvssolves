@@ -110,12 +110,11 @@
      group into the middle of the bar, leaving it stranded far from the wordmark. The CTA is
      pushed to the far right on its own with margin-left:auto. */
   .nav-inner{display:flex;align-items:center;gap:40px;padding:18px 40px;}
-  /* logo: a violet->green gradient diamond mark + wordmark, top-left */
-  .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:#111;}
+  /* logo: the M mark alone, top-left. No wordmark -- the footer wordmark carries the name. */
+  .nav-logo{display:flex;align-items:center;color:#111;}
   /* the M mark inherits currentColor, so it's white over the dark hero and dark on white
      sections automatically -- same reason it's inline SVG rather than a flat black-tile PNG */
-  .logo-mark{width:24px;height:24px;flex:none;display:block;color:inherit;}
-  .logo-word{font-weight:800;font-size:17px;letter-spacing:-.01em;}
+  .logo-mark{width:30px;height:30px;flex:none;display:block;color:inherit;}
   .nav-links{display:flex;gap:26px;font-size:14px;}
   .nav-inner>.btn{margin-left:auto;}
   /* ---- HOVER LAYER -------------------------------------------------------------------------
@@ -205,10 +204,14 @@
   .hero-copy h1{color:#fff;}
   .hero-sub{color:rgba(255,255,255,.7);}
   /* nav sits over the dark hero while transparent, so its text has to invert with it */
-  nav.nav-clear .nav-links a,nav.nav-clear .nav-logo,nav.nav-clear .logo-word{color:#fff;}
-  /* hero marquee on black */
-  .hero-block .marquee{border-color:rgba(255,255,255,.16);}
-  .hero-block .marquee-track span{color:rgba(255,255,255,.55);}
+  nav.nav-clear .nav-links a,nav.nav-clear .nav-logo{color:#fff;}
+  /* hero marquee on black. Words go solid white; every second WORD is knocked out to an outline
+     so the strip has rhythm instead of reading as one flat band. Word spans are the odd children
+     (separators are the even ones), so "every second word" is 4n+3 -- and because each repeated
+     copy of the tag set is a multiple of 4 spans, that alternation survives the JS duplication. */
+  .hero-block .marquee-track span{color:#fff;}
+  .hero-block .marquee-track span:nth-child(4n+3){color:transparent;
+    -webkit-text-stroke:1.2px rgba(255,255,255,.6);}
   .hero-sticky{position:sticky;top:0;height:100vh;overflow:hidden;}
   #proof{z-index:2;}
   #process{z-index:3;}
@@ -291,10 +294,17 @@
   .hero-sub{max-width:42ch;margin-bottom:16px;}
   .hero-ctas{display:flex;gap:14px;align-items:center;}
 
-  /* MARQUEE */
-  .marquee{overflow:hidden;white-space:nowrap;border-top:1px dashed #ccc;border-bottom:1px dashed #ccc;padding:20px 0;}
-  .marquee-track{display:inline-flex;gap:14px;animation:marquee 22s linear infinite;}
-  .marquee-track span{font-size:14px;color:#666;}
+  /* MARQUEE -- a display ticker, not fine print. The dashed rules are gone: at this size they
+     read cheap, and a mask that dissolves both ends into the background does the framing job
+     better. Separators drop to small lime so the strip pulses instead of running flat. */
+  .marquee{overflow:hidden;white-space:nowrap;padding:14px 0;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 9%,#000 91%,transparent 100%);
+            mask-image:linear-gradient(90deg,transparent 0,#000 9%,#000 91%,transparent 100%);}
+  .marquee-track{display:inline-flex;align-items:center;gap:20px;animation:marquee 38s linear infinite;}
+  .marquee-track span{font-size:clamp(24px,2.9vw,42px);font-weight:700;line-height:1;
+    text-transform:uppercase;letter-spacing:-.015em;color:var(--ink);}
+  .marquee-track span:nth-child(even){font-size:clamp(11px,1vw,15px);color:var(--accent2);
+    transform:translateY(-.35em);}
   @keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
   @media(prefers-reduced-motion:reduce){.marquee-track{animation:none;}}
 
@@ -350,7 +360,14 @@
   .foot-col a{display:block;color:#ccc;text-decoration:none;font-size:14px;margin-bottom:8px;}
   .foot-cta{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
   .foot-email{background:transparent;border:1px solid #444;border-radius:999px;padding:12px 18px;color:#fff;font-size:14px;min-width:220px;}
-  .foot-legal{padding:14px 0 0;font-size:12px;color:#666;}
+  .foot-plain{display:block;color:#888;font-size:14px;margin-bottom:8px;}
+  /* legal row runs inline and wraps -- it is a dense strip, not a column of links */
+  .foot-legal{padding:14px 0 0;font-size:12px;color:#666;display:flex;flex-wrap:wrap;
+    align-items:center;gap:8px;}
+  .foot-legal a{color:#888;text-decoration:none;transition:color .2s ease;}
+  .foot-legal a:hover{color:#fff;}
+  .foot-legal span{color:#444;}
+  .foot-copy{margin-left:auto;color:#666 !important;}
   /* wordmark is the LAST thing in the footer, so it can only ever sit at the very bottom of the
      page -- it can't ride up over the columns or the Send CTA no matter the viewport, which was
      the recurring overlap bug. Sized to fit "MVS Solves" whole: no clipping, no bleed-off. */
@@ -375,13 +392,13 @@
 
 <nav>
   <div class="nav-inner">
-    <a class="nav-logo" href="#top" aria-label="MVS Solves home">
+    <!-- mark only, and deliberately NOT a link: it is identity, not navigation. -->
+    <div class="nav-logo" role="img" aria-label="MVS Solves">
       <svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true">
         <polyline points="14,49 14,15 32,41 50,15 50,49" fill="none"
           stroke="currentColor" stroke-width="10" stroke-linejoin="miter" stroke-linecap="butt"/>
       </svg>
-      <span class="logo-word">MVS Solves</span>
-    </a>
+    </div>
     <div class="nav-links">
       <a href="#proof">Proof</a>
       <a href="#process">How it works</a>
@@ -508,22 +525,38 @@
 <footer>
   <div class="foot-inner">
     <div class="foot-col">
-      <h3>[Col 1 title]</h3>
-      <a href="#">[link]</a><a href="#">[link]</a><a href="#">[link]</a>
+      <h3>Explore</h3>
+      <a href="#proof">Proof</a><a href="#process">How it works</a>
+      <a href="#why">Why me</a><a href="#services">What I build</a>
     </div>
     <div class="foot-col">
-      <h3>[Col 2 title]</h3>
-      <a href="#">[link]</a><a href="#">[link]</a>
+      <h3>Company</h3>
+      <a href="#about">About</a><a href="/book-a-call">Book a call</a>
+      <a href="/faq">FAQ</a><a href="/join-the-team">Careers</a>
     </div>
     <div class="foot-col">
-      <h3>[Still have questions?]</h3>
+      <h3>Contact</h3>
+      <a href="mailto:martin@mvssolves.com">martin@mvssolves.com</a>
+      <span class="foot-plain">Brea, California</span>
+      <span class="foot-plain">Remote &amp; on-site</span>
+    </div>
+    <div class="foot-col">
+      <h3>Still have questions?</h3>
       <div class="foot-cta">
-        <input class="foot-email" type="email" placeholder="[enter your email]">
-        <a class="btn filled" href="#">[Send]</a>
+        <input class="foot-email" type="email" placeholder="Enter your email">
+        <a class="btn filled" href="#">Send</a>
       </div>
     </div>
   </div>
-  <div class="foot-legal">[legal placeholder] · © [year]</div>
+  <div class="foot-legal">
+    <a href="/privacy-policy">Privacy Policy</a><span>·</span>
+    <a href="/terms-of-service">Terms of Service</a><span>·</span>
+    <a href="/acceptable-use-policy">Acceptable Use</a><span>·</span>
+    <a href="/data-processing-agreement">DPA</a><span>·</span>
+    <a href="/security">Security</a><span>·</span>
+    <a href="/accessibility-statement">Accessibility</a><span>·</span>
+    <span class="foot-copy">© 2026 MVS Solves</span>
+  </div>
   <!-- wordmark sits LAST so it always lands at the very bottom of the page and can never ride
        up over the columns/CTA. Full text, no clipping, halftone dot field behind it. -->
   <div class="foot-bottom">
