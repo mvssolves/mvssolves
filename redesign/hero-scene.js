@@ -133,8 +133,6 @@ function init(host) {
       uSize: { value: 15.0 * Math.min(window.devicePixelRatio, 2) },
       uViolet: { value: new THREE.Color('#9070DF') },
       uLime: { value: new THREE.Color('#E6F536') },
-      uPointer: { value: new THREE.Vector3(999, 999, 0) },  // cursor in world space
-      uRepel: { value: 0 },                                 // 0 when pointer is away
       uPull: { value: 0 },                                  // CTA magnetism strength
       uPullPos: { value: new THREE.Vector3(0, -3.2, 0) },    // roughly where the CTA sits
       uCalm: { value: 0 }                                   // 1 = idle, cloud expands and settles
@@ -148,8 +146,6 @@ function init(host) {
       uniform float uTurb;
       uniform float uTime;
       uniform float uSize;
-      uniform vec3 uPointer;
-      uniform float uRepel;
       uniform float uPull;
       uniform vec3 uPullPos;
       uniform float uCalm;
@@ -181,13 +177,6 @@ function init(host) {
         /* a constant whisper of drift so the settled shapes still breathe */
         p += flow * (amp * 2.35 + 0.075);
 
-        /* CURSOR REPULSION -- points shove away from the pointer, falling off with distance.
-           Applied before the pull so the two can't cancel each other into stillness. */
-        vec3 away = p - uPointer;
-        float dP = length(away);
-        float push = uRepel * (1.0 - smoothstep(0.0, 3.4, dP));
-        p += normalize(away + 0.0001) * push * 3.2;
-
         /* CTA MAGNETISM -- on CTA hover the nearest points lean toward it */
         vec3 toCta = uPullPos - p;
         float dC = length(toCta);
@@ -198,7 +187,7 @@ function init(host) {
         gl_Position = projectionMatrix * mv;
         gl_PointSize = uSize * (0.55 + aSeed * 0.75) * (1.0 / -mv.z);
 
-        vEnergy = clamp(amp * 1.15 + length(flow) * 0.12 + push * 0.5 + grab * 0.4, 0.0, 1.0);
+        vEnergy = clamp(amp * 1.15 + length(flow) * 0.12 + grab * 0.4, 0.0, 1.0);
         vFade = smoothstep(15.0, 3.5, -mv.z);
         /* fake depth of field: points near the focal plane stay tight, distant ones bloom soft.
            Cheaper and safer than a post-processing pass, which fights additive blending. */
@@ -237,8 +226,6 @@ function init(host) {
 
   /* ---- input: parallax, repulsion, magnetism, detonation, idle --------------------------- */
   const target = { x: 0, y: 0 }, eased = { x: 0, y: 0 };
-  const ptr = new THREE.Vector3(999, 999, 0);
-  let repel = 0, repelTo = 0;        // cursor repulsion, eased
   let pull = 0, pullTo = 0;          // CTA magnetism, eased
   let burst = 0;                     // click detonation, decays
   let idle = 0, lastInput = 0;       // seconds since any interaction
@@ -258,16 +245,14 @@ function init(host) {
     return camera.position.clone().add(dir.multiplyScalar(-camera.position.z / dir.z));
   }
 
+  /* pointer drives the parallax tilt only. Cursor repulsion was removed deliberately: pushing
+     points away from the pointer carves a circular void that reads as a magnifying-glass
+     artefact sitting on top of the artwork, rather than as the cloud reacting to you. */
   window.addEventListener('pointermove', e => {
     target.x = (e.clientX / window.innerWidth - 0.5) * 2;
     target.y = (e.clientY / window.innerHeight - 0.5) * 2;
     lastInput = 0;
-    const r = host.getBoundingClientRect();
-    const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
-    repelTo = inside ? 1 : 0;
-    if (inside) ptr.copy(toWorld(e.clientX, e.clientY));
   }, { passive: true });
-  window.addEventListener('pointerleave', () => { repelTo = 0; }, { passive: true });
 
   /* click anywhere on the scene forces an early explosion -- rewards poking at it */
   host.addEventListener('pointerdown', () => { burst = 1; lastInput = 0; });
@@ -315,7 +300,7 @@ function init(host) {
   let running = true, raf = null, t = 0;
   const clock = new THREE.Clock();
   const w = new THREE.Vector3();
-  const scratchA = new THREE.Vector3(), scratchB = new THREE.Vector3();
+  const scratchB = new THREE.Vector3();
 
   function frame() {
     if (!running) return;
@@ -361,9 +346,7 @@ function init(host) {
     idle += (( lastInput > 6 ? 1 : 0 ) - idle) * 0.03;
     mat.uniforms.uCalm.value = idle;
 
-    repel += (repelTo - repel) * 0.08;
     pull += (pullTo - pull) * 0.10;
-    mat.uniforms.uRepel.value = repel;
     mat.uniforms.uPull.value = pull;
 
     eased.x += (target.x - eased.x) * 0.045;
@@ -377,7 +360,6 @@ function init(host) {
     points.updateMatrixWorld();
     /* scratch vectors reused rather than cloned -- this runs 60-120x a second, and two fresh
        Vector3 allocations per frame is needless GC pressure on the hero */
-    mat.uniforms.uPointer.value.copy(points.worldToLocal(scratchA.copy(ptr)));
     mat.uniforms.uPullPos.value.copy(points.worldToLocal(scratchB.copy(ctaWorld)));
 
     renderer.render(scene, camera);
