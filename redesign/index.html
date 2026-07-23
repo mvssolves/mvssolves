@@ -176,7 +176,7 @@
      top:var(--nav-h) (not 0) so a layer sticks right below the nav instead
      of behind it (nav has higher z-index and would otherwise paint over
      the top ~72px of whatever's stuck at top:0). */
-  #technology,#products,#expertise,#features,.team-block{
+  #why,#services,#proof,#process,.team-block{
     position:sticky;top:var(--nav-h);background:#fff;min-height:calc(100vh - var(--nav-h));
     border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);
     display:flex;flex-direction:column;justify-content:center;
@@ -207,10 +207,10 @@
   .hero-block .marquee{border-color:rgba(255,255,255,.16);}
   .hero-block .marquee-track span{color:rgba(255,255,255,.55);}
   .hero-sticky{position:sticky;top:0;height:100vh;overflow:hidden;}
-  #expertise{z-index:2;}
-  #features{z-index:3;}
-  #technology{z-index:4;}
-  #products{z-index:5;}
+  #proof{z-index:2;}
+  #process{z-index:3;}
+  #why{z-index:4;}
+  #services{z-index:5;}
   /* min-height:auto, not 60vh: with justify-content:center inherited from the stack-layer rule,
      a 60vh floor on ~400px of content split the leftover ~300px evenly above and below, which is
      where the dead space above the tag strip came from. Sized to its content with real padding
@@ -379,10 +379,10 @@
       <span class="logo-word">MVS Solves</span>
     </a>
     <div class="nav-links">
-      <a href="#expertise">Proof</a>
-      <a href="#features">How it works</a>
-      <a href="#technology">Why me</a>
-      <a href="#products">What I build</a>
+      <a href="#proof">Proof</a>
+      <a href="#process">How it works</a>
+      <a href="#why">Why me</a>
+      <a href="#services">What I build</a>
     </div>
     <a class="btn filled" href="#">Let's talk</a>
   </div>
@@ -426,10 +426,10 @@
 </div>
 
 <!-- EXPERTISE (PROOF) -- layer 2, rises over the hero. Testimonials + stats. -->
-<section id="expertise" class="wrap">
-  <div class="eyebrow">[Eyebrow — Expertise]</div>
-  <h2 class="fx-rise">[Expertise section heading]</h2>
-  <div class="tab-row" id="expertiseTabs">
+<section id="proof" class="wrap">
+  <div class="eyebrow">Proof</div>
+  <h2 class="fx-rise">[Proof heading — testimonials + results]</h2>
+  <div class="tab-row" id="proofTabs">
     <button class="tab active" data-stat1="12" data-stat2="8">[Tab one]</button>
     <button class="tab" data-stat1="6" data-stat2="20">[Tab two]</button>
     <button class="tab" data-stat1="30" data-stat2="15">[Tab three]</button>
@@ -448,9 +448,9 @@
 </section>
 
 <!-- KEY FEATURES (HOW IT WORKS) -- layer 3, covers Expertise. -->
-<section id="features" class="wrap">
-  <div class="eyebrow">[Eyebrow — Key Features]</div>
-  <h2 class="fx-mask">[Key Features section heading]</h2>
+<section id="process" class="wrap">
+  <div class="eyebrow">How it works</div>
+  <h2 class="fx-mask">[How it works heading]</h2>
   <div class="feature-stack fx-group" id="featureStack">
     <div class="feature-row">
       <div class="feat-num">01</div>
@@ -468,17 +468,17 @@
 </section>
 
 <!-- TECHNOLOGY (WHY ME) -- layer 4, covers Key Features. -->
-<section id="technology" class="wrap">
-  <div class="eyebrow">[Eyebrow — Technology]</div>
-  <h2 class="fx-type">[Technology section heading — template words]</h2>
+<section id="why" class="wrap">
+  <div class="eyebrow">Why me</div>
+  <h2 class="fx-type">[Why me heading]</h2>
   <p class="fx-clip">[Body paragraph one — template placeholder copy describing this section's real content once written.]</p>
   <p class="fx-words" style="margin-top:10px;">[Body paragraph two — template placeholder copy.]</p>
 </section>
 
 <!-- PRODUCTS (WHAT I BUILD) -- layer 5, covers Technology. -->
-<section id="products" class="wrap">
-  <div class="eyebrow">[Eyebrow — Products]</div>
-  <h2 class="fx-alt">[Products section heading]</h2>
+<section id="services" class="wrap">
+  <div class="eyebrow">Services</div>
+  <h2 class="fx-alt">[What I build heading]</h2>
   <div class="card-grid fx-group">
     <div class="card"><div class="icon-placeholder"></div><h3>[Product one]</h3><p>[Template copy placeholder.]</p></div>
     <div class="card"><div class="icon-placeholder"></div><h3>[Product two]</h3><p>[Template copy placeholder.]</p></div>
@@ -599,7 +599,7 @@ document.addEventListener('click',e=>{
   /* nav is transparent for the whole hero and only solidifies as Technology arrives -- keeping
      every fade well clear of the scene itself. */
   navEl.classList.add('nav-clear');
-  ScrollTrigger.create({trigger:'#technology',start:'top 85%',
+  ScrollTrigger.create({trigger:'#proof',start:'top 85%',
     onEnter:()=>navEl.classList.remove('nav-clear'),
     onLeaveBack:()=>navEl.classList.add('nav-clear')});
 
@@ -903,8 +903,8 @@ function odometer(el, value){
 }
 
 (function(){
-  const tabs=[...document.querySelectorAll('#expertiseTabs .tab')];
-  const statEls=[...document.querySelectorAll('#expertise .stat-num')];
+  const tabs=[...document.querySelectorAll('#proofTabs .tab')];
+  const statEls=[...document.querySelectorAll('#proof .stat-num')];
   if(!tabs.length||!statEls.length)return;
   function activate(tab){
     tabs.forEach(t=>t.classList.toggle('active',t===tab));
