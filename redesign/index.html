@@ -163,10 +163,14 @@
      heading, stats and CTA down the viewport. */
   .team-block{z-index:6;text-align:center;align-items:center;justify-content:flex-start;
     min-height:auto;padding:56px 0 120px;}
-  .team-sub{margin:12px auto 0;max-width:52ch;}
-  .team-stats{display:flex;gap:56px;justify-content:center;flex-wrap:wrap;margin:28px 0 4px;}
+  /* stack pulled tight so the stats sit just under the heading and the CTA follows straight
+     after -- the block was spreading over most of the viewport with big dead gaps between each
+     element. The section's own bottom padding gives the breathing room instead. */
+  .team-block h2{margin-bottom:6px;}
+  .team-sub{margin:6px auto 0;max-width:52ch;}
+  .team-stats{display:flex;gap:56px;justify-content:center;flex-wrap:wrap;margin:22px 0 0;}
   .team-stats .stat-label{margin-top:2px;}
-  .team-cta{margin-top:24px;}
+  .team-cta{margin-top:20px;}
   footer{position:relative;z-index:7;border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);}
 
   /* HERO */

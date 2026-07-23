@@ -7,9 +7,10 @@
    Deliberate choices:
    - the morph runs on the GPU (both target positions live in attributes, the shader mixes them)
      rather than looping 20k points in JS every frame
-   - renders into #hero3d, whose height is animated on every frame of the scroll. The canvas is
-     therefore sized to the VIEWPORT and centred, never to the host, and #hero3d crops it --
-     resizing a WebGL context mid-scroll is what made the first version glitch
+   - renders into #hero3d, whose height is animated on every frame of the scroll. The canvas
+     buffer is sized to the VIEWPORT and never to the host (resizing a WebGL context mid-scroll
+     is what made the first version glitch); a CSS transform then scales it down in step with
+     the host, so the scene shrinks rather than being cropped
    - stops rendering entirely when off-screen or on a hidden tab -- same convention as every
      other continuous effect on the live site
    - no-ops under prefers-reduced-motion, leaving the CSS placeholder visible */
@@ -163,6 +164,22 @@ function init(host) {
     rt = setTimeout(resize, 120);
   });
   resize();
+
+  /* SCALE, not crop. The canvas keeps its fixed viewport-sized buffer (so nothing reallocates
+     mid-scroll -- that was the glitch), and instead a CSS transform shrinks it in step with the
+     host as the scroll timeline animates #hero3d's height. transform is GPU-composited, so this
+     is free per frame, unlike setSize().
+     `contain` fit (the smaller of the two ratios) so the whole scene shrinks and stays fully
+     visible rather than being cut off. The leftover margin is invisible because #hero3d and the
+     hero section share the same background colour. */
+  function fit() {
+    const s = Math.min(host.clientWidth / window.innerWidth,
+                       host.clientHeight / window.innerHeight);
+    renderer.domElement.style.transform =
+      'translate(-50%,-50%) scale(' + Math.max(s, 0.05).toFixed(4) + ')';
+  }
+  new ResizeObserver(fit).observe(host);
+  fit();
 
   /* ---- loop ------------------------------------------------------------------------------ */
   let running = true, raf = null, t = 0;
