@@ -48,12 +48,45 @@ stale silently and then returns nothing for recently-added files, which
 looks like "no results" rather than "not indexed". This is what made it
 useless for `redesign/` until 2026-07-23.
 
+**Never `--inputs .`** — that indexes `.cache/` into itself, and the
+reducer's own `session_memory.json` then outranks real source files.
+Pass source paths explicitly (`--inputs` is repeatable, NOT comma-
+separated — a comma list is read as one bogus path and silently indexes
+nothing):
+
 ```bash
 source ~/.claude/plugins/marketplaces/Madhan230205-claude-token-reducer/.venv/bin/activate
 P=~/.claude/plugins/marketplaces/Madhan230205-claude-token-reducer/scripts/context_pipeline.py
-python $P sync  --inputs . --db .cache/index.db          # incremental, fast
+python $P sync --db .cache/index.db \
+  --inputs index.html --inputs main.js --inputs shared.js --inputs bg3d.js \
+  --inputs redesign --inputs faq --inputs book-a-call --inputs join-the-team \
+  --inputs security --inputs privacy-policy --inputs terms-of-service \
+  --inputs acceptable-use-policy --inputs accessibility-statement \
+  --inputs data-processing-agreement --inputs functions
 python $P query --query "<question>" --db .cache/index.db --json
 ```
+
+### PATCHED PLUGIN — re-apply after any plugin update
+
+`scripts/token_reducer/chunker.py` in the plugin has `.js` and `.jsx`
+commented out of `_TREE_SITTER_LANGUAGES` (backup: `chunker.py.bak`).
+
+Why: `_extract_ast_chunks()` keeps only whitelisted AST node types and
+**silently discards the rest of the file** — top-level statements,
+template literals (i.e. GLSL shader strings), comments. Measured on the
+same file indexed as `.js` vs `.txt`: **1 chunk vs 22**, and identifiers
+inside it (`uTurb`, `snoise`) returned **zero** FTS hits. Across the repo
+it was reducing `main.js` (~1500 lines) to 5 chunks and every other JS
+file to 1 — the whole JS codebase was unsearchable.
+
+After the patch: `main.js` 5 → 74 chunks, `hero-scene.js` 1 → 20,
+`shared.js` 1 → 19, and a real query ("where is the turbulence uniform
+set") went from returning unrelated nav code to returning `hero-scene.js`
+top-ranked at 94.76% token reduction.
+
+Note: the `astChunkingEnabled` flag in the plugin's `settings.json` is a
+**no-op** for the CLI — flipping it changes nothing. The chunker.py edit
+is the only thing that works.
 
 **Config findings — measured 2026-07-23, don't redo these experiments:**
 
