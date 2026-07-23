@@ -20,10 +20,14 @@
     scroll (seen white-covers-black, black-covers-white, hero-covered-by-
     Technology -- happens at every section boundary). Pure CSS, no
     ScrollTrigger pin needed for this part -- sticky stacking does it natively.
-  - on-load hero intro (NOT scroll-triggered): eyebrow/heading/subhead/CTAs
-    stagger up the instant the page loads, hero visual placeholder settles
-    from a blurred/scaled state to sharp. Confirmed: this plays before the
-    user ever touches scroll.
+  - hero loads FULLSCREEN then recedes: the visual fills the whole viewport
+    on load (nav floating transparent over it, headline overlaid on it and
+    nothing else). Scrolling scrubs it back into a small inset rounded card
+    while an inner sticky viewport HOLDS the whole assembly in place, so it
+    reads as zooming/receding rather than sliding away. Eyebrow/subhead/CTA
+    fade in during that shrink, landing on the settled 2-column layout. Once
+    the shrink finishes it holds briefly, then normal scrolling resumes into
+    Technology.
   - blur-decode paragraph reveal: body copy resolves from blurred/dim to
     sharp, scroll-scrubbed (distinct from the word-opacity heading reveal --
     confirmed as its own effect on the Technology + Expertise paragraphs).
@@ -70,7 +74,12 @@
   .btn.filled{background:#111;color:#fff;}
 
   /* NAV */
-  nav{position:sticky;top:0;background:#fff;z-index:20;border-bottom:1px solid #eee;}
+  nav{position:sticky;top:0;background:#fff;z-index:20;border-bottom:1px solid #eee;
+    transition:background .35s ease,border-color .35s ease;}
+  /* while the hero visual is still fullscreen it runs UNDER the nav -- nav goes transparent so
+     the visual reads as truly full-viewport (matches the reference's on-load state), then
+     returns to solid white once the shrink completes. */
+  nav.nav-over{background:transparent;border-bottom-color:transparent;}
   .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;}
   .nav-links{display:flex;gap:28px;font-size:14px;}
   .nav-links a{color:#333;text-decoration:none;}
@@ -79,17 +88,21 @@
      top:var(--nav-h) (not 0) so a layer sticks right below the nav instead
      of behind it (nav has higher z-index and would otherwise paint over
      the top ~72px of whatever's stuck at top:0). */
-  .hero-block,#technology,#products,#expertise,.team-block{
+  #technology,#products,#expertise,.team-block{
     position:sticky;top:var(--nav-h);background:#fff;min-height:calc(100vh - var(--nav-h));
   }
   #technology,#products,#expertise,.team-block{
     border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);
     display:flex;flex-direction:column;justify-content:center;
   }
-  /* taller than the shared min-height above -- the shrink-on-scroll effect (image goes from
-     full-bleed fullscreen to a small inset rounded card, JS below) needs real scroll distance
-     to play out over before Technology covers it, not just a viewport's worth of height. */
-  .hero-block{z-index:1;display:flex;flex-direction:column;justify-content:center;min-height:150vh;}
+  /* hero is NOT a sticky cover-layer like the others -- it's a tall scroll RUNWAY containing an
+     inner sticky viewport (.hero-sticky). That inner element is what actually holds still on
+     screen while the shrink scrubs, so the visual reads as "zooming back / receding in place"
+     instead of sliding up the page as it shrinks. Once the runway's scrolled through, the
+     sticky releases and normal scrolling continues into Technology. Runway = 100vh held +
+     ~110vh of scroll to drive the shrink. */
+  .hero-block{position:relative;z-index:1;background:#fff;min-height:210vh;}
+  .hero-sticky{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
   #technology{z-index:2;}
   #products{z-index:3;}
   #expertise{z-index:4;}
@@ -100,19 +113,19 @@
   footer{position:relative;z-index:7;border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);}
 
   /* HERO */
-  .hero{padding:48px 0;}
-  /* full-bleed, zero gutter -- confirmed on the reference: the hero visual runs literally edge
-     to edge (no side margin at all), unlike everything else which keeps the ~40px gutter. Breaks
-     out of the parent .hero.wrap's padding via negative margin + calc width instead of moving it
-     in the markup. */
-  .hero-3d-placeholder{height:82vh;min-height:460px;background:repeating-linear-gradient(135deg,#f4f4f4,#f4f4f4 20px,#ececec 20px,#ececec 40px);
-    border:1px dashed #bbb;display:flex;align-items:center;justify-content:center;color:#999;font-size:13px;margin:0 -40px 40px;width:calc(100% + 80px);}
+  /* on load the visual fills the ENTIRE viewport -- edge to edge AND all the way to the very
+     top, with the nav floating over it (nav goes transparent while the hero is full, see the
+     .nav-over class). It's a direct child of .hero-sticky so no negative-margin breakout is
+     needed; JS scrubs height/inset/radius from fullscreen -> inset rounded card. */
+  .hero-3d-placeholder{height:100vh;flex:none;background:repeating-linear-gradient(135deg,#f4f4f4,#f4f4f4 20px,#ececec 20px,#ececec 40px);
+    border:1px dashed #bbb;display:flex;align-items:center;justify-content:center;color:#999;font-size:13px;}
+  .hero-copy{padding:32px 40px 0;flex:1;display:flex;flex-direction:column;justify-content:center;}
   /* exact placement match: headline column left, subhead+CTA column right, bottom-aligned to
      the headline (not top-aligned) -- confirmed on the reference's settled post-scroll state. */
   .hero-grid{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;flex-wrap:wrap;}
   .hero-left{flex:1 1 480px;}
   .hero-right{flex:0 1 380px;max-width:420px;}
-  .hero h1{font-size:clamp(36px,6vw,64px);max-width:16ch;margin-bottom:0;}
+  .hero-copy h1{font-size:clamp(36px,6vw,64px);max-width:16ch;margin-bottom:0;}
   .hero-sub{max-width:42ch;margin-bottom:16px;}
   .hero-ctas{display:flex;gap:14px;align-items:center;}
 
@@ -183,28 +196,34 @@
      pass per explicit priority call; placeholder box marks where it goes, but it DOES now get
      the confirmed on-load settle animation (blur+scale -> sharp) even without real 3D content. -->
 <div class="hero-block" id="heroBlock">
-  <header class="hero wrap">
+  <!-- inner sticky viewport: THIS is what holds still on screen while the visual shrinks.
+       The visual starts at a full 100vh (filling this whole box, nav floating over it), so the
+       copy below it starts out pushed off-screen. As the shrink scrubs, the copy is revealed
+       inside the same held viewport -- ending on the settled 2-column layout. -->
+  <div class="hero-sticky" id="heroSticky">
     <div class="hero-3d-placeholder" id="hero3d">[hero 3D scene placeholder — lowest priority, build later]</div>
-    <!-- exact placement match: headline sits LEFT, subhead+CTA form a separate column on the
-         RIGHT aligned to the headline's lower edge -- not a single stacked column. -->
-    <div class="hero-grid">
-      <div class="hero-left">
-        <div class="eyebrow hero-intro-el">[Eyebrow label]</div>
-        <h1 class="hero-intro-el">[Hero headline — template words go here]</h1>
-      </div>
-      <div class="hero-right hero-intro-el">
-        <p class="hero-sub">[Hero subheadline — one or two lines of supporting copy, template placeholder text goes here.]</p>
-        <div class="hero-ctas">
-          <a class="btn filled" href="#">[Primary CTA]</a>
+    <div class="hero-copy">
+      <!-- exact placement match: headline sits LEFT, subhead+CTA form a separate column on the
+           RIGHT aligned to the headline's lower edge -- not a single stacked column. -->
+      <div class="hero-grid">
+        <div class="hero-left">
+          <div class="eyebrow">[Eyebrow label]</div>
+          <h1>[Hero headline — template words go here]</h1>
+        </div>
+        <div class="hero-right">
+          <p class="hero-sub">[Hero subheadline — one or two lines of supporting copy, template placeholder text goes here.]</p>
+          <div class="hero-ctas">
+            <a class="btn filled" href="#">[Primary CTA]</a>
+          </div>
         </div>
       </div>
-    </div>
-  </header>
-  <div class="marquee" aria-hidden="true">
-    <div class="marquee-track" id="marqueeTrack">
-      <span>[tag one]</span><span>·</span><span>[tag two]</span><span>·</span><span>[tag three]</span><span>·</span>
-      <span>[tag four]</span><span>·</span><span>[tag five]</span><span>·</span><span>[tag six]</span><span>·</span>
-      <span>[tag seven]</span><span>·</span><span>[tag eight]</span><span>·</span>
+      <div class="marquee" aria-hidden="true" style="margin:32px -40px 0;">
+        <div class="marquee-track" id="marqueeTrack">
+          <span>[tag one]</span><span>·</span><span>[tag two]</span><span>·</span><span>[tag three]</span><span>·</span>
+          <span>[tag four]</span><span>·</span><span>[tag five]</span><span>·</span><span>[tag six]</span><span>·</span>
+          <span>[tag seven]</span><span>·</span><span>[tag eight]</span><span>·</span>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -329,25 +348,56 @@ if(!reduce){
    text elements stagger up after it. */
 (function(){
   const ph=document.getElementById('hero3d');
-  const introEls=document.querySelectorAll('.hero-intro-el');
+  const h1=document.querySelector('.hero-copy h1');
   if(reduce)return;
   const tl=gsap.timeline({defaults:{ease:'power3.out'}});
   if(ph)tl.from(ph,{opacity:0,scale:1.05,filter:'blur(20px)',duration:1.1});
-  tl.from(introEls,{y:24,opacity:0,duration:.7,stagger:.12},'-=0.65');
+  /* only the headline animates in on load -- per the reference's on-load state, the headline is
+     the sole copy visible (overlaid on the fullscreen visual). Eyebrow/subhead/CTA don't exist
+     on screen yet; they're faded in by the shrink scrub below, so they're deliberately NOT
+     targeted here (a .from() opacity tween on them would also fight the scrub's opacity). */
+  if(h1)tl.from(h1,{y:24,opacity:0,duration:.8},'-=0.65');
 })();
 
-/* HERO SHRINK -- scroll-scrubbed. Confirmed on the reference: the hero visual starts
-   full-bleed/fullscreen (edge to edge, square corners) and shrinks into a smaller, rounded,
-   inset card as you scroll -- this is what makes room for the eyebrow/subhead/CTA to read as
-   a settled 2-column layout below it instead of a fullscreen cover. Tied to hero-block's own
-   (now taller) scroll range so it finishes before Technology rises to cover the hero. */
+/* HERO SHRINK -- the visual loads FULLSCREEN (100vh, edge to edge, square corners, nav floating
+   transparent over it), then recedes into a small inset rounded card as you scroll. The key part
+   is that .hero-sticky HOLDS the whole assembly in place (position:sticky) for the duration, so
+   this reads as the visual zooming back in place rather than sliding up the page. When the
+   shrink finishes, the sticky releases and normal scrolling continues down into Technology --
+   exactly the reference's behavior.
+
+   Scrubbed against the hero-block runway. The tween ends well before the runway does, so there's
+   a deliberate beat where the shrink is DONE and the settled layout just sits there held before
+   the page moves on -- without that pause it snaps straight from shrinking into scrolling away. */
 (function(){
   const ph=document.getElementById('hero3d');
-  if(!ph||reduce)return;
+  const navEl=document.querySelector('nav');
+  if(!ph||reduce){navEl&&navEl.classList.remove('nav-over');return;}
+  navEl&&navEl.classList.add('nav-over');
   gsap.fromTo(ph,
-    {height:'82vh',marginLeft:'-40px',marginRight:'-40px',width:'calc(100% + 80px)',borderRadius:'0px'},
-    {height:'46vh',marginLeft:'0px',marginRight:'0px',width:'100%',borderRadius:'28px',ease:'none',
-      scrollTrigger:{trigger:'.hero-block',start:'top 72px',end:'+=60%',scrub:true}});
+    {height:'100vh',marginLeft:'0px',marginRight:'0px',marginTop:'0px',borderRadius:'0px'},
+    {height:'52vh',marginLeft:'40px',marginRight:'40px',marginTop:'88px',borderRadius:'28px',ease:'none',
+      scrollTrigger:{trigger:'#heroBlock',start:'top top',end:'+=85%',scrub:true,
+        /* nav solidity is driven off this same progress rather than its own ScrollTrigger --
+           a separate trigger starting at 'top top' sits exactly on its boundary at scroll 0 and
+           fires onEnter immediately on load, flipping the nav solid before the user scrolls. */
+        onUpdate(self){
+          if(!navEl)return;
+          navEl.classList.toggle('nav-over',self.progress<0.35);
+        }}});
+
+  /* copy block rides up over the fullscreen visual at load (so the headline reads as overlaid
+     on it, per the reference's on-load state) and settles into its natural position below the
+     shrunk card as the same scroll plays out. */
+  const copy=document.querySelector('.hero-copy');
+  if(copy)gsap.fromTo(copy,{yPercent:-118},{yPercent:0,ease:'none',
+    scrollTrigger:{trigger:'#heroBlock',start:'top top',end:'+=85%',scrub:true}});
+
+  /* eyebrow + right-hand column are absent at load and fade in over the first part of the
+     shrink -- matches the reference (on load: headline only; settled: full 2-column layout). */
+  const late=[document.querySelector('.hero-left .eyebrow'),document.querySelector('.hero-right')].filter(Boolean);
+  if(late.length)gsap.fromTo(late,{opacity:0,y:16},{opacity:1,y:0,ease:'none',stagger:0.15,
+    scrollTrigger:{trigger:'#heroBlock',start:'top top',end:'+=55%',scrub:true}});
 })();
 
 /* word-by-word heading reveal, SCRUBBED to scroll position. */
