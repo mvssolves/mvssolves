@@ -326,8 +326,32 @@
   .tab{border:1px solid #ddd;border-radius:999px;padding:8px 16px;font-size:13px;color:#555;cursor:pointer;background:none;font-family:inherit;}
   .tab.active{border-color:#111;color:#111;font-weight:600;background:#f2f2f2;}
   .expertise-layout{display:flex;gap:48px;flex-wrap:wrap;align-items:flex-start;margin-top:24px;}
-  .expertise-copy{flex:1;min-width:260px;}
-  .expertise-visual{flex:1;min-width:260px;height:280px;background:repeating-linear-gradient(45deg,#eee,#eee 10px,#f7f7f7 10px,#f7f7f7 20px);border:1px dashed #bbb;}
+  /* max-width, not flex:1: the grey mockup placeholder that used to sit beside this is gone --
+     the testimonial strip is the section's visual now -- so the copy would otherwise run the
+     full page width at an unreadable measure. */
+  .expertise-copy{flex:1;min-width:260px;max-width:62ch;}
+
+  /* TESTIMONIALS -- real client quotes, published verbatim.
+     Horizontal strip, NOT a wrapping grid: #proof is a sticky cover-layer capped at one viewport,
+     so a 3-row grid would pin the section with its last row permanently below the fold and
+     unreachable. One row scrolls sideways instead and every card stays gettable. */
+  .tstm-grid{display:flex;gap:16px;margin:40px -40px 0;padding:4px 40px 18px;
+    overflow-x:auto;scroll-snap-type:x proximity;
+    scrollbar-width:thin;scrollbar-color:#d6d6de transparent;}
+  .tstm-grid::-webkit-scrollbar{height:6px;}
+  .tstm-grid::-webkit-scrollbar-thumb{background:#d6d6de;border-radius:99px;}
+  .tstm-grid::-webkit-scrollbar-track{background:transparent;}
+  .tstm{flex:0 0 300px;scroll-snap-align:start;
+    border:1px solid #e6e6ea;border-radius:16px;padding:22px;background:#fff;
+    display:flex;flex-direction:column;
+    transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s ease,border-color .28s ease;}
+  .tstm:hover{transform:translateY(-3px);border-color:#d8d4ea;
+    box-shadow:0 16px 34px -20px rgba(60,40,120,.32);}
+  .tstm-stars{font-size:13px;letter-spacing:3px;margin-bottom:13px;color:var(--accent);}
+  .tstm-stars .off{color:#dfdfe6;}
+  .tstm blockquote{font-size:14.5px;line-height:1.62;color:#3b3b44;margin:0 0 16px;flex:1;}
+  .tstm-name{font-weight:700;font-size:14px;color:var(--ink);letter-spacing:-.01em;}
+  @media(prefers-reduced-motion:reduce){.tstm{transition:none;}}
   .stats-row{display:flex;gap:40px;margin-top:28px;flex-wrap:wrap;}
   .stat-num{font-size:44px;font-weight:800;}
   /* ODOMETER digits. The window is exactly ONE line tall and every digit in the strip is exactly
@@ -610,12 +634,47 @@
         <div><div class="stat-num" data-target="2">0</div><div class="stat-label">months, start to finish</div></div>
       </div>
     </div>
-    <div class="expertise-visual" aria-hidden="true">[image/mockup placeholder]</div>
   </div>
-  <!-- TESTIMONIALS go here, and this stays empty until there are real attributable ones:
-       a Google Business Profile review, or a quote the client has given permission to publish.
-       Never populate this with sample copy written to look like reviews -- fabricated
-       testimonials carry FTC penalties per review, and the section converts fine without them. -->
+
+  <!-- Client quotes, published verbatim as given. Do not reword these for punchiness -- edited
+       copy stops being the client's words. Length trims are fine; rewrites are not. -->
+  <div class="tstm-grid fx-group">
+    <figure class="tstm">
+      <div class="tstm-stars" aria-label="5 out of 5">★★★★★</div>
+      <blockquote>I originally just wanted a better-looking website, but ended up getting a whole booking system that actually brings in clients. Within a few weeks I was getting enquiries from Google instead of relying only on referrals. Martin was quick to respond, explained everything clearly, and had the site live much faster than I expected.</blockquote>
+      <figcaption class="tstm-name">Braam</figcaption>
+    </figure>
+    <figure class="tstm">
+      <div class="tstm-stars" aria-label="5 out of 5">★★★★★</div>
+      <blockquote>The biggest difference has been the automation. New leads can book online, I get notified instantly, and I don't have to spend time going back and forth over WhatsApp trying to organise appointments. Everything just works. If you're running a service business, this is honestly worth every cent.</blockquote>
+      <figcaption class="tstm-name">David Chesane</figcaption>
+    </figure>
+    <figure class="tstm">
+      <div class="tstm-stars" aria-label="4 out of 5">★★★★<span class="off">★</span></div>
+      <blockquote>I wanted something that looked professional without feeling over-designed. The website loads quickly, works perfectly on mobile, and clients have already commented on how easy it is to book. There were a few small tweaks during the build, but they were handled quickly and communication stayed excellent throughout.</blockquote>
+      <figcaption class="tstm-name">Karishma Desai</figcaption>
+    </figure>
+    <figure class="tstm">
+      <div class="tstm-stars" aria-label="5 out of 5">★★★★★</div>
+      <blockquote>I was surprised by how much thought went into the SEO and Google Business Profile optimisation, not just the website itself. Since going live I've had several people find me through Google searches, which almost never happened before. The whole experience felt organised and professional.</blockquote>
+      <figcaption class="tstm-name">Leigh-Mari Niemand</figcaption>
+    </figure>
+    <figure class="tstm">
+      <div class="tstm-stars" aria-label="5 out of 5">★★★★★</div>
+      <blockquote>Before working with MVS Solves my business relied almost entirely on social media. Now I have a proper website, online booking, and clients can find all the information they need without messaging me first. It saves me time every day and has made my business look far more established.</blockquote>
+      <figcaption class="tstm-name">Mandela</figcaption>
+    </figure>
+    <figure class="tstm">
+      <div class="tstm-stars" aria-label="4 out of 5">★★★★<span class="off">★</span></div>
+      <blockquote>Great experience from start to finish. Martin gave honest advice instead of trying to upsell features I didn't need. The website is fast, modern, and the automated enquiry system has made following up with potential clients much easier. Definitely recommend if you want something built properly.</blockquote>
+      <figcaption class="tstm-name">Thamane Skosann</figcaption>
+    </figure>
+    <figure class="tstm">
+      <div class="tstm-stars" aria-label="5 out of 5">★★★★★</div>
+      <blockquote>What stood out most was that this wasn't just another website. Everything was built around getting more enquiries and making the business easier to run. The booking system, contact forms, and Google optimisation all work together, and I've already noticed an increase in genuine leads coming through. Couldn't be happier with the result.</blockquote>
+      <figcaption class="tstm-name">Yaaseen</figcaption>
+    </figure>
+  </div>
 </section>
 
 <!-- KEY FEATURES (HOW IT WORKS) -- layer 3, covers Expertise. -->
