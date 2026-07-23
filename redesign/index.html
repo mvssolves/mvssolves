@@ -99,9 +99,13 @@
      inner sticky viewport (.hero-sticky). That inner element is what actually holds still on
      screen while the shrink scrubs, so the visual reads as "zooming back / receding in place"
      instead of sliding up the page as it shrinks. Once the runway's scrolled through, the
-     sticky releases and normal scrolling continues into Technology. Runway = 100vh held +
-     ~110vh of scroll to drive the shrink. */
-  .hero-block{position:relative;z-index:1;background:#fff;min-height:210vh;}
+     sticky releases and normal scrolling continues into Technology.
+
+     Runway = 100vh (the held viewport itself) + enough scroll to cover the WHOLE staged
+     sequence in the JS below, which runs to end:'+=170%'. If this is shorter than
+     100vh + 170vh the sticky releases mid-sequence and the later phases play while the hero
+     is already sliding away, which defeats the point of staging them. */
+  .hero-block{position:relative;z-index:1;background:#fff;min-height:290vh;}
   .hero-sticky{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
   #technology{z-index:2;}
   #products{z-index:3;}
@@ -217,7 +221,7 @@
           </div>
         </div>
       </div>
-      <div class="marquee" aria-hidden="true" style="margin:32px -40px 0;">
+      <div class="marquee" id="heroMarquee" aria-hidden="true" style="margin:32px -40px 0;">
         <div class="marquee-track" id="marqueeTrack">
           <span>[tag one]</span><span>·</span><span>[tag two]</span><span>·</span><span>[tag three]</span><span>·</span>
           <span>[tag four]</span><span>·</span><span>[tag five]</span><span>·</span><span>[tag six]</span><span>·</span>
@@ -359,45 +363,56 @@ if(!reduce){
   if(h1)tl.from(h1,{y:24,opacity:0,duration:.8},'-=0.65');
 })();
 
-/* HERO SHRINK -- the visual loads FULLSCREEN (100vh, edge to edge, square corners, nav floating
-   transparent over it), then recedes into a small inset rounded card as you scroll. The key part
-   is that .hero-sticky HOLDS the whole assembly in place (position:sticky) for the duration, so
-   this reads as the visual zooming back in place rather than sliding up the page. When the
-   shrink finishes, the sticky releases and normal scrolling continues down into Technology --
-   exactly the reference's behavior.
+/* HERO SEQUENCE -- ONE scrubbed timeline, strictly one beat at a time. Everything used to run
+   concurrently off three separate triggers, so the shrink, the copy and the marquee all moved
+   together and it read as rushed. Now it's a single timeline with explicit gaps between phases,
+   and because it's scrub:true the "gaps" are real scroll distance where nothing moves at all:
 
-   Scrubbed against the hero-block runway. The tween ends well before the runway does, so there's
-   a deliberate beat where the shrink is DONE and the settled layout just sits there held before
-   the page moves on -- without that pause it snaps straight from shrinking into scrolling away. */
+     phase 1  scene recedes fullscreen -> inset card (copy rides up with it as one motion)
+     ......   HELD -- scene has stopped, nothing moves, nothing is covered
+     phase 2  eyebrow, then subhead+CTA column fade in
+     ......   HELD
+     phase 3  carousel appears LAST, only once the scene has finished moving
+     ......   HELD -- settled layout sits before the page scrolls on
+
+   .hero-sticky holds the whole assembly on screen for all of it, so the scene reads as receding
+   in place; when the runway ends the sticky releases and scrolling continues into Technology. */
 (function(){
   const ph=document.getElementById('hero3d');
   const navEl=document.querySelector('nav');
   if(!ph||reduce){navEl&&navEl.classList.remove('nav-over');return;}
-  navEl&&navEl.classList.add('nav-over');
-  gsap.fromTo(ph,
-    {height:'100vh',marginLeft:'0px',marginRight:'0px',marginTop:'0px',borderRadius:'0px'},
-    {height:'52vh',marginLeft:'40px',marginRight:'40px',marginTop:'88px',borderRadius:'28px',ease:'none',
-      scrollTrigger:{trigger:'#heroBlock',start:'top top',end:'+=85%',scrub:true,
-        /* nav solidity is driven off this same progress rather than its own ScrollTrigger --
-           a separate trigger starting at 'top top' sits exactly on its boundary at scroll 0 and
-           fires onEnter immediately on load, flipping the nav solid before the user scrolls. */
-        onUpdate(self){
-          if(!navEl)return;
-          navEl.classList.toggle('nav-over',self.progress<0.35);
-        }}});
-
-  /* copy block rides up over the fullscreen visual at load (so the headline reads as overlaid
-     on it, per the reference's on-load state) and settles into its natural position below the
-     shrunk card as the same scroll plays out. */
   const copy=document.querySelector('.hero-copy');
-  if(copy)gsap.fromTo(copy,{yPercent:-118},{yPercent:0,ease:'none',
-    scrollTrigger:{trigger:'#heroBlock',start:'top top',end:'+=85%',scrub:true}});
+  const eyebrow=document.querySelector('.hero-left .eyebrow');
+  const right=document.querySelector('.hero-right');
+  const marq=document.getElementById('heroMarquee');
 
-  /* eyebrow + right-hand column are absent at load and fade in over the first part of the
-     shrink -- matches the reference (on load: headline only; settled: full 2-column layout). */
-  const late=[document.querySelector('.hero-left .eyebrow'),document.querySelector('.hero-right')].filter(Boolean);
-  if(late.length)gsap.fromTo(late,{opacity:0,y:16},{opacity:1,y:0,ease:'none',stagger:0.15,
-    scrollTrigger:{trigger:'#heroBlock',start:'top top',end:'+=55%',scrub:true}});
+  /* hidden up front so nothing shows before its own phase -- set here rather than in CSS so the
+     no-JS / reduced-motion path still renders the full layout normally. */
+  gsap.set([eyebrow,right,marq].filter(Boolean),{opacity:0,y:16});
+  navEl.classList.add('nav-over');
+
+  const tl=gsap.timeline({defaults:{ease:'none'},
+    scrollTrigger:{trigger:'#heroBlock',start:'top top',end:'+=170%',scrub:true,
+      /* nav solidity rides this timeline's own progress rather than a second ScrollTrigger --
+         one starting at 'top top' sits exactly on its boundary at scroll 0 and fires onEnter
+         immediately at load, flipping the nav solid before the user has scrolled at all. */
+      onUpdate(self){navEl.classList.toggle('nav-over',self.progress<0.22);}}});
+
+  /* PHASE 1 -- scene recedes and stops. Copy rides up in the same beat (it starts overlaid on
+     the fullscreen scene, per the reference's on-load state) so this stays ONE motion, not two. */
+  tl.fromTo(ph,
+    {height:'100vh',marginLeft:'0px',marginRight:'0px',marginTop:'0px',borderRadius:'0px'},
+    {height:'52vh',marginLeft:'40px',marginRight:'40px',marginTop:'88px',borderRadius:'28px',duration:1},0);
+  if(copy)tl.fromTo(copy,{yPercent:-118},{yPercent:0,duration:1},0);
+
+  /* PHASE 2 -- only after the scene has fully stopped. */
+  if(eyebrow)tl.to(eyebrow,{opacity:1,y:0,duration:0.35},1.35);
+  if(right)tl.to(right,{opacity:1,y:0,duration:0.4},1.8);
+
+  /* PHASE 3 -- carousel last, deliberately not visible until the scene is done moving. */
+  if(marq)tl.to(marq,{opacity:1,y:0,duration:0.4},2.5);
+
+  tl.to({},{duration:0.6}); /* trailing hold on the settled layout before the page moves on */
 })();
 
 /* word-by-word heading reveal, SCRUBBED to scroll position. */
