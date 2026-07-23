@@ -249,23 +249,19 @@
     display:flex;align-items:center;justify-content:center;color:#6a6a72;font-size:13px;}
   /* once the WebGL scene mounts, drop the placeholder stripes and label -- the canvas is the
      content now. Kept as a fallback for no-WebGL / reduced-motion, where the scene never loads. */
-  /* border WIDTH/STYLE here, but colour transparent -- the scroll timeline fades the acid green
-     in during the back half of the shrink (see hero scrub JS), so it's absent at fullscreen and
-     only frames the settled inset card. Transparent default avoids a yellow flash on load. */
   /* atmospheric backdrop instead of flat black: a soft indigo glow lifts the mood toward the
      lighter, airier NeoLeaf feel. Stays dark enough that the additive-blended particles keep
      their glow -- a light/white bg would wash them out entirely. */
-  .hero-3d-placeholder.has-scene{font-size:0;border:2px solid rgba(230,245,54,0);
+  .hero-3d-placeholder.has-scene{font-size:0;
     background:
       radial-gradient(70% 60% at 50% 38%, rgba(144,112,223,.22), transparent 68%),
       radial-gradient(90% 80% at 78% 88%, rgba(90,200,250,.12), transparent 70%),
       linear-gradient(180deg, #14111f 0%, #0c0b12 60%, #0a0a0e 100%);}
-  /* per-form label */
+  /* per-form label -- shown as written (title case), gently spaced */
   .scene-label{position:absolute;left:0;right:0;bottom:6%;text-align:center;z-index:2;
-    pointer-events:none;font-family:monospace;font-size:clamp(12px,1.5vw,17px);
-    letter-spacing:.42em;text-indent:.42em;color:rgba(255,255,255,.82);
-    text-transform:uppercase;opacity:0;transition:opacity .55s ease;
-    text-shadow:0 0 18px rgba(144,112,223,.6);}
+    pointer-events:none;font-family:monospace;font-size:clamp(13px,1.6vw,19px);
+    letter-spacing:.14em;color:rgba(255,255,255,.86);
+    opacity:0;transition:opacity .55s ease;text-shadow:0 0 18px rgba(144,112,223,.6);}
   /* absolutely anchored to the BOTTOM of the sticky viewport, not a flex child. As a flex child
      it was flex:1 in a column whose first item (the scene) already fills the whole 100vh, so its
      leftover space was zero -- it collapsed to 0 height and its content sat below the fold,
@@ -599,19 +595,6 @@ if(!reduce){
   const TOP_INSET=88,GAP=16;
   const sceneH=()=>Math.max(220,window.innerHeight-(copy?copy.offsetHeight:0)-TOP_INSET-GAP);
 
-  /* copy pop -- a normal timed timeline, NOT scrubbed. Paused until the scene locks. */
-  const copyTL=gsap.timeline({paused:true,defaults:{ease:'back.out(1.8)'}});
-  if(eyebrow)copyTL.to(eyebrow,{opacity:1,y:0,duration:0.3},0);
-  if(right)copyTL.to(right,{opacity:1,y:0,duration:0.35},0.06);
-  if(marq)copyTL.to(marq,{opacity:1,y:0,duration:0.35},0.14);
-
-  /* fires only once the scene has fully landed. At 0.78 the scene was still receding, so the
-     CTA/subhead briefly appeared ON TOP of it -- the headline is the only thing allowed over the
-     scene. 0.995 rather than 1 purely so it can't be skipped by a scroll that overshoots the end
-     in a single frame. Since the runway is short this still reads as instant. */
-  let popped=false;
-  const POP_AT=0.995;
-
   const tl=gsap.timeline({defaults:{ease:'none'},
     /* scrub:true, NOT a catch-up value: any catch-up means the scene lags behind the wheel and
        the whole section feels stuck. 1:1 keeps it locked to whatever speed the user scrolls. */
@@ -621,11 +604,7 @@ if(!reduce){
          blowing straight past the CTA before it has even appeared. Snapping to [0,1] means a
          gesture either settles the scene fully or returns it to fullscreen; it can't be left
          parked halfway. Short duration so it assists rather than fights the scroll. */
-      snap:{snapTo:[0,1],duration:{min:0.15,max:0.4},delay:0.04,ease:'power2.inOut'},
-      onUpdate(self){
-        if(self.progress>=POP_AT&&!popped){popped=true;copyTL.play();}
-        else if(self.progress<POP_AT&&popped){popped=false;copyTL.reverse();}
-      }}});
+      snap:{snapTo:[0,1],duration:{min:0.15,max:0.4},delay:0.04,ease:'power2.inOut'}}});
 
   /* the scene recedes. Geometry ONLY -- height/top/left/right/radius. Deliberately no opacity,
      no blur, no scale anywhere on this element: it will hold a video, and fading or filtering a
@@ -634,11 +613,17 @@ if(!reduce){
     {height:()=>window.innerHeight+'px',left:'0px',right:'0px',top:'0px',borderRadius:'0px'},
     {height:()=>sceneH()+'px',left:'40px',right:'40px',top:TOP_INSET+'px',
       borderRadius:'28px',duration:1,ease:'power2.inOut'},0);
-  /* border is invisible at fullscreen (framing the whole viewport looks wrong) and fades to the
-     acid green only in the BACK HALF of the shrink -- so it appears once the card is clearly an
-     inset card, not while it still fills the screen. Separate tween so it lags the geometry. */
-  tl.fromTo(ph,{borderColor:'rgba(230,245,54,0)'},
-    {borderColor:'rgba(230,245,54,1)',duration:0.5,ease:'none'},0.5);
+
+  /* COPY FADE, scroll-driven. eyebrow (MVS Solves) + subhead/CTA column + marquee fade in as you
+     scroll rather than popping at the end. Positioned in the FIRST HALF of the scrub so they're
+     essentially in by the time the scene has receded ~halfway, but they start immediately -- even
+     a small scroll begins revealing them. Because the copy is bottom-anchored and the scene
+     shrinks upward off the bottom, the copy sits in the clear space below the card as it appears,
+     so it's never stranded on top of the scene ("not in the way of the video"). The headline is
+     handled by the on-load intro and stays put. */
+  if(eyebrow)tl.fromTo(eyebrow,{opacity:0,y:16},{opacity:1,y:0,duration:0.4},0.05);
+  if(right)tl.fromTo(right,{opacity:0,y:16},{opacity:1,y:0,duration:0.45},0.12);
+  if(marq)tl.fromTo(marq,{opacity:0,y:16},{opacity:1,y:0,duration:0.4},0.24);
 
   /* the settled scene height is derived from the copy block's measured height, and web fonts
      land after this script runs -- so remeasure once they're in, or the scene keeps a height

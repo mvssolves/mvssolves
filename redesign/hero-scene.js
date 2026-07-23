@@ -185,7 +185,8 @@ function init(host) {
   const forms = [formSite(), formFlow(), formLayers(), formChart(), formGlobe(), formFunnel()];
   /* per-form identity: a label shown when the form is held, and an accent colour the cloud leans
      toward, so each shape has its own mood and says what it is */
-  const labels = ['WEBSITES', 'AUTOMATIONS', 'SYSTEMS', 'GROWTH', 'GLOBAL REACH', 'CONVERSION'];
+  const labels = ['Converting Websites', 'Personalised Automations', 'Advanced Systems',
+                  'Exponential Growth', 'Global Reach', 'Real Conversion'];
   const palette = ['#9070DF', '#5AC8FA', '#B9A2FF', '#E6F536', '#6FE0C8', '#FF8FB0']
     .map(c => new THREE.Color(c));
 
