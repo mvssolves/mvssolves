@@ -207,10 +207,10 @@
   .hero-block .marquee{border-color:rgba(255,255,255,.16);}
   .hero-block .marquee-track span{color:rgba(255,255,255,.55);}
   .hero-sticky{position:sticky;top:0;height:100vh;overflow:hidden;}
-  #technology{z-index:2;}
-  #products{z-index:3;}
-  #expertise{z-index:4;}
-  #features{z-index:5;}
+  #expertise{z-index:2;}
+  #features{z-index:3;}
+  #technology{z-index:4;}
+  #products{z-index:5;}
   /* min-height:auto, not 60vh: with justify-content:center inherited from the stack-layer rule,
      a 60vh floor on ~400px of content split the leftover ~300px evenly above and below, which is
      where the dead space above the tag strip came from. Sized to its content with real padding
@@ -376,10 +376,10 @@
       <span class="logo-word">MVS Solves</span>
     </a>
     <div class="nav-links">
-      <a href="#technology">Technology</a>
-      <a href="#products">Products</a>
-      <a href="#expertise">Expertise</a>
-      <a href="#features">Key Features</a>
+      <a href="#expertise">Proof</a>
+      <a href="#features">How it works</a>
+      <a href="#technology">Why me</a>
+      <a href="#products">What I build</a>
     </div>
     <a class="btn filled" href="#">Let's talk</a>
   </div>
@@ -422,32 +422,7 @@
   </div>
 </div>
 
-<!-- TECHNOLOGY -- stack layer 2, rises and covers the hero layer. -->
-<section id="technology" class="wrap">
-  <div class="eyebrow">[Eyebrow — Technology]</div>
-  <h2 class="fx-type">[Technology section heading — template words]</h2>
-  <p class="fx-clip">[Body paragraph one — template placeholder copy describing this section's real content once written.]</p>
-  <p class="fx-words" style="margin-top:10px;">[Body paragraph two — template placeholder copy.]</p>
-</section>
-
-<!-- PRODUCTS -- stack layer 3, covers Technology. Card grid: 2 small cards + 1 wide card w/
-     image placeholder, matches their AI LLM / Computer Vision / Image Generation layout shape. -->
-<section id="products" class="wrap">
-  <div class="eyebrow">[Eyebrow — Products]</div>
-  <h2 class="fx-alt">[Products section heading]</h2>
-  <div class="card-grid fx-group">
-    <div class="card"><div class="icon-placeholder"></div><h3>[Product one]</h3><p>[Template copy placeholder.]</p></div>
-    <div class="card"><div class="icon-placeholder"></div><h3>[Product two]</h3><p>[Template copy placeholder.]</p></div>
-    <div class="card wide">
-      <div class="img-placeholder"></div>
-      <div class="card-copy"><div class="icon-placeholder"></div><h3>[Product three — wide]</h3><p>[Template copy placeholder for the larger featured card.]</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- EXPERTISE -- stack layer 4, covers Products. Stat numbers count up (re-triggered on tab
-     click, not just on first scroll-into-view), tab row swaps copy, matches their
-     "We have huge expertise" behavior. -->
+<!-- EXPERTISE (PROOF) -- layer 2, rises over the hero. Testimonials + stats. -->
 <section id="expertise" class="wrap">
   <div class="eyebrow">[Eyebrow — Expertise]</div>
   <h2 class="fx-rise">[Expertise section heading]</h2>
@@ -469,10 +444,7 @@
   </div>
 </section>
 
-<!-- KEY FEATURES -- NOT a sticky-cover layer. This one is GSAP ScrollTrigger pin:true on the
-     card stack itself: block stays pinned while scroll progress advances an "active" index
-     through the cards, each expanding from a slim bar while the others collapse. Matches the
-     Custom/Flex/Performance/Scalability sequence observed on the reference. -->
+<!-- KEY FEATURES (HOW IT WORKS) -- layer 3, covers Expertise. -->
 <section id="features" class="wrap">
   <div class="eyebrow">[Eyebrow — Key Features]</div>
   <h2 class="fx-mask">[Key Features section heading]</h2>
@@ -492,10 +464,29 @@
   </div>
 </section>
 
-<!-- TEAM BRIDGE -- stack layer 6, covers Key Features, gets covered by the footer in turn.
-     Minimal on purpose (structure only) -- exists so the footer's cover-transition has
-     something distinct to rise over, matching the reference's marquee+heading bridge before
-     its footer. -->
+<!-- TECHNOLOGY (WHY ME) -- layer 4, covers Key Features. -->
+<section id="technology" class="wrap">
+  <div class="eyebrow">[Eyebrow — Technology]</div>
+  <h2 class="fx-type">[Technology section heading — template words]</h2>
+  <p class="fx-clip">[Body paragraph one — template placeholder copy describing this section's real content once written.]</p>
+  <p class="fx-words" style="margin-top:10px;">[Body paragraph two — template placeholder copy.]</p>
+</section>
+
+<!-- PRODUCTS (WHAT I BUILD) -- layer 5, covers Technology. -->
+<section id="products" class="wrap">
+  <div class="eyebrow">[Eyebrow — Products]</div>
+  <h2 class="fx-alt">[Products section heading]</h2>
+  <div class="card-grid fx-group">
+    <div class="card"><div class="icon-placeholder"></div><h3>[Product one]</h3><p>[Template copy placeholder.]</p></div>
+    <div class="card"><div class="icon-placeholder"></div><h3>[Product two]</h3><p>[Template copy placeholder.]</p></div>
+    <div class="card wide">
+      <div class="img-placeholder"></div>
+      <div class="card-copy"><div class="icon-placeholder"></div><h3>[Product three — wide]</h3><p>[Template copy placeholder for the larger featured card.]</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM / CTA -- layer 6, covers Products; footer covers it. -->
 <div class="team-block wrap" id="teamBlock">
   <div class="eyebrow">[Eyebrow — Team]</div>
   <h2 class="fx-scale">[Team/collaboration section heading]</h2>
