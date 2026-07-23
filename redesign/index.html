@@ -101,11 +101,11 @@
      instead of sliding up the page as it shrinks. Once the runway's scrolled through, the
      sticky releases and normal scrolling continues into Technology.
 
-     Runway = 100vh (the held viewport itself) + enough scroll to cover the WHOLE staged
-     sequence in the JS below, which runs to end:'+=170%'. If this is shorter than
-     100vh + 170vh the sticky releases mid-sequence and the later phases play while the hero
-     is already sliding away, which defeats the point of staging them. */
-  .hero-block{position:relative;z-index:1;background:#fff;min-height:290vh;}
+     Runway = 100vh (the held viewport itself) + the staged sequence's own scroll length in the
+     JS below (end:'+=105%'). Must not be SHORTER than that or the sticky releases mid-sequence
+     and the later phases play while the hero is already sliding away; must not be much LONGER
+     either, or the tail is dead scroll where the hero just sits there doing nothing. */
+  .hero-block{position:relative;z-index:1;background:#fff;min-height:207vh;}
   .hero-sticky{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
   #technology{z-index:2;}
   #products{z-index:3;}
@@ -123,13 +123,19 @@
      needed; JS scrubs height/inset/radius from fullscreen -> inset rounded card. */
   .hero-3d-placeholder{height:100vh;flex:none;background:repeating-linear-gradient(135deg,#f4f4f4,#f4f4f4 20px,#ececec 20px,#ececec 40px);
     border:1px dashed #bbb;display:flex;align-items:center;justify-content:center;color:#999;font-size:13px;}
-  .hero-copy{padding:32px 40px 0;flex:1;display:flex;flex-direction:column;justify-content:center;}
+  /* min-height:0 is required -- a flex child defaults to min-height:auto, which refuses to
+     shrink below its content and pushes the CTA past the sticky's 100vh (clipped by its
+     overflow:hidden). justify-content:flex-start, not center: centering in the leftover space
+     drifts the block as the scene resizes, which is what made the alignment look off. */
+  .hero-copy{padding:28px 40px 0;flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-start;}
   /* exact placement match: headline column left, subhead+CTA column right, bottom-aligned to
      the headline (not top-aligned) -- confirmed on the reference's settled post-scroll state. */
   .hero-grid{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;flex-wrap:wrap;}
   .hero-left{flex:1 1 480px;}
   .hero-right{flex:0 1 380px;max-width:420px;}
-  .hero-copy h1{font-size:clamp(36px,6vw,64px);max-width:16ch;margin-bottom:0;}
+  /* capped smaller than the old 64px: at 64px this wraps to 3 lines on a laptop viewport and
+     the block no longer fits the space left by the scene, which is what pushed the CTA out. */
+  .hero-copy h1{font-size:clamp(32px,4.4vw,54px);line-height:1.05;max-width:18ch;margin-bottom:0;}
   .hero-sub{max-width:42ch;margin-bottom:16px;}
   .hero-ctas{display:flex;gap:14px;align-items:center;}
 
@@ -175,8 +181,13 @@
   .foot-col a{display:block;color:#ccc;text-decoration:none;font-size:14px;margin-bottom:8px;}
   .foot-cta{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
   .foot-email{background:transparent;border:1px solid #444;border-radius:999px;padding:12px 18px;color:#fff;font-size:14px;min-width:220px;}
-  .foot-wordmark{font-size:clamp(80px,18vw,220px);font-weight:800;line-height:.8;color:rgba(255,255,255,.06);
-    text-align:center;white-space:nowrap;overflow:hidden;margin-top:20px;user-select:none;}
+  /* line-height:.8 makes the line box SHORTER than the glyphs, so at this size the letters
+     bleed well outside it and painted over the email form / Send button above. Keeping the
+     tight look but reserving real space for it: line-height 1 + a proper top margin, and
+     pointer-events:none so it can never intercept a click on the CTA even if it visually
+     overlaps at some viewport. */
+  .foot-wordmark{font-size:clamp(72px,16vw,200px);font-weight:800;line-height:1;color:rgba(255,255,255,.06);
+    text-align:center;white-space:nowrap;overflow:hidden;margin-top:56px;user-select:none;pointer-events:none;}
   .foot-legal{max-width:1180px;margin:0 auto;padding:20px 0;font-size:12px;color:#666;}
 </style>
 </head>
@@ -221,7 +232,7 @@
           </div>
         </div>
       </div>
-      <div class="marquee" id="heroMarquee" aria-hidden="true" style="margin:32px -40px 0;">
+      <div class="marquee" id="heroMarquee" aria-hidden="true" style="margin:24px -40px 0;">
         <div class="marquee-track" id="marqueeTrack">
           <span>[tag one]</span><span>·</span><span>[tag two]</span><span>·</span><span>[tag three]</span><span>·</span>
           <span>[tag four]</span><span>·</span><span>[tag five]</span><span>·</span><span>[tag six]</span><span>·</span>
@@ -392,7 +403,7 @@ if(!reduce){
   navEl.classList.add('nav-over');
 
   const tl=gsap.timeline({defaults:{ease:'none'},
-    scrollTrigger:{trigger:'#heroBlock',start:'top top',end:'+=170%',scrub:true,
+    scrollTrigger:{trigger:'#heroBlock',start:'top top',end:'+=105%',scrub:true,
       /* nav solidity rides this timeline's own progress rather than a second ScrollTrigger --
          one starting at 'top top' sits exactly on its boundary at scroll 0 and fires onEnter
          immediately at load, flipping the nav solid before the user has scrolled at all. */
@@ -400,19 +411,25 @@ if(!reduce){
 
   /* PHASE 1 -- scene recedes and stops. Copy rides up in the same beat (it starts overlaid on
      the fullscreen scene, per the reference's on-load state) so this stays ONE motion, not two. */
+  /* final height 44vh + 40px top inset, NOT 52vh + 88px: the sticky viewport is exactly 100vh
+     with overflow:hidden, so scene height + its top inset + the copy block has to fit inside
+     100vh or the bottom of the copy (the CTA) gets clipped. 44vh + 40px leaves ~54vh for the
+     copy, which the 2-column grid + carousel fit inside. */
   tl.fromTo(ph,
     {height:'100vh',marginLeft:'0px',marginRight:'0px',marginTop:'0px',borderRadius:'0px'},
-    {height:'52vh',marginLeft:'40px',marginRight:'40px',marginTop:'88px',borderRadius:'28px',duration:1},0);
+    {height:'44vh',marginLeft:'40px',marginRight:'40px',marginTop:'40px',borderRadius:'28px',duration:1},0);
   if(copy)tl.fromTo(copy,{yPercent:-118},{yPercent:0,duration:1},0);
 
-  /* PHASE 2 -- only after the scene has fully stopped. */
-  if(eyebrow)tl.to(eyebrow,{opacity:1,y:0,duration:0.35},1.35);
-  if(right)tl.to(right,{opacity:1,y:0,duration:0.4},1.8);
+  /* PHASE 2 -- only after the scene has fully stopped. Gaps kept short: with scrub:true every
+     unit of timeline gap is real scroll distance where NOTHING moves, so long holds read as the
+     page being broken rather than as deliberate pacing. */
+  if(eyebrow)tl.to(eyebrow,{opacity:1,y:0,duration:0.3},1.1);
+  if(right)tl.to(right,{opacity:1,y:0,duration:0.35},1.45);
 
   /* PHASE 3 -- carousel last, deliberately not visible until the scene is done moving. */
-  if(marq)tl.to(marq,{opacity:1,y:0,duration:0.4},2.5);
+  if(marq)tl.to(marq,{opacity:1,y:0,duration:0.35},1.9);
 
-  tl.to({},{duration:0.6}); /* trailing hold on the settled layout before the page moves on */
+  tl.to({},{duration:0.25}); /* short trailing hold before the page moves on */
 })();
 
 /* word-by-word heading reveal, SCRUBBED to scroll position. */
