@@ -168,10 +168,6 @@ function init(host) {
   }
 
   const forms = [formSite(), formFlow(), formLayers(), formChart(), formGlobe(), formFunnel()];
-  /* background tint per form -- near-black with a barely-there cast, so the page reads as one
-     colour but never feels static. Deliberately subtle: this is atmosphere, not a colour change. */
-  const tints = ['#0B0B0C', '#0C0A12', '#0A0C0E', '#0B0D0A', '#090B10', '#0D0A0E'];
-
   const seed = new Float32Array(COUNT);
   for (let i = 0; i < COUNT; i++) seed[i] = Math.random();
 
@@ -184,15 +180,6 @@ function init(host) {
     transform: 'translate(-50%,-50%)', display: 'block'
   });
 
-  /* soft glow behind the points, tinted per form. A DOM layer rather than more geometry: it costs
-     nothing to render and can't interfere with the additive blending of the particles. */
-  const glow = document.createElement('div');
-  Object.assign(glow.style, {
-    position: 'absolute', inset: '0', pointerEvents: 'none',
-    background: 'radial-gradient(62% 62% at 50% 46%, rgba(144,112,223,.16) 0%, transparent 70%)',
-    transition: 'opacity .6s ease'
-  });
-  host.appendChild(glow);
   host.appendChild(renderer.domElement);
   host.classList.add('has-scene');
 
@@ -273,7 +260,22 @@ function init(host) {
           snoise(p * sc + vec3(3.1, 1.7, ts))
         );
         float amp = uTurb * (0.55 + aSeed * 0.9);
-        p += flow * (amp * 2.2 + 0.05);
+        p += flow * (amp * 2.2);
+
+        /* ---- AMBIENT MOTION -- always on, so the form is never a static picture -------------
+           Three layered movements, each small enough to preserve the shape's readability:
+           1. a pulse wave travelling left-to-right across the form, pushing points in z
+           2. a slow breathing scale
+           3. per-point micro-orbit, phase-offset by seed so the surface shimmers rather than
+              every point moving in lockstep
+           Kept independent of uTurb so the form still reads clearly while it's being held. */
+        float wave = sin(p.x * 1.15 - uTime * 1.25) * 0.5 + sin(p.y * 0.9 + uTime * 0.85) * 0.5;
+        p.z += wave * 0.13;
+        p *= 1.0 + sin(uTime * 0.55) * 0.022;
+        float ph = aSeed * 6.2831 + uTime * 1.6;
+        p += vec3(cos(ph), sin(ph), cos(ph * 0.7)) * 0.035;
+        /* the drifting noise stays too, at low amplitude, so the motion never looks mechanical */
+        p += flow * 0.075;
 
         vec3 toCta = uPullPos - p;
         float grab = uPull * (1.0 - smoothstep(0.0, 5.5, length(toCta)));
@@ -283,7 +285,9 @@ function init(host) {
         gl_Position = projectionMatrix * mv;
         gl_PointSize = uSize * (0.55 + aSeed * 0.7) * (1.0 / -mv.z);
 
-        vEnergy = clamp(amp * 1.15 + length(flow) * 0.1 + grab * 0.4, 0.0, 1.0);
+        /* the travelling wave tints the crest slightly green, so the motion is visible in colour
+           as well as position -- otherwise the ambient movement reads only as vague drift */
+        vEnergy = clamp(amp * 1.15 + length(flow) * 0.1 + grab * 0.4 + max(wave, 0.0) * 0.12, 0.0, 1.0);
         vFade = smoothstep(15.0, 3.5, -mv.z);
         vSharp = 1.0 - smoothstep(0.4, 3.0, abs(-mv.z - 8.6));
         vSeed = aSeed;
@@ -309,7 +313,7 @@ function init(host) {
 
   /* ---- input ----------------------------------------------------------------------------- */
   const target = { x: 0, y: 0 }, eased = { x: 0, y: 0 };
-  let pull = 0, pullTo = 0, burst = 0, idle = 0, lastInput = 0;
+  let pull = 0, pullTo = 0, idle = 0, lastInput = 0;
 
   const ndc = new THREE.Vector3();
   function toWorld(cx, cy) {
@@ -326,7 +330,6 @@ function init(host) {
     target.y = (e.clientY / window.innerHeight - 0.5) * 2;
     lastInput = 0;
   }, { passive: true });
-  host.addEventListener('pointerdown', () => { burst = 1; lastInput = 0; });
 
   const ctaWorld = new THREE.Vector3(0, -3.2, 0);
   const cta = document.querySelector('.hero-ctas .btn');
@@ -338,7 +341,6 @@ function init(host) {
     });
     cta.addEventListener('pointerleave', () => { pullTo = 0; });
   }
-  let lastScroll = window.scrollY, scrollVel = 0;
 
   /* ---- sizing ---------------------------------------------------------------------------- */
   function resize() {
@@ -370,9 +372,6 @@ function init(host) {
     aFrom.array.set(forms[cur]);
     aTo.array.set(forms[(cur + 1) % forms.length]);
     aFrom.needsUpdate = aTo.needsUpdate = true;
-    glow.style.background =
-      `radial-gradient(62% 62% at 50% 46%, ${cur % 2 ? 'rgba(230,245,54,.10)' : 'rgba(144,112,223,.16)'} 0%, transparent 70%)`;
-    host.style.backgroundColor = tints[cur];
   }
 
   function frame() {
@@ -393,14 +392,10 @@ function init(host) {
     }
     mat.uniforms.uMix.value = e;
 
-    /* ONE capped turbulence budget: transition + scroll velocity + click detonation. Three
-       uncapped sources just produce noise rather than reactivity. */
-    const sy = window.scrollY;
-    scrollVel += (Math.min(Math.abs(sy - lastScroll) / 34, 1) - scrollVel) * 0.22;
-    lastScroll = sy;
-    burst *= 0.94;
-    mat.uniforms.uTurb.value = Math.min(1.15,
-      Math.sin(e * Math.PI) * 0.95 + scrollVel * 0.9 + burst * 1.1);
+    /* turbulence comes from the shape transition ONLY. Scroll velocity and click detonation were
+       removed deliberately: both fought the form's own motion, so the hero never settled into a
+       readable state on its own terms. */
+    mat.uniforms.uTurb.value = Math.sin(e * Math.PI) * 0.95;
     mat.uniforms.uTime.value = t;
 
     lastInput += dt;
@@ -429,7 +424,5 @@ function init(host) {
     { threshold: 0 }).observe(host);
   document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
 
-  host.style.transition = 'background-color 1.6s ease';
-  host.style.backgroundColor = tints[0];
   frame();
 }
