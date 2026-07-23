@@ -420,9 +420,8 @@
       </div>
       <div class="marquee" id="heroMarquee" aria-hidden="true" style="margin:24px -40px 0;">
         <div class="marquee-track" id="marqueeTrack">
-          <span>[tag one]</span><span>·</span><span>[tag two]</span><span>·</span><span>[tag three]</span><span>·</span>
-          <span>[tag four]</span><span>·</span><span>[tag five]</span><span>·</span><span>[tag six]</span><span>·</span>
-          <span>[tag seven]</span><span>·</span><span>[tag eight]</span><span>·</span>
+          <span>Honesty</span><span>·</span><span>Speed</span><span>·</span><span>Quality</span><span>·</span>
+          <span>Solo</span><span>·</span><span>Results</span><span>·</span><span>Ownership</span><span>·</span>
         </div>
       </div>
     </div>
@@ -570,11 +569,16 @@ document.addEventListener('click',e=>{
   else window.scrollTo({top:y,behavior:'smooth'});
 });
 
-/* marquee tracks duplicated once each so the 50%-translateX loop has no visible seam. */
-/* only the hero carousel remains -- the team block's duplicate was removed. */
+/* marquee tracks: the 50%-translateX loop only reads as seamless if ONE copy of the content is
+   already wider than the viewport -- otherwise the strip empties out mid-cycle. Short tag sets
+   don't reach that on their own, so repeat the base until it does, then duplicate for the loop. */
 ['marqueeTrack'].forEach(id=>{
   const t=document.getElementById(id);
-  if(t) t.innerHTML += t.innerHTML;
+  if(!t) return;
+  const base=t.innerHTML;
+  let guard=0;
+  while(t.scrollWidth < window.innerWidth && guard++ < 12) t.innerHTML += base;
+  t.innerHTML += t.innerHTML;
 });
 
 /* ON-LOAD HERO INTRO -- plays the instant the page loads, before the user touches scroll.
