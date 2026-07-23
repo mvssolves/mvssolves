@@ -112,7 +112,59 @@
   .nav-inner{display:flex;align-items:center;gap:40px;padding:18px 40px;}
   .nav-links{display:flex;gap:26px;font-size:14px;}
   .nav-inner>.btn{margin-left:auto;}
-  .nav-links a{color:#333;text-decoration:none;}
+  /* ---- HOVER LAYER -------------------------------------------------------------------------
+     The page had no hover feedback at all, which is what made it feel static and unfinished.
+     Every interactive element now responds. Transforms/opacity only, so nothing triggers layout. */
+
+  /* nav links: underline draws in from the left rather than blinking on */
+  .nav-links a{position:relative;color:#333;text-decoration:none;transition:color .2s ease;}
+  .nav-links a::after{content:'';position:absolute;left:0;right:0;bottom:-4px;height:1.5px;
+    background:currentColor;transform:scaleX(0);transform-origin:left;
+    transition:transform .32s cubic-bezier(.4,0,.2,1);}
+  .nav-links a:hover::after{transform:scaleX(1);}
+  nav.nav-clear .nav-links a:hover{color:var(--accent2);}
+
+  /* buttons: lift + shadow, and the filled one warms slightly */
+  .btn{transition:transform .22s cubic-bezier(.34,1.4,.64,1),box-shadow .22s ease,
+    background .22s ease,color .22s ease;}
+  .btn:hover{transform:translateY(-2px);}
+  .btn.filled:hover{box-shadow:0 8px 22px -8px rgba(230,245,54,.55);}
+  .btn:not(.filled):hover{background:var(--ink);color:#fff;}
+  .btn:active{transform:translateY(0);}
+
+  /* cards lift and their border tightens */
+  .card{transition:transform .3s cubic-bezier(.34,1.2,.64,1),border-color .3s ease,
+    box-shadow .3s ease;}
+  .card:hover{transform:translateY(-6px);border-color:var(--accent);
+    box-shadow:0 18px 40px -26px rgba(144,112,223,.55);}
+
+  /* feature rows: the index number colours up and the row nudges right */
+  .feature-row{transition:background .25s ease;}
+  .feature-row:hover{background:#fafafa;}
+  .feature-row .feat-num,.feature-row h3{transition:color .25s ease,transform .25s ease;}
+  .feature-row:hover .feat-num{color:var(--accent);transform:translateX(3px);}
+
+  /* expertise tabs */
+  .tab{transition:border-color .2s ease,color .2s ease,background .2s ease,transform .2s ease;}
+  .tab:hover{border-color:var(--accent);color:var(--ink);transform:translateY(-1px);}
+
+  /* footer links get the same underline draw as the nav */
+  .foot-col a{position:relative;display:inline-block;transition:color .2s ease;}
+  .foot-col a::after{content:'';position:absolute;left:0;right:0;bottom:-2px;height:1px;
+    background:var(--accent2);transform:scaleX(0);transform-origin:left;
+    transition:transform .3s cubic-bezier(.4,0,.2,1);}
+  .foot-col a:hover{color:#fff;}
+  .foot-col a:hover::after{transform:scaleX(1);}
+  .foot-email{transition:border-color .2s ease;}
+  .foot-email:focus{outline:none;border-color:var(--accent2);}
+
+  /* stat numbers pulse toward the accent on hover */
+  .stat-num{transition:color .25s ease;}
+  .stats-row>div:hover .stat-num,.team-stats>div:hover .stat-num{color:var(--accent);}
+
+  @media(prefers-reduced-motion:reduce){
+    .btn,.card,.feature-row,.tab,.nav-links a::after,.foot-col a::after{transition:none;}
+  }
 
   /* STACK LAYERS -- each rises and covers the one before it as you scroll.
      top:var(--nav-h) (not 0) so a layer sticks right below the nav instead
@@ -374,7 +426,7 @@
   </div>
   <div class="expertise-layout">
     <div class="expertise-copy">
-      <p class="fx-skew">[Body copy placeholder describing this expertise area — template words.]</p>
+      <p class="fx-lines">[Body copy placeholder describing this expertise area — template words.]</p>
       <div class="stats-row fx-group">
         <div><div class="stat-num" data-stat="1">0</div><div class="stat-label">[stat label placeholder]</div></div>
         <div><div class="stat-num" data-stat="2">0</div><div class="stat-label">[stat label placeholder]</div></div>
@@ -802,6 +854,99 @@ document.querySelectorAll('.fx-group').forEach(fxGroup);
       gsap.to(o,{v:target,duration:1.1,ease:'power2.out',overwrite:true,
         onUpdate:()=>{el.textContent=Math.round(o.v)+'+';}});
     });
+  });
+})();
+
+/* NAV HOVER-SCRAMBLE -- the labels decode on hover, reusing the same scramble the eyebrows use.
+   Kept self-contained (its own copy of the routine) so hovering fast can't leave two intervals
+   fighting over one node, which is what a shared handle would do. */
+(function(){
+  if(reduce)return;
+  const CH='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  document.querySelectorAll('.nav-links a').forEach(el=>{
+    const final=el.textContent;
+    let iv=null;
+    el.addEventListener('pointerenter',()=>{
+      clearInterval(iv);
+      let frame=0; const total=10;
+      iv=setInterval(()=>{
+        frame++;
+        el.textContent=final.split('').map((c,i)=>{
+          if(c===' '||c==='—'||c==='['||c===']')return c;
+          return frame>=Math.floor((i/final.length)*total)+3 ? c
+               : CH[Math.floor(Math.random()*CH.length)];
+        }).join('');
+        if(frame>=total+3){el.textContent=final;clearInterval(iv);}
+      },26);
+    });
+    el.addEventListener('pointerleave',()=>{clearInterval(iv);el.textContent=final;});
+  });
+})();
+
+/* MARQUEE reverses with scroll direction. The strip is a CSS keyframe animation, so direction is
+   flipped via animation-direction rather than rebuilding it in JS -- the browser keeps its own
+   playhead, so the reversal continues from where it was instead of snapping back to the start. */
+(function(){
+  if(reduce)return;
+  const tracks=[...document.querySelectorAll('.marquee-track')];
+  if(!tracks.length)return;
+  let last=window.scrollY, dir=1;
+  addEventListener('scroll',()=>{
+    const y=window.scrollY;
+    const d=y>last?1:y<last?-1:dir;
+    last=y;
+    if(d!==dir){
+      dir=d;
+      tracks.forEach(t=>{t.style.animationDirection=dir>0?'normal':'reverse';});
+    }
+  },{passive:true});
+})();
+
+/* SELECTIVE line-mask reveal (.fx-lines) -- deliberately NOT applied to every paragraph: the
+   per-section body variety is the point, this is one more flavour in the set. Each line is
+   wrapped in its own clipping window and slides up. Re-wraps on resize because line boxes move. */
+(function(){
+  if(reduce)return;
+  document.querySelectorAll('.fx-lines').forEach(el=>{
+    const full=el.textContent.trim();
+    let inners=[];
+    function build(){
+      /* measure where the browser actually breaks the text, then rebuild it line by line */
+      el.textContent='';
+      const probe=document.createElement('span');
+      probe.style.cssText='display:inline';
+      el.appendChild(probe);
+      const words=full.split(/\s+/);
+      const lines=[]; let cur=[], lastTop=null;
+      words.forEach(word=>{
+        probe.textContent=cur.concat(word).join(' ');
+        const r=probe.getClientRects();
+        const top=r.length?r[r.length-1].top:null;
+        if(lastTop!==null&&top!==lastTop&&cur.length){lines.push(cur.join(' '));cur=[word];}
+        else cur.push(word);
+        lastTop=top;
+      });
+      if(cur.length)lines.push(cur.join(' '));
+      el.textContent='';
+      inners=lines.map(line=>{
+        const mask=document.createElement('span');
+        mask.style.cssText='display:block;overflow:hidden;';
+        const inner=document.createElement('span');
+        inner.style.cssText='display:block;';
+        inner.textContent=line;
+        mask.appendChild(inner); el.appendChild(mask);
+        return inner;
+      });
+      gsap.set(inners,{yPercent:110});
+    }
+    build();
+    replayIn(el,()=>{
+      gsap.fromTo(inners,{yPercent:110},
+        {yPercent:0,duration:0.7,stagger:0.09,ease:'power4.out',overwrite:true});
+    });
+    let rt=null;
+    addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{build();
+      gsap.to(inners,{yPercent:0,duration:0.3,overwrite:true});},200);},{passive:true});
   });
 })();
 </script>
