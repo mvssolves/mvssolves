@@ -542,18 +542,21 @@ if(!reduce){
      user's. 0.7 keeps the smoothing but lets a fast scroll actually be fast. touchMultiplier /
      wheelMultiplier at 1 so input isn't scaled down. */
   lenis = new Lenis({duration:0.7,wheelMultiplier:1,touchMultiplier:1});
+  /* CANONICAL Lenis+GSAP integration: drive Lenis from GSAP's ticker rather than a separate
+     requestAnimationFrame loop. With two independent rAF loops, lenis.scrollTo() and
+     ScrollTrigger fight each other -- which is exactly why programmatic nav scrolling crawled /
+     failed upward. One ticker driving both makes scrollTo reliable in every direction. */
   lenis.on('scroll', ScrollTrigger.update);
-  function raf(time){lenis.raf(time);requestAnimationFrame(raf);}
-  requestAnimationFrame(raf);
+  gsap.ticker.add(t=>lenis.raf(t*1000));   /* ticker time is seconds; Lenis wants ms */
+  gsap.ticker.lagSmoothing(0);
 }
 
 /* SMOOTH in-page nav -- works from ANY scroll position, UP or DOWN. Delegated on document so it
    always fires. Targeted by offsetTop (the section's stable natural offset), NOT
    getBoundingClientRect -- the sections are position:sticky, so their rect is the pinned
    on-screen box, which sent clicks to the wrong place depending on where you already were.
-   lock:true holds the target for the whole animation so the hero's snap ScrollTrigger can't grab
-   it mid-scroll (that snap was overriding upward jumps, which is why scrolling back up failed).
-   force:true runs even if Lenis was stopped. */
+   Now that Lenis is driven by GSAP's ticker (above), lenis.scrollTo cooperates with ScrollTrigger
+   and eases reliably in both directions -- no lock/force workarounds needed. */
 document.addEventListener('click',e=>{
   const link=e.target.closest('a[href^="#"]');
   if(!link)return;
@@ -563,7 +566,7 @@ document.addEventListener('click',e=>{
   if(!el)return;
   e.preventDefault();
   const y=Math.max(0,el.offsetTop-72);
-  if(lenis)lenis.scrollTo(y,{duration:1.1,force:true,lock:true});
+  if(lenis)lenis.scrollTo(y,{duration:1.0});
   else window.scrollTo({top:y,behavior:'smooth'});
 });
 
