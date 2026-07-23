@@ -112,9 +112,9 @@
   .nav-inner{display:flex;align-items:center;gap:40px;padding:18px 40px;}
   /* logo: a violet->green gradient diamond mark + wordmark, top-left */
   .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:#111;}
-  .logo-mark{width:22px;height:22px;flex:none;border-radius:6px;transform:rotate(45deg);
-    background:linear-gradient(135deg,var(--accent),var(--accent2));
-    box-shadow:0 0 14px -2px rgba(144,112,223,.6);}
+  /* the M mark inherits currentColor, so it's white over the dark hero and dark on white
+     sections automatically -- same reason it's inline SVG rather than a flat black-tile PNG */
+  .logo-mark{width:24px;height:24px;flex:none;display:block;color:inherit;}
   .logo-word{font-weight:800;font-size:17px;letter-spacing:-.01em;}
   .nav-links{display:flex;gap:26px;font-size:14px;}
   .nav-inner>.btn{margin-left:auto;}
@@ -372,7 +372,10 @@
 <nav>
   <div class="nav-inner">
     <a class="nav-logo" href="#top" aria-label="MVS Solves home">
-      <span class="logo-mark" aria-hidden="true"></span>
+      <svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true">
+        <polyline points="14,49 14,15 32,41 50,15 50,49" fill="none"
+          stroke="currentColor" stroke-width="10" stroke-linejoin="miter" stroke-linecap="butt"/>
+      </svg>
       <span class="logo-word">MVS Solves</span>
     </a>
     <div class="nav-links">
@@ -540,20 +543,24 @@ if(!reduce){
   requestAnimationFrame(raf);
 }
 
-/* SMOOTH in-page nav: clicking an anchor glides to the target instead of teleporting. Offset by
-   the fixed nav height so the section top isn't hidden under it. Falls back to a native smooth
-   scroll when Lenis is off (reduced motion). */
-document.querySelectorAll('a[href^="#"]').forEach(link=>{
-  link.addEventListener('click',e=>{
-    const id=link.getAttribute('href');
-    if(id==='#')return;
-    const el=document.querySelector(id);
-    if(!el)return;
-    e.preventDefault();
-    const y=el.getBoundingClientRect().top+window.scrollY-72;
-    if(lenis)lenis.scrollTo(y,{duration:1.1});
-    else window.scrollTo({top:y,behavior:'smooth'});
-  });
+/* SMOOTH in-page nav -- works from ANY scroll position. Delegated on the document (not bound
+   per-link at load) so it fires no matter what, and targeted by offsetTop, NOT
+   getBoundingClientRect: the sections are position:sticky, so their rect is their *pinned*
+   on-screen box, not their document position -- using the rect sent clicks to the wrong place
+   depending on where you already were. offsetTop is the stable natural offset, correct from
+   anywhere. force:true tells Lenis to override the hero's snap ScrollTrigger so a click during
+   the hero isn't yanked back. */
+document.addEventListener('click',e=>{
+  const link=e.target.closest('a[href^="#"]');
+  if(!link)return;
+  const id=link.getAttribute('href');
+  if(id==='#')return;
+  const el=document.querySelector(id);
+  if(!el)return;
+  e.preventDefault();
+  const y=Math.max(0,el.offsetTop-72);
+  if(lenis)lenis.scrollTo(y,{duration:1.1,force:true});
+  else window.scrollTo({top:y,behavior:'smooth'});
 });
 
 /* marquee tracks duplicated once each so the 50%-translateX loop has no visible seam. */
