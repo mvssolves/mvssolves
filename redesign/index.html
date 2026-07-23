@@ -402,7 +402,7 @@
       <div class="hero-grid">
         <div class="hero-left">
           <div class="eyebrow">MVS Solves</div>
-          <h1>Proven systems that only win.</h1>
+          <h1>Our proven systems that only win.</h1>
         </div>
         <div class="hero-right">
           <p class="hero-sub">High-converting websites and reliable automations for businesses that want it done right the first time.</p>
@@ -537,16 +537,33 @@
 <script>
 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 gsap.registerPlugin(ScrollTrigger);
+let lenis=null;   /* hoisted so the nav's smooth-scroll can reach it */
 if(!reduce){
   /* duration 1.2 meant every wheel tick took over a second to settle, which is what made the
      hero feel stuck and unresponsive -- the page kept gliding on its own schedule instead of the
      user's. 0.7 keeps the smoothing but lets a fast scroll actually be fast. touchMultiplier /
      wheelMultiplier at 1 so input isn't scaled down. */
-  const lenis = new Lenis({duration:0.7,wheelMultiplier:1,touchMultiplier:1});
+  lenis = new Lenis({duration:0.7,wheelMultiplier:1,touchMultiplier:1});
   lenis.on('scroll', ScrollTrigger.update);
   function raf(time){lenis.raf(time);requestAnimationFrame(raf);}
   requestAnimationFrame(raf);
 }
+
+/* SMOOTH in-page nav: clicking an anchor glides to the target instead of teleporting. Offset by
+   the fixed nav height so the section top isn't hidden under it. Falls back to a native smooth
+   scroll when Lenis is off (reduced motion). */
+document.querySelectorAll('a[href^="#"]').forEach(link=>{
+  link.addEventListener('click',e=>{
+    const id=link.getAttribute('href');
+    if(id==='#')return;
+    const el=document.querySelector(id);
+    if(!el)return;
+    e.preventDefault();
+    const y=el.getBoundingClientRect().top+window.scrollY-72;
+    if(lenis)lenis.scrollTo(y,{duration:1.1});
+    else window.scrollTo({top:y,behavior:'smooth'});
+  });
+});
 
 /* marquee tracks duplicated once each so the 50%-translateX loop has no visible seam. */
 /* only the hero carousel remains -- the team block's duplicate was removed. */
