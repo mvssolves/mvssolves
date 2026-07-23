@@ -205,13 +205,11 @@
   .hero-sub{color:rgba(255,255,255,.7);}
   /* nav sits over the dark hero while transparent, so its text has to invert with it */
   nav.nav-clear .nav-links a,nav.nav-clear .nav-logo{color:#fff;}
-  /* hero marquee on black. Words go solid white; every second WORD is knocked out to an outline
-     so the strip has rhythm instead of reading as one flat band. Word spans are the odd children
-     (separators are the even ones), so "every second word" is 4n+3 -- and because each repeated
-     copy of the tag set is a multiple of 4 spans, that alternation survives the JS duplication. */
+  /* hero marquee on black. Words go solid white; the .ol ones are knocked out to an outline so
+     the strip has rhythm instead of reading as one flat band. */
   .hero-block .marquee-track span{color:#fff;}
-  .hero-block .marquee-track span:nth-child(4n+3){color:transparent;
-    -webkit-text-stroke:1.2px rgba(255,255,255,.6);}
+  .hero-block .marquee-track .ol{color:transparent;-webkit-text-stroke:1.2px rgba(255,255,255,.6);}
+  .hero-block .marquee-track .dot{color:var(--accent2);-webkit-text-stroke:0;}
   .hero-sticky{position:sticky;top:0;height:100vh;overflow:hidden;}
   #proof{z-index:2;}
   #process{z-index:3;}
@@ -232,7 +230,7 @@
      and rises up to cover this one, so anything low in the block gets swallowed -- the padding
      below is the buffer the footer eats first, keeping the stats and CTA clear of it. */
   .team-block{z-index:6;text-align:center;align-items:center;justify-content:flex-start;
-    min-height:auto;padding:120px 0 300px;}
+    min-height:auto;padding:120px 0 380px;}
   /* stack pulled tight so the stats sit just under the heading and the CTA follows straight
      after -- the block was spreading over most of the viewport with big dead gaps between each
      element. The section's own bottom padding gives the breathing room instead. */
@@ -300,10 +298,17 @@
   .marquee{overflow:hidden;white-space:nowrap;padding:14px 0;
     -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 9%,#000 91%,transparent 100%);
             mask-image:linear-gradient(90deg,transparent 0,#000 9%,#000 91%,transparent 100%);}
-  .marquee-track{display:inline-flex;align-items:center;gap:20px;animation:marquee 38s linear infinite;}
+  /* spacing is margin-right on EVERY span, not `gap` on the track. With gap, the concatenated
+     two copies measure 2*content + (2n-1)*gap, so translateX(-50%) lands half a gap short and
+     the strip visibly jumps once per cycle -- that was the "glitching / going different
+     directions". margin-right is included in each span's own width, so two copies are exactly
+     symmetric and -50% is seamless. */
+  .marquee-track{display:inline-flex;align-items:center;animation:marquee 38s linear infinite;}
   .marquee-track span{font-size:clamp(24px,2.9vw,42px);font-weight:700;line-height:1;
-    text-transform:uppercase;letter-spacing:-.015em;color:var(--ink);}
-  .marquee-track span:nth-child(even){font-size:clamp(11px,1vw,15px);color:var(--accent2);
+    margin-right:20px;text-transform:uppercase;letter-spacing:-.015em;color:var(--ink);}
+  /* explicit classes, NOT nth-child: the tag set is duplicated at runtime, and any nth pattern
+     whose period doesn't divide the span count drifts out of phase on every copy. */
+  .marquee-track .dot{font-size:clamp(11px,1vw,15px);color:var(--accent2);
     transform:translateY(-.35em);}
   @keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
   @media(prefers-reduced-motion:reduce){.marquee-track{animation:none;}}
@@ -351,7 +356,7 @@
      column heading, which just read as a gap the cover-transition had to scroll through.
      Also switched to --ink so it matches the hero exactly rather than being a slightly
      different black. */
-  footer{background:var(--ink);color:#fff;padding:26px 40px 0;overflow:hidden;}
+  footer{background:var(--ink);color:#fff;padding:20px 40px 0;overflow:hidden;}
   /* z-index above the wordmark: even if the wordmark's glyphs bleed past their box at some
      viewport, the columns and the Send CTA always paint on top and stay readable. */
   .foot-inner{position:relative;z-index:1;display:flex;gap:48px;flex-wrap:wrap;justify-content:space-between;padding-bottom:22px;border-bottom:1px solid #333;}
@@ -382,9 +387,28 @@
   /* 11vw not 14vw: at 14vw "MVS Solves" ran ~1200px tall-and-wide enough to make the footer a
      full screen of its own, which is what padded the page out. This still reads as a large
      wordmark but keeps the whole footer in one viewport. */
+  /* pushed down so roughly a quarter of the glyphs fall past the footer's edge and get clipped
+     by footer{overflow:hidden} -- the wordmark reads as running off the bottom of the page. */
   .foot-wordmark{position:relative;z-index:1;font-size:clamp(38px,11vw,150px);font-weight:800;
-    line-height:1.04;letter-spacing:-.02em;color:#fff;text-align:center;white-space:nowrap;
-    user-select:none;pointer-events:none;}
+    line-height:1.04;letter-spacing:-.02em;text-align:center;white-space:nowrap;
+    user-select:none;pointer-events:none;transform:translateY(32%);
+    /* water: a slow caustic sheen travelling through the letterforms (gradient clipped to the
+       text), warped by an animated turbulence displacement so the edges ripple rather than just
+       brighten. Sheen alone reads as chrome; the displacement is what makes it read as liquid. */
+    background:linear-gradient(100deg,#fff 0%,#fff 30%,#8fb6ff 42%,#dcecff 50%,#8fb6ff 58%,#fff 70%,#fff 100%);
+    background-size:260% 100%;
+    -webkit-background-clip:text;background-clip:text;
+    color:transparent;-webkit-text-fill-color:transparent;
+    animation:waterSheen 11s linear infinite;}
+  @keyframes waterSheen{from{background-position:130% 0;}to{background-position:-130% 0;}}
+  /* the ripple is behind a class the IntersectionObserver toggles: feDisplacementMap re-rasterises
+     the whole wordmark every frame, so it must not run while the footer is off-screen. */
+  .foot-wordmark.rippling{filter:url(#waterWarp);}
+  .svg-defs{position:absolute;width:0;height:0;overflow:hidden;}
+  @media(prefers-reduced-motion:reduce){
+    .foot-wordmark{animation:none;}
+    .foot-wordmark.rippling{filter:none;}
+  }
 </style>
 </head>
 <body>
@@ -437,8 +461,9 @@
       </div>
       <div class="marquee" id="heroMarquee" aria-hidden="true" style="margin:24px -40px 0;">
         <div class="marquee-track" id="marqueeTrack">
-          <span>Honesty</span><span>·</span><span>Speed</span><span>·</span><span>Quality</span><span>·</span>
-          <span>Solo</span><span>·</span><span>Results</span><span>·</span><span>Ownership</span><span>·</span>
+          <span>Honesty</span><span class="dot">·</span><span class="ol">Speed</span><span class="dot">·</span>
+          <span>Quality</span><span class="dot">·</span><span class="ol">Results</span><span class="dot">·</span>
+          <span>Ownership</span><span class="dot">·</span>
         </div>
       </div>
     </div>
@@ -522,6 +547,19 @@
 </div>
 
 <!-- FOOTER -- last layer, covers the team bridge. Halftone-style wordmark bleed. -->
+<!-- turbulence filter for the footer wordmark's water ripple. Lives in the DOM as a zero-size
+     defs-only SVG; CSS resolves url(#waterWarp) at paint time so its position doesn't matter. -->
+<svg class="svg-defs" aria-hidden="true" focusable="false">
+  <filter id="waterWarp" x="-8%" y="-30%" width="116%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.008 0.03" numOctaves="2" seed="4" result="noise">
+      <animate attributeName="baseFrequency" dur="16s"
+        values="0.008 0.03;0.014 0.045;0.008 0.03" repeatCount="indefinite"/>
+    </feTurbulence>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="7"
+      xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+
 <footer>
   <div class="foot-inner">
     <div class="foot-col">
@@ -609,10 +647,24 @@ document.addEventListener('click',e=>{
   const t=document.getElementById(id);
   if(!t) return;
   const base=t.innerHTML;
+  /* measure against the STRIP, not the window: .marquee is pulled wider than the viewport by
+     its negative side margins, so window.innerWidth under-counts what has to be filled. */
+  const need=t.parentElement.offsetWidth;
   let guard=0;
-  while(t.scrollWidth < window.innerWidth && guard++ < 12) t.innerHTML += base;
+  while(t.scrollWidth < need && guard++ < 12) t.innerHTML += base;
   t.innerHTML += t.innerHTML;
 });
+
+/* footer wordmark ripple: the SVG displacement filter re-rasterises the whole wordmark every
+   frame, which is real CPU cost for something that is off-screen for most of the page. Only
+   attach the filter while the footer is actually in view. */
+(function(){
+  const wm=document.querySelector('.foot-wordmark');
+  if(!wm||!('IntersectionObserver' in window))return;
+  new IntersectionObserver(es=>{
+    wm.classList.toggle('rippling',es[0].isIntersecting);
+  },{rootMargin:'120px'}).observe(wm);
+})();
 
 /* ON-LOAD HERO INTRO -- plays the instant the page loads, before the user touches scroll.
    The SCENE itself is deliberately untouched: it used to fade/blur/scale in here, but it will
