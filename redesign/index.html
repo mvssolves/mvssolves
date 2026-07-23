@@ -409,6 +409,48 @@
     .foot-wordmark{animation:none;}
     .foot-wordmark.rippling{filter:none;}
   }
+
+  /* CONTACT MODAL -- replaces the Cal.com booking flow. Own form, own styling, mail sent by
+     our own endpoint, so nothing about first contact is routed through a third party. */
+  .modal{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+    padding:24px;visibility:hidden;opacity:0;transition:opacity .28s ease,visibility .28s;}
+  .modal.open{visibility:visible;opacity:1;}
+  .modal-veil{position:absolute;inset:0;background:rgba(6,6,10,.74);
+    -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);}
+  .modal-card{position:relative;width:100%;max-width:560px;max-height:calc(100vh - 48px);
+    overflow:auto;background:#141320;border:1px solid rgba(255,255,255,.1);border-radius:24px;
+    padding:34px 32px 30px;color:#fff;transform:translateY(18px) scale(.985);
+    transition:transform .32s cubic-bezier(.2,.8,.2,1);}
+  .modal.open .modal-card{transform:none;}
+  .modal-card h2{font-size:clamp(24px,3vw,34px);line-height:1.1;margin-bottom:8px;color:#fff;}
+  .modal-sub{color:rgba(255,255,255,.6);font-size:14px;margin-bottom:22px;}
+  .modal-close{position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:50%;
+    border:1px solid rgba(255,255,255,.16);background:transparent;color:#fff;cursor:pointer;
+    display:grid;place-items:center;font-size:15px;line-height:1;
+    transition:background .2s ease,border-color .2s ease;}
+  .modal-close:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.34);}
+  .field{margin-bottom:14px;}
+  .field-row{display:flex;gap:14px;}
+  .field-row .field{flex:1;min-width:0;}
+  .field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;
+    color:#8d8aa0;margin-bottom:6px;font-family:monospace;}
+  .field input,.field select,.field textarea{width:100%;background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:12px 14px;color:#fff;
+    font-size:15px;font-family:inherit;transition:border-color .2s ease,background .2s ease;}
+  .field textarea{min-height:104px;resize:vertical;}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;
+    border-color:var(--accent);background:rgba(255,255,255,.07);}
+  .field select option{background:#141320;color:#fff;}
+  /* honeypot: bots fill every field they can see in the DOM; humans never see this one. */
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;}
+  .modal-actions{display:flex;align-items:center;gap:16px;margin-top:20px;flex-wrap:wrap;}
+  .modal-note{font-size:12px;color:#6f6c80;}
+  .modal-actions .btn[disabled]{opacity:.5;pointer-events:none;}
+  .form-msg{margin-top:14px;font-size:14px;display:none;}
+  .form-msg.show{display:block;}
+  .form-msg.ok{color:var(--accent2);}
+  .form-msg.err{color:#ff8fb0;}
+  @media(max-width:520px){.field-row{flex-direction:column;gap:0;}}
 </style>
 </head>
 <body>
@@ -429,7 +471,7 @@
       <a href="#why">Why me</a>
       <a href="#services">What I build</a>
     </div>
-    <a class="btn filled" href="#">Let's talk</a>
+    <a class="btn filled" href="#" data-contact>Let's talk</a>
   </div>
 </nav>
 
@@ -455,7 +497,7 @@
         <div class="hero-right">
           <p class="hero-sub">High-converting websites and reliable automations for businesses that want it done right the first time.</p>
           <div class="hero-ctas">
-            <a class="btn filled" href="#">Start a project</a>
+            <a class="btn filled" href="#" data-contact>Start a project</a>
           </div>
         </div>
       </div>
@@ -543,7 +585,7 @@
     <div><div class="stat-num" data-count="6">0</div><div class="stat-label">businesses grown 4→5 figures</div></div>
     <div><div class="stat-num" data-count="3">0</div><div class="stat-label">months to results</div></div>
   </div>
-  <a class="btn filled team-cta" href="#">Work with me</a>
+  <a class="btn filled team-cta" href="#" data-contact>Work with me</a>
 </div>
 
 <!-- FOOTER -- last layer, covers the team bridge. Halftone-style wordmark bleed. -->
@@ -582,7 +624,7 @@
       <h3>Still have questions?</h3>
       <div class="foot-cta">
         <input class="foot-email" type="email" placeholder="Enter your email">
-        <a class="btn filled" href="#">Send</a>
+        <a class="btn filled" href="#" data-contact>Send</a>
       </div>
     </div>
   </div>
@@ -601,6 +643,53 @@
     <div class="foot-wordmark" aria-hidden="true">MVS Solves</div>
   </div>
 </footer>
+
+<!-- CONTACT MODAL. Every "let's talk" style CTA on the page opens this via [data-contact]. -->
+<div class="modal" id="contactModal" role="dialog" aria-modal="true" aria-labelledby="contactTitle">
+  <div class="modal-veil" data-close></div>
+  <div class="modal-card">
+    <button class="modal-close" type="button" data-close aria-label="Close">&#10005;</button>
+    <h2 id="contactTitle">Let's talk.</h2>
+    <p class="modal-sub">Tell me what you need. I read every one of these myself and reply within a day, usually the same one.</p>
+    <form id="contactForm" novalidate>
+      <div class="field-row">
+        <div class="field">
+          <label for="cName">Name</label>
+          <input id="cName" name="name" type="text" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="cEmail">Email</label>
+          <input id="cEmail" name="email" type="email" autocomplete="email" required>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="cCompany">Business <span style="text-transform:none;letter-spacing:0">(optional)</span></label>
+          <input id="cCompany" name="company" type="text" autocomplete="organization">
+        </div>
+        <div class="field">
+          <label for="cNeed">What do you need?</label>
+          <select id="cNeed" name="need">
+            <option>A website</option>
+            <option>Automations / AI</option>
+            <option>Both</option>
+            <option>Not sure yet</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="cMsg">Message</label>
+        <textarea id="cMsg" name="message" required></textarea>
+      </div>
+      <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="modal-actions">
+        <button class="btn filled" type="submit" id="contactSend">Send it</button>
+        <span class="modal-note">Or email <a href="mailto:martin@mvssolves.com" style="color:#9d9ab0">martin@mvssolves.com</a></span>
+      </div>
+      <div class="form-msg" id="contactMsg" role="status"></div>
+    </form>
+  </div>
+</div>
 
 <script>
 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -654,6 +743,69 @@ document.addEventListener('click',e=>{
   while(t.scrollWidth < need && guard++ < 12) t.innerHTML += base;
   t.innerHTML += t.innerHTML;
 });
+
+/* CONTACT MODAL. Scroll is frozen with lenis.stop() rather than a body class -- the class-based
+   lock is what previously left the page permanently unscrollable when a close path was missed,
+   so start() is called unconditionally on every close. */
+(function(){
+  const modal=document.getElementById('contactModal');
+  const form=document.getElementById('contactForm');
+  const msg=document.getElementById('contactMsg');
+  const send=document.getElementById('contactSend');
+  if(!modal||!form)return;
+  let lastFocus=null;
+
+  function open(e){
+    if(e)e.preventDefault();
+    lastFocus=document.activeElement;
+    /* if they typed into the footer capture field, carry it across instead of asking twice */
+    const fe=document.querySelector('.foot-email');
+    if(fe&&fe.value)document.getElementById('cEmail').value=fe.value;
+    modal.classList.add('open');
+    if(lenis)lenis.stop();
+    setTimeout(()=>document.getElementById('cName').focus(),80);
+  }
+  function close(){
+    modal.classList.remove('open');
+    if(lenis)lenis.start();
+    if(lastFocus&&lastFocus.focus)lastFocus.focus();
+  }
+
+  document.querySelectorAll('[data-contact]').forEach(el=>el.addEventListener('click',open));
+  modal.querySelectorAll('[data-close]').forEach(el=>el.addEventListener('click',close));
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&modal.classList.contains('open'))close();
+  });
+
+  function show(text,ok){
+    msg.textContent=text;
+    msg.className='form-msg show '+(ok?'ok':'err');
+  }
+
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const data=Object.fromEntries(new FormData(form).entries());
+    if(data.website){close();return;}            /* honeypot tripped -- silently drop */
+    if(!data.name||!data.email||!data.message){
+      show('Name, email and a message, please.',false);return;
+    }
+    send.disabled=true;send.textContent='Sending…';
+    try{
+      const r=await fetch('/api/contact',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(data)
+      });
+      if(!r.ok)throw new Error(await r.text());
+      form.reset();
+      show("Got it. I'll come back to you within a day.",true);
+    }catch(err){
+      show('That didn’t send. Email martin@mvssolves.com and I’ll pick it up there.',false);
+    }finally{
+      send.disabled=false;send.textContent='Send it';
+    }
+  });
+})();
 
 /* footer wordmark ripple: the SVG displacement filter re-rasterises the whole wordmark every
    frame, which is real CPU cost for something that is off-screen for most of the page. Only

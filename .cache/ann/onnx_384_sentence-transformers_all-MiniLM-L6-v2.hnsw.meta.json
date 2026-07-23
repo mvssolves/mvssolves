@@ -1,0 +1,1 @@
+{"engine": "hnsw", "backend": "onnx", "dimensions": 384, "model_name": "sentence-transformers/all-MiniLM-L6-v2", "elements": 573, "index_fingerprint": "8d01bd1c741e9715d4a03ffab1b42541", "created_at": "2026-07-23T14:52:49.788391+00:00"}
