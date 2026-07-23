@@ -326,43 +326,9 @@
   .tab{border:1px solid #ddd;border-radius:999px;padding:8px 16px;font-size:13px;color:#555;cursor:pointer;background:none;font-family:inherit;}
   .tab.active{border-color:#111;color:#111;font-weight:600;background:#f2f2f2;}
   .expertise-layout{display:flex;gap:48px;flex-wrap:wrap;align-items:flex-start;margin-top:24px;}
-  /* max-width, not flex:1: the grey mockup placeholder that used to sit beside this is gone --
-     the testimonial strip is the section's visual now -- so the copy would otherwise run the
-     full page width at an unreadable measure. */
-  .expertise-copy{flex:1;min-width:260px;max-width:62ch;}
+  .expertise-copy{flex:1;min-width:260px;}
+  .expertise-visual{flex:1;min-width:260px;height:280px;background:repeating-linear-gradient(45deg,#eee,#eee 10px,#f7f7f7 10px,#f7f7f7 20px);border:1px dashed #bbb;}
 
-  /* TESTIMONIALS -- real client quotes, published verbatim.
-     Horizontal strip, NOT a wrapping grid: #proof is a sticky cover-layer capped at one viewport,
-     so a 3-row grid would pin the section with its last row permanently below the fold and
-     unreachable. One row scrolls sideways instead and every card stays gettable. */
-  .tstm-grid{display:flex;gap:16px;margin:40px -40px 0;padding:4px 40px 18px;
-    overflow-x:auto;scroll-snap-type:x proximity;
-    scrollbar-width:thin;scrollbar-color:#d6d6de transparent;}
-  .tstm-grid::-webkit-scrollbar{height:6px;}
-  .tstm-grid::-webkit-scrollbar-thumb{background:#d6d6de;border-radius:99px;}
-  .tstm-grid::-webkit-scrollbar-track{background:transparent;}
-  .tstm{flex:0 0 300px;scroll-snap-align:start;
-    border:1px solid #e6e6ea;border-radius:16px;padding:22px;background:#fff;
-    display:flex;flex-direction:column;
-    transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s ease,border-color .28s ease;}
-  .tstm:hover{transform:translateY(-3px);border-color:#d8d4ea;
-    box-shadow:0 16px 34px -20px rgba(60,40,120,.32);}
-  .tstm-stars{font-size:13px;letter-spacing:3px;margin-bottom:13px;color:var(--accent);}
-  .tstm-stars .off{color:#dfdfe6;}
-  .tstm blockquote{font-size:14.5px;line-height:1.62;color:#3b3b44;margin:0 0 16px;flex:1;}
-  .tstm-name{font-weight:700;font-size:14px;color:var(--ink);letter-spacing:-.01em;}
-  /* filtered-out cards collapse rather than display:none so the remaining ones slide across
-     instead of snapping into place */
-  .tstm-hide{flex-basis:0;padding-left:0;padding-right:0;opacity:0;border-width:0;
-    margin-right:-16px;pointer-events:none;overflow:hidden;
-    transition:flex-basis .38s cubic-bezier(.2,.8,.2,1),opacity .22s ease,
-               padding .38s cubic-bezier(.2,.8,.2,1),margin .38s cubic-bezier(.2,.8,.2,1);}
-  .tstm{transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s ease,
-        border-color .28s ease,flex-basis .38s cubic-bezier(.2,.8,.2,1),opacity .28s ease,
-        padding .38s cubic-bezier(.2,.8,.2,1),margin .38s cubic-bezier(.2,.8,.2,1);}
-  @media(prefers-reduced-motion:reduce){
-    .tstm,.tstm-hide{transition:none;}
-  }
   .stats-row{display:flex;gap:40px;margin-top:28px;flex-wrap:wrap;}
   .stat-num{font-size:44px;font-weight:800;}
   /* ODOMETER digits. The window is exactly ONE line tall and every digit in the strip is exactly
@@ -633,14 +599,18 @@
 <section id="proof" class="wrap">
   <div class="eyebrow">Proof</div>
   <h2 class="fx-rise">Six businesses. Four figures to five. Two months.</h2>
-  <!-- Tabs filter the client quotes by what the client actually talks about. They deliberately do
-       NOT swap the stat pair the way the old placeholder version did -- there is one real result
-       on record (six businesses, two months) and per-tab figures would have to be invented. -->
+  <!-- Selectable tabs, each swapping the stat pair below. Tab one carries the REAL numbers
+       (6 businesses / 2 months); the other three are placeholders waiting on real figures. -->
   <div class="tab-row" id="proofTabs">
-    <button class="tab active" data-filter="all">All</button>
-    <button class="tab" data-filter="websites">Websites</button>
-    <button class="tab" data-filter="automation">Automation</button>
-    <button class="tab" data-filter="seo">Google &amp; SEO</button>
+    <button class="tab active" data-stat1="6" data-stat2="2"
+      data-label1="businesses taken from four figures to five"
+      data-label2="months, start to finish">Results</button>
+    <button class="tab" data-stat1="12" data-stat2="8"
+      data-label1="[stat label]" data-label2="[stat label]">[Tab two]</button>
+    <button class="tab" data-stat1="30" data-stat2="15"
+      data-label1="[stat label]" data-label2="[stat label]">[Tab three]</button>
+    <button class="tab" data-stat1="9" data-stat2="40"
+      data-label1="[stat label]" data-label2="[stat label]">[Tab four]</button>
   </div>
   <div class="expertise-layout">
     <div class="expertise-copy">
@@ -649,51 +619,13 @@
         capture, follow-up and booking that keep running whether or not anyone remembers to run
         them. Same playbook, six times.</p>
       <div class="stats-row fx-group">
-        <div><div class="stat-num" data-target="6">0</div><div class="stat-label">businesses taken from four figures to five</div></div>
-        <div><div class="stat-num" data-target="2">0</div><div class="stat-label">months, start to finish</div></div>
+        <div><div class="stat-num">0</div><div class="stat-label">businesses taken from four figures to five</div></div>
+        <div><div class="stat-num">0</div><div class="stat-label">months, start to finish</div></div>
       </div>
     </div>
+    <div class="expertise-visual" aria-hidden="true">[image/mockup placeholder]</div>
   </div>
 
-  <!-- Client quotes, published verbatim as given. Do not reword these for punchiness -- edited
-       copy stops being the client's words. Length trims are fine; rewrites are not. -->
-  <div class="tstm-grid fx-group">
-    <figure class="tstm" data-theme="websites automation seo">
-      <div class="tstm-stars" aria-label="5 out of 5">★★★★★</div>
-      <blockquote>I originally just wanted a better-looking website, but ended up getting a whole booking system that actually brings in clients. Within a few weeks I was getting enquiries from Google instead of relying only on referrals. Martin was quick to respond, explained everything clearly, and had the site live much faster than I expected.</blockquote>
-      <figcaption class="tstm-name">Braam</figcaption>
-    </figure>
-    <figure class="tstm" data-theme="automation">
-      <div class="tstm-stars" aria-label="5 out of 5">★★★★★</div>
-      <blockquote>The biggest difference has been the automation. New leads can book online, I get notified instantly, and I don't have to spend time going back and forth over WhatsApp trying to organise appointments. Everything just works. If you're running a service business, this is honestly worth every cent.</blockquote>
-      <figcaption class="tstm-name">David Chesane</figcaption>
-    </figure>
-    <figure class="tstm" data-theme="websites automation">
-      <div class="tstm-stars" aria-label="4 out of 5">★★★★<span class="off">★</span></div>
-      <blockquote>I wanted something that looked professional without feeling over-designed. The website loads quickly, works perfectly on mobile, and clients have already commented on how easy it is to book. There were a few small tweaks during the build, but they were handled quickly and communication stayed excellent throughout.</blockquote>
-      <figcaption class="tstm-name">Karishma Desai</figcaption>
-    </figure>
-    <figure class="tstm" data-theme="seo">
-      <div class="tstm-stars" aria-label="5 out of 5">★★★★★</div>
-      <blockquote>I was surprised by how much thought went into the SEO and Google Business Profile optimisation, not just the website itself. Since going live I've had several people find me through Google searches, which almost never happened before. The whole experience felt organised and professional.</blockquote>
-      <figcaption class="tstm-name">Leigh-Mari Niemand</figcaption>
-    </figure>
-    <figure class="tstm" data-theme="websites automation">
-      <div class="tstm-stars" aria-label="5 out of 5">★★★★★</div>
-      <blockquote>Before working with MVS Solves my business relied almost entirely on social media. Now I have a proper website, online booking, and clients can find all the information they need without messaging me first. It saves me time every day and has made my business look far more established.</blockquote>
-      <figcaption class="tstm-name">Mandela</figcaption>
-    </figure>
-    <figure class="tstm" data-theme="websites automation">
-      <div class="tstm-stars" aria-label="4 out of 5">★★★★<span class="off">★</span></div>
-      <blockquote>Great experience from start to finish. Martin gave honest advice instead of trying to upsell features I didn't need. The website is fast, modern, and the automated enquiry system has made following up with potential clients much easier. Definitely recommend if you want something built properly.</blockquote>
-      <figcaption class="tstm-name">Thamane Skosann</figcaption>
-    </figure>
-    <figure class="tstm" data-theme="websites automation seo">
-      <div class="tstm-stars" aria-label="5 out of 5">★★★★★</div>
-      <blockquote>What stood out most was that this wasn't just another website. Everything was built around getting more enquiries and making the business easier to run. The booking system, contact forms, and Google optimisation all work together, and I've already noticed an increase in genuine leads coming through. Couldn't be happier with the result.</blockquote>
-      <figcaption class="tstm-name">Yaaseen</figcaption>
-    </figure>
-  </div>
 </section>
 
 <!-- KEY FEATURES (HOW IT WORKS) -- layer 3, covers Expertise. -->
@@ -1362,38 +1294,27 @@ function odometer(el, value){
   });
 }
 
-/* Proof tabs filter the client quotes. Cards carry space-separated themes and can match more than
-   one tab, so the counts overlap by design -- a client who talks about both the site and the
-   booking system belongs under both. Cards are hidden with a class rather than removed so the
-   scroll strip keeps its position and nothing has to be re-rendered. */
+/* Proof tabs drive the stat pair: each tab counts the two odometers to its own values. */
 (function(){
   const tabs=[...document.querySelectorAll('#proofTabs .tab')];
-  const cards=[...document.querySelectorAll('#proof .tstm')];
-  if(!tabs.length||!cards.length)return;
-  const strip=cards[0].parentElement;
-  tabs.forEach(tab=>tab.addEventListener('click',()=>{
-    const f=tab.dataset.filter;
-    tabs.forEach(t=>t.classList.toggle('active',t===tab));
-    cards.forEach(c=>{
-      const show=f==='all'||(c.dataset.theme||'').split(' ').includes(f);
-      c.classList.toggle('tstm-hide',!show);
-    });
-    strip.scrollTo({left:0,behavior:'smooth'});
-  }));
-})();
-
-/* Proof stats. These used to be driven by the tab row; the tabs now filter quotes instead, so each
-   stat just counts up to its own data-target. */
-(function(){
   const statEls=[...document.querySelectorAll('#proof .stat-num')];
-  if(!statEls.length)return;
-  const targets=statEls.map(el=>+el.dataset.target||0);
+  if(!tabs.length||!statEls.length)return;
+  const labelEls=[...document.querySelectorAll('#proof .stat-label')];
+  function activate(tab){
+    tabs.forEach(t=>t.classList.toggle('active',t===tab));
+    odometer(statEls[0],+tab.dataset.stat1);
+    odometer(statEls[1],+tab.dataset.stat2);
+    /* labels swap with the numbers -- leaving "months, start to finish" pinned under whatever
+       figure the next tab counts to is how a stat row starts lying. */
+    if(labelEls[0]&&tab.dataset.label1)labelEls[0].textContent=tab.dataset.label1;
+    if(labelEls[1]&&tab.dataset.label2)labelEls[1].textContent=tab.dataset.label2;
+  }
+  tabs.forEach(t=>t.addEventListener('click',()=>activate(t)));
   /* replayIn (IntersectionObserver) rather than ScrollTrigger: these sections are sticky, so
      ScrollTrigger's natural-position maths fires at the wrong moment -- same reason the text
      effects were moved off it. */
-  replayIn(statEls[0].closest('.stats-row'), ()=>{
-    statEls.forEach((el,i)=>odometer(el,targets[i]));
-  });
+  replayIn(statEls[0].closest('.stats-row'),
+    ()=>activate(tabs.find(t=>t.classList.contains('active'))||tabs[0]));
 })();
 
 /* KEY FEATURES has no bespoke behaviour: it's a plain sticky cover-layer identical to
