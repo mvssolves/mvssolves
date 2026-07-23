@@ -82,8 +82,17 @@
      toggle + transition fired once mid-scroll and read as a discrete flash right at the scene's
      top edge -- that was the "choppy top". Scrubbing the colour makes it track scroll smoothly. */
   /* no border-bottom: that hairline sat directly across the top of the hero scene and read as an
-     ugly seam. The nav separates from content by its background alone. */
-  nav{position:fixed;top:0;left:0;right:0;background:#fff;z-index:20;}
+     ugly seam. The nav separates from content by its background alone.
+     Default is solid so the no-JS / reduced-motion path stays legible; JS adds .nav-clear while
+     the hero is on screen. The background transition is deliberately NOT applied while clear --
+     see .nav-clear below. */
+  nav{position:fixed;top:0;left:0;right:0;background:#fff;z-index:20;transition:background .3s ease;}
+  /* transparent for the WHOLE hero section, and it does not fade back in until the hero is gone.
+     Previously the nav faded from transparent to white across the hero's own scroll, which put a
+     white fade directly over the top edge of the scene -- reading as the scene fading at the top
+     while resizing at the bottom. Now the scene's top edge is a pure geometric move with nothing
+     fading over it, and the nav only solidifies once Technology is arriving. */
+  nav.nav-clear{background:transparent;transition:none;}
   .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;}
   .nav-links{display:flex;gap:28px;font-size:14px;}
   .nav-links a{color:#333;text-decoration:none;}
@@ -104,9 +113,11 @@
      sticky releases and normal scrolling continues into Technology.
 
      Runway = 100vh (the held viewport itself) + the scene's scrub length in the JS below
-     (end:'+=80%') + a short tail so the settled layout is readable before Technology covers it.
-     The copy pop is time-based now, not scrubbed, so it needs no runway of its own. */
-  .hero-block{position:relative;z-index:1;background:#fff;min-height:195vh;}
+     (end:'+=55%') + a short tail so the settled layout is readable before Technology covers it.
+     Kept deliberately tight: a long runway is what made the hero feel stuck, since the sticky
+     holds the viewport for its entire length. The copy pop is time-based, not scrubbed, so it
+     needs no runway of its own. */
+  .hero-block{position:relative;z-index:1;background:#fff;min-height:165vh;}
   .hero-sticky{position:sticky;top:0;height:100vh;overflow:hidden;}
   #technology{z-index:2;}
   #products{z-index:3;}
@@ -373,7 +384,11 @@
 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 gsap.registerPlugin(ScrollTrigger);
 if(!reduce){
-  const lenis = new Lenis({duration:1.2});
+  /* duration 1.2 meant every wheel tick took over a second to settle, which is what made the
+     hero feel stuck and unresponsive -- the page kept gliding on its own schedule instead of the
+     user's. 0.7 keeps the smoothing but lets a fast scroll actually be fast. touchMultiplier /
+     wheelMultiplier at 1 so input isn't scaled down. */
+  const lenis = new Lenis({duration:0.7,wheelMultiplier:1,touchMultiplier:1});
   lenis.on('scroll', ScrollTrigger.update);
   function raf(time){lenis.raf(time);requestAnimationFrame(raf);}
   requestAnimationFrame(raf);
@@ -385,20 +400,14 @@ if(!reduce){
   if(t) t.innerHTML += t.innerHTML;
 });
 
-/* ON-LOAD HERO INTRO -- confirmed NOT scroll-triggered: plays the instant the page loads,
-   before the user touches scroll. Visual placeholder settles from blurred/scaled to sharp,
-   text elements stagger up after it. */
+/* ON-LOAD HERO INTRO -- plays the instant the page loads, before the user touches scroll.
+   The SCENE itself is deliberately untouched: it used to fade/blur/scale in here, but it will
+   hold a video, and opacity/filter/scale on a playing video causes compositing glitches. The
+   scene is simply there at full size from frame one; only the headline animates. */
 (function(){
-  const ph=document.getElementById('hero3d');
   const h1=document.querySelector('.hero-copy h1');
-  if(reduce)return;
-  const tl=gsap.timeline({defaults:{ease:'power3.out'}});
-  if(ph)tl.from(ph,{opacity:0,scale:1.05,filter:'blur(20px)',duration:1.1});
-  /* only the headline animates in on load -- per the reference's on-load state, the headline is
-     the sole copy visible (overlaid on the fullscreen visual). Eyebrow/subhead/CTA don't exist
-     on screen yet; they're faded in by the shrink scrub below, so they're deliberately NOT
-     targeted here (a .from() opacity tween on them would also fight the scrub's opacity). */
-  if(h1)tl.from(h1,{y:24,opacity:0,duration:.8},'-=0.65');
+  if(reduce||!h1)return;
+  gsap.from(h1,{y:24,opacity:0,duration:.8,ease:'power3.out',delay:.15});
 })();
 
 /* HERO SEQUENCE -- deliberately split into TWO mechanisms, not one scrubbed timeline:
@@ -416,6 +425,14 @@ if(!reduce){
   const ph=document.getElementById('hero3d');
   const navEl=document.querySelector('nav');
   if(!ph||reduce)return;
+
+  /* nav is transparent for the whole hero and only solidifies as Technology arrives -- keeping
+     every fade well clear of the scene itself. */
+  navEl.classList.add('nav-clear');
+  ScrollTrigger.create({trigger:'#technology',start:'top 85%',
+    onEnter:()=>navEl.classList.remove('nav-clear'),
+    onLeaveBack:()=>navEl.classList.add('nav-clear')});
+
   const eyebrow=document.querySelector('.hero-left .eyebrow');
   const right=document.querySelector('.hero-right');
   const marq=document.getElementById('heroMarquee');
@@ -439,30 +456,29 @@ if(!reduce){
   if(right)copyTL.to(right,{opacity:1,y:0,duration:0.35},0.06);
   if(marq)copyTL.to(marq,{opacity:1,y:0,duration:0.35},0.14);
 
-  const tl=gsap.timeline({defaults:{ease:'none'},
-    /* scrub:0.5 rather than true -- `true` maps 1:1 to raw scroll position, so any unevenness in
-       the scroll input shows up directly as stutter on the moving edges. */
-    scrollTrigger:{trigger:'#heroBlock',start:'top top',end:'+=80%',scrub:0.5,
-      invalidateOnRefresh:true,
-      /* the copy fires exactly when the scrub completes, and rewinds if the user scrolls back
-         up into the scene's range -- so the two states always stay consistent. */
-      onLeave:()=>copyTL.play(),
-      onEnterBack:()=>copyTL.reverse()}});
+  /* copy fires at 78% of the shrink, not at the end -- by that point the scene has visually
+     almost landed, so the CTA is already there as it settles rather than after it. Driven off
+     progress in onUpdate rather than onLeave (which only fires at a full 100%). */
+  let popped=false;
+  const POP_AT=0.78;
 
-  /* the scene recedes. Note top/left/right travel only 88px/40px while the height travels
-     several hundred -- the small edges are what looked choppy, so they're eased identically and
-     ride the same tween rather than being toggled or transitioned separately. */
+  const tl=gsap.timeline({defaults:{ease:'none'},
+    /* scrub:true, NOT a catch-up value: any catch-up means the scene lags behind the wheel and
+       the whole section feels stuck. 1:1 keeps it locked to whatever speed the user scrolls. */
+    scrollTrigger:{trigger:'#heroBlock',start:'top top',end:'+=55%',scrub:true,
+      invalidateOnRefresh:true,
+      onUpdate(self){
+        if(self.progress>=POP_AT&&!popped){popped=true;copyTL.play();}
+        else if(self.progress<POP_AT&&popped){popped=false;copyTL.reverse();}
+      }}});
+
+  /* the scene recedes. Geometry ONLY -- height/top/left/right/radius. Deliberately no opacity,
+     no blur, no scale anywhere on this element: it will hold a video, and fading or filtering a
+     playing video causes compositing glitches. Every edge is a hard geometric move. */
   tl.fromTo(ph,
     {height:()=>window.innerHeight+'px',left:'0px',right:'0px',top:'0px',borderRadius:'0px'},
     {height:()=>sceneH()+'px',left:'40px',right:'40px',top:TOP_INSET+'px',
       borderRadius:'28px',duration:1,ease:'power2.inOut'},0);
-
-  /* nav background is TWEENED across the same scrub instead of being toggled by a class with a
-     CSS transition. The toggle fired once, mid-scroll, as a discrete flash right at the scene's
-     top edge -- that was the choppiness. As a tween it tracks scroll continuously. */
-  tl.fromTo(navEl,
-    {backgroundColor:'rgba(255,255,255,0)'},
-    {backgroundColor:'rgba(255,255,255,1)',duration:0.55},0.25);
 
   /* the settled scene height is derived from the copy block's measured height, and web fonts
      land after this script runs -- so remeasure once they're in, or the scene keeps a height
