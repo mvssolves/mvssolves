@@ -290,6 +290,14 @@
   .expertise-visual{flex:1;min-width:260px;height:280px;background:repeating-linear-gradient(45deg,#eee,#eee 10px,#f7f7f7 10px,#f7f7f7 20px);border:1px dashed #bbb;}
   .stats-row{display:flex;gap:40px;margin-top:28px;flex-wrap:wrap;}
   .stat-num{font-size:44px;font-weight:800;}
+  /* ODOMETER digits. The window is exactly ONE line tall and every digit in the strip is exactly
+     one line tall too -- that equality is what makes the roll land on a digit instead of between
+     two. line-height:1 on both, and tabular-nums so the number doesn't jitter horizontally as
+     digits change width mid-spin. */
+  .odo{display:inline-flex;align-items:flex-start;font-variant-numeric:tabular-nums;}
+  .odo-d{display:inline-block;overflow:hidden;height:1em;line-height:1;}
+  .odo-strip{display:block;will-change:transform;}
+  .odo-strip>span{display:block;height:1em;line-height:1;}
   .stat-label{color:#888;font-size:13px;max-width:20ch;}
 
   /* KEY FEATURES -- numbered editorial rows. Deliberately NOT cards: Products is already a card
@@ -820,40 +828,78 @@ document.querySelectorAll('.fx-group').forEach(fxGroup);
 /* EXPERTISE tabs -- click swaps active tab AND re-triggers count-up on the stat numbers
    (confirmed: this is an animated re-count, not a static text swap). Also fires once on
    first scroll-into-view so the numbers don't sit at 0 before any interaction. */
+/* ODOMETER -- shared by both stat groups. Each digit is its own masked window containing 0-9
+   listed TWICE; rolling to (10 + digit) therefore travels a full revolution before landing, so
+   the number visibly spins up rather than just incrementing. Digits are staggered right-to-left
+   like a real split-flap board, where the last digit settles first.
+   One implementation drives both the tab-driven Expertise stats and the team stats. */
+function odometer(el, value){
+  const digits = String(value).split('');
+  if(reduce){el.textContent = value + '+'; return;}
+
+  /* rebuild only when the digit count changes -- 12 -> 6 needs new windows, 12 -> 30 doesn't */
+  if(el._odoCount !== digits.length){
+    el._odoCount = digits.length;
+    el.textContent = '';
+    const wrap = document.createElement('span');
+    wrap.className = 'odo';
+    el._strips = digits.map(() => {
+      const win = document.createElement('span');
+      win.className = 'odo-d';
+      const strip = document.createElement('span');
+      strip.className = 'odo-strip';
+      /* 0-9 twice: gives the extra revolution to spin through */
+      for(let r = 0; r < 2; r++)
+        for(let n = 0; n <= 9; n++){
+          const s = document.createElement('span');
+          s.textContent = n;
+          strip.appendChild(s);
+        }
+      win.appendChild(strip);
+      wrap.appendChild(win);
+      return strip;
+    });
+    const plus = document.createElement('span');
+    plus.textContent = '+';
+    wrap.appendChild(plus);
+    el.appendChild(wrap);
+    gsap.set(el._strips, {yPercent: 0});
+  }
+
+  el._strips.forEach((strip, i) => {
+    const d = +digits[i];
+    /* 20 children, so one digit = 5%. (10 + d) = one full pass, then land on d. */
+    gsap.fromTo(strip, {yPercent: 0},
+      {yPercent: -(10 + d) * 5, duration: 1.1 + i * 0.12, ease: 'power3.inOut', overwrite: true});
+  });
+}
+
 (function(){
   const tabs=[...document.querySelectorAll('#expertiseTabs .tab')];
   const statEls=[...document.querySelectorAll('#expertise .stat-num')];
   if(!tabs.length||!statEls.length)return;
-  function countUp(el,target){
-    if(reduce){el.textContent=target+'+';return;}
-    const obj={v:+el.textContent||0};
-    gsap.to(obj,{v:target,duration:1,ease:'power2.out',onUpdate:()=>{el.textContent=Math.round(obj.v)+'+';}});
-  }
   function activate(tab){
     tabs.forEach(t=>t.classList.toggle('active',t===tab));
-    countUp(statEls[0],+tab.dataset.stat1);
-    countUp(statEls[1],+tab.dataset.stat2);
+    odometer(statEls[0],+tab.dataset.stat1);
+    odometer(statEls[1],+tab.dataset.stat2);
   }
   tabs.forEach(t=>t.addEventListener('click',()=>activate(t)));
-  ScrollTrigger.create({trigger:'#expertise .stats-row',start:'top 85%',once:true,
-    onEnter:()=>activate(tabs[0])});
+  /* replayIn (IntersectionObserver) rather than ScrollTrigger: these sections are sticky, so
+     ScrollTrigger's natural-position maths fires at the wrong moment -- same reason the text
+     effects were moved off it. */
+  replayIn(statEls[0].closest('.stats-row'), ()=>activate(tabs.find(t=>t.classList.contains('active'))||tabs[0]));
 })();
 
 /* KEY FEATURES has no bespoke behaviour: it's a plain sticky cover-layer identical to
    Technology / Products / Expertise, its rows entering with the shared .fx-group stagger. The
    scroll-pinned accordion that used to live here made it the odd one out. */
 
-/* standalone count-up for any [data-count] number (team block). The Expertise stats are driven
-   by their own tab logic instead, so this deliberately only claims elements with data-count. */
+/* team stats -- same odometer, driven by [data-count]. The Expertise stats are driven by their
+   own tab logic instead, so this deliberately only claims elements with data-count. */
 (function(){
   document.querySelectorAll('.stat-num[data-count]').forEach(el=>{
     const target=+el.dataset.count;
-    if(reduce){el.textContent=target+'+';return;}
-    replayIn(el,()=>{
-      const o={v:0};
-      gsap.to(o,{v:target,duration:1.1,ease:'power2.out',overwrite:true,
-        onUpdate:()=>{el.textContent=Math.round(o.v)+'+';}});
-    });
+    replayIn(el,()=>odometer(el,target));
   });
 })();
 
