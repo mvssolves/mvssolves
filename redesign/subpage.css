@@ -90,15 +90,16 @@ footer{background:var(--ink);color:#fff;padding:44px 40px 0;overflow:hidden;
 .foot-legal a:hover{color:#fff;}
 .foot-legal span{color:#444;}
 .foot-copy{margin-left:auto;color:#666;}
-.foot-bottom{position:relative;margin-top:26px;}
+.foot-bottom{position:relative;margin-top:12px;}
 .foot-bottom::before{content:'';position:absolute;inset:0;pointer-events:none;
   background-image:radial-gradient(rgba(255,255,255,.16) 1.5px,transparent 1.6px);
   background-size:14px 14px;
   -webkit-mask-image:linear-gradient(to top,#000 35%,transparent 100%);
   mask-image:linear-gradient(to top,#000 35%,transparent 100%);}
-.foot-wordmark{position:relative;z-index:1;font-size:clamp(38px,11vw,150px);font-weight:800;
+.foot-wordmark{position:relative;z-index:1;font-size:clamp(40px,11.5vw,164px);font-weight:800;
   line-height:1.04;letter-spacing:-.02em;color:#fff;text-align:center;white-space:nowrap;
-  user-select:none;pointer-events:none;transform:translateY(32%);}
+  user-select:none;pointer-events:none;
+  transform-origin:50% 0;transform:translateY(8%) scaleY(1.24);}
 
 @media(max-width:640px){
   .nav-inner{padding:16px 20px;}

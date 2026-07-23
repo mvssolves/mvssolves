@@ -376,7 +376,7 @@
   /* wordmark is the LAST thing in the footer, so it can only ever sit at the very bottom of the
      page -- it can't ride up over the columns or the Send CTA no matter the viewport, which was
      the recurring overlap bug. Sized to fit "MVS Solves" whole: no clipping, no bleed-off. */
-  .foot-bottom{position:relative;margin-top:46px;padding-top:26px;}
+  .foot-bottom{position:relative;margin-top:12px;padding-top:0;}
   /* halftone dot field behind the wordmark, faded out toward the top so it dissolves into the
      footer rather than ending on a hard edge. */
   .foot-bottom::before{content:'';position:absolute;inset:0;pointer-events:none;
@@ -391,10 +391,15 @@
      by footer{overflow:hidden} -- the wordmark reads as running off the bottom of the page.
      perspective here (not on the letters) is what makes the per-letter tilts share one vanishing
      point instead of each rotating in its own flat little world. */
+  /* the letters are stretched vertically rather than just set larger: a bigger font-size would
+     also make "MVS Solves" wider, and it already runs the width of the page. scaleY grows the
+     glyphs upward-to-downward only. transform-origin is pinned to the top so the stretch grows
+     downward into the clip instead of pushing the word up into the legal row. */
   .foot-wordmark{position:relative;z-index:1;display:flex;justify-content:center;
-    align-items:flex-end;font-size:clamp(38px,11vw,150px);font-weight:800;
+    align-items:flex-end;font-size:clamp(40px,11.5vw,164px);font-weight:800;
     line-height:1.04;letter-spacing:-.02em;white-space:nowrap;
-    user-select:none;pointer-events:none;transform:translateY(32%);perspective:900px;}
+    user-select:none;pointer-events:none;perspective:900px;
+    transform-origin:50% 0;transform:translateY(8%) scaleY(1.24);}
   /* Each letter is its own body of water: a depth gradient for the base, two highlight bands
      drifting across it in OPPOSITE directions at different rates (that crossing is what reads as
      caustics rather than as a chrome sweep), and a static turbulence displacement giving the
