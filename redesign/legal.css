@@ -1,0 +1,113 @@
+/* Shared stylesheet for the redesign's legal / policy pages.
+   Deliberately one file rather than the live site's per-page inline <style> blocks -- six copies
+   of the same ~80 lines is how those pages drifted apart in the first place.
+
+   Palette and type are lifted from redesign/index.html so these read as the same site: violet
+   accent, lime for marks, system stack for body, monospace for eyebrow labels, dark footer with
+   the wordmark. Font choice is still parked upstream, so this inherits the same system stack and
+   will follow whatever index.html lands on. */
+
+:root{
+  --nav-h:72px;
+  --accent:#9070DF;
+  --accent2:#E6F536;
+  --ink:#0B0B0C;
+  --text:#1c1a1f;
+  --soft:#4a4753;
+  --muted:#8a8694;
+  --line:rgba(11,11,12,.10);
+  --maxw:780px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:#fff;color:var(--text);font-size:16px;line-height:1.65;
+  -webkit-font-smoothing:antialiased;}
+::selection{background:var(--accent);color:#fff;}
+
+/* ---- NAV --------------------------------------------------------------------------------- */
+/* mark only and NOT a link, matching the home page: identity, not navigation. The explicit
+   "Back to site" link on the right is the way home. */
+nav{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.94);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;
+  padding:18px 40px;max-width:1400px;margin:0 auto;}
+.nav-logo{display:flex;align-items:center;color:#111;}
+.logo-mark{width:30px;height:30px;flex:none;display:block;color:inherit;}
+.nav-back{font-size:14px;color:var(--muted);text-decoration:none;font-weight:600;
+  position:relative;transition:color .2s ease;}
+.nav-back::after{content:'';position:absolute;left:0;right:0;bottom:-3px;height:1px;
+  background:currentColor;transform:scaleX(0);transform-origin:left;
+  transition:transform .28s cubic-bezier(.2,.8,.2,1);}
+.nav-back:hover{color:#111;}
+.nav-back:hover::after{transform:scaleX(1);}
+
+/* ---- HEADER ------------------------------------------------------------------------------ */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 40px;width:100%;}
+.hero{padding:86px 0 26px;}
+/* same eyebrow treatment as the home page's section labels */
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);
+  font-family:monospace;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.eyebrow::before{content:'';width:26px;height:2px;background:var(--accent2);flex:none;}
+h1{font-size:clamp(34px,6vw,60px);line-height:1.04;letter-spacing:-.025em;color:var(--ink);
+  font-weight:800;}
+.meta{font-family:monospace;font-size:12.5px;color:var(--muted);margin-top:14px;}
+
+/* entrance: CSS-only so these pages carry no GSAP/Lenis payload for a page of text */
+.rise{opacity:0;transform:translateY(18px);animation:rise .7s cubic-bezier(.2,.8,.2,1) forwards;}
+.rise:nth-child(2){animation-delay:.06s;}
+.rise:nth-child(3){animation-delay:.12s;}
+@keyframes rise{to{opacity:1;transform:none;}}
+
+/* ---- BODY -------------------------------------------------------------------------------- */
+main{padding:16px 0 96px;}
+main .wrap{border-top:1px solid var(--line);padding-top:30px;}
+main h2{font-size:20px;letter-spacing:-.01em;color:var(--ink);margin:42px 0 10px;font-weight:700;}
+main h2:first-of-type{margin-top:12px;}
+p,li{color:var(--soft);}
+p{margin:12px 0;}
+ul{margin:12px 0;padding-left:22px;}
+li{margin:6px 0;}
+strong{color:var(--text);font-weight:700;}
+main a{color:var(--ink);text-decoration:none;background-image:linear-gradient(var(--accent),var(--accent));
+  background-size:100% 1px;background-repeat:no-repeat;background-position:0 100%;
+  padding-bottom:1px;transition:background-size .25s ease,color .2s ease;}
+main a:hover{color:var(--accent);background-size:100% 2px;}
+.flag{background:#fff8e1;border:1px solid #d9b400;padding:1px 6px;border-radius:3px;
+  font-weight:700;color:#5c4a00;}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;
+  border-radius:4px;}
+
+/* ---- FOOTER ------------------------------------------------------------------------------ */
+/* same dark slab + clipped wordmark as the home page, minus the water filter -- a policy page
+   doesn't need a per-frame displacement map running under it. */
+footer{background:var(--ink);color:#fff;padding:44px 40px 0;overflow:hidden;
+  border-radius:32px 32px 0 0;}
+.foot-legal{max-width:1400px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;
+  gap:8px;font-size:12px;color:#666;padding-bottom:20px;border-bottom:1px solid #333;}
+.foot-legal a{color:#888;text-decoration:none;transition:color .2s ease;}
+.foot-legal a:hover{color:#fff;}
+.foot-legal span{color:#444;}
+.foot-copy{margin-left:auto;color:#666;}
+.foot-bottom{position:relative;margin-top:26px;}
+.foot-bottom::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.16) 1.5px,transparent 1.6px);
+  background-size:14px 14px;
+  -webkit-mask-image:linear-gradient(to top,#000 35%,transparent 100%);
+  mask-image:linear-gradient(to top,#000 35%,transparent 100%);}
+.foot-wordmark{position:relative;z-index:1;font-size:clamp(38px,11vw,150px);font-weight:800;
+  line-height:1.04;letter-spacing:-.02em;color:#fff;text-align:center;white-space:nowrap;
+  user-select:none;pointer-events:none;transform:translateY(32%);}
+
+@media(max-width:640px){
+  .nav-inner{padding:16px 20px;}
+  .wrap{padding:0 22px;}
+  .hero{padding:56px 0 20px;}
+  footer{padding:36px 22px 0;}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto;}
+  .rise{animation:none;opacity:1;transform:none;}
+  .nav-back::after{transition:none;}
+}
