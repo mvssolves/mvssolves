@@ -110,7 +110,7 @@
      and the later phases play while the hero is already sliding away; must not be much LONGER
      either, or the tail is dead scroll where the hero just sits there doing nothing. */
   .hero-block{position:relative;z-index:1;background:#fff;min-height:207vh;}
-  .hero-sticky{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+  .hero-sticky{position:sticky;top:0;height:100vh;overflow:hidden;}
   #technology{z-index:2;}
   #products{z-index:3;}
   #expertise{z-index:4;}
@@ -125,7 +125,12 @@
      top, with the nav floating over it (nav goes transparent while the hero is full, see the
      .nav-over class). It's a direct child of .hero-sticky so no negative-margin breakout is
      needed; JS scrubs height/inset/radius from fullscreen -> inset rounded card. */
-  .hero-3d-placeholder{height:100vh;flex:none;background:repeating-linear-gradient(135deg,#f4f4f4,#f4f4f4 20px,#ececec 20px,#ececec 40px);
+  /* absolutely positioned, NOT a flex child: as a flex item every frame of the shrink resized a
+     flex child, forcing the flex container to re-layout on every scroll tick -- that's what the
+     jitter was. Out of flow it resizes in isolation and nothing else has to be re-laid out.
+     will-change promotes it to its own compositor layer so the resize doesn't repaint the nav. */
+  .hero-3d-placeholder{position:absolute;top:0;left:0;right:0;height:100vh;will-change:height,top;
+    background:repeating-linear-gradient(135deg,#f4f4f4,#f4f4f4 20px,#ececec 20px,#ececec 40px);
     border:1px dashed #bbb;display:flex;align-items:center;justify-content:center;color:#999;font-size:13px;}
   /* absolutely anchored to the BOTTOM of the sticky viewport, not a flex child. As a flex child
      it was flex:1 in a column whose first item (the scene) already fills the whole 100vh, so its
@@ -195,10 +200,21 @@
      tight look but reserving real space for it: line-height 1 + a proper top margin, and
      pointer-events:none so it can never intercept a click on the CTA even if it visually
      overlaps at some viewport. */
-  .foot-wordmark{position:relative;z-index:0;font-size:clamp(72px,16vw,200px);font-weight:800;line-height:1;
-    color:rgba(255,255,255,.06);text-align:center;white-space:nowrap;overflow:hidden;
-    margin-top:72px;user-select:none;pointer-events:none;}
-  .foot-legal{max-width:1180px;margin:0 auto;padding:20px 0;font-size:12px;color:#666;}
+  .foot-legal{padding:20px 0;font-size:12px;color:#666;}
+  /* wordmark is the LAST thing in the footer, so it can only ever sit at the very bottom of the
+     page -- it can't ride up over the columns or the Send CTA no matter the viewport, which was
+     the recurring overlap bug. Sized to fit "MVS Solves" whole: no clipping, no bleed-off. */
+  .foot-bottom{position:relative;margin-top:40px;padding-top:24px;}
+  /* halftone dot field behind the wordmark, faded out toward the top so it dissolves into the
+     footer rather than ending on a hard edge. */
+  .foot-bottom::before{content:'';position:absolute;inset:0;pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,.16) 1.5px,transparent 1.6px);
+    background-size:14px 14px;
+    -webkit-mask-image:linear-gradient(to top,#000 35%,transparent 100%);
+    mask-image:linear-gradient(to top,#000 35%,transparent 100%);}
+  .foot-wordmark{position:relative;z-index:1;font-size:clamp(44px,14vw,200px);font-weight:800;
+    line-height:1.06;letter-spacing:-.02em;color:#fff;text-align:center;white-space:nowrap;
+    user-select:none;pointer-events:none;}
 </style>
 </head>
 <body>
@@ -348,8 +364,12 @@
       </div>
     </div>
   </div>
-  <div class="foot-wordmark" aria-hidden="true">[WORDMARK]</div>
-  <div class="foot-legal wrap">[legal placeholder] · © [year]</div>
+  <div class="foot-legal">[legal placeholder] · © [year]</div>
+  <!-- wordmark sits LAST so it always lands at the very bottom of the page and can never ride
+       up over the columns/CTA. Full text, no clipping, halftone dot field behind it. -->
+  <div class="foot-bottom">
+    <div class="foot-wordmark" aria-hidden="true">MVS Solves</div>
+  </div>
 </footer>
 
 <script>
@@ -422,7 +442,10 @@ if(!reduce){
   const sceneH=()=>Math.max(220,window.innerHeight-(copy?copy.offsetHeight:0)-TOP_INSET-GAP);
 
   const tl=gsap.timeline({defaults:{ease:'none'},
-    scrollTrigger:{trigger:'#heroBlock',start:'top top',end:'+=105%',scrub:true,
+    /* scrub:0.5 rather than true -- `true` maps the tween 1:1 to raw scroll position, so any
+       unevenness in the scroll input shows up directly as stutter on the moving edge. The small
+       catch-up value smooths the input without adding perceptible lag. */
+    scrollTrigger:{trigger:'#heroBlock',start:'top top',end:'+=105%',scrub:0.5,
       invalidateOnRefresh:true,
       /* nav solidity rides this timeline's own progress rather than a second ScrollTrigger --
          one starting at 'top top' sits exactly on its boundary at scroll 0 and fires onEnter
@@ -433,20 +456,20 @@ if(!reduce){
      tweened here at all: on the first scroll the scene alone should recede, with the headline
      staying exactly where it already is. */
   tl.fromTo(ph,
-    {height:()=>window.innerHeight+'px',marginLeft:'0px',marginRight:'0px',marginTop:'0px',borderRadius:'0px'},
-    {height:()=>sceneH()+'px',marginLeft:'40px',marginRight:'40px',marginTop:TOP_INSET+'px',
-      borderRadius:'28px',duration:1},0);
+    {height:()=>window.innerHeight+'px',left:'0px',right:'0px',top:'0px',borderRadius:'0px'},
+    {height:()=>sceneH()+'px',left:'40px',right:'40px',top:TOP_INSET+'px',
+      borderRadius:'28px',duration:1,ease:'power2.inOut'},0);
 
-  /* PHASE 2 -- only after the scene has fully stopped. Gaps kept short: with scrub:true every
-     unit of timeline gap is real scroll distance where NOTHING moves, so long holds read as the
-     page being broken rather than as deliberate pacing. */
-  if(eyebrow)tl.to(eyebrow,{opacity:1,y:0,duration:0.25},1.15);
-  if(right)tl.to(right,{opacity:1,y:0,duration:0.3},1.35);
+  /* PHASE 2 -- fires the INSTANT the scene lands (t=1.0, no gap) so it reads as "scene snaps
+     into place, copy pops up" rather than two disconnected events. back.out gives the pop a
+     slight overshoot instead of a flat fade. */
+  if(eyebrow)tl.to(eyebrow,{opacity:1,y:0,duration:0.18,ease:'back.out(2)'},1.0);
+  if(right)tl.to(right,{opacity:1,y:0,duration:0.22,ease:'back.out(2)'},1.06);
 
-  /* PHASE 3 -- carousel, right behind the CTA. Never visible before the scene has stopped. */
-  if(marq)tl.to(marq,{opacity:1,y:0,duration:0.3},1.6);
+  /* PHASE 3 -- carousel, immediately behind the CTA. */
+  if(marq)tl.to(marq,{opacity:1,y:0,duration:0.22,ease:'back.out(2)'},1.18);
 
-  tl.to({},{duration:0.2}); /* short trailing hold before the page moves on */
+  tl.to({},{duration:0.25}); /* short trailing hold before the page moves on */
 
   /* the settled scene height is derived from the copy block's measured height, and web fonts
      land after this script runs -- so remeasure once they're in, or the scene keeps a height
