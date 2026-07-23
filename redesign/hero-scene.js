@@ -7,8 +7,9 @@
    Deliberate choices:
    - the morph runs on the GPU (both target positions live in attributes, the shader mixes them)
      rather than looping 20k points in JS every frame
-   - renders into #hero3d, whose height is animated by the scroll timeline in index.html, so the
-     canvas resizes off a ResizeObserver rather than window resize alone
+   - renders into #hero3d, whose height is animated on every frame of the scroll. The canvas is
+     therefore sized to the VIEWPORT and centred, never to the host, and #hero3d crops it --
+     resizing a WebGL context mid-scroll is what made the first version glitch
    - stops rendering entirely when off-screen or on a hidden tab -- same convention as every
      other continuous effect on the live site
    - no-ops under prefers-reduced-motion, leaving the CSS placeholder visible */
@@ -26,8 +27,15 @@ function init(host) {
   const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setClearColor(0x000000, 0);
+  /* The canvas is sized to the VIEWPORT and centred, not stretched to the host.
+     #hero3d's height is animated on every frame of the scroll, so sizing the canvas to it meant
+     reallocating the drawing buffer and rebuilding the projection matrix dozens of times a
+     second mid-scroll -- that was the glitching. At a fixed viewport size nothing reallocates
+     while scrolling; the host simply crops it (it has overflow:hidden), and because the scene is
+     centred the subject stays framed as the crop tightens. */
   Object.assign(renderer.domElement.style, {
-    position: 'absolute', inset: '0', width: '100%', height: '100%', display: 'block'
+    position: 'absolute', top: '50%', left: '50%',
+    transform: 'translate(-50%,-50%)', display: 'block'
   });
   host.appendChild(renderer.domElement);
   host.classList.add('has-scene');
@@ -138,25 +146,36 @@ function init(host) {
   }, { passive: true });
 
   /* ---- size ----------------------------------------------------------------------------- */
+  /* keyed to the VIEWPORT, never to the host. Deliberately not a ResizeObserver on #hero3d: that
+     fires on every frame of the scroll shrink and resizing a WebGL context mid-scroll is what
+     made it glitch. The viewport only changes on a real window resize. */
   function resize() {
-    const w = host.clientWidth, h = host.clientHeight;
-    if (!w || !h) return;
+    const w = window.innerWidth, h = window.innerHeight;
     renderer.setSize(w, h, false);
+    renderer.domElement.style.width = w + 'px';
+    renderer.domElement.style.height = h + 'px';
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
   }
-  /* the host's height is animated by the scroll timeline, so window resize alone isn't enough */
-  new ResizeObserver(resize).observe(host);
+  let rt = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(rt);                 /* debounced: a drag-resize shouldn't reallocate per frame */
+    rt = setTimeout(resize, 120);
+  });
   resize();
 
   /* ---- loop ------------------------------------------------------------------------------ */
-  let running = true, raf = null;
+  let running = true, raf = null, t = 0;
   const clock = new THREE.Clock();
 
   function frame() {
     if (!running) return;
     raf = requestAnimationFrame(frame);
-    const t = clock.getElapsedTime();
+    /* own accumulator with a clamped delta rather than clock.getElapsedTime(): the clock keeps
+       running while the scene is paused off-screen, so elapsed time would leap forward and the
+       morph would snap to a new position on resume. Clamping also absorbs the long first frame
+       after a hidden tab. */
+    t += Math.min(clock.getDelta(), 0.05);
 
     /* hold at each shape before travelling to the other: a raw sine never rests, so the ordered
        lattice never actually reads as ordered. This dwells ~3s at each end of a ~16s cycle. */
