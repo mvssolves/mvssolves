@@ -86,7 +86,10 @@
     border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);
     display:flex;flex-direction:column;justify-content:center;
   }
-  .hero-block{z-index:1;display:flex;flex-direction:column;justify-content:center;}
+  /* taller than the shared min-height above -- the shrink-on-scroll effect (image goes from
+     full-bleed fullscreen to a small inset rounded card, JS below) needs real scroll distance
+     to play out over before Technology covers it, not just a viewport's worth of height. */
+  .hero-block{z-index:1;display:flex;flex-direction:column;justify-content:center;min-height:150vh;}
   #technology{z-index:2;}
   #products{z-index:3;}
   #expertise{z-index:4;}
@@ -102,10 +105,15 @@
      to edge (no side margin at all), unlike everything else which keeps the ~40px gutter. Breaks
      out of the parent .hero.wrap's padding via negative margin + calc width instead of moving it
      in the markup. */
-  .hero-3d-placeholder{height:64vh;min-height:420px;background:repeating-linear-gradient(135deg,#f4f4f4,#f4f4f4 20px,#ececec 20px,#ececec 40px);
+  .hero-3d-placeholder{height:82vh;min-height:460px;background:repeating-linear-gradient(135deg,#f4f4f4,#f4f4f4 20px,#ececec 20px,#ececec 40px);
     border:1px dashed #bbb;display:flex;align-items:center;justify-content:center;color:#999;font-size:13px;margin:0 -40px 40px;width:calc(100% + 80px);}
-  .hero h1{font-size:clamp(36px,6vw,64px);max-width:16ch;margin-bottom:20px;}
-  .hero-sub{max-width:50ch;margin-bottom:28px;}
+  /* exact placement match: headline column left, subhead+CTA column right, bottom-aligned to
+     the headline (not top-aligned) -- confirmed on the reference's settled post-scroll state. */
+  .hero-grid{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;flex-wrap:wrap;}
+  .hero-left{flex:1 1 480px;}
+  .hero-right{flex:0 1 380px;max-width:420px;}
+  .hero h1{font-size:clamp(36px,6vw,64px);max-width:16ch;margin-bottom:0;}
+  .hero-sub{max-width:42ch;margin-bottom:16px;}
   .hero-ctas{display:flex;gap:14px;align-items:center;}
 
   /* MARQUEE */
@@ -177,12 +185,19 @@
 <div class="hero-block" id="heroBlock">
   <header class="hero wrap">
     <div class="hero-3d-placeholder" id="hero3d">[hero 3D scene placeholder — lowest priority, build later]</div>
-    <div class="eyebrow hero-intro-el">[Eyebrow label]</div>
-    <h1 class="hero-intro-el">[Hero headline — template words go here]</h1>
-    <p class="hero-sub hero-intro-el">[Hero subheadline — one or two lines of supporting copy, template placeholder text goes here.]</p>
-    <div class="hero-ctas hero-intro-el">
-      <a class="btn filled" href="#">[Primary CTA]</a>
-      <a class="btn" href="#">[Secondary CTA]</a>
+    <!-- exact placement match: headline sits LEFT, subhead+CTA form a separate column on the
+         RIGHT aligned to the headline's lower edge -- not a single stacked column. -->
+    <div class="hero-grid">
+      <div class="hero-left">
+        <div class="eyebrow hero-intro-el">[Eyebrow label]</div>
+        <h1 class="hero-intro-el">[Hero headline — template words go here]</h1>
+      </div>
+      <div class="hero-right hero-intro-el">
+        <p class="hero-sub">[Hero subheadline — one or two lines of supporting copy, template placeholder text goes here.]</p>
+        <div class="hero-ctas">
+          <a class="btn filled" href="#">[Primary CTA]</a>
+        </div>
+      </div>
     </div>
   </header>
   <div class="marquee" aria-hidden="true">
@@ -319,6 +334,20 @@ if(!reduce){
   const tl=gsap.timeline({defaults:{ease:'power3.out'}});
   if(ph)tl.from(ph,{opacity:0,scale:1.05,filter:'blur(20px)',duration:1.1});
   tl.from(introEls,{y:24,opacity:0,duration:.7,stagger:.12},'-=0.65');
+})();
+
+/* HERO SHRINK -- scroll-scrubbed. Confirmed on the reference: the hero visual starts
+   full-bleed/fullscreen (edge to edge, square corners) and shrinks into a smaller, rounded,
+   inset card as you scroll -- this is what makes room for the eyebrow/subhead/CTA to read as
+   a settled 2-column layout below it instead of a fullscreen cover. Tied to hero-block's own
+   (now taller) scroll range so it finishes before Technology rises to cover the hero. */
+(function(){
+  const ph=document.getElementById('hero3d');
+  if(!ph||reduce)return;
+  gsap.fromTo(ph,
+    {height:'82vh',marginLeft:'-40px',marginRight:'-40px',width:'calc(100% + 80px)',borderRadius:'0px'},
+    {height:'46vh',marginLeft:'0px',marginRight:'0px',width:'100%',borderRadius:'28px',ease:'none',
+      scrollTrigger:{trigger:'.hero-block',start:'top 72px',end:'+=60%',scrub:true}});
 })();
 
 /* word-by-word heading reveal, SCRUBBED to scroll position. */
