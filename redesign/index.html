@@ -123,11 +123,14 @@
      needed; JS scrubs height/inset/radius from fullscreen -> inset rounded card. */
   .hero-3d-placeholder{height:100vh;flex:none;background:repeating-linear-gradient(135deg,#f4f4f4,#f4f4f4 20px,#ececec 20px,#ececec 40px);
     border:1px dashed #bbb;display:flex;align-items:center;justify-content:center;color:#999;font-size:13px;}
-  /* min-height:0 is required -- a flex child defaults to min-height:auto, which refuses to
-     shrink below its content and pushes the CTA past the sticky's 100vh (clipped by its
-     overflow:hidden). justify-content:flex-start, not center: centering in the leftover space
-     drifts the block as the scene resizes, which is what made the alignment look off. */
-  .hero-copy{padding:28px 40px 0;flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-start;}
+  /* absolutely anchored to the BOTTOM of the sticky viewport, not a flex child. As a flex child
+     it was flex:1 in a column whose first item (the scene) already fills the whole 100vh, so its
+     leftover space was zero -- it collapsed to 0 height and its content sat below the fold,
+     which is why the headline wasn't visible on load at all.
+     Bottom-anchoring serves both states with no movement needed: at load it sits at the bottom
+     of the viewport overlaid on the fullscreen scene (headline visible, matching the reference),
+     and once the scene has receded to the top 44vh it's simply the space underneath it. */
+  .hero-copy{position:absolute;left:0;right:0;bottom:0;padding:28px 40px 32px;}
   /* exact placement match: headline column left, subhead+CTA column right, bottom-aligned to
      the headline (not top-aligned) -- confirmed on the reference's settled post-scroll state. */
   .hero-grid{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;flex-wrap:wrap;}
@@ -175,7 +178,9 @@
 
   /* FOOTER */
   footer{background:#111;color:#fff;padding:80px 40px 0;overflow:hidden;}
-  .foot-inner{display:flex;gap:48px;flex-wrap:wrap;justify-content:space-between;padding-bottom:48px;border-bottom:1px solid #333;}
+  /* z-index above the wordmark: even if the wordmark's glyphs bleed past their box at some
+     viewport, the columns and the Send CTA always paint on top and stay readable. */
+  .foot-inner{position:relative;z-index:1;display:flex;gap:48px;flex-wrap:wrap;justify-content:space-between;padding-bottom:48px;border-bottom:1px solid #333;}
   .foot-col{min-width:160px;}
   .foot-col h3{font-size:13px;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;}
   .foot-col a{display:block;color:#ccc;text-decoration:none;font-size:14px;margin-bottom:8px;}
@@ -186,8 +191,9 @@
      tight look but reserving real space for it: line-height 1 + a proper top margin, and
      pointer-events:none so it can never intercept a click on the CTA even if it visually
      overlaps at some viewport. */
-  .foot-wordmark{font-size:clamp(72px,16vw,200px);font-weight:800;line-height:1;color:rgba(255,255,255,.06);
-    text-align:center;white-space:nowrap;overflow:hidden;margin-top:56px;user-select:none;pointer-events:none;}
+  .foot-wordmark{position:relative;z-index:0;font-size:clamp(72px,16vw,200px);font-weight:800;line-height:1;
+    color:rgba(255,255,255,.06);text-align:center;white-space:nowrap;overflow:hidden;
+    margin-top:72px;user-select:none;pointer-events:none;}
   .foot-legal{max-width:1180px;margin:0 auto;padding:20px 0;font-size:12px;color:#666;}
 </style>
 </head>
@@ -379,12 +385,13 @@ if(!reduce){
    together and it read as rushed. Now it's a single timeline with explicit gaps between phases,
    and because it's scrub:true the "gaps" are real scroll distance where nothing moves at all:
 
-     phase 1  scene recedes fullscreen -> inset card (copy rides up with it as one motion)
-     ......   HELD -- scene has stopped, nothing moves, nothing is covered
-     phase 2  eyebrow, then subhead+CTA column fade in
-     ......   HELD
-     phase 3  carousel appears LAST, only once the scene has finished moving
-     ......   HELD -- settled layout sits before the page scrolls on
+     on load   headline already visible, overlaid on the fullscreen scene. Nothing animates in.
+     phase 1   ONLY the scene moves -- recedes fullscreen -> inset card. The headline does not
+               move, shift or fade; it's bottom-anchored and simply stays where it is.
+     ......    HELD -- scene has stopped, nothing moves, nothing is covered
+     phase 2   eyebrow + subhead/CTA column fade in
+     phase 3   infinite carousel appears, right after the CTA
+     ......    HELD -- settled layout sits before the page scrolls on
 
    .hero-sticky holds the whole assembly on screen for all of it, so the scene reads as receding
    in place; when the runway ends the sticky releases and scrolling continues into Technology. */
@@ -392,7 +399,6 @@ if(!reduce){
   const ph=document.getElementById('hero3d');
   const navEl=document.querySelector('nav');
   if(!ph||reduce){navEl&&navEl.classList.remove('nav-over');return;}
-  const copy=document.querySelector('.hero-copy');
   const eyebrow=document.querySelector('.hero-left .eyebrow');
   const right=document.querySelector('.hero-right');
   const marq=document.getElementById('heroMarquee');
@@ -409,27 +415,26 @@ if(!reduce){
          immediately at load, flipping the nav solid before the user has scrolled at all. */
       onUpdate(self){navEl.classList.toggle('nav-over',self.progress<0.22);}}});
 
-  /* PHASE 1 -- scene recedes and stops. Copy rides up in the same beat (it starts overlaid on
-     the fullscreen scene, per the reference's on-load state) so this stays ONE motion, not two. */
-  /* final height 44vh + 40px top inset, NOT 52vh + 88px: the sticky viewport is exactly 100vh
-     with overflow:hidden, so scene height + its top inset + the copy block has to fit inside
-     100vh or the bottom of the copy (the CTA) gets clipped. 44vh + 40px leaves ~54vh for the
-     copy, which the 2-column grid + carousel fit inside. */
+  /* PHASE 1 -- ONLY the scene moves. The copy is bottom-anchored in CSS and is deliberately not
+     tweened here at all: on the first scroll the scene alone should recede, with the headline
+     staying exactly where it already is.
+     Final height 44vh + 40px top inset: the sticky viewport is exactly 100vh with
+     overflow:hidden, so the scene plus its inset plus the copy block has to fit inside 100vh or
+     the bottom of the copy (the CTA) gets clipped. 44vh + 40px leaves ~54vh for the copy. */
   tl.fromTo(ph,
     {height:'100vh',marginLeft:'0px',marginRight:'0px',marginTop:'0px',borderRadius:'0px'},
     {height:'44vh',marginLeft:'40px',marginRight:'40px',marginTop:'40px',borderRadius:'28px',duration:1},0);
-  if(copy)tl.fromTo(copy,{yPercent:-118},{yPercent:0,duration:1},0);
 
   /* PHASE 2 -- only after the scene has fully stopped. Gaps kept short: with scrub:true every
      unit of timeline gap is real scroll distance where NOTHING moves, so long holds read as the
      page being broken rather than as deliberate pacing. */
-  if(eyebrow)tl.to(eyebrow,{opacity:1,y:0,duration:0.3},1.1);
-  if(right)tl.to(right,{opacity:1,y:0,duration:0.35},1.45);
+  if(eyebrow)tl.to(eyebrow,{opacity:1,y:0,duration:0.25},1.15);
+  if(right)tl.to(right,{opacity:1,y:0,duration:0.3},1.35);
 
-  /* PHASE 3 -- carousel last, deliberately not visible until the scene is done moving. */
-  if(marq)tl.to(marq,{opacity:1,y:0,duration:0.35},1.9);
+  /* PHASE 3 -- carousel, right behind the CTA. Never visible before the scene has stopped. */
+  if(marq)tl.to(marq,{opacity:1,y:0,duration:0.3},1.6);
 
-  tl.to({},{duration:0.25}); /* short trailing hold before the page moves on */
+  tl.to({},{duration:0.2}); /* short trailing hold before the page moves on */
 })();
 
 /* word-by-word heading reveal, SCRUBBED to scroll position. */
