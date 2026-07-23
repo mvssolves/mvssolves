@@ -250,14 +250,13 @@ function init(host) {
       uLime: { value: new THREE.Color('#E6F536') },
       uPull: { value: 0 },
       uPullPos: { value: new THREE.Vector3(0, -3.2, 0) },
-      uCalm: { value: 0 },
       uSettle: { value: 0 }        // 1 the instant a form lands, decays -- drives a settle-ripple
     },
     vertexShader: NOISE + `
       attribute vec3 aFrom;
       attribute vec3 aTo;
       attribute float aSeed;
-      uniform float uMix, uTurb, uTime, uSize, uPull, uCalm, uSettle;
+      uniform float uMix, uTurb, uTime, uSize, uPull, uSettle;
       uniform vec3 uPullPos;
       varying float vEnergy, vFade, vSeed, vSharp;
 
@@ -266,8 +265,6 @@ function init(host) {
         float m = clamp((uMix - aSeed * 0.3) / 0.7, 0.0, 1.0);
         m = m * m * (3.0 - 2.0 * m);
         vec3 p = mix(aFrom, aTo, m);
-
-        p *= 1.0 + uCalm * 0.3;
 
         float sc = 0.42, ts = uTime * 0.28;
         vec3 flow = vec3(
@@ -336,7 +333,7 @@ function init(host) {
 
   /* ---- input ----------------------------------------------------------------------------- */
   const target = { x: 0, y: 0 }, eased = { x: 0, y: 0 };
-  let pull = 0, pullTo = 0, idle = 0, lastInput = 0;
+  let pull = 0, pullTo = 0;
 
   const ndc = new THREE.Vector3();
   function toWorld(cx, cy) {
@@ -351,14 +348,13 @@ function init(host) {
   window.addEventListener('pointermove', e => {
     target.x = (e.clientX / window.innerWidth - 0.5) * 2;
     target.y = (e.clientY / window.innerHeight - 0.5) * 2;
-    lastInput = 0;
   }, { passive: true });
 
   const ctaWorld = new THREE.Vector3(0, -3.2, 0);
   const cta = document.querySelector('.hero-ctas .btn');
   if (cta) {
     cta.addEventListener('pointerenter', () => {
-      pullTo = 1; lastInput = 0;
+      pullTo = 1;
       const r = cta.getBoundingClientRect();
       ctaWorld.copy(toWorld(r.left + r.width / 2, r.top + r.height / 2));
     });
@@ -426,10 +422,6 @@ function init(host) {
     /* settle ripple decays after each form lands (~1s), giving the "snap into place" pulse */
     settle *= 0.93;
     mat.uniforms.uSettle.value = settle;
-
-    lastInput += dt;
-    idle += ((lastInput > 6 ? 1 : 0) - idle) * 0.03;
-    mat.uniforms.uCalm.value = idle;
 
     pull += (pullTo - pull) * 0.10;
     mat.uniforms.uPull.value = pull;
