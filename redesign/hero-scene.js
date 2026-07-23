@@ -132,7 +132,12 @@ function init(host) {
       uTime: { value: 0 },
       uSize: { value: 15.0 * Math.min(window.devicePixelRatio, 2) },
       uViolet: { value: new THREE.Color('#9070DF') },
-      uLime: { value: new THREE.Color('#E6F536') }
+      uLime: { value: new THREE.Color('#E6F536') },
+      uPointer: { value: new THREE.Vector3(999, 999, 0) },  // cursor in world space
+      uRepel: { value: 0 },                                 // 0 when pointer is away
+      uPull: { value: 0 },                                  // CTA magnetism strength
+      uPullPos: { value: new THREE.Vector3(0, -3.2, 0) },    // roughly where the CTA sits
+      uCalm: { value: 0 }                                   // 1 = idle, cloud expands and settles
     },
     vertexShader: NOISE + `
       attribute vec3 aP0;
@@ -143,12 +148,21 @@ function init(host) {
       uniform float uTurb;
       uniform float uTime;
       uniform float uSize;
+      uniform vec3 uPointer;
+      uniform float uRepel;
+      uniform float uPull;
+      uniform vec3 uPullPos;
+      uniform float uCalm;
       varying float vEnergy;
       varying float vFade;
       varying float vSeed;
+      varying float vSharp;
 
       void main(){
         vec3 p = aP0 * uW.x + aP1 * uW.y + aP2 * uW.z;
+
+        /* idle: the whole cloud breathes outward and settles when nothing has been touched */
+        p *= 1.0 + uCalm * 0.16;
 
         /* curl-ish turbulence: three offset noise samples give a divergence-free-looking flow,
            far cheaper than a real curl and visually indistinguishable at this density */
@@ -167,12 +181,28 @@ function init(host) {
         /* a constant whisper of drift so the settled shapes still breathe */
         p += flow * (amp * 2.35 + 0.075);
 
+        /* CURSOR REPULSION -- points shove away from the pointer, falling off with distance.
+           Applied before the pull so the two can't cancel each other into stillness. */
+        vec3 away = p - uPointer;
+        float dP = length(away);
+        float push = uRepel * (1.0 - smoothstep(0.0, 2.6, dP));
+        p += normalize(away + 0.0001) * push * 1.5;
+
+        /* CTA MAGNETISM -- on CTA hover the nearest points lean toward it */
+        vec3 toCta = uPullPos - p;
+        float dC = length(toCta);
+        float grab = uPull * (1.0 - smoothstep(0.0, 4.5, dC));
+        p += normalize(toCta + 0.0001) * grab * 0.9;
+
         vec4 mv = modelViewMatrix * vec4(p, 1.0);
         gl_Position = projectionMatrix * mv;
         gl_PointSize = uSize * (0.55 + aSeed * 0.75) * (1.0 / -mv.z);
 
-        vEnergy = clamp(amp * 1.15 + length(flow) * 0.12, 0.0, 1.0);
+        vEnergy = clamp(amp * 1.15 + length(flow) * 0.12 + push * 0.5 + grab * 0.4, 0.0, 1.0);
         vFade = smoothstep(15.0, 3.5, -mv.z);
+        /* fake depth of field: points near the focal plane stay tight, distant ones bloom soft.
+           Cheaper and safer than a post-processing pass, which fights additive blending. */
+        vSharp = 1.0 - smoothstep(0.6, 4.2, abs(-mv.z - 8.6));
         vSeed = aSeed;
       }
     `,
@@ -182,11 +212,14 @@ function init(host) {
       varying float vEnergy;
       varying float vFade;
       varying float vSeed;
+      varying float vSharp;
       void main(){
         vec2 uv = gl_PointCoord - 0.5;
         float d = dot(uv, uv);
         if(d > 0.25) discard;                       /* round points, not squares */
-        float soft = smoothstep(0.25, 0.0, d);
+        /* depth of field: in-focus points have a hard falloff, out-of-focus ones smear into a
+           soft disc and dim, so the cloud gains real depth instead of reading as a flat sheet */
+        float soft = smoothstep(0.25, mix(0.16, 0.0, vSharp), d) * mix(0.45, 1.0, vSharp);
 
         /* the green is EARNED: it only shows where the cloud is being torn apart, so the palette
            tracks the story instead of being sprinkled at random */
@@ -202,12 +235,54 @@ function init(host) {
   const points = new THREE.Points(geo, mat);
   scene.add(points);
 
-  /* ---- pointer parallax ------------------------------------------------------------------ */
+  /* ---- input: parallax, repulsion, magnetism, detonation, idle --------------------------- */
   const target = { x: 0, y: 0 }, eased = { x: 0, y: 0 };
+  const ptr = new THREE.Vector3(999, 999, 0);
+  let repel = 0, repelTo = 0;        // cursor repulsion, eased
+  let pull = 0, pullTo = 0;          // CTA magnetism, eased
+  let burst = 0;                     // click detonation, decays
+  let idle = 0, lastInput = 0;       // seconds since any interaction
+
+  /* world-space cursor: unproject the pointer onto the z=0 plane so repulsion happens where the
+     user actually sees their cursor, not at some arbitrary depth */
+  const ndc = new THREE.Vector3();
+  function toWorld(cx, cy) {
+    const r = host.getBoundingClientRect();
+    ndc.set(((cx - r.left) / r.width) * 2 - 1, -((cy - r.top) / r.height) * 2 + 1, 0.5);
+    ndc.unproject(camera);
+    const dir = ndc.sub(camera.position).normalize();
+    return camera.position.clone().add(dir.multiplyScalar(-camera.position.z / dir.z));
+  }
+
   window.addEventListener('pointermove', e => {
     target.x = (e.clientX / window.innerWidth - 0.5) * 2;
     target.y = (e.clientY / window.innerHeight - 0.5) * 2;
+    lastInput = 0;
+    const r = host.getBoundingClientRect();
+    const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+    repelTo = inside ? 1 : 0;
+    if (inside) ptr.copy(toWorld(e.clientX, e.clientY));
   }, { passive: true });
+  window.addEventListener('pointerleave', () => { repelTo = 0; }, { passive: true });
+
+  /* click anywhere on the scene forces an early explosion -- rewards poking at it */
+  host.addEventListener('pointerdown', () => { burst = 1; lastInput = 0; });
+
+  /* CTA magnetism: the nearest points lean toward the button while it's hovered */
+  const ctaWorld = new THREE.Vector3(0, -3.2, 0);
+  const cta = document.querySelector('.hero-ctas .btn');
+  if (cta) {
+    cta.addEventListener('pointerenter', () => {
+      pullTo = 1; lastInput = 0;
+      const r = cta.getBoundingClientRect();
+      ctaWorld.copy(toWorld(r.left + r.width / 2, r.top + r.height / 2));
+    });
+    cta.addEventListener('pointerleave', () => { pullTo = 0; });
+  }
+
+  /* SCROLL VELOCITY -> turbulence. Measured off scrollY per frame rather than a scroll event so
+     it decays smoothly to zero instead of sticking at the last event's value. */
+  let lastScroll = window.scrollY, scrollVel = 0;
 
   /* ---- sizing -- viewport-keyed buffer, transform-scaled to the host ---------------------- */
   function resize() {
@@ -236,13 +311,16 @@ function init(host) {
   let running = true, raf = null, t = 0;
   const clock = new THREE.Clock();
   const w = new THREE.Vector3();
+  const scratchA = new THREE.Vector3(), scratchB = new THREE.Vector3();
 
   function frame() {
     if (!running) return;
     raf = requestAnimationFrame(frame);
     /* own accumulator with a clamped delta: THREE.Clock keeps running while paused off-screen,
-       so elapsed time would leap and the animation would snap on resume */
-    t += Math.min(clock.getDelta(), 0.05);
+       so elapsed time would leap and the animation would snap on resume. Captured once -- a
+       second getDelta() call in the same frame returns ~0. */
+    const dt = Math.min(clock.getDelta(), 0.05);
+    t += dt;
 
     /* phase 0..3 across the three forms; `f` is progress within the current transition */
     const phase = (t / CYCLE) % 3;
@@ -259,14 +337,44 @@ function init(host) {
     w.setComponent((idx + 1) % 3, e);
     mat.uniforms.uW.value.copy(w);
 
-    /* turbulence peaks mid-transition -- the cloud detonates, then reassembles */
-    mat.uniforms.uTurb.value = Math.sin(e * Math.PI) * 0.92;
+    /* --- ONE turbulence budget ---------------------------------------------------------------
+       Three sources feed it: the shape transition, scroll velocity, and click detonation. They
+       are summed and then hard-capped, because three independent sources each free to reach full
+       strength just produces noise -- the cloud reads as broken rather than reactive. */
+    const sy = window.scrollY;
+    /* per-frame delta rather than a scroll event: this decays smoothly to zero on its own
+       instead of sticking at whatever the last event reported */
+    scrollVel += (Math.min(Math.abs(sy - lastScroll) / 90, 1) - scrollVel) * 0.18;
+    lastScroll = sy;
+    burst *= 0.94;                                              // detonation decays
+
+    const transition = Math.sin(e * Math.PI) * 0.92;
+    mat.uniforms.uTurb.value = Math.min(1.15, transition + scrollVel * 0.55 + burst * 0.8);
     mat.uniforms.uTime.value = t;
+
+    /* idle: after ~14s untouched the cloud expands and calms */
+    lastInput += dt;
+    idle += (( lastInput > 14 ? 1 : 0 ) - idle) * 0.01;
+    mat.uniforms.uCalm.value = idle;
+
+    repel += (repelTo - repel) * 0.08;
+    pull += (pullTo - pull) * 0.10;
+    mat.uniforms.uRepel.value = repel;
+    mat.uniforms.uPull.value = pull;
 
     eased.x += (target.x - eased.x) * 0.045;
     eased.y += (target.y - eased.y) * 0.045;
     points.rotation.y = t * 0.075 + eased.x * 0.4;
     points.rotation.x = eased.y * 0.25;
+
+    /* the shader positions points in OBJECT space, but the cursor and CTA are captured in world
+       space -- and this object is rotating. Convert after the rotation is applied, or repulsion
+       lands somewhere other than under the actual cursor. */
+    points.updateMatrixWorld();
+    /* scratch vectors reused rather than cloned -- this runs 60-120x a second, and two fresh
+       Vector3 allocations per frame is needless GC pressure on the hero */
+    mat.uniforms.uPointer.value.copy(points.worldToLocal(scratchA.copy(ptr)));
+    mat.uniforms.uPullPos.value.copy(points.worldToLocal(scratchB.copy(ctaWorld)));
 
     renderer.render(scene, camera);
   }
