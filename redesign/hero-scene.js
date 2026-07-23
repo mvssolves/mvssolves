@@ -60,6 +60,19 @@ function init(host) {
       prev = p;
     }
   }
+  /* a real 3D box: front face at +d, back face at -d, plus the four edges that connect them.
+     This is what actually makes a form read as a volume instead of a flat outline. */
+  function box(w, h, d, cx = 0, cy = 0, cz = 0) {
+    const x = w / 2, y = h / 2;
+    [d, -d].forEach(zz => {                                   // both faces
+      seg(v(cx - x, cy - y, cz + zz), v(cx + x, cy - y, cz + zz));
+      seg(v(cx + x, cy - y, cz + zz), v(cx + x, cy + y, cz + zz));
+      seg(v(cx + x, cy + y, cz + zz), v(cx - x, cy + y, cz + zz));
+      seg(v(cx - x, cy + y, cz + zz), v(cx - x, cy - y, cz + zz));
+    });
+    [[-x, -y], [x, -y], [x, y], [-x, y]].forEach(([px, py]) => // depth edges
+      seg(v(cx + px, cy + py, cz + d), v(cx + px, cy + py, cz - d)));
+  }
 
   /* Even arc-length sampling: walk the total length of the segment list and drop a point every
      (total/COUNT). This is what gives the forms their edge definition. */
@@ -83,67 +96,66 @@ function init(host) {
 
   /* ---- the six forms --------------------------------------------------------------------- */
 
-  /* 1. WEBSITE -- a browser window: chrome bar, traffic-light dots, hero block, two columns */
+  /* Every form below is built with real depth (box/extruded/volumetric) rather than a flat
+     outline in one plane, so the slow parallax rotation reveals genuine 3D structure. */
+
+  /* 1. WEBSITE -- a browser window as a slab, floating content panels pushed forward off it */
   function formSite() {
-    rect(5.0, 3.4);
-    seg(v(-2.5, 0.85), v(2.5, 0.85));                    // chrome bar underline
-    [-2.2, -2.0, -1.8].forEach(x => circle(0.07, 12, 'xy', 0, x, 1.28));
-    rect(4.2, 1.0, 0.02, 0, 0.15);                       // hero block
-    rect(1.9, 0.9, 0.02, -1.15, -1.0);                   // column left
-    rect(1.9, 0.9, 0.02, 1.15, -1.0);                    // column right
+    box(5.0, 3.4, 0.28);                                  // the window, with real thickness
+    seg(v(-2.5, 0.85, 0.28), v(2.5, 0.85, 0.28));         // chrome bar
+    [-2.2, -2.0, -1.8].forEach(x => circle(0.07, 12, 'xy', 0.28, x, 1.28));
+    box(4.2, 1.0, 0.14, 0, 0.15, 0.55);                  // hero block, floating in front
+    box(1.9, 0.9, 0.12, -1.15, -1.0, 0.5);               // column left, in front
+    box(1.9, 0.9, 0.12, 1.15, -1.0, 0.5);                // column right, in front
     return bake();
   }
 
-  /* 2. AUTOMATION FLOW -- nodes wired together, the shape of a pipeline */
+  /* 2. AUTOMATION FLOW -- node cubes wired in 3D, links running through depth */
   function formFlow() {
-    const n = [v(-2.6, 0.9), v(-0.9, 1.5), v(-0.9, -0.3), v(0.9, 0.9),
-               v(0.9, -1.4), v(2.6, 0.2), v(2.6, -1.9)];
-    n.forEach(p => circle(0.26, 18, 'xy', 0, p.x, p.y));
+    const n = [v(-2.6, 0.9, -0.6), v(-0.9, 1.5, 0.5), v(-0.9, -0.3, -0.5),
+               v(0.9, 0.9, 0.6), v(0.9, -1.4, -0.4), v(2.6, 0.2, 0.5), v(2.6, -1.9, -0.3)];
+    n.forEach(p => box(0.5, 0.5, 0.5, p.x, p.y, p.z));   // cube nodes, not flat rings
     [[0, 1], [0, 2], [1, 3], [2, 3], [2, 4], [3, 5], [4, 5], [4, 6]]
-      .forEach(([a, b]) => seg(n[a], n[b]));
+      .forEach(([a, b]) => seg(n[a], n[b]));              // links cut through 3D space
     return bake();
   }
 
-  /* 3. SYSTEM LAYERS -- stacked slabs, offset in depth */
+  /* 3. SYSTEM LAYERS -- four solid slabs stacked with real thickness and depth offset */
   function formLayers() {
     for (let i = 0; i < 4; i++) {
-      const y = 1.35 - i * 0.9, z = -i * 0.45, w = 4.4 - i * 0.5;
-      rect(w, 0.55, z, 0, y);
-      seg(v(-w / 2, y - 0.275, z), v(-w / 2 + 0.35, y - 0.275, z - 0.35));   // depth cue
-      seg(v(w / 2, y - 0.275, z), v(w / 2 - 0.35, y - 0.275, z - 0.35));
+      const y = 1.35 - i * 0.9, z = -i * 0.5, w = 4.4 - i * 0.5;
+      box(w, 0.55, 0.7, 0, y, z);
     }
     return bake();
   }
 
-  /* 4. GROWTH -- axes, rising bars, trend line */
+  /* 4. GROWTH -- extruded 3D bars on an L-shaped floor, trend line lifted above them */
   function formChart() {
-    seg(v(-2.6, -1.8), v(2.6, -1.8));                    // x axis
-    seg(v(-2.6, -1.8), v(-2.6, 1.9));                    // y axis
+    seg(v(-2.6, -1.8, 0.4), v(2.6, -1.8, 0.4));          // x axis (front edge of floor)
+    seg(v(-2.6, -1.8, 0.4), v(-2.6, 1.9, 0.4));          // y axis
+    seg(v(-2.6, -1.8, 0.4), v(-2.6, -1.8, -0.4));        // floor depth
     const h = [0.7, 1.2, 1.7, 2.4, 3.2];
-    h.forEach((height, i) => {
-      const x = -1.9 + i * 0.95;
-      rect(0.6, height, 0, x, -1.8 + height / 2);
-    });
+    h.forEach((height, i) => box(0.55, height, 0.55, -1.9 + i * 0.95, -1.8 + height / 2, 0));
     let prev = null;
-    h.forEach((height, i) => {
-      const p = v(-1.9 + i * 0.95, -1.8 + height + 0.28, 0.15);
+    h.forEach((height, i) => {                            // trend line floating above the bars
+      const p = v(-1.9 + i * 0.95, -1.8 + height + 0.3, 0);
       if (prev) seg(prev, p);
       prev = p;
     });
     return bake();
   }
 
-  /* 5. REACH -- a wireframe globe */
+  /* 5. REACH -- a full wireframe sphere (already truly 3D; densified) */
   function formGlobe() {
-    const R = 2.3;
-    for (let i = 1; i < 6; i++) {                        // latitudes
-      const y = -R + (i / 6) * 2 * R;
-      circle(Math.sqrt(Math.max(R * R - y * y, 0)), 40, 'xz', y);
+    const R = 2.35;
+    for (let i = 1; i < 8; i++) {                         // latitudes
+      const y = -R + (i / 8) * 2 * R;
+      circle(Math.sqrt(Math.max(R * R - y * y, 0)), 48, 'xz', y);
     }
-    for (let i = 0; i < 6; i++) {                        // longitudes
+    for (let i = 0; i < 8; i++) {                         // longitudes
       let prev = null;
-      for (let j = 0; j <= 40; j++) {
-        const a = (j / 40) * Math.PI * 2, lon = (i / 6) * Math.PI;
+      for (let j = 0; j <= 48; j++) {
+        const a = (j / 48) * Math.PI * 2, lon = (i / 8) * Math.PI;
         const p = v(R * Math.sin(a) * Math.cos(lon), R * Math.cos(a), R * Math.sin(a) * Math.sin(lon));
         if (prev) seg(prev, p);
         prev = p;
@@ -152,18 +164,21 @@ function init(host) {
     return bake();
   }
 
-  /* 6. FUNNEL -- leads narrowing to conversion */
+  /* 6. FUNNEL -- a true 3D cone frustum: stage rings shrinking in Y, walls connecting them */
   function formFunnel() {
-    const top = 2.6, bot = 0.55, hi = 1.9, lo = -1.9;
-    seg(v(-top, hi), v(top, hi));
-    seg(v(-bot, lo), v(bot, lo));
-    seg(v(-top, hi), v(-bot, lo));
-    seg(v(top, hi), v(bot, lo));
-    for (let i = 1; i < 4; i++) {                        // stage dividers
-      const t = i / 4, w = top + (bot - top) * t, y = hi + (lo - hi) * t;
-      seg(v(-w, y), v(w, y));
+    const rings = [2.6, 2.0, 1.4, 0.85, 0.5];
+    const ys = [1.9, 0.95, 0.0, -0.95, -1.9];
+    rings.forEach((r, i) => circle(r, 32, 'xz', ys[i]));  // horizontal stage rings
+    for (let k = 0; k < 8; k++) {                          // slanted walls joining the rings
+      const a = (k / 8) * Math.PI * 2, ca = Math.cos(a), sa = Math.sin(a);
+      let prev = null;
+      rings.forEach((r, i) => {
+        const p = v(ca * r, ys[i], sa * r);
+        if (prev) seg(prev, p);
+        prev = p;
+      });
     }
-    circle(0.3, 20, 'xy', 0, 0, lo - 0.75);              // the converted drop
+    circle(0.3, 20, 'xy', 0, 0, -2.7);                    // the converted drop below
     return bake();
   }
 
@@ -235,13 +250,14 @@ function init(host) {
       uLime: { value: new THREE.Color('#E6F536') },
       uPull: { value: 0 },
       uPullPos: { value: new THREE.Vector3(0, -3.2, 0) },
-      uCalm: { value: 0 }
+      uCalm: { value: 0 },
+      uSettle: { value: 0 }        // 1 the instant a form lands, decays -- drives a settle-ripple
     },
     vertexShader: NOISE + `
       attribute vec3 aFrom;
       attribute vec3 aTo;
       attribute float aSeed;
-      uniform float uMix, uTurb, uTime, uSize, uPull, uCalm;
+      uniform float uMix, uTurb, uTime, uSize, uPull, uCalm, uSettle;
       uniform vec3 uPullPos;
       varying float vEnergy, vFade, vSeed, vSharp;
 
@@ -270,12 +286,19 @@ function init(host) {
               every point moving in lockstep
            Kept independent of uTurb so the form still reads clearly while it's being held. */
         float wave = sin(p.x * 1.15 - uTime * 1.25) * 0.5 + sin(p.y * 0.9 + uTime * 0.85) * 0.5;
-        p.z += wave * 0.13;
-        p *= 1.0 + sin(uTime * 0.55) * 0.022;
+        p.z += wave * 0.16;
+        p *= 1.0 + sin(uTime * 0.55) * 0.026;
         float ph = aSeed * 6.2831 + uTime * 1.6;
-        p += vec3(cos(ph), sin(ph), cos(ph * 0.7)) * 0.035;
+        p += vec3(cos(ph), sin(ph), cos(ph * 0.7)) * 0.045;
         /* the drifting noise stays too, at low amplitude, so the motion never looks mechanical */
-        p += flow * 0.075;
+        p += flow * 0.09;
+
+        /* SETTLE RIPPLE -- when a form has just landed (uSettle high) a shockwave rides outward
+           from the centre through the points, so the form "snaps into place" with a visible pulse
+           of extra motion instead of just stopping. Radius-based, so it reads as a real ripple. */
+        float rad = length(p);
+        float ring = sin(rad * 3.4 - uSettle * 12.0) * uSettle;
+        p += normalize(p + 0.0001) * ring * 0.22;
 
         vec3 toCta = uPullPos - p;
         float grab = uPull * (1.0 - smoothstep(0.0, 5.5, length(toCta)));
@@ -287,7 +310,7 @@ function init(host) {
 
         /* the travelling wave tints the crest slightly green, so the motion is visible in colour
            as well as position -- otherwise the ambient movement reads only as vague drift */
-        vEnergy = clamp(amp * 1.15 + length(flow) * 0.1 + grab * 0.4 + max(wave, 0.0) * 0.12, 0.0, 1.0);
+        vEnergy = clamp(amp * 1.15 + length(flow) * 0.1 + grab * 0.4 + max(wave, 0.0) * 0.12 + uSettle * abs(ring) * 0.6, 0.0, 1.0);
         vFade = smoothstep(15.0, 3.5, -mv.z);
         vSharp = 1.0 - smoothstep(0.4, 3.0, abs(-mv.z - 8.6));
         vSeed = aSeed;
@@ -365,6 +388,7 @@ function init(host) {
   let running = true, raf = null, t = 0, cur = 0, phase = 0, morphing = false;
   const clock = new THREE.Clock();
   const scratch = new THREE.Vector3();
+  let settle = 0;   // spikes to 1 when a form lands, decays over ~1s -> settle ripple
 
   function advance() {
     /* buffer swap at the transition rather than holding all six forms in VRAM permanently */
@@ -372,6 +396,7 @@ function init(host) {
     aFrom.array.set(forms[cur]);
     aTo.array.set(forms[(cur + 1) % forms.length]);
     aFrom.needsUpdate = aTo.needsUpdate = true;
+    settle = 1;     // the new form has just arrived -> kick the ripple
   }
 
   function frame() {
@@ -398,6 +423,10 @@ function init(host) {
     mat.uniforms.uTurb.value = Math.sin(e * Math.PI) * 0.95;
     mat.uniforms.uTime.value = t;
 
+    /* settle ripple decays after each form lands (~1s), giving the "snap into place" pulse */
+    settle *= 0.93;
+    mat.uniforms.uSettle.value = settle;
+
     lastInput += dt;
     idle += ((lastInput > 6 ? 1 : 0) - idle) * 0.03;
     mat.uniforms.uCalm.value = idle;
@@ -407,10 +436,12 @@ function init(host) {
 
     eased.x += (target.x - eased.x) * 0.045;
     eased.y += (target.y - eased.y) * 0.045;
-    /* forms are front-facing by design, so the idle spin is gentle -- a fast rotation would
-       destroy the readability the arc-length sampling exists to create */
-    points.rotation.y = Math.sin(t * 0.16) * 0.28 + eased.x * 0.38;
-    points.rotation.x = Math.sin(t * 0.11) * 0.10 + eased.y * 0.22;
+    /* wider Y swing than before so the depth actually shows -- the forms are now real volumes,
+       so turning them ±0.5rad reveals side faces and the parallax between layers. Still an
+       oscillation, not a continuous spin, so each form stays readable at the extremes. */
+    points.rotation.y = Math.sin(t * 0.22) * 0.5 + eased.x * 0.4;
+    points.rotation.x = Math.sin(t * 0.15) * 0.16 + eased.y * 0.24;
+    points.rotation.z = Math.sin(t * 0.09) * 0.04;   /* faint roll adds life without disorienting */
 
     points.updateMatrixWorld();
     mat.uniforms.uPullPos.value.copy(points.worldToLocal(scratch.copy(ctaWorld)));
