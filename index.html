@@ -1061,9 +1061,12 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
     .h-cta{margin-top:16px;gap:8px;flex-direction:row;align-items:center;flex-wrap:nowrap;}
     .h-cta .btn{justify-content:center;padding:11px 14px;font-size:12px;gap:6px;}
     .h-cta .btn-fill{padding-right:14px;}
-    /* trust row ("7 days free/no build fee/cancel anytime") -- default gap/font was wide enough
-       that 3 items wrapped to 2 lines on a phone; tightened so it sits as one compact row. */
-    .h-trust{gap:10px;font-size:10.5px;margin-top:14px;}
+    /* trust row ("7 days free/no build fee/cancel anytime") and the bouncing scroll arrow are both
+       dropped on phones -- the same three claims are repeated in the pricing section, and on a
+       small screen they were fine print competing with the CTAs rather than supporting them.
+       Desktop keeps both. */
+    .h-trust{display:none;}
+    .scroll-arrow{display:none;}
     .hero-stat{padding:5px 12px;font-size:10px;}
     .cap{padding:16px;}
     .cap .ci{width:26px;height:26px;font-size:11px;}
