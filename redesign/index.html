@@ -74,7 +74,11 @@
   .btn.filled{background:#111;color:#fff;}
 
   /* NAV */
-  nav{position:sticky;top:0;background:#fff;z-index:20;border-bottom:1px solid #eee;
+  /* fixed, NOT sticky: sticky keeps the nav in normal flow, so it occupied its own 72px at the
+     top of the document and pushed the hero scene down below it. Fixed takes it out of flow
+     entirely, so the hero starts at a true y=0 and runs full-bleed to the very top of the page
+     with the nav floating over it -- nav's z-index keeps the logo/links/CTA in front. */
+  nav{position:fixed;top:0;left:0;right:0;background:#fff;z-index:20;border-bottom:1px solid #eee;
     transition:background .35s ease,border-color .35s ease;}
   /* while the hero visual is still fullscreen it runs UNDER the nav -- nav goes transparent so
      the visual reads as truly full-viewport (matches the reference's on-load state), then
@@ -408,8 +412,18 @@ if(!reduce){
   gsap.set([eyebrow,right,marq].filter(Boolean),{opacity:0,y:16});
   navEl.classList.add('nav-over');
 
+  /* the scene's settled height is MEASURED, not a guessed vh value. A hardcoded 44vh has no
+     relationship to how tall the copy block actually is, so whatever was left between the two
+     became visible dead space. This fills the viewport exactly: everything from the scene's top
+     inset down to the top of the bottom-anchored copy. Recomputed on refresh (resize / font
+     load) via invalidateOnRefresh below, so it can't drift out of sync. */
+  const copy=document.querySelector('.hero-copy');
+  const TOP_INSET=40,GAP=16;
+  const sceneH=()=>Math.max(220,window.innerHeight-(copy?copy.offsetHeight:0)-TOP_INSET-GAP);
+
   const tl=gsap.timeline({defaults:{ease:'none'},
     scrollTrigger:{trigger:'#heroBlock',start:'top top',end:'+=105%',scrub:true,
+      invalidateOnRefresh:true,
       /* nav solidity rides this timeline's own progress rather than a second ScrollTrigger --
          one starting at 'top top' sits exactly on its boundary at scroll 0 and fires onEnter
          immediately at load, flipping the nav solid before the user has scrolled at all. */
@@ -417,13 +431,11 @@ if(!reduce){
 
   /* PHASE 1 -- ONLY the scene moves. The copy is bottom-anchored in CSS and is deliberately not
      tweened here at all: on the first scroll the scene alone should recede, with the headline
-     staying exactly where it already is.
-     Final height 44vh + 40px top inset: the sticky viewport is exactly 100vh with
-     overflow:hidden, so the scene plus its inset plus the copy block has to fit inside 100vh or
-     the bottom of the copy (the CTA) gets clipped. 44vh + 40px leaves ~54vh for the copy. */
+     staying exactly where it already is. */
   tl.fromTo(ph,
-    {height:'100vh',marginLeft:'0px',marginRight:'0px',marginTop:'0px',borderRadius:'0px'},
-    {height:'44vh',marginLeft:'40px',marginRight:'40px',marginTop:'40px',borderRadius:'28px',duration:1},0);
+    {height:()=>window.innerHeight+'px',marginLeft:'0px',marginRight:'0px',marginTop:'0px',borderRadius:'0px'},
+    {height:()=>sceneH()+'px',marginLeft:'40px',marginRight:'40px',marginTop:TOP_INSET+'px',
+      borderRadius:'28px',duration:1},0);
 
   /* PHASE 2 -- only after the scene has fully stopped. Gaps kept short: with scrub:true every
      unit of timeline gap is real scroll distance where NOTHING moves, so long holds read as the
@@ -435,6 +447,11 @@ if(!reduce){
   if(marq)tl.to(marq,{opacity:1,y:0,duration:0.3},1.6);
 
   tl.to({},{duration:0.2}); /* short trailing hold before the page moves on */
+
+  /* the settled scene height is derived from the copy block's measured height, and web fonts
+     land after this script runs -- so remeasure once they're in, or the scene keeps a height
+     calculated against fallback-font metrics and the gap creeps back. */
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>ScrollTrigger.refresh());
 })();
 
 /* word-by-word heading reveal, SCRUBBED to scroll position. */
