@@ -17,10 +17,24 @@ function splitChars(el){
   const text=el.textContent;
   el.textContent='';
   const spans=[];
+  /* chars are inline-block, and the browser treats the boundary between any two inline-blocks as
+     a valid line-break opportunity -- so a split line of copy could break MID-WORD ("...befor /
+     e you spend a cent"), which showed up at narrow/mobile widths. Each word's chars now sit
+     inside a nowrap wrapper so breaks can only land on real spaces; the returned array is still
+     the flat list of char spans, so every existing GSAP stagger call site is unaffected. */
+  let word=null;
   [...text].forEach(ch=>{
     const s=document.createElement('span');s.className='fx-char';s.style.display='inline-block';
-    s.textContent=ch===' '?' ':ch; /* plain space collapses to 0-width inside inline-block, nbsp doesn't */
-    el.appendChild(s);spans.push(s);
+    if(ch===' '){
+      s.textContent=' '; /* plain space collapses to 0-width inside inline-block, nbsp doesn't */
+      el.appendChild(s); /* spaces sit between wrappers -- the only break opportunities */
+      word=null;
+    }else{
+      s.textContent=ch;
+      if(!word){word=document.createElement('span');word.style.whiteSpace='nowrap';word.style.display='inline-block';el.appendChild(word);}
+      word.appendChild(s);
+    }
+    spans.push(s);
   });
   return spans;
 }

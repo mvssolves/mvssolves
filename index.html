@@ -1011,6 +1011,14 @@ if(location.hash){history.scrollRestoration='manual';window.scrollTo(0,0);}</scr
        headline/sub/CTA/trust-row so the whole block reads as one composed unit instead of four
        oversized pieces stacked with room to spare. */
     .hero{min-height:100vh;min-height:100svh;padding:90px 20px 40px;justify-content:center;gap:20px;}
+    /* .h-bottom's desktop `margin-top:auto` pins the CTA row to the BOTTOM of the hero box (its
+       own comment: "auto margin eats all remaining flex space"). On a 100svh phone hero that left
+       a huge dead void between the sub and the CTAs, and — because the CTAs were anchored to the
+       bottom of a fixed-height box — they visibly shifted whenever mobile browser chrome
+       collapsed on scroll. Dropping the auto margin here lets headline+sub+CTA+trust center
+       together as one composed group; desktop keeps its bottom-anchored layout untouched. */
+    .h-bottom{margin-top:0;}
+    .h-wrap{margin-top:0;}
     /* bigger/more impactful headline, smaller secondary sub -- was reading as one flat block of
        similar-weight text, headline needs to dominate. */
     h1{font-size:clamp(42px,13vw,58px);}
