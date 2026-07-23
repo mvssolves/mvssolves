@@ -110,6 +110,12 @@
      group into the middle of the bar, leaving it stranded far from the wordmark. The CTA is
      pushed to the far right on its own with margin-left:auto. */
   .nav-inner{display:flex;align-items:center;gap:40px;padding:18px 40px;}
+  /* logo: a violet->green gradient diamond mark + wordmark, top-left */
+  .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:#111;}
+  .logo-mark{width:22px;height:22px;flex:none;border-radius:6px;transform:rotate(45deg);
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    box-shadow:0 0 14px -2px rgba(144,112,223,.6);}
+  .logo-word{font-weight:800;font-size:17px;letter-spacing:-.01em;}
   .nav-links{display:flex;gap:26px;font-size:14px;}
   .nav-inner>.btn{margin-left:auto;}
   /* ---- HOVER LAYER -------------------------------------------------------------------------
@@ -196,7 +202,7 @@
   .hero-copy h1{color:#fff;}
   .hero-sub{color:rgba(255,255,255,.7);}
   /* nav sits over the dark hero while transparent, so its text has to invert with it */
-  nav.nav-clear .nav-links a,nav.nav-clear .logo,nav.nav-clear strong{color:#fff;}
+  nav.nav-clear .nav-links a,nav.nav-clear .nav-logo,nav.nav-clear .logo-word{color:#fff;}
   /* hero marquee on black */
   .hero-block .marquee{border-color:rgba(255,255,255,.16);}
   .hero-block .marquee-track span{color:rgba(255,255,255,.55);}
@@ -361,17 +367,21 @@
 </style>
 </head>
 <body>
+<span id="top"></span>
 
 <nav>
   <div class="nav-inner">
-    <div><strong>[Logo]</strong></div>
+    <a class="nav-logo" href="#top" aria-label="MVS Solves home">
+      <span class="logo-mark" aria-hidden="true"></span>
+      <span class="logo-word">MVS Solves</span>
+    </a>
     <div class="nav-links">
-      <a href="#technology">[Nav 1 — Technology]</a>
-      <a href="#products">[Nav 2 — Products]</a>
-      <a href="#expertise">[Nav 3 — Expertise]</a>
-      <a href="#features">[Nav 4 — Key Features]</a>
+      <a href="#technology">Technology</a>
+      <a href="#products">Products</a>
+      <a href="#expertise">Expertise</a>
+      <a href="#features">Key Features</a>
     </div>
-    <a class="btn filled" href="#">[Nav CTA]</a>
+    <a class="btn filled" href="#">Let's talk</a>
   </div>
 </nav>
 
@@ -392,7 +402,7 @@
       <div class="hero-grid">
         <div class="hero-left">
           <div class="eyebrow">MVS Solves</div>
-          <h1>We don't build sites. We build systems that win.</h1>
+          <h1>Proven systems that only win.</h1>
         </div>
         <div class="hero-right">
           <p class="hero-sub">High-converting websites and reliable automations for businesses that want it done right the first time.</p>
@@ -621,9 +631,13 @@ if(!reduce){
      shrinks upward off the bottom, the copy sits in the clear space below the card as it appears,
      so it's never stranded on top of the scene ("not in the way of the video"). The headline is
      handled by the on-load intro and stays put. */
-  if(eyebrow)tl.fromTo(eyebrow,{opacity:0,y:16},{opacity:1,y:0,duration:0.4},0.05);
-  if(right)tl.fromTo(right,{opacity:0,y:16},{opacity:1,y:0,duration:0.45},0.12);
-  if(marq)tl.fromTo(marq,{opacity:0,y:16},{opacity:1,y:0,duration:0.4},0.24);
+  /* eyebrow (top-left "MVS Solves") clears early -- it sits above the shrinking card's path -- so
+     it fades in near the start. The RIGHT column (description + CTA) sits lower and stays under
+     the receding scene longer, so it's deliberately held until the scene has clearly cleared it
+     (~70% of the shrink) and only then fades in. Marquee last of all. */
+  if(eyebrow)tl.fromTo(eyebrow,{opacity:0,y:16},{opacity:1,y:0,duration:0.35},0.08);
+  if(right)tl.fromTo(right,{opacity:0,y:18},{opacity:1,y:0,duration:0.3,ease:'power2.out'},0.7);
+  if(marq)tl.fromTo(marq,{opacity:0,y:16},{opacity:1,y:0,duration:0.25},0.85);
 
   /* the settled scene height is derived from the copy block's measured height, and web fonts
      land after this script runs -- so remeasure once they're in, or the scene keeps a height
