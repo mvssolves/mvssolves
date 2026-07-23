@@ -165,7 +165,7 @@
      and rises up to cover this one, so anything low in the block gets swallowed -- the padding
      below is the buffer the footer eats first, keeping the stats and CTA clear of it. */
   .team-block{z-index:6;text-align:center;align-items:center;justify-content:flex-start;
-    min-height:auto;padding:32px 0 220px;}
+    min-height:auto;padding:32px 0 300px;}
   /* stack pulled tight so the stats sit just under the heading and the CTA follows straight
      after -- the block was spreading over most of the viewport with big dead gaps between each
      element. The section's own bottom padding gives the breathing room instead. */
@@ -252,7 +252,11 @@
   @media(max-width:640px){.feature-row{gap:20px;}}
 
   /* FOOTER */
-  footer{background:#111;color:#fff;padding:64px 40px 0;overflow:hidden;}
+  /* tight top pad: there was a dead band of black between the footer's top edge and the first
+     column heading, which just read as a gap the cover-transition had to scroll through.
+     Also switched to --ink so it matches the hero exactly rather than being a slightly
+     different black. */
+  footer{background:var(--ink);color:#fff;padding:26px 40px 0;overflow:hidden;}
   /* z-index above the wordmark: even if the wordmark's glyphs bleed past their box at some
      viewport, the columns and the Send CTA always paint on top and stay readable. */
   .foot-inner{position:relative;z-index:1;display:flex;gap:48px;flex-wrap:wrap;justify-content:space-between;padding-bottom:48px;border-bottom:1px solid #333;}
