@@ -55,7 +55,11 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <style>
-  :root{--nav-h:72px;}
+  /* PALETTE -- locked 2026-07-23.
+     --accent  violet, used for eyebrow/label text and secondary marks
+     --accent2 acid green, used for the primary CTA fill (black text on it)
+     --ink     near-black for the dark sections (hero + footer), not pure #000 */
+  :root{--nav-h:72px;--accent:#9070DF;--accent2:#E6F536;--ink:#0B0B0C;}
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#111;background:#fff;line-height:1.5;}
   /* full viewport width, small edge gutter -- NOT a centered narrow column. Confirmed on the
@@ -64,7 +68,7 @@
      fine -- <p> has its own max-width:60ch typographic cap independent of this. */
   .wrap{padding:0 40px;}
   section{padding:96px 0;}
-  .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:10px;font-family:monospace;}
+  .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;font-family:monospace;}
   h1,h2,h3{font-weight:700;letter-spacing:-.01em;}
   h2{font-size:clamp(28px,4vw,44px);margin-bottom:16px;}
   /* typewriter caret -- only present while the heading is actually typing */
@@ -78,7 +82,9 @@
   p{color:#555;max-width:60ch;}
   .tag{display:inline-block;background:#f2f2f2;border:1px solid #ddd;border-radius:999px;padding:10px 18px;font-size:13px;}
   .btn{display:inline-block;padding:12px 24px;border-radius:999px;border:1px solid #111;font-size:14px;font-weight:600;text-decoration:none;color:#111;cursor:pointer;background:none;}
-  .btn.filled{background:#111;color:#fff;}
+  /* primary CTA is the acid green with black text -- reads on both the dark hero and the white
+     sections, so it's the one button style used everywhere. */
+  .btn.filled{background:var(--accent2);color:var(--ink);border-color:var(--accent2);}
 
   /* NAV */
   /* fixed, NOT sticky: sticky keeps the nav in normal flow, so it occupied its own 72px at the
@@ -128,7 +134,17 @@
      Deliberately short: the scene has to finish receding almost immediately, because the CTA is
      only allowed to appear AFTER it lands, and the user shouldn't have to scroll far to get
      there. The copy pop is time-based, not scrubbed, so it needs no runway of its own. */
-  .hero-block{position:relative;z-index:1;background:#fff;min-height:142vh;}
+  /* hero is the DARK section: near-black, with Technology onward white rising over it and the
+     footer going dark again at the end. */
+  .hero-block{position:relative;z-index:1;background:var(--ink);min-height:142vh;}
+  .hero-copy{color:#fff;}
+  .hero-copy h1{color:#fff;}
+  .hero-sub{color:rgba(255,255,255,.7);}
+  /* nav sits over the dark hero while transparent, so its text has to invert with it */
+  nav.nav-clear .nav-links a,nav.nav-clear .logo,nav.nav-clear strong{color:#fff;}
+  /* hero marquee on black */
+  .hero-block .marquee{border-color:rgba(255,255,255,.16);}
+  .hero-block .marquee-track span{color:rgba(255,255,255,.55);}
   .hero-sticky{position:sticky;top:0;height:100vh;overflow:hidden;}
   #technology{z-index:2;}
   #products{z-index:3;}
@@ -142,11 +158,15 @@
      Replaced with real content (eyebrow / heading / sub / stats / CTA) so the section fills its
      own space instead of leaving a gap the footer had to swallow. padding-bottom is generous so
      the CTA can never sit under the footer as it rises to cover this block. */
-  .team-block{z-index:6;text-align:center;align-items:center;min-height:auto;padding:96px 0 140px;}
-  .team-sub{margin:14px auto 0;max-width:52ch;}
-  .team-stats{display:flex;gap:56px;justify-content:center;flex-wrap:wrap;margin:40px 0 8px;}
+  /* justify-content:flex-start (overriding the stack-layer rule's center) so the block sits high
+     in its own space instead of floating in the middle of it -- that centring is what pushed the
+     heading, stats and CTA down the viewport. */
+  .team-block{z-index:6;text-align:center;align-items:center;justify-content:flex-start;
+    min-height:auto;padding:56px 0 120px;}
+  .team-sub{margin:12px auto 0;max-width:52ch;}
+  .team-stats{display:flex;gap:56px;justify-content:center;flex-wrap:wrap;margin:28px 0 4px;}
   .team-stats .stat-label{margin-top:2px;}
-  .team-cta{margin-top:32px;}
+  .team-cta{margin-top:24px;}
   footer{position:relative;z-index:7;border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);}
 
   /* HERO */
@@ -160,9 +180,11 @@
      will-change promotes it to its own compositor layer so the resize doesn't repaint the nav. */
   /* no dashed border: a dashed outline on an element whose height changes every frame makes the
      dash pattern re-tile constantly, which shimmers along the moving edges. */
+  /* placeholder restyled for the dark hero -- stands in for the video, so it reads as a dark
+     panel rather than a light one punched into black. */
   .hero-3d-placeholder{position:absolute;top:0;left:0;right:0;height:100vh;will-change:height,top;
-    background:repeating-linear-gradient(135deg,#f4f4f4,#f4f4f4 20px,#ececec 20px,#ececec 40px);
-    display:flex;align-items:center;justify-content:center;color:#999;font-size:13px;}
+    background:repeating-linear-gradient(135deg,#161618,#161618 20px,#1d1d20 20px,#1d1d20 40px);
+    display:flex;align-items:center;justify-content:center;color:#6a6a72;font-size:13px;}
   /* absolutely anchored to the BOTTOM of the sticky viewport, not a flex child. As a flex child
      it was flex:1 in a column whose first item (the scene) already fills the whole 100vh, so its
      leftover space was zero -- it collapsed to 0 height and its content sat below the fold,
@@ -552,18 +574,25 @@ function splitChars(el){
   });
   return out;
 }
-/* REPLAY harness. Every effect re-plays each time its element comes into view -- scrolling down
-   past it and back up replays it, no reload needed.
+/* REPLAY harness -- IntersectionObserver, deliberately NOT ScrollTrigger.
 
-   Deliberately onEnter + onEnterBack only, and every effect uses fromTo so it re-establishes its
-   own start state on each play. Notably it does NOT use toggleActions with `reverse`, and does
-   not reset on leave: reversing/hiding near the threshold is what makes replay effects flicker
-   when a scroll wobbles across the trigger point. Replaying forwards only can never flicker --
-   worst case an effect simply plays again. */
-function replayIn(el,play,start){
-  play();
-  ScrollTrigger.create({trigger:el,start:start||'top 82%',
-    onEnter:play,onEnterBack:play});
+   ScrollTrigger computes its start point from an element's NATURAL document position. Every
+   section here is position:sticky and slides over the one before it, so an element's real
+   on-screen position has nothing to do with its natural one: text was sitting fully visible
+   while its trigger point was still far below, then only animating once the page scrolled to
+   the section's natural offset -- i.e. text sat static while you looked at it, then played once
+   it reached mid-screen. IntersectionObserver reports ACTUAL visibility, sticky or not, so the
+   effect fires the moment the element is genuinely on screen.
+
+   threshold 0 + a small negative bottom margin = "as soon as any part of it has really entered
+   the viewport". Re-fires on every entry, so scrolling back up replays it. Forward-only (never
+   reversed, never reset on exit) so a scroll that wobbles across the boundary can't flicker. */
+function replayIn(el,play){
+  if(!('IntersectionObserver' in window)){play();return;}
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting)play();});
+  },{threshold:0,rootMargin:'0px 0px -2% 0px'});
+  io.observe(el);
 }
 
 /* TYPEWRITER -- characters type in behind a blinking caret. */
@@ -587,6 +616,8 @@ function fxType(el){
 function fxAlt(el){
   if(reduce)return;
   const words=splitWords(el);
+  gsap.set(words,{opacity:0});   /* start state at SETUP -- the harness no longer plays on init,
+                                    so without this it'd render visible then snap when observed */
   replayIn(el,()=>{
     words.forEach((w,i)=>{
       gsap.fromTo(w,{opacity:0,x:i%2?70:-70},
@@ -599,6 +630,7 @@ function fxRise(el){
   if(reduce)return;
   const chars=splitChars(el);
   gsap.set(el,{perspective:600});
+  gsap.set(chars,{opacity:0,y:34,rotateX:-75,transformOrigin:'50% 100%'});
   replayIn(el,()=>{
     gsap.fromTo(chars,{opacity:0,y:34,rotateX:-75,transformOrigin:'50% 100%'},
       {opacity:1,y:0,rotateX:0,duration:0.6,stagger:0.028,ease:'back.out(1.7)',overwrite:true});
@@ -619,6 +651,7 @@ function fxMask(el){
     w._inner=inner;
   });
   const inners=words.map(w=>w._inner);
+  gsap.set(inners,{yPercent:115});
   replayIn(el,()=>{
     gsap.fromTo(inners,{yPercent:115},
       {yPercent:0,duration:0.75,stagger:0.08,ease:'power4.out',overwrite:true});
@@ -627,6 +660,7 @@ function fxMask(el){
 /* SCALE -- whole heading punches in from slightly small + blurred, then settles. */
 function fxScale(el){
   if(reduce)return;
+  gsap.set(el,{opacity:0,scale:0.86});
   replayIn(el,()=>{
     gsap.fromTo(el,{opacity:0,scale:0.86,filter:'blur(10px)'},
       {opacity:1,scale:1,filter:'blur(0px)',duration:0.85,ease:'power3.out',overwrite:true});
@@ -640,35 +674,39 @@ function fxScale(el){
 function fxWords(el){
   if(reduce)return;
   const words=splitWords(el);
+  gsap.set(words,{opacity:0});
   replayIn(el,()=>{
     gsap.fromTo(words,{opacity:0,y:14},
       {opacity:1,y:0,duration:0.5,stagger:0.022,ease:'power2.out',overwrite:true},0);
-  },'top 88%');
+  });
 }
 /* SKEW -- body slides in from the side with a slight shear that straightens out. */
 function fxSkew(el){
   if(reduce)return;
+  gsap.set(el,{opacity:0,x:-40,skewX:6});
   replayIn(el,()=>{
     gsap.fromTo(el,{opacity:0,x:-40,skewX:6},
       {opacity:1,x:0,skewX:0,duration:0.8,ease:'power3.out',overwrite:true});
-  },'top 88%');
+  });
 }
 /* CLIP -- body is wiped in left-to-right behind a moving edge. */
 function fxClip(el){
   if(reduce)return;
+  gsap.set(el,{clipPath:'inset(0 100% 0 0)'});
   replayIn(el,()=>{
     gsap.fromTo(el,{clipPath:'inset(0 100% 0 0)',opacity:1},
       {clipPath:'inset(0 0% 0 0)',duration:0.85,ease:'power3.inOut',overwrite:true});
-  },'top 88%');
+  });
 }
 /* STAGGER-UP -- a group of children rise in sequence (cards, rows, stats). */
 function fxGroup(el){
   if(reduce)return;
   const kids=[...el.children];
+  gsap.set(kids,{opacity:0,y:38});
   replayIn(el,()=>{
     gsap.fromTo(kids,{opacity:0,y:38},
       {opacity:1,y:0,duration:0.65,stagger:0.09,ease:'power3.out',overwrite:true});
-  },'top 88%');
+  });
 }
 
 document.querySelectorAll('.fx-type').forEach(fxType);
@@ -705,9 +743,7 @@ document.querySelectorAll('.fx-group').forEach(fxGroup);
      two intervals writing to the same node. */
   document.querySelectorAll('.eyebrow').forEach(el=>{
     const final=el.textContent;
-    const play=()=>{clearInterval(el._sc);el.textContent=final;el._sc=scrambleReveal(el);};
-    play();
-    ScrollTrigger.create({trigger:el,start:'top 90%',onEnter:play,onEnterBack:play});
+    replayIn(el,()=>{clearInterval(el._sc);el.textContent=final;el._sc=scrambleReveal(el);});
   });
 })();
 
@@ -743,12 +779,11 @@ document.querySelectorAll('.fx-group').forEach(fxGroup);
   document.querySelectorAll('.stat-num[data-count]').forEach(el=>{
     const target=+el.dataset.count;
     if(reduce){el.textContent=target+'+';return;}
-    const play=()=>{
+    replayIn(el,()=>{
       const o={v:0};
       gsap.to(o,{v:target,duration:1.1,ease:'power2.out',overwrite:true,
         onUpdate:()=>{el.textContent=Math.round(o.v)+'+';}});
-    };
-    ScrollTrigger.create({trigger:el,start:'top 90%',onEnter:play,onEnterBack:play});
+    });
   });
 })();
 </script>
