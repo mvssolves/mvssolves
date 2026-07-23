@@ -188,7 +188,10 @@
      there. The copy pop is time-based, not scrubbed, so it needs no runway of its own. */
   /* hero is the DARK section: near-black, with Technology onward white rising over it and the
      footer going dark again at the end. */
-  .hero-block{position:relative;z-index:1;background:var(--ink);min-height:142vh;}
+  /* subtle indigo lift instead of flat near-black, so the area around and below the scene card
+     shares the scene's lighter mood rather than reading as a dead black void */
+  .hero-block{position:relative;z-index:1;min-height:142vh;
+    background:linear-gradient(180deg,#14111f 0%,#0c0b12 55%,var(--ink) 100%);}
   .hero-copy{color:#fff;}
   .hero-copy h1{color:#fff;}
   .hero-sub{color:rgba(255,255,255,.7);}
@@ -249,8 +252,20 @@
   /* border WIDTH/STYLE here, but colour transparent -- the scroll timeline fades the acid green
      in during the back half of the shrink (see hero scrub JS), so it's absent at fullscreen and
      only frames the settled inset card. Transparent default avoids a yellow flash on load. */
-  .hero-3d-placeholder.has-scene{background:#0B0B0C;font-size:0;
-    border:2px solid rgba(230,245,54,0);}
+  /* atmospheric backdrop instead of flat black: a soft indigo glow lifts the mood toward the
+     lighter, airier NeoLeaf feel. Stays dark enough that the additive-blended particles keep
+     their glow -- a light/white bg would wash them out entirely. */
+  .hero-3d-placeholder.has-scene{font-size:0;border:2px solid rgba(230,245,54,0);
+    background:
+      radial-gradient(70% 60% at 50% 38%, rgba(144,112,223,.22), transparent 68%),
+      radial-gradient(90% 80% at 78% 88%, rgba(90,200,250,.12), transparent 70%),
+      linear-gradient(180deg, #14111f 0%, #0c0b12 60%, #0a0a0e 100%);}
+  /* per-form label */
+  .scene-label{position:absolute;left:0;right:0;bottom:6%;text-align:center;z-index:2;
+    pointer-events:none;font-family:monospace;font-size:clamp(12px,1.5vw,17px);
+    letter-spacing:.42em;text-indent:.42em;color:rgba(255,255,255,.82);
+    text-transform:uppercase;opacity:0;transition:opacity .55s ease;
+    text-shadow:0 0 18px rgba(144,112,223,.6);}
   /* absolutely anchored to the BOTTOM of the sticky viewport, not a flex child. As a flex child
      it was flex:1 in a column whose first item (the scene) already fills the whole 100vh, so its
      leftover space was zero -- it collapsed to 0 height and its content sat below the fold,

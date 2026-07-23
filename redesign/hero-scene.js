@@ -183,6 +183,12 @@ function init(host) {
   }
 
   const forms = [formSite(), formFlow(), formLayers(), formChart(), formGlobe(), formFunnel()];
+  /* per-form identity: a label shown when the form is held, and an accent colour the cloud leans
+     toward, so each shape has its own mood and says what it is */
+  const labels = ['WEBSITES', 'AUTOMATIONS', 'SYSTEMS', 'GROWTH', 'GLOBAL REACH', 'CONVERSION'];
+  const palette = ['#9070DF', '#5AC8FA', '#B9A2FF', '#E6F536', '#6FE0C8', '#FF8FB0']
+    .map(c => new THREE.Color(c));
+
   const seed = new Float32Array(COUNT);
   for (let i = 0; i < COUNT; i++) seed[i] = Math.random();
 
@@ -197,6 +203,14 @@ function init(host) {
 
   host.appendChild(renderer.domElement);
   host.classList.add('has-scene');
+
+  /* per-form label -- a DOM element (not geometry) so the text stays crisp and can't warp with the
+     cloud. Child of #hero3d, so it rides the scroll-shrink with the card. Fades in while the form
+     is held, out during the morph. */
+  const label = document.createElement('div');
+  label.className = 'scene-label';
+  label.textContent = labels[0];
+  host.appendChild(label);
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
@@ -246,8 +260,13 @@ function init(host) {
       uTurb: { value: 0 },
       uTime: { value: 0 },
       uSize: { value: 13.0 * Math.min(window.devicePixelRatio, 2) },
-      uViolet: { value: new THREE.Color('#9070DF') },
-      uLime: { value: new THREE.Color('#E6F536') },
+      /* three base colours the cloud gradates through by position, plus the acid green that only
+         shows under turbulence, plus a per-form accent that gives each shape its own identity */
+      uColA: { value: new THREE.Color('#9070DF') },   // violet (brand)
+      uColB: { value: new THREE.Color('#5AC8FA') },   // sky cyan -- lifts the mood
+      uColC: { value: new THREE.Color('#C9A8FF') },   // pale lilac highlight
+      uLime: { value: new THREE.Color('#E6F536') },   // energy green
+      uAccent: { value: new THREE.Color('#9070DF') }, // lerped per form, see palette[] in loop
       uPull: { value: 0 },
       uPullPos: { value: new THREE.Vector3(0, -3.2, 0) },
       uSettle: { value: 0 }        // 1 the instant a form lands, decays -- drives a settle-ripple
@@ -258,13 +277,17 @@ function init(host) {
       attribute float aSeed;
       uniform float uMix, uTurb, uTime, uSize, uPull, uSettle;
       uniform vec3 uPullPos;
-      varying float vEnergy, vFade, vSeed, vSharp;
+      varying float vEnergy, vFade, vSeed, vSharp, vGrad;
 
       void main(){
         /* per-point lag so the form assembles as a wave, not all at once */
         float m = clamp((uMix - aSeed * 0.3) / 0.7, 0.0, 1.0);
         m = m * m * (3.0 - 2.0 * m);
         vec3 p = mix(aFrom, aTo, m);
+
+        /* diagonal position gradient (bottom-left -> top-right), used in the fragment to spread
+           the three base colours across the form so it reads as a spectrum, not a flat tint */
+        vGrad = clamp((p.x + p.y) * 0.16 + 0.5, 0.0, 1.0);
 
         float sc = 0.42, ts = uTime * 0.28;
         vec3 flow = vec3(
@@ -313,17 +336,26 @@ function init(host) {
         vSeed = aSeed;
       }`,
     fragmentShader: `
-      uniform vec3 uViolet, uLime;
-      varying float vEnergy, vFade, vSeed, vSharp;
+      uniform vec3 uColA, uColB, uColC, uLime, uAccent;
+      varying float vEnergy, vFade, vSeed, vSharp, vGrad;
       void main(){
         vec2 uv = gl_PointCoord - 0.5;
         float d = dot(uv, uv);
         if(d > 0.25) discard;
         float soft = smoothstep(0.25, mix(0.16, 0.0, vSharp), d) * mix(0.45, 1.0, vSharp);
-        /* green is EARNED -- it only appears where the cloud is being torn apart */
+
+        /* base colour: violet -> cyan across the diagonal gradient, with a pale-lilac highlight
+           riding the top end, so the cloud shows a real spectrum instead of one flat colour */
+        vec3 base = mix(uColA, uColB, vGrad);
+        base = mix(base, uColC, smoothstep(0.72, 1.0, vGrad) * 0.6);
+        /* pull it a third of the way toward this form's own accent, so each shape has a mood */
+        base = mix(base, uAccent, 0.32);
+
+        /* green is EARNED -- only where the cloud is being torn apart */
         float g = smoothstep(0.25, 0.85, vEnergy + vSeed * 0.14);
-        vec3 col = mix(uViolet, uLime, g);
-        col += g * 0.25;
+        vec3 col = mix(base, uLime, g);
+        col += g * 0.28;
+
         gl_FragColor = vec4(col, soft * vFade * 0.82);
       }`
   });
@@ -392,7 +424,8 @@ function init(host) {
     aFrom.array.set(forms[cur]);
     aTo.array.set(forms[(cur + 1) % forms.length]);
     aFrom.needsUpdate = aTo.needsUpdate = true;
-    settle = 1;     // the new form has just arrived -> kick the ripple
+    settle = 1;                    // the new form has just arrived -> kick the ripple
+    label.textContent = labels[cur];   // the just-arrived form names itself
   }
 
   function frame() {
@@ -422,6 +455,13 @@ function init(host) {
     /* settle ripple decays after each form lands (~1s), giving the "snap into place" pulse */
     settle *= 0.93;
     mat.uniforms.uSettle.value = settle;
+
+    /* ease the accent colour toward the current form's, so each shape's mood crossfades in rather
+       than snapping. lerp mutates in place, which is fine -- the uniform reads it every frame. */
+    mat.uniforms.uAccent.value.lerp(palette[cur], 0.05);
+
+    /* label visible only while the form is held; fades out through the morph */
+    label.style.opacity = (!morphing ? 1 : 0).toString();
 
     pull += (pullTo - pull) * 0.10;
     mat.uniforms.uPull.value = pull;
