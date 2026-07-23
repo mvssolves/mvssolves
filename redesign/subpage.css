@@ -111,3 +111,58 @@ footer{background:var(--ink);color:#fff;padding:44px 40px 0;overflow:hidden;
   .rise{animation:none;opacity:1;transform:none;}
   .nav-back::after{transition:none;}
 }
+
+/* ---- SHARED SUBPAGE BITS ------------------------------------------------------------------ */
+/* Beyond the policy pages: FAQ, careers and the contact page all sit on this same shell. */
+.sub-lead{font-size:clamp(17px,2vw,20px);color:var(--soft);max-width:52ch;margin-top:18px;}
+.btn{display:inline-block;padding:13px 26px;border-radius:999px;border:1px solid var(--ink);
+  font-size:14px;font-weight:600;text-decoration:none;color:var(--ink);cursor:pointer;
+  background:none;font-family:inherit;
+  transition:transform .22s cubic-bezier(.34,1.4,.64,1),box-shadow .22s ease,
+             background .22s ease,color .22s ease;}
+.btn:hover{transform:translateY(-2px);background:var(--ink);color:#fff;}
+.btn.filled{background:var(--accent2);color:var(--ink);border-color:var(--accent2);}
+.btn.filled:hover{background:var(--accent2);color:var(--ink);
+  box-shadow:0 8px 22px -8px rgba(230,245,54,.55);}
+.btn[disabled]{opacity:.5;pointer-events:none;}
+.hero .btn{margin-top:30px;}
+
+/* ---- FAQ ACCORDION ------------------------------------------------------------------------ */
+.faq{margin-top:4px;}
+.qa{border-bottom:1px solid var(--line);}
+.qa q{display:flex;align-items:center;justify-content:space-between;gap:20px;quotes:none;
+  padding:24px 0;cursor:pointer;font-size:clamp(17px,2.1vw,21px);font-weight:700;
+  color:var(--ink);letter-spacing:-.01em;transition:color .2s ease;}
+.qa q:hover{color:var(--accent);}
+.qa .plus{flex:none;width:30px;height:30px;border-radius:50%;border:1px solid var(--line);
+  display:grid;place-items:center;font-size:17px;font-weight:400;color:var(--muted);
+  transition:transform .32s cubic-bezier(.2,.8,.2,1),background .25s ease,color .25s ease,
+             border-color .25s ease;}
+.qa.open .plus{transform:rotate(45deg);background:var(--accent);border-color:var(--accent);
+  color:#fff;}
+.qa .a{max-height:0;overflow:hidden;transition:max-height .42s cubic-bezier(.2,.8,.2,1);}
+.qa .a p{margin:0 0 24px;max-width:62ch;}
+
+/* ---- CONTACT PAGE ------------------------------------------------------------------------- */
+/* Same fields and endpoint as the home page's modal, laid out as a page for people who land on
+   the URL directly. */
+.contact-form{margin-top:6px;max-width:600px;}
+.field{margin-bottom:16px;}
+.field-row{display:flex;gap:16px;}
+.field-row .field{flex:1;min-width:0;}
+.field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--muted);margin-bottom:6px;font-family:monospace;}
+.field input,.field select,.field textarea{width:100%;background:#fbfbfc;
+  border:1px solid rgba(11,11,12,.16);border-radius:12px;padding:13px 15px;color:var(--ink);
+  font-size:15px;font-family:inherit;transition:border-color .2s ease,background .2s ease;}
+.field textarea{min-height:130px;resize:vertical;}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;
+  border-color:var(--accent);background:#fff;}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;}
+.form-actions{display:flex;align-items:center;gap:18px;margin-top:22px;flex-wrap:wrap;}
+.form-note{font-size:13px;color:var(--muted);}
+.form-msg{margin-top:16px;font-size:14px;display:none;}
+.form-msg.show{display:block;}
+.form-msg.ok{color:#2f7d4f;}
+.form-msg.err{color:#c0335a;}
+@media(max-width:560px){.field-row{flex-direction:column;gap:0;}}

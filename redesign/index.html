@@ -376,7 +376,7 @@
   /* wordmark is the LAST thing in the footer, so it can only ever sit at the very bottom of the
      page -- it can't ride up over the columns or the Send CTA no matter the viewport, which was
      the recurring overlap bug. Sized to fit "MVS Solves" whole: no clipping, no bleed-off. */
-  .foot-bottom{position:relative;margin-top:24px;padding-top:8px;}
+  .foot-bottom{position:relative;margin-top:46px;padding-top:26px;}
   /* halftone dot field behind the wordmark, faded out toward the top so it dissolves into the
      footer rather than ending on a hard edge. */
   .foot-bottom::before{content:'';position:absolute;inset:0;pointer-events:none;
@@ -388,26 +388,53 @@
      full screen of its own, which is what padded the page out. This still reads as a large
      wordmark but keeps the whole footer in one viewport. */
   /* pushed down so roughly a quarter of the glyphs fall past the footer's edge and get clipped
-     by footer{overflow:hidden} -- the wordmark reads as running off the bottom of the page. */
-  .foot-wordmark{position:relative;z-index:1;font-size:clamp(38px,11vw,150px);font-weight:800;
-    line-height:1.04;letter-spacing:-.02em;text-align:center;white-space:nowrap;
-    user-select:none;pointer-events:none;transform:translateY(32%);
-    /* water: a slow caustic sheen travelling through the letterforms (gradient clipped to the
-       text), warped by an animated turbulence displacement so the edges ripple rather than just
-       brighten. Sheen alone reads as chrome; the displacement is what makes it read as liquid. */
-    background:linear-gradient(100deg,#fff 0%,#fff 30%,#8fb6ff 42%,#dcecff 50%,#8fb6ff 58%,#fff 70%,#fff 100%);
-    background-size:260% 100%;
+     by footer{overflow:hidden} -- the wordmark reads as running off the bottom of the page.
+     perspective here (not on the letters) is what makes the per-letter tilts share one vanishing
+     point instead of each rotating in its own flat little world. */
+  .foot-wordmark{position:relative;z-index:1;display:flex;justify-content:center;
+    align-items:flex-end;font-size:clamp(38px,11vw,150px);font-weight:800;
+    line-height:1.04;letter-spacing:-.02em;white-space:nowrap;
+    user-select:none;pointer-events:none;transform:translateY(32%);perspective:900px;}
+  /* Each letter is its own body of water: a depth gradient for the base, two highlight bands
+     drifting across it in OPPOSITE directions at different rates (that crossing is what reads as
+     caustics rather than as a chrome sweep), and a static turbulence displacement giving the
+     glyph edges a wet wobble. The displacement is deliberately NOT animated -- a static filter
+     rasterises once and caches, whereas animating baseFrequency re-renders every letter every
+     frame. All the motion comes from the gradients and the 3D bob, which are far cheaper. */
+  .wm-l{display:inline-block;transform-style:preserve-3d;
+    background-image:
+      linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.95) 11%,rgba(255,255,255,0) 24%),
+      linear-gradient(76deg,rgba(201,168,255,0) 0%,rgba(217,196,255,.85) 14%,rgba(201,168,255,0) 30%),
+      linear-gradient(180deg,#fff 0%,#dfe4ff 34%,#9aa4e6 70%,#6f74c0 100%);
+    background-size:300% 100%,380% 100%,100% 100%;
+    background-repeat:repeat-x;
     -webkit-background-clip:text;background-clip:text;
     color:transparent;-webkit-text-fill-color:transparent;
-    animation:waterSheen 11s linear infinite;}
-  @keyframes waterSheen{from{background-position:130% 0;}to{background-position:-130% 0;}}
-  /* the ripple is behind a class the IntersectionObserver toggles: feDisplacementMap re-rasterises
-     the whole wordmark every frame, so it must not run while the footer is off-screen. */
-  .foot-wordmark.rippling{filter:url(#waterWarp);}
+    animation:wmFlow 9s linear infinite,wmBob 6.5s ease-in-out infinite;
+    /* negative delays start every letter mid-cycle, so the wave is already travelling across the
+       word on first paint instead of all ten letters pulsing in unison */
+    animation-delay:calc(var(--i) * -.62s),calc(var(--i) * -.47s);}
+  .wm-sp{display:inline-block;width:.26em;}
+  @keyframes wmFlow{
+    from{background-position:150% 0,-60% 0,0 0;}
+    to{background-position:-150% 0,300% 0,0 0;}
+  }
+  /* 3D bob: each letter floats and tilts on its own phase, like it's sitting on moving water */
+  @keyframes wmBob{
+    0%,100%{transform:translateY(0) translateZ(0) rotateX(0deg) rotateY(0deg);}
+    25%{transform:translateY(-.035em) translateZ(20px) rotateX(8deg) rotateY(-5deg);}
+    50%{transform:translateY(.022em) translateZ(0) rotateX(-6deg) rotateY(4deg);}
+    75%{transform:translateY(-.018em) translateZ(-16px) rotateX(5deg) rotateY(6deg);}
+  }
+  /* ripple gated behind a class the IntersectionObserver toggles -- three seeds cycled so the
+     letters don't all wobble identically. */
+  .foot-wordmark.rippling .wm-l{filter:url(#waterWarp1);}
+  .foot-wordmark.rippling .wm-l:nth-child(3n+2){filter:url(#waterWarp2);}
+  .foot-wordmark.rippling .wm-l:nth-child(3n+3){filter:url(#waterWarp3);}
   .svg-defs{position:absolute;width:0;height:0;overflow:hidden;}
   @media(prefers-reduced-motion:reduce){
-    .foot-wordmark{animation:none;}
-    .foot-wordmark.rippling{filter:none;}
+    .wm-l{animation:none;}
+    .foot-wordmark.rippling .wm-l{filter:none;}
   }
 
   /* CONTACT MODAL -- replaces the Cal.com booking flow. Own form, own styling, mail sent by
@@ -592,13 +619,17 @@
 <!-- turbulence filter for the footer wordmark's water ripple. Lives in the DOM as a zero-size
      defs-only SVG; CSS resolves url(#waterWarp) at paint time so its position doesn't matter. -->
 <svg class="svg-defs" aria-hidden="true" focusable="false">
-  <filter id="waterWarp" x="-8%" y="-30%" width="116%" height="160%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.008 0.03" numOctaves="2" seed="4" result="noise">
-      <animate attributeName="baseFrequency" dur="16s"
-        values="0.008 0.03;0.014 0.045;0.008 0.03" repeatCount="indefinite"/>
-    </feTurbulence>
-    <feDisplacementMap in="SourceGraphic" in2="noise" scale="7"
-      xChannelSelector="R" yChannelSelector="G"/>
+  <filter id="waterWarp1" x="-14%" y="-30%" width="128%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.011 0.038" numOctaves="2" seed="4" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="waterWarp2" x="-14%" y="-30%" width="128%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.014 0.031" numOctaves="2" seed="19" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="7" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="waterWarp3" x="-14%" y="-30%" width="128%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.009 0.044" numOctaves="2" seed="37" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G"/>
   </filter>
 </svg>
 
@@ -612,7 +643,7 @@
     <div class="foot-col">
       <h3>Company</h3>
       <a href="#about">About</a><a href="#" data-contact>Contact</a>
-      <a href="/faq">FAQ</a><a href="/join-the-team">Careers</a>
+      <a href="/redesign/faq">FAQ</a><a href="/redesign/join-the-team">Careers</a>
     </div>
     <div class="foot-col">
       <h3>Contact</h3>
@@ -812,7 +843,28 @@ document.addEventListener('click',e=>{
    attach the filter while the footer is actually in view. */
 (function(){
   const wm=document.querySelector('.foot-wordmark');
-  if(!wm||!('IntersectionObserver' in window))return;
+  if(!wm)return;
+
+  /* split into per-letter elements so each one can carry its own water: --i drives the negative
+     animation-delays, so the flow and the bob travel across the word instead of pulsing as one. */
+  const text=wm.textContent.trim();
+  wm.textContent='';
+  let i=0;
+  for(const ch of text){
+    if(ch===' '){
+      const sp=document.createElement('span');
+      sp.className='wm-sp';
+      wm.appendChild(sp);
+      continue;
+    }
+    const s=document.createElement('span');
+    s.className='wm-l';
+    s.style.setProperty('--i',i++);
+    s.textContent=ch;
+    wm.appendChild(s);
+  }
+
+  if(!('IntersectionObserver' in window))return;
   new IntersectionObserver(es=>{
     wm.classList.toggle('rippling',es[0].isIntersecting);
   },{rootMargin:'120px'}).observe(wm);
@@ -1205,24 +1257,9 @@ function odometer(el, value){
   });
 })();
 
-/* MARQUEE reverses with scroll direction. The strip is a CSS keyframe animation, so direction is
-   flipped via animation-direction rather than rebuilding it in JS -- the browser keeps its own
-   playhead, so the reversal continues from where it was instead of snapping back to the start. */
-(function(){
-  if(reduce)return;
-  const tracks=[...document.querySelectorAll('.marquee-track')];
-  if(!tracks.length)return;
-  let last=window.scrollY, dir=1;
-  addEventListener('scroll',()=>{
-    const y=window.scrollY;
-    const d=y>last?1:y<last?-1:dir;
-    last=y;
-    if(d!==dir){
-      dir=d;
-      tracks.forEach(t=>{t.style.animationDirection=dir>0?'normal':'reverse';});
-    }
-  },{passive:true});
-})();
+/* NOTE: the marquee used to flip animation-direction on every scroll-direction change. It read as
+   the strip randomly reversing and stuttering rather than as an effect, so it's gone. The marquee
+   now runs one way at a constant rate, independent of scroll. Don't reintroduce it. */
 
 /* SELECTIVE line-mask reveal (.fx-lines) -- deliberately NOT applied to every paragraph: the
    per-section body variety is the point, this is one more flavour in the set. Each line is
