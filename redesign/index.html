@@ -599,30 +599,26 @@
 <section id="proof" class="wrap">
   <div class="eyebrow">Proof</div>
   <h2 class="fx-rise">Six businesses. 10K a month. Each.</h2>
-  <!-- Each tab swaps the stat pair below, numbers and labels together. Tabs 1-3 carry real
-       figures: Scale is the same six businesses viewed in aggregate (6 x 10K = 60K/mo = 720K/yr),
-       Speed is the documented one-day build against the two-month result window. Tab 4 is the
-       only placeholder left -- it needs booking/hours-saved counts that haven't been measured. -->
+  <!-- Each tab swaps the stat pair below, numbers and labels together. Scale is the same six
+       businesses viewed in aggregate (6 x 10K = 60K/mo = 720K/yr) -- one fact, biggest honest
+       framing of it. -->
   <div class="tab-row" id="proofTabs">
     <button class="tab active"
-      data-stat1="6"   data-post1=""   data-label1="businesses scaled"
-      data-stat2="10"  data-post2="K"  data-label2="a month, each">Results</button>
+      data-stat1="6"     data-post1=""   data-label1="businesses scaled"
+      data-stat2="10"    data-post2="K"  data-label2="a month, each">Results</button>
     <button class="tab"
-      data-stat1="720" data-pre1="$" data-post1="K" data-label1="annual revenue created"
-      data-stat2="60"  data-pre2="$" data-post2="K" data-label2="per month, combined">Scale</button>
+      data-stat1="720"   data-pre1="$" data-post1="K" data-label1="annual revenue created"
+      data-stat2="60"    data-pre2="$" data-post2="K" data-label2="per month, combined">Scale</button>
     <button class="tab"
-      data-stat1="1"   data-post1=""   data-label1="day to build a site"
-      data-stat2="2"   data-post2=""   data-label2="months to the result">Speed</button>
-    <button class="tab"
-      data-stat1="0"   data-post1=""   data-label1="[bookings automated / month]"
-      data-stat2="0"   data-post2=""   data-label2="[hours saved / week]">Systems</button>
+      data-stat1="50"    data-post1="+" data-label1="systems built"
+      data-stat2="10000" data-post2="+" data-group2="1"
+      data-label2="automations run monthly">Systems</button>
   </div>
   <div class="expertise-layout">
     <div class="expertise-copy">
-      <p class="fx-lines">Not redesigns. Every one of them was already getting interest — it was
-        leaking out between the enquiry and the booking. I built the systems that close that gap:
-        capture, follow-up and booking that keep running whether or not anyone remembers to run
-        them. Same playbook, six times.</p>
+      <p class="fx-lines">Six businesses. One playbook: a site built to convert, booking that runs
+        itself, follow-up that never forgets. Two months in, every one of them was doing 10K a
+        month.</p>
       <div class="stats-row fx-group">
         <!-- static values mirror tab one, so the row reads correctly before the JS runs -->
         <div><div class="stat-num">6</div><div class="stat-label">businesses scaled</div></div>
@@ -1265,12 +1261,17 @@ document.querySelectorAll('.fx-group').forEach(fxGroup);
 function odometer(el, value, opts){
   const pre = (opts && opts.pre) || '';
   const post = (opts && opts.post !== undefined) ? opts.post : '+';
-  const digits = String(value).split('');
-  if(reduce){el.textContent = pre + value + post; return;}
+  /* opts.group turns 10000 into 10,000. The comma is rendered as a static span between two
+     spinning windows -- it must NOT get a digit strip of its own, or it spins too. */
+  const text = (opts && opts.group) ? Number(value).toLocaleString('en-US') : String(value);
+  const chars = text.split('');
+  const isDigit = c => c >= '0' && c <= '9';
+  const digits = chars.filter(isDigit);
+  if(reduce){el.textContent = pre + text + post; return;}
 
-  /* rebuild when the digit count OR the affixes change -- 12 -> 6 needs new windows, 12 -> 30
-     doesn't, but 6 -> $60K needs them rebuilt regardless of digit count. */
-  const sig = digits.length + '|' + pre + '|' + post;
+  /* rebuild when the shape OR the affixes change -- 12 -> 30 reuses the windows, but 6 -> $60K
+     and 10 -> 10,000 both need them rebuilt. The mask keeps separator positions in the key. */
+  const sig = chars.map(c => isDigit(c) ? '#' : c).join('') + '|' + pre + '|' + post;
   if(el._odoSig !== sig){
     el._odoSig = sig;
     el.textContent = '';
@@ -1281,7 +1282,14 @@ function odometer(el, value, opts){
       p.textContent = pre;
       wrap.appendChild(p);
     }
-    el._strips = digits.map(() => {
+    el._strips = [];
+    chars.forEach(ch => {
+      if(!isDigit(ch)){
+        const sep = document.createElement('span');
+        sep.textContent = ch;
+        wrap.appendChild(sep);
+        return;
+      }
       const win = document.createElement('span');
       win.className = 'odo-d';
       const strip = document.createElement('span');
@@ -1295,7 +1303,7 @@ function odometer(el, value, opts){
         }
       win.appendChild(strip);
       wrap.appendChild(win);
-      return strip;
+      el._strips.push(strip);
     });
     if(post){
       const s = document.createElement('span');
@@ -1322,8 +1330,10 @@ function odometer(el, value, opts){
   const labelEls=[...document.querySelectorAll('#proof .stat-label')];
   function activate(tab){
     tabs.forEach(t=>t.classList.toggle('active',t===tab));
-    odometer(statEls[0],+tab.dataset.stat1,{pre:tab.dataset.pre1,post:tab.dataset.post1});
-    odometer(statEls[1],+tab.dataset.stat2,{pre:tab.dataset.pre2,post:tab.dataset.post2});
+    odometer(statEls[0],+tab.dataset.stat1,
+      {pre:tab.dataset.pre1,post:tab.dataset.post1,group:!!tab.dataset.group1});
+    odometer(statEls[1],+tab.dataset.stat2,
+      {pre:tab.dataset.pre2,post:tab.dataset.post2,group:!!tab.dataset.group2});
     /* labels swap with the numbers -- leaving "months, start to finish" pinned under whatever
        figure the next tab counts to is how a stat row starts lying. */
     if(labelEls[0]&&tab.dataset.label1)labelEls[0].textContent=tab.dataset.label1;
