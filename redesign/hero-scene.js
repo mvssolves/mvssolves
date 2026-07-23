@@ -162,7 +162,7 @@ function init(host) {
         vec3 p = aP0 * uW.x + aP1 * uW.y + aP2 * uW.z;
 
         /* idle: the whole cloud breathes outward and settles when nothing has been touched */
-        p *= 1.0 + uCalm * 0.16;
+        p *= 1.0 + uCalm * 0.42;
 
         /* curl-ish turbulence: three offset noise samples give a divergence-free-looking flow,
            far cheaper than a real curl and visually indistinguishable at this density */
@@ -185,14 +185,14 @@ function init(host) {
            Applied before the pull so the two can't cancel each other into stillness. */
         vec3 away = p - uPointer;
         float dP = length(away);
-        float push = uRepel * (1.0 - smoothstep(0.0, 2.6, dP));
-        p += normalize(away + 0.0001) * push * 1.5;
+        float push = uRepel * (1.0 - smoothstep(0.0, 3.4, dP));
+        p += normalize(away + 0.0001) * push * 3.2;
 
         /* CTA MAGNETISM -- on CTA hover the nearest points lean toward it */
         vec3 toCta = uPullPos - p;
         float dC = length(toCta);
-        float grab = uPull * (1.0 - smoothstep(0.0, 4.5, dC));
-        p += normalize(toCta + 0.0001) * grab * 0.9;
+        float grab = uPull * (1.0 - smoothstep(0.0, 5.5, dC));
+        p += normalize(toCta + 0.0001) * grab * 2.0;
 
         vec4 mv = modelViewMatrix * vec4(p, 1.0);
         gl_Position = projectionMatrix * mv;
@@ -202,7 +202,7 @@ function init(host) {
         vFade = smoothstep(15.0, 3.5, -mv.z);
         /* fake depth of field: points near the focal plane stay tight, distant ones bloom soft.
            Cheaper and safer than a post-processing pass, which fights additive blending. */
-        vSharp = 1.0 - smoothstep(0.6, 4.2, abs(-mv.z - 8.6));
+        vSharp = 1.0 - smoothstep(0.4, 3.0, abs(-mv.z - 8.6));
         vSeed = aSeed;
       }
     `,
@@ -247,7 +247,11 @@ function init(host) {
      user actually sees their cursor, not at some arbitrary depth */
   const ndc = new THREE.Vector3();
   function toWorld(cx, cy) {
-    const r = host.getBoundingClientRect();
+    /* map against the CANVAS's own visual box, not the host. The canvas is viewport-sized and
+       CSS-scaled/centred inside the host, so the two rects differ -- using the host put the
+       repulsion centre somewhere other than under the actual cursor. getBoundingClientRect
+       reports the post-transform box, which is exactly what's needed here. */
+    const r = renderer.domElement.getBoundingClientRect();
     ndc.set(((cx - r.left) / r.width) * 2 - 1, -((cy - r.top) / r.height) * 2 + 1, 0.5);
     ndc.unproject(camera);
     const dir = ndc.sub(camera.position).normalize();
@@ -344,17 +348,17 @@ function init(host) {
     const sy = window.scrollY;
     /* per-frame delta rather than a scroll event: this decays smoothly to zero on its own
        instead of sticking at whatever the last event reported */
-    scrollVel += (Math.min(Math.abs(sy - lastScroll) / 90, 1) - scrollVel) * 0.18;
+    scrollVel += (Math.min(Math.abs(sy - lastScroll) / 34, 1) - scrollVel) * 0.22;
     lastScroll = sy;
     burst *= 0.94;                                              // detonation decays
 
     const transition = Math.sin(e * Math.PI) * 0.92;
-    mat.uniforms.uTurb.value = Math.min(1.15, transition + scrollVel * 0.55 + burst * 0.8);
+    mat.uniforms.uTurb.value = Math.min(1.15, transition + scrollVel * 0.95 + burst * 1.1);
     mat.uniforms.uTime.value = t;
 
     /* idle: after ~14s untouched the cloud expands and calms */
     lastInput += dt;
-    idle += (( lastInput > 14 ? 1 : 0 ) - idle) * 0.01;
+    idle += (( lastInput > 6 ? 1 : 0 ) - idle) * 0.03;
     mat.uniforms.uCalm.value = idle;
 
     repel += (repelTo - repel) * 0.08;
