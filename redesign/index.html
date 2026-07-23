@@ -246,7 +246,11 @@
     display:flex;align-items:center;justify-content:center;color:#6a6a72;font-size:13px;}
   /* once the WebGL scene mounts, drop the placeholder stripes and label -- the canvas is the
      content now. Kept as a fallback for no-WebGL / reduced-motion, where the scene never loads. */
-  .hero-3d-placeholder.has-scene{background:#0B0B0C;font-size:0;}
+  /* border WIDTH/STYLE here, but colour transparent -- the scroll timeline fades the acid green
+     in during the back half of the shrink (see hero scrub JS), so it's absent at fullscreen and
+     only frames the settled inset card. Transparent default avoids a yellow flash on load. */
+  .hero-3d-placeholder.has-scene{background:#0B0B0C;font-size:0;
+    border:2px solid rgba(230,245,54,0);}
   /* absolutely anchored to the BOTTOM of the sticky viewport, not a flex child. As a flex child
      it was flex:1 in a column whose first item (the scene) already fills the whole 100vh, so its
      leftover space was zero -- it collapsed to 0 height and its content sat below the fold,
@@ -615,6 +619,11 @@ if(!reduce){
     {height:()=>window.innerHeight+'px',left:'0px',right:'0px',top:'0px',borderRadius:'0px'},
     {height:()=>sceneH()+'px',left:'40px',right:'40px',top:TOP_INSET+'px',
       borderRadius:'28px',duration:1,ease:'power2.inOut'},0);
+  /* border is invisible at fullscreen (framing the whole viewport looks wrong) and fades to the
+     acid green only in the BACK HALF of the shrink -- so it appears once the card is clearly an
+     inset card, not while it still fills the screen. Separate tween so it lags the geometry. */
+  tl.fromTo(ph,{borderColor:'rgba(230,245,54,0)'},
+    {borderColor:'rgba(230,245,54,1)',duration:0.5,ease:'none'},0.5);
 
   /* the settled scene height is derived from the copy block's measured height, and web fonts
      land after this script runs -- so remeasure once they're in, or the scene keeps a height
