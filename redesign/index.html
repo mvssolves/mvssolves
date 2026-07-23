@@ -161,16 +161,18 @@
   /* justify-content:flex-start (overriding the stack-layer rule's center) so the block sits high
      in its own space instead of floating in the middle of it -- that centring is what pushed the
      heading, stats and CTA down the viewport. */
+  /* content sits HIGH in the block with a deep bottom pad. The footer is the next sticky layer
+     and rises up to cover this one, so anything low in the block gets swallowed -- the padding
+     below is the buffer the footer eats first, keeping the stats and CTA clear of it. */
   .team-block{z-index:6;text-align:center;align-items:center;justify-content:flex-start;
-    min-height:auto;padding:56px 0 120px;}
+    min-height:auto;padding:32px 0 220px;}
   /* stack pulled tight so the stats sit just under the heading and the CTA follows straight
      after -- the block was spreading over most of the viewport with big dead gaps between each
      element. The section's own bottom padding gives the breathing room instead. */
-  .team-block h2{margin-bottom:6px;}
-  .team-sub{margin:6px auto 0;max-width:52ch;}
-  .team-stats{display:flex;gap:56px;justify-content:center;flex-wrap:wrap;margin:22px 0 0;}
+  .team-block h2{margin-bottom:0;}
+  .team-stats{display:flex;gap:56px;justify-content:center;flex-wrap:wrap;margin:26px 0 0;}
   .team-stats .stat-label{margin-top:2px;}
-  .team-cta{margin-top:20px;}
+  .team-cta{margin-top:22px;}
   footer{position:relative;z-index:7;border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);}
 
   /* HERO */
@@ -408,7 +410,6 @@
 <div class="team-block wrap" id="teamBlock">
   <div class="eyebrow">[Eyebrow — Team]</div>
   <h2 class="fx-scale">[Team/collaboration section heading]</h2>
-  <p class="fx-words team-sub">[Supporting line of template copy that sits under the heading and gives this section something to say.]</p>
   <div class="team-stats fx-group">
     <div><div class="stat-num" data-count="8">0</div><div class="stat-label">[stat label]</div></div>
     <div><div class="stat-num" data-count="6">0</div><div class="stat-label">[stat label]</div></div>
