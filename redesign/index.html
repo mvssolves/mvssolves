@@ -124,11 +124,11 @@
      sticky releases and normal scrolling continues into Technology.
 
      Runway = 100vh (the held viewport itself) + the scene's scrub length in the JS below
-     (end:'+=55%') + a short tail so the settled layout is readable before Technology covers it.
-     Kept deliberately tight: a long runway is what made the hero feel stuck, since the sticky
-     holds the viewport for its entire length. The copy pop is time-based, not scrubbed, so it
-     needs no runway of its own. */
-  .hero-block{position:relative;z-index:1;background:#fff;min-height:165vh;}
+     (end:'+=32%') + a short tail so the settled layout is readable before Technology covers it.
+     Deliberately short: the scene has to finish receding almost immediately, because the CTA is
+     only allowed to appear AFTER it lands, and the user shouldn't have to scroll far to get
+     there. The copy pop is time-based, not scrubbed, so it needs no runway of its own. */
+  .hero-block{position:relative;z-index:1;background:#fff;min-height:142vh;}
   .hero-sticky{position:sticky;top:0;height:100vh;overflow:hidden;}
   #technology{z-index:2;}
   #products{z-index:3;}
@@ -138,7 +138,15 @@
      a 60vh floor on ~400px of content split the leftover ~300px evenly above and below, which is
      where the dead space above the tag strip came from. Sized to its content with real padding
      instead. */
-  .team-block{z-index:6;text-align:center;align-items:center;min-height:auto;padding:72px 0 88px;}
+  /* carousel removed from this block -- it duplicated the hero's tag strip and added nothing.
+     Replaced with real content (eyebrow / heading / sub / stats / CTA) so the section fills its
+     own space instead of leaving a gap the footer had to swallow. padding-bottom is generous so
+     the CTA can never sit under the footer as it rises to cover this block. */
+  .team-block{z-index:6;text-align:center;align-items:center;min-height:auto;padding:96px 0 140px;}
+  .team-sub{margin:14px auto 0;max-width:52ch;}
+  .team-stats{display:flex;gap:56px;justify-content:center;flex-wrap:wrap;margin:40px 0 8px;}
+  .team-stats .stat-label{margin-top:2px;}
+  .team-cta{margin-top:32px;}
   footer{position:relative;z-index:7;border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);}
 
   /* HERO */
@@ -297,8 +305,8 @@
 <section id="technology" class="wrap">
   <div class="eyebrow">[Eyebrow — Technology]</div>
   <h2 class="fx-type">[Technology section heading — template words]</h2>
-  <p class="blur-reveal">[Body paragraph one — template placeholder copy describing this section's real content once written.]</p>
-  <p class="blur-reveal" style="margin-top:10px;">[Body paragraph two — template placeholder copy.]</p>
+  <p class="fx-clip">[Body paragraph one — template placeholder copy describing this section's real content once written.]</p>
+  <p class="fx-words" style="margin-top:10px;">[Body paragraph two — template placeholder copy.]</p>
 </section>
 
 <!-- PRODUCTS -- stack layer 3, covers Technology. Card grid: 2 small cards + 1 wide card w/
@@ -306,10 +314,10 @@
 <section id="products" class="wrap">
   <div class="eyebrow">[Eyebrow — Products]</div>
   <h2 class="fx-alt">[Products section heading]</h2>
-  <div class="card-grid">
-    <div class="card lift-card"><div class="icon-placeholder"></div><h3>[Product one]</h3><p>[Template copy placeholder.]</p></div>
-    <div class="card lift-card"><div class="icon-placeholder"></div><h3>[Product two]</h3><p>[Template copy placeholder.]</p></div>
-    <div class="card wide lift-card">
+  <div class="card-grid fx-group">
+    <div class="card"><div class="icon-placeholder"></div><h3>[Product one]</h3><p>[Template copy placeholder.]</p></div>
+    <div class="card"><div class="icon-placeholder"></div><h3>[Product two]</h3><p>[Template copy placeholder.]</p></div>
+    <div class="card wide">
       <div class="img-placeholder"></div>
       <div class="card-copy"><div class="icon-placeholder"></div><h3>[Product three — wide]</h3><p>[Template copy placeholder for the larger featured card.]</p></div>
     </div>
@@ -330,8 +338,8 @@
   </div>
   <div class="expertise-layout">
     <div class="expertise-copy">
-      <p class="blur-reveal">[Body copy placeholder describing this expertise area — template words.]</p>
-      <div class="stats-row">
+      <p class="fx-skew">[Body copy placeholder describing this expertise area — template words.]</p>
+      <div class="stats-row fx-group">
         <div><div class="stat-num" data-stat="1">0</div><div class="stat-label">[stat label placeholder]</div></div>
         <div><div class="stat-num" data-stat="2">0</div><div class="stat-label">[stat label placeholder]</div></div>
       </div>
@@ -347,16 +355,16 @@
 <section id="features" class="wrap">
   <div class="eyebrow">[Eyebrow — Key Features]</div>
   <h2 class="fx-mask">[Key Features section heading]</h2>
-  <div class="feature-stack" id="featureStack">
-    <div class="feature-row lift-card">
+  <div class="feature-stack fx-group" id="featureStack">
+    <div class="feature-row">
       <div class="feat-num">01</div>
       <div class="feat-body"><h3>[Feature one]</h3><p>[Template copy placeholder describing this feature.]</p></div>
     </div>
-    <div class="feature-row lift-card">
+    <div class="feature-row">
       <div class="feat-num">02</div>
       <div class="feat-body"><h3>[Feature two]</h3><p>[Template copy placeholder describing this feature.]</p></div>
     </div>
-    <div class="feature-row lift-card">
+    <div class="feature-row">
       <div class="feat-num">03</div>
       <div class="feat-body"><h3>[Feature three]</h3><p>[Template copy placeholder describing this feature.]</p></div>
     </div>
@@ -368,14 +376,15 @@
      something distinct to rise over, matching the reference's marquee+heading bridge before
      its footer. -->
 <div class="team-block wrap" id="teamBlock">
-  <div class="marquee" aria-hidden="true" style="margin:0 -40px;width:calc(100% + 80px);">
-    <div class="marquee-track" id="marqueeTrack2">
-      <span>[tag a]</span><span>·</span><span>[tag b]</span><span>·</span><span>[tag c]</span><span>·</span>
-      <span>[tag d]</span><span>·</span><span>[tag e]</span><span>·</span><span>[tag f]</span><span>·</span>
-    </div>
+  <div class="eyebrow">[Eyebrow — Team]</div>
+  <h2 class="fx-scale">[Team/collaboration section heading]</h2>
+  <p class="fx-words team-sub">[Supporting line of template copy that sits under the heading and gives this section something to say.]</p>
+  <div class="team-stats fx-group">
+    <div><div class="stat-num" data-count="8">0</div><div class="stat-label">[stat label]</div></div>
+    <div><div class="stat-num" data-count="6">0</div><div class="stat-label">[stat label]</div></div>
+    <div><div class="stat-num" data-count="12">0</div><div class="stat-label">[stat label]</div></div>
   </div>
-  <h2 class="scrub-reveal" style="max-width:20ch;margin:32px auto 0;">[Team/collaboration section heading]</h2>
-  <a class="btn filled" href="#" style="margin-top:24px;">[CTA]</a>
+  <a class="btn filled team-cta" href="#">[CTA]</a>
 </div>
 
 <!-- FOOTER -- last layer, covers the team bridge. Halftone-style wordmark bleed. -->
@@ -420,7 +429,8 @@ if(!reduce){
 }
 
 /* marquee tracks duplicated once each so the 50%-translateX loop has no visible seam. */
-['marqueeTrack','marqueeTrack2'].forEach(id=>{
+/* only the hero carousel remains -- the team block's duplicate was removed. */
+['marqueeTrack'].forEach(id=>{
   const t=document.getElementById(id);
   if(t) t.innerHTML += t.innerHTML;
 });
@@ -491,7 +501,7 @@ if(!reduce){
   const tl=gsap.timeline({defaults:{ease:'none'},
     /* scrub:true, NOT a catch-up value: any catch-up means the scene lags behind the wheel and
        the whole section feels stuck. 1:1 keeps it locked to whatever speed the user scrolls. */
-    scrollTrigger:{trigger:'#heroBlock',start:'top top',end:'+=55%',scrub:true,
+    scrollTrigger:{trigger:'#heroBlock',start:'top top',end:'+=32%',scrub:true,
       invalidateOnRefresh:true,
       onUpdate(self){
         if(self.progress>=POP_AT&&!popped){popped=true;copyTL.play();}
@@ -542,19 +552,32 @@ function splitChars(el){
   });
   return out;
 }
-function onceIn(el,fn,start){
-  ScrollTrigger.create({trigger:el,start:start||'top 82%',once:true,onEnter:fn});
+/* REPLAY harness. Every effect re-plays each time its element comes into view -- scrolling down
+   past it and back up replays it, no reload needed.
+
+   Deliberately onEnter + onEnterBack only, and every effect uses fromTo so it re-establishes its
+   own start state on each play. Notably it does NOT use toggleActions with `reverse`, and does
+   not reset on leave: reversing/hiding near the threshold is what makes replay effects flicker
+   when a scroll wobbles across the trigger point. Replaying forwards only can never flicker --
+   worst case an effect simply plays again. */
+function replayIn(el,play,start){
+  play();
+  ScrollTrigger.create({trigger:el,start:start||'top 82%',
+    onEnter:play,onEnterBack:play});
 }
 
 /* TYPEWRITER -- characters type in behind a blinking caret. */
 function fxType(el){
-  const full=el.textContent;
   if(reduce)return;
+  const full=el.textContent;
+  let iv=null;
   el.textContent='';
-  el.classList.add('is-typing');
-  onceIn(el,()=>{
+  replayIn(el,()=>{
+    clearInterval(iv);            /* a replay mid-type must not leave two intervals racing */
     let i=0;
-    const iv=setInterval(()=>{
+    el.textContent='';
+    el.classList.add('is-typing');
+    iv=setInterval(()=>{
       el.textContent=full.slice(0,++i);
       if(i>=full.length){clearInterval(iv);el.classList.remove('is-typing');}
     },26);
@@ -564,11 +587,10 @@ function fxType(el){
 function fxAlt(el){
   if(reduce)return;
   const words=splitWords(el);
-  gsap.set(words,{opacity:0});
-  onceIn(el,()=>{
+  replayIn(el,()=>{
     words.forEach((w,i)=>{
       gsap.fromTo(w,{opacity:0,x:i%2?70:-70},
-        {opacity:1,x:0,duration:0.7,delay:i*0.07,ease:'power3.out'});
+        {opacity:1,x:0,duration:0.7,delay:i*0.07,ease:'power3.out',overwrite:true});
     });
   });
 }
@@ -577,9 +599,9 @@ function fxRise(el){
   if(reduce)return;
   const chars=splitChars(el);
   gsap.set(el,{perspective:600});
-  gsap.set(chars,{opacity:0,y:34,rotateX:-75,transformOrigin:'50% 100%'});
-  onceIn(el,()=>{
-    gsap.to(chars,{opacity:1,y:0,rotateX:0,duration:0.6,stagger:0.028,ease:'back.out(1.7)'});
+  replayIn(el,()=>{
+    gsap.fromTo(chars,{opacity:0,y:34,rotateX:-75,transformOrigin:'50% 100%'},
+      {opacity:1,y:0,rotateX:0,duration:0.6,stagger:0.028,ease:'back.out(1.7)',overwrite:true});
   });
 }
 /* MASK -- each word slides up from behind its own clipping window. */
@@ -596,43 +618,68 @@ function fxMask(el){
     w.appendChild(inner);
     w._inner=inner;
   });
-  gsap.set(words.map(w=>w._inner),{yPercent:115});
-  onceIn(el,()=>{
-    gsap.to(words.map(w=>w._inner),{yPercent:0,duration:0.75,stagger:0.08,ease:'power4.out'});
+  const inners=words.map(w=>w._inner);
+  replayIn(el,()=>{
+    gsap.fromTo(inners,{yPercent:115},
+      {yPercent:0,duration:0.75,stagger:0.08,ease:'power4.out',overwrite:true});
   });
+}
+/* SCALE -- whole heading punches in from slightly small + blurred, then settles. */
+function fxScale(el){
+  if(reduce)return;
+  replayIn(el,()=>{
+    gsap.fromTo(el,{opacity:0,scale:0.86,filter:'blur(10px)'},
+      {opacity:1,scale:1,filter:'blur(0px)',duration:0.85,ease:'power3.out',overwrite:true});
+  });
+}
+
+/* ---- BODY effects. Deliberately DIFFERENT from whatever their heading uses, so each section
+   has two distinct movements rather than one repeated. ---- */
+
+/* WORDS -- body copy assembles word by word, rising slightly. */
+function fxWords(el){
+  if(reduce)return;
+  const words=splitWords(el);
+  replayIn(el,()=>{
+    gsap.fromTo(words,{opacity:0,y:14},
+      {opacity:1,y:0,duration:0.5,stagger:0.022,ease:'power2.out',overwrite:true},0);
+  },'top 88%');
+}
+/* SKEW -- body slides in from the side with a slight shear that straightens out. */
+function fxSkew(el){
+  if(reduce)return;
+  replayIn(el,()=>{
+    gsap.fromTo(el,{opacity:0,x:-40,skewX:6},
+      {opacity:1,x:0,skewX:0,duration:0.8,ease:'power3.out',overwrite:true});
+  },'top 88%');
+}
+/* CLIP -- body is wiped in left-to-right behind a moving edge. */
+function fxClip(el){
+  if(reduce)return;
+  replayIn(el,()=>{
+    gsap.fromTo(el,{clipPath:'inset(0 100% 0 0)',opacity:1},
+      {clipPath:'inset(0 0% 0 0)',duration:0.85,ease:'power3.inOut',overwrite:true});
+  },'top 88%');
+}
+/* STAGGER-UP -- a group of children rise in sequence (cards, rows, stats). */
+function fxGroup(el){
+  if(reduce)return;
+  const kids=[...el.children];
+  replayIn(el,()=>{
+    gsap.fromTo(kids,{opacity:0,y:38},
+      {opacity:1,y:0,duration:0.65,stagger:0.09,ease:'power3.out',overwrite:true});
+  },'top 88%');
 }
 
 document.querySelectorAll('.fx-type').forEach(fxType);
 document.querySelectorAll('.fx-alt').forEach(fxAlt);
 document.querySelectorAll('.fx-rise').forEach(fxRise);
 document.querySelectorAll('.fx-mask').forEach(fxMask);
-
-/* word-by-word heading reveal, SCRUBBED to scroll position. */
-function scrollScrubReveal(el){
-  const words=el.textContent.trim().split(/\s+/);
-  el.textContent='';
-  const spans=words.map((w,i)=>{
-    const s=document.createElement('span');
-    s.style.display='inline-block';s.style.opacity='.15';s.textContent=w;
-    el.appendChild(s);
-    if(i<words.length-1)el.appendChild(document.createTextNode(' '));
-    return s;
-  });
-  if(reduce){spans.forEach(s=>s.style.opacity='1');return;}
-  gsap.to(spans,{opacity:1,stagger:0.15,ease:'none',
-    scrollTrigger:{trigger:el,start:'top 85%',end:'top 40%',scrub:true}});
-}
-document.querySelectorAll('.scrub-reveal').forEach(scrollScrubReveal);
-
-/* BLUR-DECODE paragraph reveal -- distinct effect from the heading word-reveal above.
-   Confirmed on the reference: body copy resolves from blurred/dim to sharp as you scroll
-   past it, tied to scroll position (not a timed play). */
-function blurDecodeReveal(el){
-  if(reduce)return;
-  gsap.fromTo(el,{filter:'blur(6px)',opacity:.35},{filter:'blur(0px)',opacity:1,ease:'none',
-    scrollTrigger:{trigger:el,start:'top 92%',end:'top 55%',scrub:true}});
-}
-document.querySelectorAll('.blur-reveal').forEach(blurDecodeReveal);
+document.querySelectorAll('.fx-scale').forEach(fxScale);
+document.querySelectorAll('.fx-words').forEach(fxWords);
+document.querySelectorAll('.fx-skew').forEach(fxSkew);
+document.querySelectorAll('.fx-clip').forEach(fxClip);
+document.querySelectorAll('.fx-group').forEach(fxGroup);
 
 /* SCRAMBLE-DECODE on eyebrow/label text -- ported verbatim from main.js (proven, live on
    mvssolves.com already; that function's own comment says it was built from watching this
@@ -651,19 +698,18 @@ document.querySelectorAll('.blur-reveal').forEach(blurDecodeReveal);
       }).join('');
       if(frame>=total+4){el.textContent=final;clearInterval(iv);}
     },35);
+    return iv;
   }
+  /* replays on every entry, same as the rest of the effects -- scroll back up and the labels
+     decode again. Each element keeps its own interval handle so a replay mid-decode can't leave
+     two intervals writing to the same node. */
   document.querySelectorAll('.eyebrow').forEach(el=>{
-    ScrollTrigger.create({trigger:el,start:'top 90%',once:true,onEnter:()=>scrambleReveal(el)});
+    const final=el.textContent;
+    const play=()=>{clearInterval(el._sc);el.textContent=final;el._sc=scrambleReveal(el);};
+    play();
+    ScrollTrigger.create({trigger:el,start:'top 90%',onEnter:play,onEnterBack:play});
   });
 })();
-
-/* card-grid entrance lift, scroll-scrubbed. */
-if(!reduce){
-  gsap.utils.toArray('.lift-card').forEach(card=>{
-    gsap.fromTo(card,{y:50,opacity:0},{y:0,opacity:1,ease:'none',
-      scrollTrigger:{trigger:card,start:'top 95%',end:'top 65%',scrub:true}});
-  });
-}
 
 /* EXPERTISE tabs -- click swaps active tab AND re-triggers count-up on the stat numbers
    (confirmed: this is an animated re-count, not a static text swap). Also fires once on
@@ -688,8 +734,23 @@ if(!reduce){
 })();
 
 /* KEY FEATURES has no bespoke behaviour: it's a plain sticky cover-layer identical to
-   Technology / Products / Expertise, and its cards use the same .lift-card entrance as the
-   Products grid. The scroll-pinned accordion that used to live here made it the odd one out. */
+   Technology / Products / Expertise, its rows entering with the shared .fx-group stagger. The
+   scroll-pinned accordion that used to live here made it the odd one out. */
+
+/* standalone count-up for any [data-count] number (team block). The Expertise stats are driven
+   by their own tab logic instead, so this deliberately only claims elements with data-count. */
+(function(){
+  document.querySelectorAll('.stat-num[data-count]').forEach(el=>{
+    const target=+el.dataset.count;
+    if(reduce){el.textContent=target+'+';return;}
+    const play=()=>{
+      const o={v:0};
+      gsap.to(o,{v:target,duration:1.1,ease:'power2.out',overwrite:true,
+        onUpdate:()=>{el.textContent=Math.round(o.v)+'+';}});
+    };
+    ScrollTrigger.create({trigger:el,start:'top 90%',onEnter:play,onEnterBack:play});
+  });
+})();
 </script>
 
 </body>
