@@ -616,12 +616,10 @@
   <div class="hero-sticky" id="heroSticky">
     <!-- Rendered three.js scene, not a live WebGL context. Every scroll-jank problem this hero
          had came from GL recomputing under GSAP; a video is just a box that scales. -->
-    <div class="hero-3d-placeholder has-scene" id="hero3d">
-      <video id="heroFilm" muted loop playsinline autoplay preload="auto"
-             poster="./media/hero.jpg">
-        <source src="./media/hero.mp4" type="video/mp4">
-      </video>
-    </div>
+    <!-- 3D hero parked. Placeholder box holds the space + on-load recede animation until a real
+         hero is decided. The <video> + media/hero.* files are untouched; drop them back into
+         .has-scene to re-enable. -->
+    <div class="hero-3d-placeholder" id="hero3d">hero — placeholder</div>
     <div class="hero-copy">
       <!-- exact placement match: headline sits LEFT, subhead+CTA form a separate column on the
            RIGHT aligned to the headline's lower edge -- not a single stacked column. -->
