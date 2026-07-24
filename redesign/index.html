@@ -99,9 +99,10 @@
      Default is solid so the no-JS / reduced-motion path stays legible; JS adds .nav-clear while
      the hero is on screen. The background transition is deliberately NOT applied while clear --
      see .nav-clear below. */
-  /* absolute, not fixed: the nav belongs to the top of the SITE, not to the viewport --
-     it scrolls away with the hero rather than following you down the page. */
-  nav{position:absolute;top:0;left:0;right:0;background:transparent;z-index:20;
+  /* fixed: the nav stays put on screen for the whole page. It starts transparent over the
+     dark hero and picks up the white background once you've scrolled past it -- see the
+     nav-clear toggle below. */
+  nav{position:fixed;top:0;left:0;right:0;background:#fff;z-index:20;
     transition:background .3s ease;}
   /* transparent for the WHOLE hero section, and it does not fade back in until the hero is gone.
      Previously the nav faded from transparent to white across the hero's own scroll, which put a
