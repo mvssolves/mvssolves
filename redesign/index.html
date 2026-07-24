@@ -78,6 +78,8 @@
   /* headings that animate per-word/char need a stable minimum height so the section doesn't
      reflow as characters land */
   .fx-type,.fx-alt,.fx-rise,.fx-mask{min-height:1.15em;}
+  /* data-hl words in a split heading get tinted with the brand violet */
+  .hl{color:var(--accent);}
   h3{font-size:18px;margin-bottom:8px;}
   p{color:#555;max-width:60ch;}
   .tag{display:inline-block;background:#f2f2f2;border:1px solid #ddd;border-radius:999px;padding:10px 18px;font-size:13px;}
@@ -208,18 +210,20 @@
      footer going dark again at the end. */
   /* subtle indigo lift instead of flat near-black, so the area around and below the scene card
      shares the scene's lighter mood rather than reading as a dead black void */
+  /* WHITE hero -- inverted from the old dark treatment. Light section, dark copy, so it reads as
+     one continuous white site rather than a dark slab up top. */
   .hero-block{position:relative;z-index:1;min-height:142vh;
-    background:linear-gradient(180deg,#14111f 0%,#0c0b12 55%,var(--ink) 100%);}
-  .hero-copy{color:#fff;}
-  .hero-copy h1{color:#fff;}
-  .hero-sub{color:rgba(255,255,255,.7);}
-  /* nav sits over the dark hero while transparent, so its text has to invert with it */
-  nav.nav-clear .nav-links a,nav.nav-clear .nav-logo{color:#fff;}
-  /* hero marquee on black. Words go solid white; the .ol ones are knocked out to an outline so
-     the strip has rhythm instead of reading as one flat band. */
-  .hero-block .marquee-track span{color:#fff;}
-  .hero-block .marquee-track .ol{color:transparent;-webkit-text-stroke:1.2px rgba(255,255,255,.6);}
-  .hero-block .marquee-track .dot{color:var(--accent2);-webkit-text-stroke:0;}
+    background:linear-gradient(180deg,#ffffff 0%,#f7f5fb 60%,#f2eff9 100%);}
+  .hero-copy{color:var(--ink);}
+  .hero-copy h1{color:var(--ink);}
+  .hero-sub{color:#4a4753;}
+  /* nav sits over the now-WHITE hero while transparent, so its text is dark to stay readable */
+  nav.nav-clear .nav-links a,nav.nav-clear .nav-logo{color:#111;}
+  nav.nav-clear .nav-links a:hover{color:var(--accent);}
+  /* hero marquee on white: dark words, outline .ol ones knocked out to a dark stroke */
+  .hero-block .marquee-track span{color:var(--ink);}
+  .hero-block .marquee-track .ol{color:transparent;-webkit-text-stroke:1.2px rgba(11,11,12,.5);}
+  .hero-block .marquee-track .dot{color:var(--accent);-webkit-text-stroke:0;}
   .hero-sticky{position:sticky;top:0;height:100vh;overflow:hidden;}
   #proof{z-index:2;}
   #process{z-index:3;}
@@ -322,11 +326,14 @@
      their glow -- a light/white bg would wash them out entirely. */
   .hero-3d-placeholder video{width:100%;height:100%;object-fit:cover;display:block;
     transform:translateZ(0);backface-visibility:hidden;}
+  /* scene card, now LIGHT to match the white hero -- a soft lavender wash with faint brand glows,
+     so it reads as a bright panel the dark headline sits cleanly over. Drop a video back in and it
+     covers this entirely. */
   .hero-3d-placeholder.has-scene{font-size:0;overflow:hidden;
     background:
-      radial-gradient(70% 60% at 50% 38%, rgba(144,112,223,.22), transparent 68%),
-      radial-gradient(90% 80% at 78% 88%, rgba(90,200,250,.12), transparent 70%),
-      linear-gradient(180deg, #14111f 0%, #0c0b12 60%, #0a0a0e 100%);}
+      radial-gradient(70% 60% at 50% 34%, rgba(144,112,223,.16), transparent 66%),
+      radial-gradient(90% 80% at 80% 90%, rgba(90,200,250,.10), transparent 70%),
+      linear-gradient(180deg, #f4f1fb 0%, #eeeaf7 60%, #e9e4f4 100%);}
   /* per-form label -- shown as written (title case), gently spaced */
   /* absolutely anchored to the BOTTOM of the sticky viewport, not a flex child. As a flex child
      it was flex:1 in a column whose first item (the scene) already fills the whole 100vh, so its
@@ -359,7 +366,7 @@
      directions". margin-right is included in each span's own width, so two copies are exactly
      symmetric and -50% is seamless. */
   .marquee-track{display:inline-flex;align-items:center;animation:marquee 38s linear infinite;}
-  .marquee-track span{font-size:clamp(24px,2.9vw,42px);font-weight:700;line-height:1;
+  .marquee-track span{font-size:clamp(18px,2.1vw,32px);font-weight:700;line-height:1;
     margin-right:20px;text-transform:uppercase;letter-spacing:-.015em;color:var(--ink);}
   /* explicit classes, NOT nth-child: the tag set is duplicated at runtime, and any nth pattern
      whose period doesn't divide the span count drifts out of phase on every copy. */
@@ -545,17 +552,31 @@
   .me-copy{flex:1 1 400px;max-width:520px;}
   .me-copy p{font-size:clamp(16px,1.6vw,19px);line-height:1.6;color:#4a4753;margin-bottom:16px;}
   .me-copy .btn{margin-top:8px;}
-  /* vertical timeline: a violet->grey rail with a node per beat, the last one lime (Today) */
-  .me-timeline{flex:1 1 380px;list-style:none;position:relative;padding-left:30px;margin-top:2px;}
-  .me-timeline::before{content:'';position:absolute;left:5px;top:8px;bottom:14px;width:2px;
-    background:linear-gradient(var(--accent),#dcdce2);}
-  .me-timeline li{position:relative;padding:0 0 20px;}
+  /* vertical timeline: a raised rail with 3D beaded nodes and a lime pulse that travels down it.
+     Nodes are radial-shaded spheres with a soft cast shadow so they sit above the card, not on it. */
+  .me-timeline{flex:1 1 380px;list-style:none;position:relative;padding-left:34px;margin-top:2px;}
+  /* the rail: a rounded violet->grey bar with a faint inner highlight so it reads as a raised tube */
+  .me-timeline::before{content:'';position:absolute;left:6px;top:9px;bottom:16px;width:4px;
+    border-radius:4px;background:linear-gradient(180deg,var(--accent) 0%,#b6a2ea 60%,#dcdce2 100%);
+    box-shadow:inset 1px 0 0 rgba(255,255,255,.5),0 2px 6px -2px rgba(90,60,150,.4);}
+  /* a lime pulse travelling top->bottom down the rail, on a loop */
+  .me-timeline::after{content:'';position:absolute;left:4px;width:8px;height:8px;border-radius:50%;
+    background:var(--accent2);box-shadow:0 0 12px 3px rgba(230,245,54,.7);
+    animation:railPulse 4.5s ease-in-out infinite;}
+  @keyframes railPulse{0%{top:6px;opacity:0;}12%{opacity:1;}88%{opacity:1;}100%{top:calc(100% - 22px);opacity:0;}}
+  .me-timeline li{position:relative;padding:0 0 22px;}
   .me-timeline li:last-child{padding-bottom:0;}
-  .me-timeline li::before{content:'';position:absolute;left:-30px;top:4px;width:12px;height:12px;
-    border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px #fff;}
-  .me-timeline li:last-child::before{background:var(--accent2);box-shadow:0 0 0 4px #fff,0 0 14px 2px rgba(230,245,54,.6);}
-  .tl-date{font-family:monospace;font-size:12px;color:var(--accent);letter-spacing:.06em;text-transform:uppercase;}
+  /* beaded node: radial highlight (top-left light) + cast shadow = a small sphere sitting proud */
+  .me-timeline li::before{content:'';position:absolute;left:-34px;top:3px;width:15px;height:15px;
+    border-radius:50%;background:radial-gradient(circle at 35% 30%,#c9b6ff,#7a63c2);
+    box-shadow:0 0 0 4px #fff,0 4px 8px -2px rgba(90,60,150,.5);}
+  .me-timeline li:last-child::before{background:radial-gradient(circle at 35% 30%,#f6ffa0,#c9d92e);
+    box-shadow:0 0 0 4px #fff,0 4px 8px -2px rgba(120,120,20,.4),0 0 16px 3px rgba(230,245,54,.6);}
+  .tl-date{font-family:monospace;font-size:12px;color:var(--accent);letter-spacing:.06em;text-transform:uppercase;font-weight:700;}
   .me-timeline p{margin:4px 0 0;font-size:14.5px;color:#55525c;line-height:1.5;max-width:44ch;}
+  /* stat numbers inside the timeline copy, tinted violet */
+  .tl-num{color:var(--accent);font-weight:700;}
+  @media(prefers-reduced-motion:reduce){.me-timeline::after{animation:none;opacity:0;}}
   @media(max-width:820px){.me-layout{flex-direction:column;gap:28px;}}
   @media(max-height:900px){
     .me-copy p{font-size:16px;margin-bottom:12px;}
@@ -805,7 +826,7 @@
 <!-- EXPERTISE (PROOF) -- layer 2, rises over the hero. Testimonials + stats. -->
 <section id="proof" class="wrap">
   <div class="eyebrow">Proof</div>
-  <h2 class="fx-rise">Six businesses. 10K a month. Each.</h2>
+  <h2 class="fx-rise" data-hl="Six,10K">Six businesses. 10K a month. Each.</h2>
   <!-- Each tab swaps the stat pair below, numbers and labels together. Scale is the same six
        businesses viewed in aggregate (6 x 10K = 60K/mo = 720K/yr) -- one fact, biggest honest
        framing of it. -->
@@ -937,16 +958,16 @@
   <h2 class="fx-rise">Straight from me</h2>
   <div class="me-layout">
     <div class="me-copy">
-      <p class="fx-lines">I'm Martin — self-taught, no agency background. I started in marketing and sales and built MVS Solves because most agencies stack layers between you and the actual work.</p>
-      <p class="fx-lines">Every project is mine alone: strategy, design, build, delivery. Your business is my only priority until it's done — and if it's not growing, I'm not finished.</p>
+      <p class="fx-lines">I'm Martin — self-taught, with no agency background. I came up through marketing and sales, and built MVS Solves because agencies pile layers between the client and the work that actually matters.</p>
+      <p class="fx-lines">Every project is mine end to end: strategy, design, build, delivery. Your business is my only focus until it's done — and if it isn't growing, I'm not finished.</p>
       <a class="btn filled" href="#" data-contact>Work with me</a>
     </div>
     <ol class="me-timeline fx-group">
-      <li><span class="tl-date">2025</span><p>Started in marketing and sales — learned the trade hands-on, no classroom.</p></li>
-      <li><span class="tl-date">2026</span><p>Founded MVS Solves. Went solo on purpose — no layers between me and the client.</p></li>
-      <li><span class="tl-date">First 30 days</span><p>Onboarded 15 new clients.</p></li>
-      <li><span class="tl-date">3 months in</span><p>Helped 6 businesses hit five figures.</p></li>
-      <li><span class="tl-date">Today</span><p>Every project still runs through me personally. That's not changing as this grows.</p></li>
+      <li><span class="tl-date">2025</span><p>Cut my teeth in marketing and sales — the trade learned hands-on, not in a classroom.</p></li>
+      <li><span class="tl-date">2026</span><p>Founded MVS Solves. Solo by design, so nothing stands between you and the person building it.</p></li>
+      <li><span class="tl-date">First 30 days</span><p>Onboarded <span class="tl-num">15</span> clients.</p></li>
+      <li><span class="tl-date">3 months in</span><p>Took <span class="tl-num">6</span> businesses to <span class="tl-num">10K a month</span>.</p></li>
+      <li><span class="tl-date">Today</span><p>Every project still runs through me personally — and that won't change as this grows.</p></li>
     </ol>
   </div>
 </section>
@@ -1437,9 +1458,22 @@ function fxAlt(el){
   });
 }
 /* RISE -- characters tip up into place from below, with a slight 3D rotation. */
+/* colour whole words in a split heading -- data-hl="Six,10K" tints those words with --accent.
+   Runs on the char-spans that splitChars produced; space text-nodes are the word boundaries. */
+function applyHl(el){
+  const hl=el.dataset.hl; if(!hl)return;
+  const words=hl.split(',');
+  let cur=[], txt='';
+  const flush=()=>{if(words.includes(txt))cur.forEach(s=>s.classList&&s.classList.add('hl'));cur=[];txt='';};
+  [...el.childNodes].forEach(n=>{
+    if(n.nodeType===3){flush();}else{cur.push(n);txt+=n.textContent;}
+  });
+  flush();
+}
 function fxRise(el){
   if(reduce)return;
   const chars=splitChars(el);
+  applyHl(el);
   gsap.set(el,{perspective:600});
   gsap.set(chars,{opacity:0,y:34,rotateX:-75,transformOrigin:'50% 100%'});
   replayIn(el,()=>{
