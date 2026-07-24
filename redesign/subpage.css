@@ -96,10 +96,87 @@ footer{background:var(--ink);color:#fff;padding:44px 40px 0;overflow:hidden;
   background-size:14px 14px;
   -webkit-mask-image:linear-gradient(to top,#000 35%,transparent 100%);
   mask-image:linear-gradient(to top,#000 35%,transparent 100%);}
-.foot-wordmark{position:relative;z-index:1;font-size:clamp(40px,11.5vw,164px);font-weight:800;
-  line-height:1.04;letter-spacing:-.02em;color:#fff;text-align:center;white-space:nowrap;
-  user-select:none;pointer-events:none;
+/* pushed down so roughly a quarter of the glyphs fall past the footer's edge and get clipped
+   by footer{overflow:hidden} -- the wordmark reads as running off the bottom of the page.
+   perspective here (not on the letters) is what makes the per-letter tilts share one vanishing
+   point instead of each rotating in its own flat little world. */
+/* the letters are stretched vertically rather than just set larger: a bigger font-size would
+   also make "MVS Solves" wider, and it already runs the width of the page. scaleY grows the
+   glyphs upward-to-downward only. transform-origin is pinned to the top so the stretch grows
+   downward into the clip instead of pushing the word up into the legal row. */
+.foot-wordmark{position:relative;z-index:2;display:flex;justify-content:center;
+  align-items:flex-end;font-size:clamp(40px,11.5vw,164px);font-weight:800;
+  line-height:1.04;letter-spacing:-.02em;white-space:nowrap;
+  user-select:none;pointer-events:none;perspective:1100px;
   transform-origin:50% 0;transform:translateY(8%) scaleY(1.24);}
+/* Each letter is TWO nested elements, and that's the whole trick for the motion not looking
+   canned: the outer sways (rotateY / translateZ / drift) on one duration, the inner bobs
+   (translateY / rotateX / rotateZ / skew) on a different, deliberately non-matching one. Two
+   compound cycles that never line up means the letter's path doesn't visibly repeat, the way a
+   single keyframe on a single element always does. Per-letter --rx/--ry/--rz/--z/--a/--d1/--d2
+   are set from JS, so no two letters share an orbit either. */
+.wm-l{display:inline-block;transform-style:preserve-3d;
+  animation:wmSway var(--d1) ease-in-out infinite;
+  animation-delay:calc(var(--i) * -.53s);}
+/* .wm-i carries the bob AND the extruded body; .wm-f is the water face painted on top of it.
+   Three levels rather than two because the extrusion has to share the bob transform with the
+   face -- if it lived on the outer element the solid body would visibly slide out from under
+   the water surface every cycle. */
+.wm-i{position:relative;display:inline-block;transform-style:preserve-3d;
+  animation:wmBob var(--d2) ease-in-out infinite;
+  animation-delay:calc(var(--i) * -.41s);}
+/* the extruded side wall: the same glyph repeated back along a diagonal in darkening steps.
+   Steps are in em so the depth scales with the clamped font-size instead of thinning out to
+   nothing on a big viewport. */
+.wm-i::before{content:attr(data-ch);position:absolute;left:0;top:0;z-index:0;
+  color:#585099;-webkit-text-fill-color:#585099;
+  text-shadow:
+    .011em .011em 0 #534b92,.022em .022em 0 #4e468a,.033em .033em 0 #494183,
+    .044em .044em 0 #443c7b,.055em .055em 0 #3f3774,.066em .066em 0 #3a326c,
+    .077em .077em 0 #352d65,.088em .088em 0 #30285d,.099em .099em 0 #2b2356,
+    .110em .110em 0 #261e4e,.121em .121em 0 #211947,.132em .132em 0 #1c143f,
+    .143em .143em 0 #170f38,.154em .154em 0 #120a30,
+    .17em .17em .2em rgba(0,0,0,.6);}
+/* water surface: a depth gradient for the body, plus two highlight bands drifting across it in
+   OPPOSITE directions at different rates -- that crossing is what reads as caustics rather
+   than as a chrome sweep. --d3 is per-letter, so no two letters' water runs on the same clock. */
+.wm-f{position:relative;z-index:1;display:inline-block;
+  background-image:
+    linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.95) 11%,rgba(255,255,255,0) 24%),
+    linear-gradient(76deg,rgba(201,168,255,0) 0%,rgba(217,196,255,.85) 14%,rgba(201,168,255,0) 30%),
+    linear-gradient(180deg,#fff 0%,#dfe4ff 34%,#9aa4e6 70%,#6f74c0 100%);
+  background-size:300% 100%,380% 100%,100% 100%;
+  background-repeat:repeat-x;
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;-webkit-text-fill-color:transparent;
+  animation:wmFlow var(--d3) linear infinite;
+  animation-delay:calc(var(--i) * -.62s);}
+.wm-sp{display:inline-block;width:.26em;}
+@keyframes wmFlow{
+  from{background-position:150% 0,-60% 0,0 0;}
+  to{background-position:-150% 0,300% 0,0 0;}
+}
+/* outer: the letter swinging through depth */
+@keyframes wmSway{
+  0%,100%{transform:translateX(0) translateZ(0) rotateY(0deg);}
+  33%{transform:translateX(.014em) translateZ(var(--z)) rotateY(var(--ry));}
+  66%{transform:translateX(-.016em) translateZ(calc(var(--z) * -.7)) rotateY(calc(var(--ry) * -1));}
+}
+/* inner: the letter riding the surface -- the skew is what keeps it from reading as a rigid
+   tile tipping back and forth. */
+@keyframes wmBob{
+  0%,100%{transform:translateY(0) rotateX(0deg) rotateZ(0deg) skewY(0deg);}
+  25%{transform:translateY(calc(var(--a) * -1)) rotateX(var(--rx)) rotateZ(var(--rz))
+      skewY(calc(var(--rz) * .3));}
+  50%{transform:translateY(calc(var(--a) * .62)) rotateX(calc(var(--rx) * -.8))
+      rotateZ(calc(var(--rz) * -.7)) skewY(0deg);}
+  75%{transform:translateY(calc(var(--a) * -.45)) rotateX(calc(var(--rx) * .5))
+      rotateZ(calc(var(--rz) * .4)) skewY(calc(var(--rz) * -.22));}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .wm-l,.wm-i,.wm-f{animation:none;}
+}
 
 @media(max-width:640px){
   .nav-inner{padding:16px 20px;}
@@ -168,19 +245,19 @@ footer{background:var(--ink);color:#fff;padding:44px 40px 0;overflow:hidden;
 .form-msg.err{color:#c0335a;}
 @media(max-width:560px){.field-row{flex-direction:column;gap:0;}}
 
-/* Blurred colour field behind the subpage wordmark. Delivered as ::after rather than a real
-   element so the nine generated pages need no markup change. Only transform animates -- the
-   blur rasterises once and the texture is just moved. */
-.foot-bottom::after{content:'';position:absolute;inset:-40% -12% -60%;z-index:0;
-  pointer-events:none;filter:blur(72px);opacity:.55;
+@keyframes glowDrift{
+  from{transform:translate3d(-3%,1%,0) scale(1);}
+  to{transform:translate3d(4%,-2%,0) scale(1.14);}
+}
+@media(prefers-reduced-motion:reduce){.foot-glow{animation:none;}}
+
+/* blurred colour field behind the wordmark -- a real element (not ::after) so it matches the
+   home page exactly, and so the observer can pause it when the footer is off screen */
+.foot-glow{position:absolute;inset:-40% -12% -60%;z-index:0;pointer-events:none;
+  filter:blur(72px);opacity:.6;animation-play-state:paused;
   background:
     radial-gradient(38% 62% at 20% 46%,rgba(144,112,223,.9),transparent 70%),
     radial-gradient(34% 56% at 58% 62%,rgba(90,200,250,.55),transparent 70%),
     radial-gradient(30% 52% at 84% 40%,rgba(230,245,54,.3),transparent 70%);
   animation:glowDrift 19s ease-in-out infinite alternate;}
-.foot-wordmark{z-index:2;}
-@keyframes glowDrift{
-  from{transform:translate3d(-3%,1%,0) scale(1);}
-  to{transform:translate3d(4%,-2%,0) scale(1.14);}
-}
-@media(prefers-reduced-motion:reduce){.foot-bottom::after{animation:none;}}
+.foot-bottom.live .foot-glow{animation-play-state:running;}
