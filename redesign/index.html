@@ -203,7 +203,7 @@
      sticky releases and normal scrolling continues into Technology.
 
      Runway = 100vh (the held viewport itself) + the scene's scrub length in the JS below
-     (end:'+=32%') + a short tail so the settled layout is readable before Technology covers it.
+     (end:'+=95%') + a short tail so the settled layout is readable before Technology covers it.
      Deliberately short: the scene has to finish receding almost immediately, because the CTA is
      only allowed to appear AFTER it lands, and the user shouldn't have to scroll far to get
      there. The copy pop is time-based, not scrubbed, so it needs no runway of its own. */
@@ -530,7 +530,11 @@
     transition:transform .55s cubic-bezier(.4,0,.2,1),box-shadow .55s ease;}
   .expertise-visual:hover{transform:perspective(1500px) rotateY(0deg);}
   @media(prefers-reduced-motion:reduce){.expertise-visual{transform:none;}}
-  .expertise-visual video{width:100%;height:100%;object-fit:contain;display:block;
+  /* cover, not contain. The panel is aspect-ratio:3/2 to match the film, but max-height:56vh
+     overrides that on most viewports, so `contain` letterboxed the video and those bars were the
+     second, clashing black. Cover means the frame is always filled -- one background, never two.
+     Source is 3/2 so the crop is only ever a few pixels. */
+  .expertise-visual video{width:100%;height:100%;object-fit:cover;display:block;
     transform:translateZ(0);backface-visibility:hidden;}
 
   /* sized so the WIDEST pair (10,000+ beside 50+) still fits on one line inside the copy
@@ -996,7 +1000,7 @@
 <!-- EXPERTISE (PROOF) -- layer 2, rises over the hero. Testimonials + stats. -->
 <section id="proof" class="wrap">
   <div class="eyebrow">Proof</div>
-  <h2 class="fx-mask" data-hl="Six,10K">Six businesses. 10K a month. Each.</h2>
+  <h2 class="fx-rise" data-hl="Six,10K">Six businesses. 10K a month. Each.</h2>
   <!-- Each tab swaps the stat pair below, numbers and labels together. Scale is the same six
        businesses viewed in aggregate (6 x 10K = 60K/mo = 720K/yr) -- one fact, biggest honest
        framing of it. -->
@@ -1041,8 +1045,8 @@
 <!-- KEY FEATURES (HOW IT WORKS) -- layer 3, covers Expertise. -->
 <section id="process" class="wrap">
   <div class="eyebrow">How it works</div>
-  <h2 class="fx-mask">The systems</h2>
-  <p class="process-lead fx-lines">Three systems that turn a stranger into a booked, paying client — and keep running while you work.</p>
+  <h2 class="fx-rise">The systems</h2>
+  <p class="process-lead fx-rise">Three systems that turn a stranger into a booked, paying client — and keep running while you work.</p>
 
   <div class="sys">
     <!-- stages: light in sequence, synced to the token climbing the machine -->
@@ -1128,7 +1132,7 @@
 <section id="why" class="wrap">
   <span class="me-ghost" aria-hidden="true">10K</span>
   <div class="eyebrow">Why me</div>
-  <h2 class="fx-mask">Straight from me</h2>
+  <h2 class="fx-rise">Straight from me</h2>
   <div class="me-layout">
     <div class="me-copy">
       <p class="fx-lines" data-hl="two,months,six,10K">I'm Martin — self-taught, no agency pedigree, and better for it. In under <span class="hl">two months</span> I took <span class="hl">six</span> businesses to <span class="hl">10K</span> a month each. That's not a pitch — it's the track record.</p>
@@ -1149,8 +1153,8 @@
 <!-- PRODUCTS (WHAT I BUILD) -- layer 5, covers Technology. -->
 <section id="services" class="wrap">
   <div class="eyebrow">What I build</div>
-  <h2 class="fx-mask">The work</h2>
-  <p class="process-lead fx-lines">Three parts, one machine — a site that sells, booking that runs itself, and an AI that works the leads while you work. Built for your business, not pulled off a shelf.</p>
+  <h2 class="fx-rise">The work</h2>
+  <p class="process-lead fx-rise">Three parts, one machine — a site that sells, booking that runs itself, and an AI that works the leads while you work. Built for your business, not pulled off a shelf.</p>
   <div class="card-grid fx-group">
 
     <article class="card">
@@ -1180,7 +1184,7 @@
 <!-- ABOUT -- last content layer, covers Services; footer covers it. About the business/founder. -->
 <div class="team-block wrap" id="about">
   <div class="eyebrow">About</div>
-  <h2 class="fx-mask">The business in one prompt.</h2>
+  <h2 class="fx-rise">The business in one prompt.</h2>
   <div class="team-stats fx-group">
     <div><div class="stat-num" data-count="100">0</div><div class="stat-label">websites made</div></div>
     <div><div class="stat-num" data-count="5">0</div><div class="stat-label">businesses at 10K a month</div></div>

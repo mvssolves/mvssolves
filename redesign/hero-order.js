@@ -34,7 +34,7 @@ function init(host) {
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-  camera.position.set(0, 0, 20);
+  camera.position.set(0, 0, 26);   // pulled back so the sculpture sits inside the frame
 
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.setClearAlpha(0);
@@ -55,7 +55,7 @@ function init(host) {
   mesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(COUNT * 3), 3);
   /* the headline is anchored to the BOTTOM of the hero, so the field is lifted to sit in the
      upper two-thirds and never collide with it */
-  mesh.position.y = 1.9;
+  mesh.position.y = 1.5;
   scene.add(mesh);
 
   const VIOLET = new THREE.Color('#9070DF');
@@ -63,58 +63,77 @@ function init(host) {
   const INK    = new THREE.Color('#4b4166');
   const BG     = new THREE.Color('#efecf7');   // the hero's own background, for depth fade
 
-  /* ---- targets ------------------------------------------------------------------------------
-     The particles don't just tidy up -- they SPELL THE NUMBERS. Each phrase is rasterised to an
-     offscreen canvas, the opaque pixels are sampled, and those become particle destinations. So
-     the hero literally assembles the proof: 50+ businesses, 10K a month, 100+ websites.
+  /* ---- forms ---------------------------------------------------------------------------------
+     Abstract sculpture, not typography. Four mathematical bodies the cloud resolves into, each
+     built from parametric surfaces so the points land on real structure rather than being
+     scattered into a silhouette -- that even distribution is the whole difference between a form
+     that reads as designed and one that reads as fog.
 
-     Sampling a canvas beats hand-authored point lists: the text stays editable, the glyph shapes
-     are exact, and one routine handles any phrase. */
-  const PHRASES = ['50+', '10K', '100+'];
-  const SUBS    = ['businesses', 'a month, each', 'websites built'];
+        torus knot   a single continuous path, endlessly looping
+        helix        two strands winding together
+        wave         a rippling sheet
+        sphere       a hollow shell, evenly quantised (fibonacci)
+  */
+  const TAU = Math.PI * 2;
 
-  function sampleText(text, count) {
-    const W = 1000, H = 320;
-    const c = document.createElement('canvas');
-    c.width = W; c.height = H;
-    const g = c.getContext('2d', { willReadFrequently: true });
-    g.fillStyle = '#fff';
-    g.textAlign = 'center';
-    g.textBaseline = 'middle';
-    /* weight/size tuned so the glyphs are solid enough to sample densely at this canvas size */
-    g.font = '800 210px Inter, "Helvetica Neue", Arial, sans-serif';
-    g.fillText(text, W / 2, H / 2);
+  function makeTorusKnot(n) {
+    const out = new Float32Array(n * 3), P = 2, Q = 3;
+    for (let i = 0; i < n; i++) {
+      const u = (i / n) * TAU * P;
+      const r = 4.6 + 1.9 * Math.cos(Q * u / P);
+      /* a little thickness around the path, otherwise it's a hairline that disappears */
+      const j = () => (Math.random() - 0.5) * 1.05;
+      out[i * 3]     = r * Math.cos(u) + j();
+      out[i * 3 + 1] = r * Math.sin(u) * 0.62 + j();
+      out[i * 3 + 2] = 1.9 * Math.sin(Q * u / P) + j();
+    }
+    return out;
+  }
 
-    const data = g.getImageData(0, 0, W, H).data;
-    const hits = [];
-    /* step 2px: plenty of candidates without walking a million pixels */
-    for (let y = 0; y < H; y += 2)
-      for (let x = 0; x < W; x += 2)
-        if (data[(y * W + x) * 4 + 3] > 128) hits.push(x, y);
+  function makeHelix(n) {
+    const out = new Float32Array(n * 3), turns = 3.2;
+    for (let i = 0; i < n; i++) {
+      const t = i / n, a = t * TAU * turns + (i % 2 ? Math.PI : 0);   // two opposed strands
+      const j = () => (Math.random() - 0.5) * 0.55;
+      out[i * 3]     = (t - 0.5) * 17 + j();
+      out[i * 3 + 1] = Math.sin(a) * 3.1 + j();
+      out[i * 3 + 2] = Math.cos(a) * 3.1 + j();
+    }
+    return out;
+  }
 
-    const out = new Float32Array(count * 3);
-    const n = hits.length / 2;
-    for (let i = 0; i < count; i++) {
-      /* deterministic stride through the hit list, then a sub-pixel jitter so the sampling grid
-         never shows up as visible banding */
-      const h = (Math.floor(i * n / count) % n) * 2;
-      const jx = (Math.random() - 0.5) * 1.6, jy = (Math.random() - 0.5) * 1.6;
-      out[i * 3]     = ((hits[h] + jx) / W - 0.5) * 20;
-      out[i * 3 + 1] = -((hits[h + 1] + jy) / H - 0.5) * 6.4;
-      out[i * 3 + 2] = (Math.random() - 0.5) * 2.2;   // real thickness, so the glyph has volume
+  function makeWave(n) {
+    const out = new Float32Array(n * 3), C = 84, R = Math.ceil(n / C);
+    for (let i = 0; i < n; i++) {
+      const c = i % C, r = Math.floor(i / C);
+      const x = (c / (C - 1) - 0.5) * 19, y = (r / (R - 1) - 0.5) * 9.5;
+      out[i * 3]     = x;
+      out[i * 3 + 1] = y;
+      out[i * 3 + 2] = Math.sin(x * 0.55) * 1.5 + Math.cos(y * 0.7) * 1.1;
+    }
+    return out;
+  }
+
+  function makeSphere(n) {
+    const out = new Float32Array(n * 3), R = 5.4, GA = Math.PI * (3 - Math.sqrt(5));
+    for (let i = 0; i < n; i++) {
+      /* fibonacci sphere: evenly spaced without the pole clustering of naive lat/long */
+      const y = 1 - (i / (n - 1)) * 2;
+      const rad = Math.sqrt(Math.max(0, 1 - y * y)), th = GA * i;
+      out[i * 3]     = Math.cos(th) * rad * R;
+      out[i * 3 + 1] = y * R * 0.78;
+      out[i * 3 + 2] = Math.sin(th) * rad * R;
     }
     return out;
   }
 
   const chaos = new Float32Array(COUNT * 3);
-  const forms = PHRASES.map(t => sampleText(t, COUNT));
+  const forms = [makeTorusKnot(COUNT), makeHelix(COUNT), makeWave(COUNT), makeSphere(COUNT)];
   const spin  = new Float32Array(COUNT);
 
-  /* The scattered state deliberately overflows the frame on every axis -- particles fly past the
-     left/right edges and well toward the camera. A cloud that politely stays inside the viewport
-     reads as a flat panel of dots; one that spills past the borders reads as a space the page is
-     sitting inside. The Z spread is the part that sells it: near particles blow past the camera
-     plane while far ones sit deep behind the glyphs. */
+  /* The scattered state deliberately overflows the frame on every axis. A cloud that politely
+     stays inside the viewport reads as a flat panel of dots; one that spills past the borders
+     reads as a space the page is sitting inside. */
   for (let i = 0; i < COUNT; i++) {
     chaos[i * 3]     = (Math.random() - 0.5) * 32;
     chaos[i * 3 + 1] = (Math.random() - 0.5) * 19;
@@ -124,13 +143,6 @@ function init(host) {
 
   const dummy = new THREE.Object3D();
   const col = new THREE.Color();
-
-  /* a caption under the figure names what the number means -- the digits alone are ambiguous */
-  const cap = document.createElement('div');
-  cap.className = 'hero-cap';
-  cap.innerHTML = '<b></b><span></span>';
-  host.appendChild(cap);
-  const capNum = cap.querySelector('b'), capSub = cap.querySelector('span');
 
   /* ---- cursor parallax (lean, never spin — spinning a hero disorients) ---------------------- */
   let px = 0, py = 0, tx = 0, ty = 0;
@@ -166,7 +178,7 @@ function init(host) {
   const BEAT = 7;                              // seconds per phrase
   const ease = x => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
   const clock = new THREE.Clock();
-  let started = false, shown = -1;
+  let started = false;
 
   (function frame() {
     requestAnimationFrame(frame);
@@ -182,13 +194,6 @@ function init(host) {
     else if (p < 0.74) m = 1;                               // held — the readable beat
     else if (p < 0.94) m = 1 - ease((p - 0.74) / 0.20);     // scattering
     else               m = 0;
-
-    if (idx !== shown) {                       // caption follows the figure
-      shown = idx;
-      capNum.textContent = PHRASES[idx];
-      capSub.textContent = SUBS[idx];
-    }
-    cap.style.opacity = m > 0.55 ? 1 : 0;
 
     px += (tx - px) * 0.045;
     py += (ty - py) * 0.045;
@@ -231,8 +236,10 @@ function init(host) {
     mesh.instanceMatrix.needsUpdate = true;
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
 
-    mesh.rotation.y = px * 0.4;
-    mesh.rotation.x = py * 0.26;
+    /* the resolved body turns slowly on its own axis so it reads as a sculpture in space rather
+       than a flat pattern; cursor parallax rides on top of it */
+    mesh.rotation.y = px * 0.4 + t * 0.09 * m;
+    mesh.rotation.x = py * 0.26 + Math.sin(t * 0.14) * 0.10 * m;
     camera.position.x = px * 2.2;
     camera.position.y = -py * 1.4;
     camera.lookAt(0, 0, 0);
