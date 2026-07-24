@@ -333,7 +333,9 @@
   .tab{border:1px solid transparent;border-radius:999px;padding:11px 22px;font-size:15px;
     color:#6b6875;cursor:pointer;background:none;font-family:inherit;font-weight:500;}
   .tab.active{color:var(--ink);font-weight:700;background:var(--accent2);border-color:var(--accent2);}
-  .expertise-layout{display:flex;gap:56px;flex-wrap:wrap;align-items:flex-start;margin-top:4px;}
+  /* centred, not top-aligned: the film is ~660px tall against ~380px of copy, so
+     flex-start hung it 280px below the text and made the row bottom-heavy. */
+  .expertise-layout{display:flex;gap:56px;flex-wrap:wrap;align-items:center;margin-top:4px;}
   .expertise-copy{flex:1 1 440px;min-width:280px;max-width:560px;}
   .expertise-copy p{font-size:clamp(16px,1.5vw,19px);line-height:1.62;color:#4a4753;
     margin-bottom:16px;}
@@ -634,15 +636,15 @@
        framing of it. -->
   <div class="tab-row" id="proofTabs">
     <button class="tab active"
-      data-stat1="6"     data-post1=""   data-label1="businesses at 10K a month"
-      data-stat2="2"     data-post2=""   data-label2="months or less to get there">Results</button>
-    <button class="tab"
       data-stat1="720"   data-pre1="$" data-post1="K" data-label1="annual revenue created"
       data-stat2="60"    data-pre2="$" data-post2="K" data-label2="per month, combined">Scale</button>
     <button class="tab"
       data-stat1="50"    data-post1="+" data-label1="businesses, personalised systems"
       data-stat2="10000" data-post2="+" data-group2="1"
       data-label2="automations run monthly">Systems</button>
+    <button class="tab"
+      data-stat1="6"     data-post1=""   data-label1="businesses at 10K a month"
+      data-stat2="2"     data-post2=""   data-label2="months or less to get there">Results</button>
   </div>
   <div class="expertise-layout">
     <div class="expertise-copy">
@@ -651,8 +653,8 @@
       <p class="fx-lines">Same three moves every time: a site built to convert, booking that runs itself, follow-up that never forgets.</p>
       <div class="stats-row fx-group">
         <!-- static values mirror tab one, so the row reads correctly before the JS runs -->
-        <div><div class="stat-num">6</div><div class="stat-label">businesses at 10K a month</div></div>
-        <div><div class="stat-num">2</div><div class="stat-label">months or less to get there</div></div>
+        <div><div class="stat-num">$720K</div><div class="stat-label">annual revenue created</div></div>
+        <div><div class="stat-num">$60K</div><div class="stat-label">per month, combined</div></div>
       </div>
     </div>
     <!-- Rendered in Remotion; source project lives OUTSIDE this repo at
