@@ -348,6 +348,11 @@
     /* pad both ends: the top pad clears the fixed nav (the booking card was being cut by it),
        the bottom pad keeps the stage clear of the bottom-anchored headline. */
     padding:clamp(96px,13vh,150px) 0 clamp(140px,24vh,270px);}
+  /* the CSS collage is the FALLBACK. It renders immediately, and only fades out once the WebGL
+     scene has drawn a frame (.scene-live) -- so no-WebGL, reduced-motion and a failed module load
+     all leave a finished-looking hero rather than an empty box. */
+  .hs-scene{transition:opacity .7s ease;}
+  #hero3d.scene-live .hs-scene{opacity:0;}
   .hs-stage{position:relative;width:min(880px,88vw);aspect-ratio:16/8;perspective:1500px;
     transform-style:preserve-3d;}
   .hs-stage>*{position:absolute;}
@@ -2161,6 +2166,8 @@ function odometer(el, value, opts){
      there is no UMD/global build to load with a plain <script src>. Module scripts are deferred
      by default, so #hero3d exists by the time it runs. Kept in its own file so iterating on the
      scene never touches this one. -->
+
+<script type="module" src="./hero-order.js"></script>
 
 </body>
 </html>
