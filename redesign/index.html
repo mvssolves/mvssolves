@@ -519,13 +519,13 @@
      past the pinned viewport -- above ~1400px wide the aspect alone would make it 600px+ tall. */
   .expertise-visual{flex:1 1 460px;min-width:300px;max-width:1000px;aspect-ratio:3/2;max-height:56vh;
     margin-left:auto;position:relative;contain:paint;
-    border-radius:22px;overflow:hidden;border:2px solid transparent;
-    /* padding-box = the dark screen; border-box gradient = a lit-to-dark bevel around the edge */
-    background:linear-gradient(var(--ink),var(--ink)) padding-box,
-      linear-gradient(145deg,#8069c6 0%,#2a2040 40%,#0a0713 100%) border-box;
-    box-shadow:inset 0 2px 1px rgba(255,255,255,.16),
-      inset 0 -46px 60px -50px rgba(144,112,223,.55),
-      0 52px 92px -34px rgba(30,16,70,.6),0 16px 32px -12px rgba(30,16,70,.4);
+    border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.07);
+    /* FLAT, and matched to the film's own background (#090909, sampled from the poster). The panel
+       used to carry a violet inner glow and a white top rim on top of the video, so the letterbox
+       area was lit differently from the footage and the edges read as a tinted blur. Depth now
+       comes only from the outer drop shadow, which never touches the picture. */
+    background:#090909;
+    box-shadow:0 52px 92px -34px rgba(30,16,70,.6),0 16px 32px -12px rgba(30,16,70,.4);
     transform:perspective(1500px) rotateY(-5deg);
     transition:transform .55s cubic-bezier(.4,0,.2,1),box-shadow .55s ease;}
   .expertise-visual:hover{transform:perspective(1500px) rotateY(0deg);}
