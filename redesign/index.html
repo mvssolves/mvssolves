@@ -328,31 +328,32 @@
   /* EXPERTISE (stats + tabs) */
   /* one rounded track holding all the tabs, active one a filled pill inside it -- reads as a
      control rather than as a row of loose buttons. */
-  .tab-row{display:inline-flex;gap:4px;margin:0 0 40px;flex-wrap:wrap;align-self:flex-start;
+  .tab-row{display:inline-flex;gap:4px;margin:0 0 26px;flex-wrap:wrap;align-self:flex-start;
     background:#f4f4f6;border:1px solid #ececf0;border-radius:999px;padding:6px;}
   .tab{border:1px solid transparent;border-radius:999px;padding:11px 22px;font-size:15px;
     color:#6b6875;cursor:pointer;background:none;font-family:inherit;font-weight:500;}
   .tab.active{color:var(--ink);font-weight:700;background:var(--accent2);border-color:var(--accent2);}
-  /* centred, not top-aligned: the film is ~660px tall against ~380px of copy, so
-     flex-start hung it 280px below the text and made the row bottom-heavy. */
-  .expertise-layout{display:flex;gap:56px;flex-wrap:wrap;align-items:center;margin-top:4px;}
+  /* Copy top-aligns so it starts directly under the tabs -- centring the whole row pushed it
+     ~140px down and opened a hole beneath them. The film centres on its own instead, which
+     keeps the row balanced without moving the text. */
+  .expertise-layout{display:flex;gap:56px;flex-wrap:wrap;align-items:flex-start;margin-top:0;}
+  .expertise-visual{align-self:center;}
   .expertise-copy{flex:1 1 440px;min-width:280px;max-width:560px;}
   .expertise-copy p{font-size:clamp(16px,1.5vw,19px);line-height:1.62;color:#4a4753;
     margin-bottom:16px;}
   /* bleeds past the wrap's right padding to the viewport edge, like theirs -- that full-bleed
      is a big part of why their section reads as filled rather than as a boxed column. */
-  /* The slot used to be whatever width was left over, against a fixed 620px height -- which
-     ran from 1.22:1 at a 1280 viewport to 2.47:1 at 1920. No film aspect can serve that, so
-     the width is capped and the box carries the film's own 3:2. contain (not cover) keeps the
-     whole frame visible; any letterbox lands on --ink, the film's own background, so the bars
-     can't be seen. */
-  /* margin-left:auto pushes the film hard against the right edge. Without it both columns hit
-     their max-widths and the row's leftover space collected on the right as dead white --
-     the gap between copy and film should absorb it, not the page edge. */
+  /* A contained card, not a bleed. It used to run off the right edge of the viewport, which
+     read as the film being cut short rather than as a deliberate crop. It now sits fully
+     inside the wrap with rounded corners all round and a lifted shadow, so it reads as a
+     panel showcasing the work. margin-left:auto keeps it hard right so the row's leftover
+     space lands in the gap rather than against the page edge. The box carries the film's
+     own 3:2 and object-fit:contain guarantees nothing is cropped at any width. */
   .expertise-visual{flex:1 1 460px;min-width:300px;max-width:1000px;aspect-ratio:3/2;
-    margin-left:auto;margin-right:-40px;
-    border-radius:24px 0 0 24px;overflow:hidden;background:var(--ink);position:relative;
-    contain:paint;box-shadow:0 30px 70px -40px rgba(30,16,70,.55);}
+    margin-left:auto;
+    border-radius:22px;overflow:hidden;background:var(--ink);position:relative;
+    contain:paint;border:1px solid rgba(20,12,50,.10);
+    box-shadow:0 34px 80px -38px rgba(30,16,70,.55),0 4px 14px -6px rgba(30,16,70,.18);}
   .expertise-visual video{width:100%;height:100%;object-fit:contain;display:block;
     transform:translateZ(0);backface-visibility:hidden;}
 
