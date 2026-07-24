@@ -1041,17 +1041,29 @@ document.addEventListener('click',e=>{
 
    .hero-sticky holds the assembly on screen throughout, so the scene reads as receding in place;
    once the runway ends the sticky releases and scrolling continues into Technology. */
+/* NAV LEGIBILITY -- standalone, always runs (never gated on reduced-motion or the hero intro).
+   The nav is fixed and always on screen. It's transparent-with-white-text only WHILE over the
+   dark hero; once the hero is scrolled past it goes solid white so its dark text stays readable
+   on the white sections. Nav legibility is not allowed to depend on any animation running. */
+(function(){
+  const navEl=document.querySelector('nav');
+  const heroBlock=document.getElementById('heroBlock');
+  if(!navEl)return;
+  const setNav=()=>{
+    const y=window.scrollY||document.documentElement.scrollTop||0;
+    const past=heroBlock?heroBlock.offsetHeight-90:600;
+    navEl.classList.toggle('nav-clear', y < past);
+  };
+  setNav();
+  addEventListener('scroll',setNav,{passive:true});
+  addEventListener('resize',setNav,{passive:true});
+  if(lenis)lenis.on('scroll',setNav);
+})();
+
 (function(){
   const ph=document.getElementById('hero3d');
   const navEl=document.querySelector('nav');
   if(!ph||reduce)return;
-
-  /* nav is transparent for the whole hero and only solidifies as Technology arrives -- keeping
-     every fade well clear of the scene itself. */
-  navEl.classList.add('nav-clear');
-  ScrollTrigger.create({trigger:'#proof',start:'top 85%',
-    onEnter:()=>navEl.classList.remove('nav-clear'),
-    onLeaveBack:()=>navEl.classList.add('nav-clear')});
 
   const eyebrow=document.querySelector('.hero-left .eyebrow');
   const right=document.querySelector('.hero-right');
