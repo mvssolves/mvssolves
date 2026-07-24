@@ -1049,7 +1049,7 @@
 <section id="process" class="wrap">
   <div class="eyebrow">How it works</div>
   <h2 class="fx-rise">The systems</h2>
-  <p class="process-lead fx-lines">Three systems that turn a stranger into a booked, paying client — and keep running while you work.</p>
+  <p class="process-lead fx-words">Three systems that turn a stranger into a booked, paying client — and keep running while you work.</p>
 
   <div class="sys">
     <!-- stages: light in sequence, synced to the token climbing the machine -->
@@ -1157,7 +1157,7 @@
 <section id="services" class="wrap">
   <div class="eyebrow">What I build</div>
   <h2 class="fx-rise">The work</h2>
-  <p class="process-lead fx-lines">Three parts, one machine — a site that sells, booking that runs itself, and an AI that works the leads while you work.</p>
+  <p class="process-lead fx-words">Three parts, one machine — a site that sells, booking that runs itself, and an AI that works the leads while you work.</p>
   <div class="card-grid fx-group">
 
     <article class="card">
@@ -1512,7 +1512,21 @@ document.addEventListener('click',e=>{
 (function(){
   const h1=document.querySelector('.hero-copy h1');
   if(reduce||!h1)return;
-  gsap.from(h1,{y:24,opacity:0,duration:.8,ease:'power3.out',delay:.15});
+  /* the headline gets the same per-character rise the section headings use (fxRise), but on a
+     load timer rather than the IntersectionObserver -- it's already on screen at frame one, so
+     waiting for an intersection would mean it never plays. */
+  const chars=splitChars(h1);
+  gsap.set(h1,{perspective:600});
+  gsap.fromTo(chars,{opacity:0,y:34,rotateX:-75,transformOrigin:'50% 100%'},
+    {opacity:1,y:0,rotateX:0,duration:.6,stagger:.022,ease:'back.out(1.7)',delay:.15});
+  /* subhead + CTA follow the headline in, on the same clock */
+  const sub=document.querySelector('.hero-sub'), ctas=document.querySelector('.hero-ctas');
+  gsap.fromTo([sub,ctas].filter(Boolean),{opacity:0,y:18},
+    {opacity:1,y:0,duration:.7,stagger:.09,ease:'power3.out',delay:.55});
+  /* the collage pieces settle in behind it */
+  const cards=[...document.querySelectorAll('.hs-card,.hs-badge')];
+  if(cards.length)gsap.fromTo(cards,{opacity:0,y:26},
+    {opacity:1,y:0,duration:.8,stagger:.08,ease:'power3.out',delay:.05});
 })();
 
 /* HERO SEQUENCE -- deliberately split into TWO mechanisms, not one scrubbed timeline:
@@ -1630,11 +1644,22 @@ function splitChars(el){
   const text=el.textContent;
   el.textContent='';
   const out=[];
-  [...text].forEach(ch=>{
-    if(ch===' '){el.appendChild(document.createTextNode(' '));return;}
-    const s=document.createElement('span');
-    s.style.display='inline-block';s.textContent=ch;
-    el.appendChild(s);out.push(s);
+  /* chars are grouped inside a nowrap WORD wrapper, not dropped straight into the element.
+     Bare inline-block characters give the browser a legal break opportunity between every
+     letter, so a long headline wrapped mid-word ("systems that o / nly win"). The wrapper keeps
+     each word atomic while the individual chars still animate. */
+  text.split(/(\s+)/).forEach(tok=>{
+    if(!tok)return;
+    if(/^\s+$/.test(tok)){el.appendChild(document.createTextNode(' '));return;}
+    const word=document.createElement('span');
+    word.className='fx-word';
+    word.style.cssText='display:inline-block;white-space:nowrap;';
+    [...tok].forEach(ch=>{
+      const s=document.createElement('span');
+      s.style.display='inline-block';s.textContent=ch;
+      word.appendChild(s);out.push(s);
+    });
+    el.appendChild(word);
   });
   return out;
 }
@@ -1694,13 +1719,12 @@ function fxAlt(el){
    Runs on the char-spans that splitChars produced; space text-nodes are the word boundaries. */
 function applyHl(el){
   const hl=el.dataset.hl; if(!hl)return;
-  const words=hl.split(',');
-  let cur=[], txt='';
-  const flush=()=>{if(words.includes(txt))cur.forEach(s=>s.classList&&s.classList.add('hl'));cur=[];txt='';};
-  [...el.childNodes].forEach(n=>{
-    if(n.nodeType===3){flush();}else{cur.push(n);txt+=n.textContent;}
+  const words=hl.split(',').map(w=>w.trim());
+  /* splitChars now emits one .fx-word wrapper per word, so matching is a direct textContent
+     compare instead of the old char-node accumulation. */
+  el.querySelectorAll('.fx-word').forEach(w=>{
+    if(words.includes(w.textContent))w.classList.add('hl');
   });
-  flush();
 }
 function fxRise(el){
   if(reduce)return;
@@ -1777,6 +1801,10 @@ function fxGroup(el){
   });
 }
 
+/* eyebrows wipe in behind a moving edge (fxClip) -- a small, consistent tell at the top of every
+   section. They were the one repeated element on the page with no motion at all. */
+document.querySelectorAll('.eyebrow').forEach(el=>{el.classList.add('fx-clip');});
+document.querySelectorAll('.fx-clip').forEach(fxClip);
 document.querySelectorAll('.fx-type').forEach(fxType);
 document.querySelectorAll('.fx-alt').forEach(fxAlt);
 document.querySelectorAll('.fx-rise').forEach(fxRise);
@@ -1933,11 +1961,60 @@ function odometer(el, value, opts){
      'No ad-budget bonfire, no year-long retainer. A system that converts, and the time to let it.',
      "The job isn't done when the site ships. It's done when the numbers move."],
   ];
+  /* Tab copy enters with the SAME line-mask reveal the rest of the body copy uses (.fx-lines):
+     each rendered line gets its own clipping window and slides up. A plain y/opacity fade made
+     the tab swap the one piece of text on the page that moved differently from everything else. */
   function swapCopy(i){
     if(!pfCopy||!PF_COPY[i])return;
     pfCopy.innerHTML=PF_COPY[i].map(t=>'<p>'+t+'</p>').join('');
-    if(window.gsap&&!reduce)gsap.fromTo(pfCopy.children,{y:14,opacity:0},
-      {y:0,opacity:1,duration:.5,stagger:.07,ease:'power3.out',overwrite:true});
+    if(!window.gsap||reduce)return;
+    const inners=[];
+    [...pfCopy.children].forEach(p=>{
+      /* Wrap every WORD in its own span first, walking real text nodes -- an earlier version
+         split the innerHTML string on whitespace, which tore `<span class="hl">` in half at the
+         space inside the attribute and leaked markup as literal text. Words carry the .hl class
+         down from their ancestor so the violet tints survive the rebuild. */
+      const words=[];
+      const walker=document.createTreeWalker(p,NodeFilter.SHOW_TEXT,null);
+      const texts=[]; let n;
+      while(n=walker.nextNode())texts.push(n);
+      texts.forEach(t=>{
+        const lit=t.parentElement&&t.parentElement.closest('.hl');
+        const frag=document.createDocumentFragment();
+        t.textContent.split(/(\s+)/).forEach(tok=>{
+          if(!tok)return;
+          if(/^\s+$/.test(tok)){frag.appendChild(document.createTextNode(' '));return;}
+          const w=document.createElement('span');
+          w.style.display='inline-block';
+          w.textContent=tok;
+          if(lit)w.className='hl';
+          frag.appendChild(w); words.push(w);
+        });
+        t.parentNode.replaceChild(frag,t);
+      });
+      if(!words.length)return;
+      /* group the word spans into visual lines by their measured top edge */
+      const lines=[]; let cur=[], top=null;
+      words.forEach(w=>{
+        const t=Math.round(w.getBoundingClientRect().top);
+        if(top===null||Math.abs(t-top)<=2){cur.push(w);top=top===null?t:top;}
+        else{lines.push(cur);cur=[w];top=t;}
+      });
+      if(cur.length)lines.push(cur);
+      /* rebuild: one clipping window per line, words moved inside it */
+      p.innerHTML='';
+      lines.forEach(line=>{
+        const mask=document.createElement('span');
+        mask.style.cssText='display:block;overflow:hidden;';
+        const inner=document.createElement('span');
+        inner.style.cssText='display:block;';
+        line.forEach((w,k)=>{inner.appendChild(w);if(k<line.length-1)inner.appendChild(document.createTextNode(' '));});
+        mask.appendChild(inner); p.appendChild(mask);
+        inners.push(inner);
+      });
+    });
+    gsap.fromTo(inners,{yPercent:110},
+      {yPercent:0,duration:.65,stagger:.06,ease:'power4.out',overwrite:true});
   }
   function activate(tab){
     swapCopy(tabs.indexOf(tab));
