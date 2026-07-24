@@ -495,10 +495,25 @@
   .iso-slot{transform-box:fill-box;transform-origin:center;animation:slotBlink 2.4s ease-in-out infinite;
     animation-delay:calc(var(--i) * .35s);}
   @keyframes slotBlink{0%,100%{opacity:.55;}50%{opacity:1;}}
+  /* COMPLETION BURST -- all three fire on the shared 10.5s clock at ~66%, the moment the token
+     finishes the climb and lands on the AI core. Flash whites the gem, ring shockwaves out,
+     sparks radiate. transform-box:fill-box so each scales from its own centre. */
+  .gem-flash{transform-box:fill-box;transform-origin:center;opacity:0;
+    animation:gemFlash 10.5s ease-out infinite;}
+  @keyframes gemFlash{0%,63%{opacity:0;}66%{opacity:.9;}73%{opacity:0;}100%{opacity:0;}}
+  .ai-burst{transform-box:fill-box;transform-origin:center;opacity:0;
+    animation:aiBurst 10.5s ease-out infinite;}
+  @keyframes aiBurst{0%,64%{opacity:0;transform:scale(.3);}67%{opacity:.95;transform:scale(.55);}
+    80%{opacity:0;transform:scale(2.3);}100%{opacity:0;transform:scale(2.3);}}
+  .ai-sparks{transform-box:fill-box;transform-origin:center;opacity:0;
+    animation:aiSparks 10.5s ease-out infinite;}
+  @keyframes aiSparks{0%,64%{opacity:0;transform:scale(.25);}68%{opacity:1;transform:scale(1);}
+    82%{opacity:0;transform:scale(2.5);}100%{opacity:0;transform:scale(2.5);}}
 
   @media(prefers-reduced-motion:reduce){
     .s-a,.s-b,.s-c,.s-a::before,.s-b::before,.s-c::before,.stage::after,
-    .iso-token,.ai-gem,.ai-glow,.ai-ring,.iso-slot{animation:none;}
+    .iso-token,.ai-gem,.ai-glow,.ai-ring,.iso-slot,.gem-flash,.ai-burst,.ai-sparks{animation:none;}
+    .gem-flash{opacity:0;}
     .iso-token{transform:translate(var(--x3),calc(var(--y3) - 26px));}
     .s-a{border-color:var(--accent);box-shadow:0 16px 38px -20px rgba(144,112,223,.55);}
     .s-a::before{transform:scaleY(1);}
@@ -854,6 +869,15 @@
             <polygon points="452,128 473,154 452,180 431,154" fill="url(#gem)"/>
             <polygon points="452,128 473,154 452,154" fill="#fbff9e" opacity=".85"/>
             <polygon points="452,128 431,154 452,154" fill="#eaf25e" opacity=".9"/>
+            <!-- flash overlay: fires white the instant the token completes the climb -->
+            <polygon class="gem-flash" points="452,128 473,154 452,180 431,154" fill="#fff"/>
+          </g>
+          <!-- completion burst: expanding ring + radiating sparks when the climb lands -->
+          <circle class="ai-burst" cx="452" cy="154" r="18" fill="none" stroke="#E6F536" stroke-width="3"/>
+          <g class="ai-sparks">
+            <circle cx="452" cy="136" r="3.2" fill="#eaf25e"/><circle cx="468" cy="145" r="3.2" fill="#eaf25e"/>
+            <circle cx="468" cy="163" r="3.2" fill="#eaf25e"/><circle cx="452" cy="172" r="3.2" fill="#eaf25e"/>
+            <circle cx="436" cy="163" r="3.2" fill="#eaf25e"/><circle cx="436" cy="145" r="3.2" fill="#eaf25e"/>
           </g>
         </g>
         <g class="iso-token" style="--x1:170px;--y1:320px;--x2:310px;--y2:262px;--x3:452px;--y3:204px;">
