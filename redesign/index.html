@@ -110,10 +110,6 @@
      while resizing at the bottom. Now the scene's top edge is a pure geometric move with nothing
      fading over it, and the nav only solidifies once Technology is arriving. */
   nav.nav-clear{background:transparent;transition:none;}
-  /* Parked: once the hero's bottom edge reaches the nav, the nav stops being fixed and
-     is pinned to that point in the page instead -- so it scrolls away with the hero
-     rather than following you down or flicking out. */
-  nav.nav-parked{position:absolute;}
   /* links sit right next to the logo rather than being centred: space-between pushed the link
      group into the middle of the bar, leaving it stranded far from the wordmark. The CTA is
      pushed to the far right on its own with margin-left:auto. */
@@ -255,6 +251,24 @@
   .team-stats .stat-label{margin-top:2px;}
   .team-cta{margin-top:22px;}
   footer{position:relative;z-index:7;border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);}
+
+  /* SHORT VIEWPORTS -- laptops around 700px of usable height.
+     Nothing here is fixing an overflow: measured across 1280/1366/1440/1680/1920 every section
+     fills its slot exactly and none of them spill. (The 38px "overflow" that shows up in a
+     measurement is GSAP's pre-reveal y-offset on .fx-group children, which resolves to 0 the
+     moment the reveal plays -- it is not layout.) These are purely for comfort: one screen is a
+     tight budget at 700px and the default paddings make it feel crammed. */
+  @media (max-height: 820px){
+    #why,#services,#proof,#process,.team-block{padding-top:64px;}
+    h2{margin-bottom:16px;}
+    .tab-row{margin:0 0 16px;}
+    .stats-row{margin-top:24px;}
+    .card-grid{margin-top:16px;}
+    .feature-row{padding:16px 0;}
+    .expertise-layout{gap:36px;}
+    .team-stats{margin-top:24px;}
+    .team-cta{margin-top:16px;}
+  }
 
   /* HERO */
   /* on load the visual fills the ENTIRE viewport -- edge to edge AND all the way to the very
@@ -1031,31 +1045,6 @@ document.addEventListener('click',e=>{
   ScrollTrigger.create({trigger:'#proof',start:'top 85%',
     onEnter:()=>navEl.classList.remove('nav-clear'),
     onLeaveBack:()=>navEl.classList.add('nav-clear')});
-
-  /* Nav rides along for the length of the hero, then stops dead at its bottom edge. Implemented
-     by swapping fixed -> absolute at the hand-off point rather than animating anything: the nav
-     never moves relative to the page at the moment it parks, so there's no visible jump. */
-  const heroEl=document.getElementById('heroBlock');
-  if(heroEl){
-    let limit=0;
-    const measure=()=>{limit=heroEl.offsetTop+heroEl.offsetHeight-navEl.offsetHeight;};
-    /* takes the position from Lenis when it drives the scroll, and falls back to the native
-       value otherwise -- binding to lenis alone missed programmatic scrolls and anchor jumps. */
-    const park=(y)=>{
-      if(typeof y!=='number')y=window.scrollY||document.documentElement.scrollTop;
-      if(y>limit){
-        navEl.classList.add('nav-parked');
-        navEl.style.top=limit+'px';
-      }else{
-        navEl.classList.remove('nav-parked');
-        navEl.style.top='0px';
-      }
-    };
-    measure();park();
-    addEventListener('resize',()=>{measure();park();},{passive:true});
-    addEventListener('scroll',()=>park(),{passive:true});
-    if(lenis)lenis.on('scroll',(e)=>park(e&&typeof e.scroll==='number'?e.scroll:undefined));
-  }
 
   const eyebrow=document.querySelector('.hero-left .eyebrow');
   const right=document.querySelector('.hero-right');
