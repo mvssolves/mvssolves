@@ -183,10 +183,20 @@
   /* justify-content:flex-start, not center -- content (heading first) sits toward the TOP of each
      section rather than floating in the vertical middle. padding-top gives a clean, generous gap
      below the nav so the heading has room to breathe instead of being squashed against it. */
+  /* NORMAL FLOW, not sticky-cover. The cover-stack pinned every section to exactly one screen,
+     so any section taller than the viewport had its bottom clipped by the next layer -- at a
+     1280x720 laptop the usable slot is ~560px and NOTHING with real content fits. These sections
+     now flow normally: each is at LEAST one screen (so short sections still feel full) but grows
+     to fit its content, so nothing is ever cut off at any height. The stacked-card look is kept
+     with a rounded top + shadow + a small negative margin, so each section's top edge still rises
+     over the previous one's bottom -- the overlap only ever covers empty bottom padding.
+     One consistent vertical rhythm (clamp top/bottom) replaces the per-viewport padding hacks. */
   #why,#services,#proof,#process,.team-block{
-    position:sticky;top:var(--nav-h);background:#fff;min-height:calc(100vh - var(--nav-h));
+    position:relative;z-index:1;background:#fff;min-height:calc(100vh - var(--nav-h));
     border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);
-    display:flex;flex-direction:column;justify-content:flex-start;padding-top:96px;
+    margin-top:-32px;
+    display:flex;flex-direction:column;justify-content:flex-start;
+    padding-top:clamp(84px,10vh,132px);padding-bottom:clamp(64px,8vh,104px);
   }
   /* hero is NOT a sticky cover-layer like the others -- it's a tall scroll RUNWAY containing an
      inner sticky viewport (.hero-sticky). That inner element is what actually holds still on
@@ -240,8 +250,9 @@
   /* min-height is NOT optional here: this is a cover-layer, and at 584px it left ~157px of
      the Services section visible below it. Every layer must fill the slot or the stack
      comes apart. */
-  .team-block{z-index:6;text-align:center;align-items:center;justify-content:flex-start;
-    min-height:calc(100vh - var(--nav-h));padding:44px 0 250px;}
+  .team-block{z-index:6;text-align:center;align-items:center;justify-content:center;
+    min-height:calc(100vh - var(--nav-h));
+    padding-top:clamp(84px,10vh,132px);padding-bottom:clamp(84px,11vh,150px);}
   /* stack pulled tight so the stats sit just under the heading and the CTA follows straight
      after -- the block was spreading over most of the viewport with big dead gaps between each
      element. The section's own bottom padding gives the breathing room instead. */
@@ -250,25 +261,7 @@
   .team-stats{display:flex;gap:56px;justify-content:center;flex-wrap:wrap;margin:32px 0 0;}
   .team-stats .stat-label{margin-top:2px;}
   .team-cta{margin-top:22px;}
-  footer{position:relative;z-index:7;border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);}
-
-  /* SHORT VIEWPORTS -- laptops around 700px of usable height.
-     Nothing here is fixing an overflow: measured across 1280/1366/1440/1680/1920 every section
-     fills its slot exactly and none of them spill. (The 38px "overflow" that shows up in a
-     measurement is GSAP's pre-reveal y-offset on .fx-group children, which resolves to 0 the
-     moment the reveal plays -- it is not layout.) These are purely for comfort: one screen is a
-     tight budget at 700px and the default paddings make it feel crammed. */
-  @media (max-height: 820px){
-    #why,#services,#proof,#process,.team-block{padding-top:64px;}
-    h2{margin-bottom:16px;}
-    .tab-row{margin:0 0 16px;}
-    .stats-row{margin-top:24px;}
-    .card-grid{margin-top:16px;}
-    .feature-row{padding:16px 0;}
-    .expertise-layout{gap:36px;}
-    .team-stats{margin-top:24px;}
-    .team-cta{margin-top:16px;}
-  }
+  footer{position:relative;z-index:7;margin-top:-32px;border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);}
 
   /* HERO */
   /* on load the visual fills the ENTIRE viewport -- edge to edge AND all the way to the very
@@ -636,10 +629,10 @@
   <div class="hero-sticky" id="heroSticky">
     <!-- Rendered three.js scene, not a live WebGL context. Every scroll-jank problem this hero
          had came from GL recomputing under GSAP; a video is just a box that scales. -->
-    <!-- 3D hero parked. Placeholder box holds the space + on-load recede animation until a real
-         hero is decided. The <video> + media/hero.* files are untouched; drop them back into
-         .has-scene to re-enable. -->
-    <div class="hero-3d-placeholder" id="hero3d">hero — placeholder</div>
+    <!-- The real 3D hero scene box, kept intact -- styled dark atmosphere, on-load recede/shrink
+         animation, everything. Only the <video> is disabled for now. Drop a <video …> back inside
+         this div (media/hero.* still exist) to re-enable the scene. -->
+    <div class="hero-3d-placeholder has-scene" id="hero3d"></div>
     <div class="hero-copy">
       <!-- exact placement match: headline sits LEFT, subhead+CTA form a separate column on the
            RIGHT aligned to the headline's lower edge -- not a single stacked column. -->
