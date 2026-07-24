@@ -192,7 +192,8 @@
      per-section tightening below, not by abandoning the sticky. */
   #why,#services,#proof,#process,.team-block{
     position:sticky;top:var(--nav-h);background:#fff;min-height:calc(100vh - var(--nav-h));
-    border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);
+    border-radius:32px 32px 0 0;
+    box-shadow:0 -18px 40px -20px rgba(30,16,70,.28),inset 0 1px 0 rgba(255,255,255,.75);
     display:flex;flex-direction:column;justify-content:flex-start;padding-top:96px;
   }
   /* hero is NOT a sticky cover-layer like the others -- it's a tall scroll RUNWAY containing an
@@ -378,17 +379,19 @@
   /* CARD GRIDS (products) */
   /* WORK -- three equal cards, each topped with a small live product mock (browser / calendar /
      chat) so the section shows the deliverable instead of describing it. All pure CSS+SVG. */
-  .card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:28px;}
+  .card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:28px;perspective:1300px;}
   @media(max-width:860px){.card-grid{grid-template-columns:1fr;max-width:440px;}}
   .card{position:relative;border:1px solid #e7e5ee;border-radius:20px;padding:14px 14px 26px;
-    background:linear-gradient(180deg,#ffffff,#fbfaff);overflow:hidden;
-    transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease;}
+    background:linear-gradient(180deg,#ffffff,#fbfaff);overflow:hidden;transform-style:preserve-3d;
+    box-shadow:0 10px 26px -20px rgba(30,16,70,.4);will-change:transform;
+    transition:transform .2s ease,box-shadow .28s ease,border-color .28s ease;}
   .card:hover{transform:translateY(-6px);border-color:#d6cdf2;box-shadow:0 30px 56px -30px rgba(144,112,223,.6);}
   .svc-tag{position:absolute;top:26px;right:26px;z-index:3;font-family:monospace;font-size:11px;
     letter-spacing:.12em;color:#c9c2da;}
   .card-viz{height:172px;border-radius:13px;overflow:hidden;position:relative;
     display:grid;place-items:center;padding:20px;
-    background:radial-gradient(120% 100% at 50% 0,#f3eefe,#ece4fb);border:1px solid #eae3f8;}
+    background:radial-gradient(120% 100% at 50% 0,#f3eefe,#ece4fb);border:1px solid #eae3f8;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.8),inset 0 -16px 30px -22px rgba(90,60,150,.5);}
   .card-viz.dark{background:radial-gradient(120% 100% at 50% 0,#211a37,#0E0D12);border-color:#2b2448;}
   .card-body{padding:22px 12px 0;}
   .card h3{font-size:19px;letter-spacing:-.01em;margin:0 0 9px;display:flex;align-items:center;gap:10px;line-height:1.15;}
@@ -452,10 +455,18 @@
   /* max-height caps the 3:2 box so it can't grow unbounded on wide screens and push the section
      past the pinned viewport -- above ~1400px wide the aspect alone would make it 600px+ tall. */
   .expertise-visual{flex:1 1 460px;min-width:300px;max-width:1000px;aspect-ratio:3/2;max-height:56vh;
-    margin-left:auto;
-    border-radius:22px;overflow:hidden;background:var(--ink);position:relative;
-    contain:paint;border:1px solid rgba(20,12,50,.10);
-    box-shadow:0 34px 80px -38px rgba(30,16,70,.55),0 4px 14px -6px rgba(30,16,70,.18);}
+    margin-left:auto;position:relative;contain:paint;
+    border-radius:22px;overflow:hidden;border:2px solid transparent;
+    /* padding-box = the dark screen; border-box gradient = a lit-to-dark bevel around the edge */
+    background:linear-gradient(var(--ink),var(--ink)) padding-box,
+      linear-gradient(145deg,#8069c6 0%,#2a2040 40%,#0a0713 100%) border-box;
+    box-shadow:inset 0 2px 1px rgba(255,255,255,.16),
+      inset 0 -46px 60px -50px rgba(144,112,223,.55),
+      0 52px 92px -34px rgba(30,16,70,.6),0 16px 32px -12px rgba(30,16,70,.4);
+    transform:perspective(1500px) rotateY(-5deg);
+    transition:transform .55s cubic-bezier(.4,0,.2,1),box-shadow .55s ease;}
+  .expertise-visual:hover{transform:perspective(1500px) rotateY(0deg);}
+  @media(prefers-reduced-motion:reduce){.expertise-visual{transform:none;}}
   .expertise-visual video{width:100%;height:100%;object-fit:contain;display:block;
     transform:translateZ(0);backface-visibility:hidden;}
 
@@ -1943,6 +1954,22 @@ function odometer(el, value, opts){
     let rt=null;
     addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{build();
       gsap.to(inners,{yPercent:0,duration:0.3,overwrite:true});},200);},{passive:true});
+  });
+})();
+
+/* Work cards: subtle pointer-driven 3D tilt. The card lifts and rotates toward the cursor so the
+   product mock reads as a physical panel. Skipped for reduced-motion and touch (no hover). */
+(function(){
+  if(reduce||matchMedia('(hover:none)').matches)return;
+  document.querySelectorAll('#services .card').forEach(card=>{
+    card.addEventListener('pointermove',e=>{
+      const r=card.getBoundingClientRect();
+      const px=(e.clientX-r.left)/r.width-0.5, py=(e.clientY-r.top)/r.height-0.5;
+      card.style.transform='translateY(-6px) rotateX('+(-py*6).toFixed(2)+'deg) rotateY('+(px*7).toFixed(2)+'deg)';
+      card.style.boxShadow='0 34px 60px -30px rgba(144,112,223,.6)';
+      card.style.borderColor='#d6cdf2';
+    });
+    card.addEventListener('pointerleave',()=>{card.style.transform='';card.style.boxShadow='';card.style.borderColor='';});
   });
 })();
 </script>
