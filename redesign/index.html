@@ -99,9 +99,10 @@
      Default is solid so the no-JS / reduced-motion path stays legible; JS adds .nav-clear while
      the hero is on screen. The background transition is deliberately NOT applied while clear --
      see .nav-clear below. */
-  /* absolute, not fixed: the nav belongs to the hero and scrolls away with it, rather
-     than following the viewport down the page. */
-  nav{position:absolute;top:0;left:0;right:0;background:transparent;z-index:20;
+  /* FIXED, and it stays that way. The nav locks to the top from the moment the page
+     loads and never moves. It only changes background: transparent over the dark hero,
+     solid white once you're past it. */
+  nav{position:fixed;top:0;left:0;right:0;background:#fff;z-index:20;
     transition:background .3s ease;}
   /* transparent for the WHOLE hero section, and it does not fade back in until the hero is gone.
      Previously the nav faded from transparent to white across the hero's own scroll, which put a
@@ -109,6 +110,10 @@
      while resizing at the bottom. Now the scene's top edge is a pure geometric move with nothing
      fading over it, and the nav only solidifies once Technology is arriving. */
   nav.nav-clear{background:transparent;transition:none;}
+  /* the nav lives on the hero. Once the hero is behind you it lifts out rather than
+     riding along for the rest of the page. */
+  nav.nav-gone{transform:translateY(-100%);opacity:0;pointer-events:none;
+    transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .3s ease;}
   /* links sit right next to the logo rather than being centred: space-between pushed the link
      group into the middle of the bar, leaving it stranded far from the wordmark. The CTA is
      pushed to the far right on its own with margin-left:auto. */
@@ -236,8 +241,11 @@
   /* top pad small so the About block starts right under the nav when it's fully scrolled up;
      bottom pad is the buffer the footer eats as it rises -- enough to keep the stats and CTA
      clear of it, but no more, or the gap reads as dead space. */
+  /* min-height is NOT optional here: this is a cover-layer, and at 584px it left ~157px of
+     the Services section visible below it. Every layer must fill the slot or the stack
+     comes apart. */
   .team-block{z-index:6;text-align:center;align-items:center;justify-content:flex-start;
-    min-height:auto;padding:44px 0 250px;}
+    min-height:calc(100vh - var(--nav-h));padding:44px 0 250px;}
   /* stack pulled tight so the stats sit just under the heading and the CTA follows straight
      after -- the block was spreading over most of the viewport with big dead gaps between each
      element. The section's own bottom padding gives the breathing room instead. */
@@ -278,10 +286,6 @@
       radial-gradient(90% 80% at 78% 88%, rgba(90,200,250,.12), transparent 70%),
       linear-gradient(180deg, #14111f 0%, #0c0b12 60%, #0a0a0e 100%);}
   /* per-form label -- shown as written (title case), gently spaced */
-  .scene-label{position:absolute;left:0;right:0;bottom:6%;text-align:center;z-index:2;
-    pointer-events:none;font-family:monospace;font-size:clamp(13px,1.6vw,19px);
-    letter-spacing:.14em;color:rgba(255,255,255,.86);
-    opacity:0;transition:opacity .55s ease;text-shadow:0 0 18px rgba(144,112,223,.6);}
   /* absolutely anchored to the BOTTOM of the sticky viewport, not a flex child. As a flex child
      it was flex:1 in a column whose first item (the scene) already fills the whole 100vh, so its
      leftover space was zero -- it collapsed to 0 height and its content sat below the fold,
@@ -323,7 +327,7 @@
   @media(prefers-reduced-motion:reduce){.marquee-track{animation:none;}}
 
   /* CARD GRIDS (products) */
-  .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-top:32px;}
+  .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-top:24px;}
   .card{border:1px solid #ddd;border-radius:12px;padding:28px;}
   .card.wide{grid-column:1/-1;display:flex;gap:24px;align-items:center;flex-wrap:wrap;}
   .card.wide .img-placeholder{flex:1;min-width:200px;height:220px;background:repeating-linear-gradient(45deg,#eee,#eee 10px,#f7f7f7 10px,#f7f7f7 20px);border:1px dashed #bbb;}
@@ -333,7 +337,7 @@
   /* EXPERTISE (stats + tabs) */
   /* one rounded track holding all the tabs, active one a filled pill inside it -- reads as a
      control rather than as a row of loose buttons. */
-  .tab-row{display:inline-flex;gap:4px;margin:0 0 26px;flex-wrap:wrap;align-self:flex-start;
+  .tab-row{display:inline-flex;gap:4px;margin:0 0 20px;flex-wrap:wrap;align-self:flex-start;
     background:#f4f4f6;border:1px solid #ececf0;border-radius:999px;padding:6px;}
   .tab{border:1px solid transparent;border-radius:999px;padding:11px 22px;font-size:15px;
     color:#6b6875;cursor:pointer;background:none;font-family:inherit;font-weight:500;}
@@ -1025,8 +1029,8 @@ document.addEventListener('click',e=>{
      every fade well clear of the scene itself. */
   navEl.classList.add('nav-clear');
   ScrollTrigger.create({trigger:'#proof',start:'top 85%',
-    onEnter:()=>navEl.classList.remove('nav-clear'),
-    onLeaveBack:()=>navEl.classList.add('nav-clear')});
+    onEnter:()=>{navEl.classList.remove('nav-clear');navEl.classList.add('nav-gone');},
+    onLeaveBack:()=>{navEl.classList.add('nav-clear');navEl.classList.remove('nav-gone');}});
 
   const eyebrow=document.querySelector('.hero-left .eyebrow');
   const right=document.querySelector('.hero-right');
