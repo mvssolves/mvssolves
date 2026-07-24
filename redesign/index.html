@@ -497,12 +497,6 @@
     75%{transform:translateY(calc(var(--a) * -.45)) rotateX(calc(var(--rx) * .5))
         rotateZ(calc(var(--rz) * .4)) skewY(calc(var(--rz) * -.22));}
   }
-  /* ripple gated behind a class the IntersectionObserver toggles -- three seeds cycled so the
-     letters don't all wobble identically. */
-  .foot-wordmark.rippling .wm-i{filter:url(#waterWarp1);}
-  .foot-bottom.live .foot-glow{animation-play-state:running;}
-  .foot-wordmark.rippling .wm-l:nth-child(3n+2) .wm-i{filter:url(#waterWarp2);}
-  .foot-wordmark.rippling .wm-l:nth-child(3n+3) .wm-i{filter:url(#waterWarp3);}
 
   /* blurred colour field behind the wordmark. One heavily-blurred layer that only ever has its
      transform animated, so the browser rasterises the blur once and just moves the texture --
@@ -521,9 +515,6 @@
   .svg-defs{position:absolute;width:0;height:0;overflow:hidden;}
   @media(prefers-reduced-motion:reduce){
     .wm-l,.wm-i,.wm-f,.foot-glow{animation:none;}
-    .foot-wordmark.rippling .wm-i,
-    .foot-wordmark.rippling .wm-l:nth-child(3n+2) .wm-i,
-    .foot-wordmark.rippling .wm-l:nth-child(3n+3) .wm-i{filter:none;}
   }
 
   /* CONTACT MODAL -- replaces the Cal.com booking flow. Own form, own styling, mail sent by
@@ -720,28 +711,12 @@
   <div class="team-stats fx-group">
     <div><div class="stat-num" data-count="100">0</div><div class="stat-label">websites made</div></div>
     <div><div class="stat-num" data-count="5">0</div><div class="stat-label">businesses grown 4→5 figures</div></div>
-    <div><div class="stat-num" data-count="3">0</div><div class="stat-label">months to results</div></div>
+    <div><div class="stat-num" data-count="10000" data-group>0</div><div class="stat-label">automations run monthly</div></div>
   </div>
   <a class="btn filled team-cta" href="#" data-contact>Work with me</a>
 </div>
 
 <!-- FOOTER -- last layer, covers the team bridge. Halftone-style wordmark bleed. -->
-<!-- turbulence filter for the footer wordmark's water ripple. Lives in the DOM as a zero-size
-     defs-only SVG; CSS resolves url(#waterWarp) at paint time so its position doesn't matter. -->
-<svg class="svg-defs" aria-hidden="true" focusable="false">
-  <filter id="waterWarp1" x="-14%" y="-30%" width="128%" height="160%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.011 0.038" numOctaves="2" seed="4" result="n"/>
-    <feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="G"/>
-  </filter>
-  <filter id="waterWarp2" x="-14%" y="-30%" width="128%" height="160%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.014 0.031" numOctaves="2" seed="19" result="n"/>
-    <feDisplacementMap in="SourceGraphic" in2="n" scale="7" xChannelSelector="R" yChannelSelector="G"/>
-  </filter>
-  <filter id="waterWarp3" x="-14%" y="-30%" width="128%" height="160%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.009 0.044" numOctaves="2" seed="37" result="n"/>
-    <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G"/>
-  </filter>
-</svg>
 
 <footer>
   <div class="foot-inner">
@@ -949,9 +924,10 @@ document.addEventListener('click',e=>{
   });
 })();
 
-/* footer wordmark ripple: the SVG displacement filter re-rasterises the whole wordmark every
-   frame, which is real CPU cost for something that is off-screen for most of the page. Only
-   attach the filter while the footer is actually in view. */
+/* Footer wordmark. The displacement filter that used to run here is gone -- feDisplacementMap
+   rasterises the glyphs at a fixed resolution before pushing pixels around, which chewed the
+   letterform edges. The extrusion, the flowing gradient and the 3D motion carry it on their own
+   and the type stays crisp. The observer remains, gating the blurred glow behind it. */
 (function(){
   const wm=document.querySelector('.foot-wordmark');
   if(!wm)return;
@@ -1004,7 +980,6 @@ document.addEventListener('click',e=>{
 
   if(!('IntersectionObserver' in window))return;
   new IntersectionObserver(es=>{
-    wm.classList.toggle('rippling',es[0].isIntersecting);
     if(wm.parentElement)wm.parentElement.classList.toggle('live',es[0].isIntersecting);
   },{rootMargin:'120px'}).observe(wm);
 })();
@@ -1425,7 +1400,8 @@ function odometer(el, value, opts){
 (function(){
   document.querySelectorAll('.stat-num[data-count]').forEach(el=>{
     const target=+el.dataset.count;
-    replayIn(el,()=>odometer(el,target));
+    const group='group' in el.dataset;   /* comma-grouped, for the five-digit one */
+    replayIn(el,()=>odometer(el,target,{group}));
   });
 })();
 
