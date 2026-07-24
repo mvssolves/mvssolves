@@ -277,10 +277,22 @@
     .team-stats{margin-top:22px;}
     .team-cta{margin-top:14px;}
   }
-  @media (max-height: 740px){
-    #why,#services,#proof,#process,.team-block{padding-top:40px;}
+  @media (max-height: 900px){
+    .sys{margin-top:16px;}
+    .stage{padding:14px 20px;}
+    .stages{gap:11px;}
+    .iso-stage{height:clamp(300px,34vh,380px);}
+  }
+  @media (max-height: 760px){
+    #why,#services,#proof,#process,.team-block{padding-top:38px;}
+    #process h2{font-size:clamp(28px,3.6vw,44px);}
+    .process-lead{margin-top:6px;font-size:15px;}
+    .sys{margin-top:12px;}
+    .stage{padding:11px 18px;}
+    .stage p{font-size:13px;}
+    .stages{gap:9px;}
+    .iso-stage{height:280px;}
     .feature-row{padding:13px 0;}
-    .process-lead{margin-top:8px;}
     .feat-body p{font-size:14px;}
     .expertise-visual{max-height:40vh;}
     .expertise-copy p{font-size:14px;margin-bottom:8px;}
@@ -414,36 +426,101 @@
   .odo-strip>span{display:block;height:1em;line-height:1;}
   .stat-label{color:#77737f;font-size:14px;max-width:20ch;margin-top:10px;line-height:1.35;}
 
-  /* KEY FEATURES -- numbered editorial rows. Deliberately NOT cards: Products is already a card
-     grid and Expertise is already a copy/visual split, so rows are the one shape the page isn't
-     using elsewhere. No boxes, no fills -- just index, rule, type. */
-  .process-lead{font-size:clamp(17px,1.7vw,21px);line-height:1.55;color:#4a4753;max-width:52ch;margin-top:18px;}
-  .feature-stack{margin-top:44px;border-top:1px solid #e6e6e6;}
-  /* rows carry a number that fills lime and a title that slides on hover -- turns a plain list
-     into something that responds. The whole row is the hover target, not just the text. */
-  .feature-row{display:flex;gap:44px;align-items:flex-start;padding:26px 0;border-bottom:1px solid #e6e6e6;
-    position:relative;}
-  .feat-num{font-family:monospace;font-size:14px;letter-spacing:.1em;color:#bdbdbd;min-width:52px;flex:none;
-    padding-top:6px;}
-  .feature-row:hover .feat-num{color:var(--accent);}
-  .feat-body{flex:1;}
-  .feat-body h3{font-size:clamp(21px,2.6vw,32px);margin-bottom:10px;letter-spacing:-.015em;color:var(--ink);}
-  .feat-body p{margin:0;max-width:52ch;color:#55525c;font-size:clamp(15px,1.4vw,17px);line-height:1.6;}
-  /* right-aligned tool tags: what actually does the job in this step. Pill outlines, and the top
-     one fills lime on row hover so the eye is drawn to the primary tool. */
-  .feat-tags{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:8px;
-    padding-top:8px;min-width:150px;}
-  .feat-tags span{font-size:13px;font-family:monospace;letter-spacing:.02em;color:#6a6772;
-    border:1px solid #e0e0e4;border-radius:999px;padding:6px 14px;white-space:nowrap;
-    transition:border-color .25s ease,color .25s ease,background .25s ease;}
-  .feature-row:hover .feat-tags span:first-child{background:var(--accent2);border-color:var(--accent2);color:var(--ink);}
-  @media(max-width:820px){.feat-tags{display:none;}}
-  /* a lime rule that draws in from the left as the row is hovered */
-  .feature-row::after{content:'';position:absolute;left:0;bottom:-1px;height:2px;width:100%;
-    background:var(--accent2);transform:scaleX(0);transform-origin:left;
-    transition:transform .4s cubic-bezier(.2,.8,.2,1);}
-  .feature-row:hover::after{transform:scaleX(1);}
-  @media(max-width:640px){.feature-row{gap:20px;}}
+  /* THE SYSTEMS -- three stage cards on the left, an isometric machine on the right. The lime
+     token climbs the three ascending blocks on a loop, and each stage card lights as the token
+     reaches its block. All CSS: perspective + 3D transforms + one shared keyframe clock, so it
+     can't jank and needs no JS. */
+  .process-lead{font-size:clamp(16px,1.6vw,20px);line-height:1.5;color:#4a4753;max-width:50ch;margin-top:12px;}
+  .sys{display:flex;gap:30px;align-items:center;margin-top:20px;}
+
+  .stages{flex:0 0 clamp(300px,33vw,372px);display:flex;flex-direction:column;gap:14px;}
+  .stage{border:1px solid #e6e6ea;border-radius:14px;padding:18px 22px;background:#fff;
+    position:relative;overflow:hidden;
+    transition:border-color .4s ease,box-shadow .4s ease;}
+  .stage-k{font-family:monospace;font-size:11px;color:#c0c0c8;letter-spacing:.1em;}
+  .stage h3{font-size:clamp(18px,1.9vw,21px);letter-spacing:-.01em;margin:4px 0 4px;color:var(--ink);}
+  .stage p{font-size:13.5px;color:#5a5760;line-height:1.45;}
+  /* the lit state, and the lime edge -- driven by the animation below, not hover */
+  .stage::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent2);
+    transform:scaleY(0);transform-origin:top;transition:transform .4s ease;}
+  /* each stage lit during its third of a shared 10.5s cycle */
+  .s-a{animation:stageLit 10.5s infinite;}
+  .s-b{animation:stageLit 10.5s infinite;animation-delay:-7s;}
+  .s-c{animation:stageLit 10.5s infinite;animation-delay:-3.5s;}
+  @keyframes stageLit{
+    0%,24%{border-color:var(--accent);box-shadow:0 16px 38px -20px rgba(144,112,223,.55);}
+    34%,100%{border-color:#e6e6ea;box-shadow:0 0 0 rgba(0,0,0,0);}
+  }
+  .s-a::before{animation:litBar 10.5s infinite;}
+  .s-b::before{animation:litBar 10.5s infinite;animation-delay:-7s;}
+  .s-c::before{animation:litBar 10.5s infinite;animation-delay:-3.5s;}
+  @keyframes litBar{0%,24%{transform:scaleY(1);}34%,100%{transform:scaleY(0);}}
+
+  /* ---- isometric machine ---- */
+  .iso-stage{flex:1;min-width:320px;height:clamp(320px,38vh,420px);perspective:1500px;
+    display:flex;align-items:center;justify-content:center;}
+  /* the whole rig bobs gently on a 7s loop -- one sine cycle so it's seamless */
+  .iso{position:relative;width:1px;height:1px;transform-style:preserve-3d;
+    animation:isoBob 7s ease-in-out infinite;}
+  @keyframes isoBob{
+    0%,100%{transform:rotateX(56deg) rotateZ(-45deg) translateZ(0);}
+    50%{transform:rotateX(56deg) rotateZ(-45deg) translateZ(12px);}
+  }
+  .box{position:absolute;transform-style:preserve-3d;width:var(--w);height:var(--w);
+    left:calc(var(--w)/-2);top:calc(var(--w)/-2);}
+  /* top face: a diagonal gradient for form + a bright inner ring on the leading edges reads as a
+     lit bevel. filter brightness is animated when the token lands (blockPulse). */
+  .box .top{position:absolute;inset:0;transform:translateZ(var(--h));border-radius:7px;
+    box-shadow:inset 2px 2px 0 rgba(255,255,255,.35),inset -1px -1px 0 rgba(0,0,0,.12);}
+  .box .lf{position:absolute;left:0;bottom:0;width:var(--w);height:var(--h);
+    transform-origin:bottom;transform:rotateX(-90deg);}
+  .box .rf{position:absolute;right:0;top:0;width:var(--h);height:var(--w);
+    transform-origin:right;transform:rotateY(90deg);}
+  .b1{--w:118px;--h:34px;transform:translate(-116px,-116px);}
+  .b2{--w:118px;--h:74px;transform:translate(0,0);}
+  .b3{--w:118px;--h:118px;transform:translate(116px,116px);}
+  .b1 .top{background:linear-gradient(135deg,#c4b0ff,#a98ff0);} .b1 .lf{background:linear-gradient(180deg,#8f79d6,#7a63c2);} .b1 .rf{background:linear-gradient(180deg,#8571ce,#6f59b8);}
+  .b2 .top{background:linear-gradient(135deg,#b49bf6,#9a80e8);} .b2 .lf{background:linear-gradient(180deg,#7e67cc,#6853b2);} .b2 .rf{background:linear-gradient(180deg,#7360c0,#5e4aa6);}
+  .b3 .top{background:linear-gradient(135deg,#a688f0,#8f74e4);} .b3 .lf{background:linear-gradient(180deg,#7058c0,#5a46a4);} .b3 .rf{background:linear-gradient(180deg,#654fb0,#4e3c94);}
+  /* each block brightens while the token is on it -- same clock as the stages */
+  .b1 .top{animation:blockPulse 10.5s infinite;}
+  .b2 .top{animation:blockPulse 10.5s infinite;animation-delay:-7s;}
+  .b3 .top{animation:blockPulse 10.5s infinite;animation-delay:-3.5s;}
+  @keyframes blockPulse{0%,24%{filter:brightness(1.22);}34%,100%{filter:brightness(1);}}
+  /* per-block contact shadow on the ground, tighter and darker than one big blur */
+  .iso-ground{position:absolute;width:520px;height:300px;left:-260px;top:-150px;
+    background:radial-gradient(38% 60% at 30% 55%,rgba(70,45,130,.22),transparent 70%),
+               radial-gradient(30% 52% at 55% 62%,rgba(70,45,130,.20),transparent 70%),
+               radial-gradient(26% 48% at 78% 70%,rgba(70,45,130,.18),transparent 70%);
+    filter:blur(6px);}
+  /* the token climbs block1 -> block2 -> block3, hopping up between, then loops back. A soft
+     glow disc under it fakes a cast light on whatever block it's over. */
+  .iso-token{position:absolute;width:30px;height:30px;left:-15px;top:-15px;transform-style:preserve-3d;
+    animation:tokenClimb 10.5s cubic-bezier(.45,0,.5,1) infinite;}
+  .iso-token .cube{position:absolute;inset:0;border-radius:8px;background:linear-gradient(135deg,#f2fa7a,#dbe936);
+    box-shadow:0 0 24px 7px rgba(230,245,54,.55),inset 2px 2px 0 rgba(255,255,255,.5);}
+  @keyframes tokenClimb{
+    0%,20%   {transform:translate3d(-116px,-116px,52px);}
+    27%      {transform:translate3d(-58px,-58px,132px);}
+    33%,53%  {transform:translate3d(0,0,92px);}
+    60%      {transform:translate3d(58px,58px,172px);}
+    66%,90%  {transform:translate3d(116px,116px,136px);}
+    97%      {transform:translate3d(0,0,212px);}
+    100%     {transform:translate3d(-116px,-116px,52px);}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .s-a,.s-b,.s-c,.s-a::before,.s-b::before,.s-c::before,.iso-token,.iso,
+    .b1 .top,.b2 .top,.b3 .top{animation:none;}
+    .iso{transform:rotateX(56deg) rotateZ(-45deg);}
+    .s-a{border-color:var(--accent);box-shadow:0 16px 38px -20px rgba(144,112,223,.55);}
+    .s-a::before{transform:scaleY(1);}
+  }
+  /* stack on narrow screens: machine on top, stages below */
+  @media(max-width:900px){
+    .sys{flex-direction:column-reverse;gap:24px;}
+    .stages{flex:1 1 auto;width:100%;}
+    .iso-stage{width:100%;height:340px;}
+  }
 
   /* FOOTER */
   /* tight top pad: there was a dead band of black between the footer's top edge and the first
@@ -731,31 +808,37 @@
 <section id="process" class="wrap">
   <div class="eyebrow">How it works</div>
   <h2 class="fx-rise">The systems</h2>
-  <p class="process-lead fx-lines">Same three moves on every business I take to 10K a month.</p>
-  <div class="feature-stack fx-group" id="featureStack">
-    <div class="feature-row">
-      <div class="feat-num">01</div>
-      <div class="feat-body">
-        <h3>Capture every enquiry</h3>
-        <p>A converting site and always-open booking, so nobody interested slips through. The leak stops here.</p>
+  <p class="process-lead fx-lines">Three systems that turn a stranger into a booked, paying client — and keep running while you work.</p>
+
+  <div class="sys">
+    <!-- stages: light in sequence, synced to the token climbing the machine -->
+    <div class="stages fx-group">
+      <div class="stage s-a">
+        <div class="stage-k">01</div>
+        <h3>Refine the brand</h3>
+        <p>A premium site and identity that make you the obvious choice.</p>
       </div>
-      <div class="feat-tags"><span>Website</span><span>Online booking</span></div>
+      <div class="stage s-b">
+        <div class="stage-k">02</div>
+        <h3>Convert the visitors</h3>
+        <p>Booking and enquiry systems that catch every visitor, not just the keen ones.</p>
+      </div>
+      <div class="stage s-c">
+        <div class="stage-k">03</div>
+        <h3>AI receptionist</h3>
+        <p>Answers, books and follows up 24/7 — in your voice, while you work.</p>
+      </div>
     </div>
-    <div class="feature-row">
-      <div class="feat-num">02</div>
-      <div class="feat-body">
-        <h3>Follow up automatically</h3>
-        <p>Replies, reminders and nudges chase every lead — so warm ones never go cold while you're working.</p>
+
+    <!-- isometric machine: three ascending blocks, a lime token climbing them on a loop -->
+    <div class="iso-stage" aria-hidden="true">
+      <div class="iso">
+        <div class="iso-ground"></div>
+        <div class="box b1"><div class="lf"></div><div class="rf"></div><div class="top"></div></div>
+        <div class="box b2"><div class="lf"></div><div class="rf"></div><div class="top"></div></div>
+        <div class="box b3"><div class="lf"></div><div class="rf"></div><div class="top"></div></div>
+        <div class="iso-token"><div class="cube"></div></div>
       </div>
-      <div class="feat-tags"><span>Auto-replies</span><span>SMS reminders</span></div>
-    </div>
-    <div class="feature-row">
-      <div class="feat-num">03</div>
-      <div class="feat-body">
-        <h3>Turn clients into more</h3>
-        <p>Reviews, retention and referrals run in the background, compounding every client you win.</p>
-      </div>
-      <div class="feat-tags"><span>Review requests</span><span>Referrals</span></div>
     </div>
   </div>
 </section>
