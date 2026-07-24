@@ -352,6 +352,13 @@
      scene has drawn a frame (.scene-live) -- so no-WebGL, reduced-motion and a failed module load
      all leave a finished-looking hero rather than an empty box. */
   .hs-scene{transition:opacity .7s ease;}
+  /* caption under the particle figure -- the digits alone are ambiguous, this names them */
+  .hero-cap{position:absolute;left:0;right:0;bottom:clamp(150px,25vh,280px);z-index:2;
+    text-align:center;pointer-events:none;opacity:0;transition:opacity .5s ease;
+    display:flex;flex-direction:column;align-items:center;gap:2px;}
+  .hero-cap b{font-size:0;}
+  .hero-cap span{font-family:monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+    color:#6c6879;}
   #hero3d.scene-live .hs-scene{opacity:0;}
   .hs-stage{position:relative;width:min(880px,88vw);aspect-ratio:16/8;perspective:1500px;
     transform-style:preserve-3d;}
