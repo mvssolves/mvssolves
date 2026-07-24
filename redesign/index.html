@@ -183,20 +183,15 @@
   /* justify-content:flex-start, not center -- content (heading first) sits toward the TOP of each
      section rather than floating in the vertical middle. padding-top gives a clean, generous gap
      below the nav so the heading has room to breathe instead of being squashed against it. */
-  /* NORMAL FLOW, not sticky-cover. The cover-stack pinned every section to exactly one screen,
-     so any section taller than the viewport had its bottom clipped by the next layer -- at a
-     1280x720 laptop the usable slot is ~560px and NOTHING with real content fits. These sections
-     now flow normally: each is at LEAST one screen (so short sections still feel full) but grows
-     to fit its content, so nothing is ever cut off at any height. The stacked-card look is kept
-     with a rounded top + shadow + a small negative margin, so each section's top edge still rises
-     over the previous one's bottom -- the overlap only ever covers empty bottom padding.
-     One consistent vertical rhythm (clamp top/bottom) replaces the per-viewport padding hacks. */
+  /* STICKY COVER-STACK -- each section pins under the nav and the next rises up over it. This is
+     the signature scroll motion; do not flatten it to normal flow.
+     The one-viewport constraint it imposes (a pinned card can only show one screenful) is handled
+     by keeping each section's content within a screen -- see the max-height comfort rules and the
+     per-section tightening below, not by abandoning the sticky. */
   #why,#services,#proof,#process,.team-block{
-    position:relative;z-index:1;background:#fff;min-height:calc(100vh - var(--nav-h));
+    position:sticky;top:var(--nav-h);background:#fff;min-height:calc(100vh - var(--nav-h));
     border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);
-    margin-top:-32px;
-    display:flex;flex-direction:column;justify-content:flex-start;
-    padding-top:clamp(84px,10vh,132px);padding-bottom:clamp(64px,8vh,104px);
+    display:flex;flex-direction:column;justify-content:flex-start;padding-top:96px;
   }
   /* hero is NOT a sticky cover-layer like the others -- it's a tall scroll RUNWAY containing an
      inner sticky viewport (.hero-sticky). That inner element is what actually holds still on
@@ -250,9 +245,8 @@
   /* min-height is NOT optional here: this is a cover-layer, and at 584px it left ~157px of
      the Services section visible below it. Every layer must fill the slot or the stack
      comes apart. */
-  .team-block{z-index:6;text-align:center;align-items:center;justify-content:center;
-    min-height:calc(100vh - var(--nav-h));
-    padding-top:clamp(84px,10vh,132px);padding-bottom:clamp(84px,11vh,150px);}
+  .team-block{z-index:6;text-align:center;align-items:center;justify-content:flex-start;
+    min-height:calc(100vh - var(--nav-h));padding:44px 0 250px;}
   /* stack pulled tight so the stats sit just under the heading and the CTA follows straight
      after -- the block was spreading over most of the viewport with big dead gaps between each
      element. The section's own bottom padding gives the breathing room instead. */
@@ -261,7 +255,31 @@
   .team-stats{display:flex;gap:56px;justify-content:center;flex-wrap:wrap;margin:32px 0 0;}
   .team-stats .stat-label{margin-top:2px;}
   .team-cta{margin-top:22px;}
-  footer{position:relative;z-index:7;margin-top:-32px;border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);}
+  footer{position:relative;z-index:7;border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);}
+
+  /* SHORT-VIEWPORT COMFORT -- a pinned cover card only shows one screen, so on shorter laptops the
+     content has to be tightened to fit within it. These trims keep the richest sections (Proof,
+     How it works) inside the pinned viewport instead of having their bottoms clipped by the next
+     layer. Above ~860px tall there's room and the defaults apply. */
+  @media (max-height: 860px){
+    #why,#services,#proof,#process,.team-block{padding-top:clamp(56px,7vh,88px);}
+    h2{margin-bottom:14px;}
+    .process-lead{margin-top:14px;font-size:clamp(15px,1.5vw,18px);}
+    .feature-row{padding:20px 0;}
+    .feat-body h3{margin-bottom:6px;}
+    .tab-row{margin:0 0 18px;}
+    .stats-row{margin-top:24px;}
+    .expertise-layout{gap:36px;}
+    .card-grid{margin-top:18px;}
+    .team-stats{margin-top:24px;}
+    .team-cta{margin-top:16px;}
+  }
+  @media (max-height: 720px){
+    #why,#services,#proof,#process,.team-block{padding-top:44px;}
+    .feature-row{padding:14px 0;}
+    .process-lead{margin-top:10px;}
+    .feat-body p{font-size:14px;}
+  }
 
   /* HERO */
   /* on load the visual fills the ENTIRE viewport -- edge to edge AND all the way to the very
