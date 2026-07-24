@@ -333,7 +333,7 @@
   .tab{border:1px solid transparent;border-radius:999px;padding:11px 22px;font-size:15px;
     color:#6b6875;cursor:pointer;background:none;font-family:inherit;font-weight:500;}
   .tab.active{color:var(--ink);font-weight:700;background:var(--accent2);border-color:var(--accent2);}
-  .expertise-layout{display:flex;gap:56px;flex-wrap:wrap;align-items:center;margin-top:8px;}
+  .expertise-layout{display:flex;gap:56px;flex-wrap:wrap;align-items:flex-start;margin-top:4px;}
   .expertise-copy{flex:1 1 440px;min-width:280px;max-width:560px;}
   .expertise-copy p{font-size:clamp(16px,1.5vw,19px);line-height:1.62;color:#4a4753;
     margin-bottom:16px;}
@@ -341,8 +341,9 @@
      is a big part of why their section reads as filled rather than as a boxed column. */
   .expertise-visual{flex:1 1 460px;min-width:300px;height:min(64vh,620px);margin-right:-40px;
     border-radius:24px 0 0 24px;overflow:hidden;background:var(--ink);position:relative;
-    box-shadow:0 30px 70px -40px rgba(30,16,70,.55);}
-  .expertise-visual video{width:100%;height:100%;object-fit:cover;display:block;}
+    contain:paint;box-shadow:0 30px 70px -40px rgba(30,16,70,.55);}
+  .expertise-visual video{width:100%;height:100%;object-fit:cover;display:block;
+    transform:translateZ(0);backface-visibility:hidden;}
 
   /* sized so the WIDEST pair (10,000+ beside 50+) still fits on one line inside the copy
      column. At 104px they wrapped, which doubled the row's height and pushed the second stat
@@ -487,6 +488,7 @@
   /* ripple gated behind a class the IntersectionObserver toggles -- three seeds cycled so the
      letters don't all wobble identically. */
   .foot-wordmark.rippling .wm-i{filter:url(#waterWarp1);}
+  .foot-bottom.live .foot-glow{animation-play-state:running;}
   .foot-wordmark.rippling .wm-l:nth-child(3n+2) .wm-i{filter:url(#waterWarp2);}
   .foot-wordmark.rippling .wm-l:nth-child(3n+3) .wm-i{filter:url(#waterWarp3);}
 
@@ -494,7 +496,7 @@
      transform animated, so the browser rasterises the blur once and just moves the texture --
      animating the blur radius itself would re-render it every frame. */
   .foot-glow{position:absolute;inset:-40% -12% -60%;z-index:0;pointer-events:none;
-    filter:blur(72px);opacity:.6;
+    filter:blur(72px);opacity:.6;animation-play-state:paused;
     background:
       radial-gradient(38% 62% at 20% 46%,rgba(144,112,223,.9),transparent 70%),
       radial-gradient(34% 56% at 58% 62%,rgba(90,200,250,.55),transparent 70%),
@@ -991,6 +993,7 @@ document.addEventListener('click',e=>{
   if(!('IntersectionObserver' in window))return;
   new IntersectionObserver(es=>{
     wm.classList.toggle('rippling',es[0].isIntersecting);
+    if(wm.parentElement)wm.parentElement.classList.toggle('live',es[0].isIntersecting);
   },{rootMargin:'120px'}).observe(wm);
 })();
 
