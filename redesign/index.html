@@ -339,12 +339,13 @@
     margin-bottom:16px;}
   /* bleeds past the wrap's right padding to the viewport edge, like theirs -- that full-bleed
      is a big part of why their section reads as filled rather than as a boxed column. */
-  /* aspect-ratio matches the film's 4:3 so the box IS the frame -- with object-fit:cover and a
-     fixed height the column's own width decided the crop, which chopped the sides off at
-     narrower viewports. contain guarantees the whole frame is visible; any letterbox lands on
-     --ink, which is the film's own background colour, so the bars are invisible. */
-  .expertise-visual{flex:1 1 460px;min-width:300px;aspect-ratio:4/3;
-    max-height:min(64vh,620px);margin-right:-40px;
+  /* The slot used to be whatever width was left over, against a fixed 620px height -- which
+     ran from 1.22:1 at a 1280 viewport to 2.47:1 at 1920. No film aspect can serve that, so
+     the width is capped and the box carries the film's own 3:2. contain (not cover) keeps the
+     whole frame visible; any letterbox lands on --ink, the film's own background, so the bars
+     can't be seen. */
+  .expertise-visual{flex:1 1 460px;min-width:300px;max-width:900px;aspect-ratio:3/2;
+    margin-right:-40px;
     border-radius:24px 0 0 24px;overflow:hidden;background:var(--ink);position:relative;
     contain:paint;box-shadow:0 30px 70px -40px rgba(30,16,70,.55);}
   .expertise-visual video{width:100%;height:100%;object-fit:contain;display:block;
