@@ -261,24 +261,29 @@
      content has to be tightened to fit within it. These trims keep the richest sections (Proof,
      How it works) inside the pinned viewport instead of having their bottoms clipped by the next
      layer. Above ~860px tall there's room and the defaults apply. */
-  @media (max-height: 860px){
-    #why,#services,#proof,#process,.team-block{padding-top:clamp(56px,7vh,88px);}
-    h2{margin-bottom:14px;}
-    .process-lead{margin-top:14px;font-size:clamp(15px,1.5vw,18px);}
-    .feature-row{padding:20px 0;}
-    .feat-body h3{margin-bottom:6px;}
-    .tab-row{margin:0 0 18px;}
-    .stats-row{margin-top:24px;}
-    .expertise-layout{gap:36px;}
-    .card-grid{margin-top:18px;}
-    .team-stats{margin-top:24px;}
-    .team-cta{margin-top:16px;}
+  @media (max-height: 900px){
+    #why,#services,#proof,#process,.team-block{padding-top:clamp(52px,6.5vh,80px);}
+    h2{margin-bottom:12px;}
+    .process-lead{margin-top:12px;font-size:clamp(15px,1.5vw,18px);}
+    .feature-row{padding:18px 0;}
+    .feat-body h3{margin-bottom:5px;}
+    .tab-row{margin:0 0 16px;}
+    .stats-row{margin-top:22px;}
+    .expertise-layout{gap:34px;align-items:center;}
+    /* the Proof film is a 3:2 box that grows tall on wide screens -- cap it so the section fits
+       the pinned viewport instead of the film pushing the stats off the bottom */
+    .expertise-visual{max-height:46vh;aspect-ratio:auto;}
+    .card-grid{margin-top:16px;}
+    .team-stats{margin-top:22px;}
+    .team-cta{margin-top:14px;}
   }
-  @media (max-height: 720px){
-    #why,#services,#proof,#process,.team-block{padding-top:44px;}
-    .feature-row{padding:14px 0;}
-    .process-lead{margin-top:10px;}
+  @media (max-height: 740px){
+    #why,#services,#proof,#process,.team-block{padding-top:40px;}
+    .feature-row{padding:13px 0;}
+    .process-lead{margin-top:8px;}
     .feat-body p{font-size:14px;}
+    .expertise-visual{max-height:40vh;}
+    .expertise-copy p{font-size:14px;margin-bottom:8px;}
   }
 
   /* HERO */
@@ -383,7 +388,9 @@
      panel showcasing the work. margin-left:auto keeps it hard right so the row's leftover
      space lands in the gap rather than against the page edge. The box carries the film's
      own 3:2 and object-fit:contain guarantees nothing is cropped at any width. */
-  .expertise-visual{flex:1 1 460px;min-width:300px;max-width:1000px;aspect-ratio:3/2;
+  /* max-height caps the 3:2 box so it can't grow unbounded on wide screens and push the section
+     past the pinned viewport -- above ~1400px wide the aspect alone would make it 600px+ tall. */
+  .expertise-visual{flex:1 1 460px;min-width:300px;max-width:1000px;aspect-ratio:3/2;max-height:56vh;
     margin-left:auto;
     border-radius:22px;overflow:hidden;background:var(--ink);position:relative;
     contain:paint;border:1px solid rgba(20,12,50,.10);
@@ -414,7 +421,7 @@
   .feature-stack{margin-top:44px;border-top:1px solid #e6e6e6;}
   /* rows carry a number that fills lime and a title that slides on hover -- turns a plain list
      into something that responds. The whole row is the hover target, not just the text. */
-  .feature-row{display:flex;gap:44px;align-items:flex-start;padding:32px 0;border-bottom:1px solid #e6e6e6;
+  .feature-row{display:flex;gap:44px;align-items:flex-start;padding:26px 0;border-bottom:1px solid #e6e6e6;
     position:relative;}
   .feat-num{font-family:monospace;font-size:14px;letter-spacing:.1em;color:#bdbdbd;min-width:52px;flex:none;
     padding-top:6px;}
@@ -724,29 +731,29 @@
 <section id="process" class="wrap">
   <div class="eyebrow">How it works</div>
   <h2 class="fx-rise">The systems</h2>
-  <p class="process-lead fx-lines">Every business I take to 10K a month runs the same three moves. Not a redesign — a system that keeps working after I hand it over.</p>
+  <p class="process-lead fx-lines">Same three moves on every business I take to 10K a month.</p>
   <div class="feature-stack fx-group" id="featureStack">
     <div class="feature-row">
       <div class="feat-num">01</div>
       <div class="feat-body">
         <h3>Capture every enquiry</h3>
-        <p>A site built to convert and booking that's always open, so anyone who's interested lands somewhere instead of slipping through. The leak stops here.</p>
+        <p>A converting site and always-open booking, so nobody interested slips through. The leak stops here.</p>
       </div>
       <div class="feat-tags"><span>Website</span><span>Online booking</span></div>
     </div>
     <div class="feature-row">
       <div class="feat-num">02</div>
       <div class="feat-body">
-        <h3>Follow up without lifting a finger</h3>
-        <p>Automated replies, reminders and nudges chase every lead on their own. Warm ones stop going cold while you're busy doing the actual work.</p>
+        <h3>Follow up automatically</h3>
+        <p>Replies, reminders and nudges chase every lead — so warm ones never go cold while you're working.</p>
       </div>
       <div class="feat-tags"><span>Auto-replies</span><span>SMS reminders</span></div>
     </div>
     <div class="feature-row">
       <div class="feat-num">03</div>
       <div class="feat-body">
-        <h3>Turn one client into the next</h3>
-        <p>Review requests, retention nudges and referral prompts run quietly in the background — so every client you win helps bring the one after them.</p>
+        <h3>Turn clients into more</h3>
+        <p>Reviews, retention and referrals run in the background, compounding every client you win.</p>
       </div>
       <div class="feat-tags"><span>Review requests</span><span>Referrals</span></div>
     </div>
@@ -1089,17 +1096,16 @@ document.addEventListener('click',e=>{
    on the white sections. Nav legibility is not allowed to depend on any animation running. */
 (function(){
   const navEl=document.querySelector('nav');
-  const heroBlock=document.getElementById('heroBlock');
   if(!navEl)return;
-  const setNav=()=>{
-    const y=window.scrollY||document.documentElement.scrollTop||0;
-    const past=heroBlock?heroBlock.offsetHeight-90:600;
-    navEl.classList.toggle('nav-clear', y < past);
-  };
-  setNav();
-  addEventListener('scroll',setNav,{passive:true});
-  addEventListener('resize',setNav,{passive:true});
-  if(lenis)lenis.on('scroll',setNav);
+  /* transparent (white text) over the dark hero, solid white once the first white section
+     (Proof) rises into view. Driven by ScrollTrigger on #proof -- not a guessed pixel threshold,
+     which flipped the nav white while still over the dark hero. This is the original behaviour. */
+  navEl.classList.add('nav-clear');
+  if(window.ScrollTrigger){
+    ScrollTrigger.create({trigger:'#proof',start:'top 82%',
+      onEnter:()=>navEl.classList.remove('nav-clear'),
+      onLeaveBack:()=>navEl.classList.add('nav-clear')});
+  }
 })();
 
 (function(){
