@@ -434,23 +434,34 @@
   .sys{display:flex;gap:30px;align-items:center;margin-top:20px;}
 
   .stages{flex:0 0 clamp(300px,33vw,372px);display:flex;flex-direction:column;gap:14px;}
-  .stage{border:1px solid #e6e6ea;border-radius:14px;padding:18px 22px;background:#fff;
-    position:relative;overflow:hidden;
-    transition:border-color .4s ease,box-shadow .4s ease;}
+  .stage{border:1px solid #e6e6ea;border-radius:14px;padding:18px 44px 18px 22px;background:#fff;
+    position:relative;overflow:hidden;cursor:default;
+    transition:transform .3s cubic-bezier(.2,.8,.2,1),border-color .3s ease,box-shadow .3s ease;}
+  /* HOVER: lifts and lights, independent of the auto sync (which only tints the background, below,
+     so the two never fight over the same property) */
+  .stage:hover{transform:translateY(-4px);border-color:var(--accent);
+    box-shadow:0 20px 44px -22px rgba(144,112,223,.55);}
   .stage-k{font-family:monospace;font-size:11px;color:#c0c0c8;letter-spacing:.1em;}
   .stage h3{font-size:clamp(18px,1.9vw,21px);letter-spacing:-.01em;margin:4px 0 4px;color:var(--ink);}
   .stage p{font-size:13.5px;color:#5a5760;line-height:1.45;}
-  /* the lit state, and the lime edge -- driven by the animation below, not hover */
+  /* the lime edge bar -- scales in during this card's turn in the sync cycle */
   .stage::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent2);
-    transform:scaleY(0);transform-origin:top;transition:transform .4s ease;}
-  /* each stage lit during its third of a shared 10.5s cycle */
+    transform:scaleY(0);transform-origin:top;transition:transform .4s ease;z-index:2;}
+  /* INDEPENDENT element: a live status dot, top-right, always pulsing regardless of hover/sync */
+  .stage::after{content:'';position:absolute;top:16px;right:16px;width:8px;height:8px;border-radius:50%;
+    background:var(--accent);animation:dotPulse 2.4s ease-in-out infinite;}
+  .s-b::after{animation-delay:.5s;} .s-c::after{animation-delay:1s;}
+  @keyframes dotPulse{
+    0%,100%{transform:scale(.85);opacity:.45;box-shadow:0 0 0 0 rgba(144,112,223,.45);}
+    50%{transform:scale(1.25);opacity:1;box-shadow:0 0 0 7px rgba(144,112,223,0);}
+  }
+  /* auto sync: each card tints faint violet during its third of the 10.5s cycle -- and its dot
+     goes lime -- so the eye follows the token climbing the machine. Background only, so hover
+     keeps full control of border + shadow. */
   .s-a{animation:stageLit 10.5s infinite;}
   .s-b{animation:stageLit 10.5s infinite;animation-delay:-7s;}
   .s-c{animation:stageLit 10.5s infinite;animation-delay:-3.5s;}
-  @keyframes stageLit{
-    0%,24%{border-color:var(--accent);box-shadow:0 16px 38px -20px rgba(144,112,223,.55);}
-    34%,100%{border-color:#e6e6ea;box-shadow:0 0 0 rgba(0,0,0,0);}
-  }
+  @keyframes stageLit{0%,24%{background:#f7f4ff;}34%,100%{background:#fff;}}
   .s-a::before{animation:litBar 10.5s infinite;}
   .s-b::before{animation:litBar 10.5s infinite;animation-delay:-7s;}
   .s-c::before{animation:litBar 10.5s infinite;animation-delay:-3.5s;}
@@ -459,12 +470,14 @@
   /* ---- isometric machine ---- */
   .iso-stage{flex:1;min-width:320px;height:clamp(320px,38vh,420px);perspective:1500px;
     display:flex;align-items:center;justify-content:center;}
-  /* the whole rig bobs gently on a 7s loop -- one sine cycle so it's seamless */
+  /* the whole scene slowly TURNS and bobs on a 16s loop -- the turn reveals the modules from
+     shifting angles (the "scene change" feel) while staying one continuous shot. Start = end so
+     it's seamless. */
   .iso{position:relative;width:1px;height:1px;transform-style:preserve-3d;
-    animation:isoBob 7s ease-in-out infinite;}
-  @keyframes isoBob{
-    0%,100%{transform:rotateX(56deg) rotateZ(-45deg) translateZ(0);}
-    50%{transform:rotateX(56deg) rotateZ(-45deg) translateZ(12px);}
+    animation:isoScene 16s ease-in-out infinite;}
+  @keyframes isoScene{
+    0%,100%{transform:rotateX(55deg) rotateZ(-52deg) translateZ(0);}
+    50%{transform:rotateX(58deg) rotateZ(-38deg) translateZ(14px);}
   }
   .box{position:absolute;transform-style:preserve-3d;width:var(--w);height:var(--w);
     left:calc(var(--w)/-2);top:calc(var(--w)/-2);}
@@ -508,9 +521,48 @@
     97%      {transform:translate3d(0,0,212px);}
     100%     {transform:translate3d(-116px,-116px,52px);}
   }
+  /* ---- module detail shapes on the top faces ---- */
+  .detail{position:absolute;transform:translateZ(calc(var(--h) + 1px));}
+  /* 01 Brand: a mini screen -- three layout lines */
+  .scr{inset:22px;display:flex;flex-direction:column;justify-content:center;gap:7px;
+    background:rgba(255,255,255,.14);border-radius:5px;padding:12px;}
+  .scr span{height:5px;border-radius:5px;background:rgba(255,255,255,.85);}
+  .scr span:nth-child(1){width:70%;} .scr span:nth-child(2){width:100%;} .scr span:nth-child(3){width:45%;background:var(--accent2);}
+  /* 02 Convert: three catch-slots that pulse as things drop in */
+  .slots{inset:26px;display:flex;gap:9px;align-items:center;justify-content:center;}
+  .slots i{width:20px;height:20px;border-radius:5px;background:rgba(255,255,255,.9);
+    animation:slotBlink 2.4s ease-in-out infinite;}
+  .slots i:nth-child(2){animation-delay:.4s;} .slots i:nth-child(3){animation-delay:.8s;}
+  @keyframes slotBlink{0%,100%{opacity:.55;transform:translateY(0);}50%{opacity:1;transform:translateY(-3px);}}
+  /* 03 AI: a bright core cube floating above, with an orbiting ring */
+  .core{left:50%;top:50%;width:26px;height:26px;margin:-13px;border-radius:7px;
+    background:radial-gradient(circle at 40% 35%,#fff,var(--accent2));
+    box-shadow:0 0 20px 5px rgba(230,245,54,.6);
+    transform:translateZ(calc(var(--h) + 26px));animation:corePulse 2.6s ease-in-out infinite;}
+  @keyframes corePulse{0%,100%{transform:translateZ(calc(var(--h) + 22px)) scale(1);}50%{transform:translateZ(calc(var(--h) + 34px)) scale(1.12);}}
+  .ring{left:50%;top:50%;width:64px;height:64px;margin:-32px;border-radius:50%;
+    border:2px solid rgba(255,255,255,.5);
+    transform:translateZ(calc(var(--h) + 22px)) rotateX(72deg);animation:ringSpin 5s linear infinite;}
+  @keyframes ringSpin{from{transform:translateZ(calc(var(--h) + 22px)) rotateX(72deg) rotateZ(0);}
+    to{transform:translateZ(calc(var(--h) + 22px)) rotateX(72deg) rotateZ(360deg);}}
+
+  /* ---- ambient floating cubes drifting through the scene ---- */
+  .floater{position:absolute;width:18px;height:18px;left:-9px;top:-9px;transform-style:preserve-3d;}
+  .floater i{position:absolute;width:18px;height:18px;border-radius:4px;}
+  .floater i:nth-child(1){transform:translateZ(9px);background:#b9a2ff;}
+  .floater i:nth-child(2){transform:rotateX(90deg) translateZ(9px);background:#9a80e8;transform-origin:bottom;bottom:0;}
+  .floater i:nth-child(3){transform:rotateY(90deg) translateZ(9px);background:#8571ce;transform-origin:right;right:0;}
+  .f1{animation:drift1 9s ease-in-out infinite;}
+  .f2{animation:drift2 11s ease-in-out infinite;}
+  .f3{animation:drift3 13s ease-in-out infinite;}
+  @keyframes drift1{0%,100%{transform:translate3d(-190px,40px,90px) rotateZ(0);}50%{transform:translate3d(-160px,10px,150px) rotateZ(180deg);}}
+  @keyframes drift2{0%,100%{transform:translate3d(70px,-180px,150px) rotateZ(0);}50%{transform:translate3d(110px,-150px,210px) rotateZ(-160deg);}}
+  @keyframes drift3{0%,100%{transform:translate3d(190px,-40px,60px) rotateZ(0);}50%{transform:translate3d(150px,-70px,120px) rotateZ(200deg);}}
+
   @media(prefers-reduced-motion:reduce){
-    .s-a,.s-b,.s-c,.s-a::before,.s-b::before,.s-c::before,.iso-token,.iso,
-    .b1 .top,.b2 .top,.b3 .top{animation:none;}
+    .s-a,.s-b,.s-c,.s-a::before,.s-b::before,.s-c::before,
+    .stage::after,.iso-token,.iso,
+    .b1 .top,.b2 .top,.b3 .top,.slots i,.core,.ring,.f1,.f2,.f3{animation:none;}
     .iso{transform:rotateX(56deg) rotateZ(-45deg);}
     .s-a{border-color:var(--accent);box-shadow:0 16px 38px -20px rgba(144,112,223,.55);}
     .s-a::before{transform:scaleY(1);}
@@ -830,13 +882,24 @@
       </div>
     </div>
 
-    <!-- isometric machine: three ascending blocks, a lime token climbing them on a loop -->
+    <!-- isometric scene: three system-modules with distinct shapes, ambient floaters, a climbing
+         token, and a slow scene turn. Pure CSS 3D. -->
     <div class="iso-stage" aria-hidden="true">
       <div class="iso">
         <div class="iso-ground"></div>
-        <div class="box b1"><div class="lf"></div><div class="rf"></div><div class="top"></div></div>
-        <div class="box b2"><div class="lf"></div><div class="rf"></div><div class="top"></div></div>
-        <div class="box b3"><div class="lf"></div><div class="rf"></div><div class="top"></div></div>
+        <!-- ambient floating cubes drifting through the scene -->
+        <div class="floater f1"><i></i><i></i><i></i></div>
+        <div class="floater f2"><i></i><i></i><i></i></div>
+        <div class="floater f3"><i></i><i></i><i></i></div>
+        <!-- 01 Brand: a screen with layout lines on top -->
+        <div class="box b1"><div class="lf"></div><div class="rf"></div><div class="top">
+          <div class="detail scr"><span></span><span></span><span></span></div></div></div>
+        <!-- 02 Convert: catch-slots on top -->
+        <div class="box b2"><div class="lf"></div><div class="rf"></div><div class="top">
+          <div class="detail slots"><i></i><i></i><i></i></div></div></div>
+        <!-- 03 AI: a glowing core with an orbiting ring -->
+        <div class="box b3"><div class="lf"></div><div class="rf"></div><div class="top">
+          <div class="detail core"></div><div class="detail ring"></div></div></div>
         <div class="iso-token"><div class="cube"></div></div>
       </div>
     </div>
