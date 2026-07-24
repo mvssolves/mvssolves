@@ -110,10 +110,10 @@
      while resizing at the bottom. Now the scene's top edge is a pure geometric move with nothing
      fading over it, and the nav only solidifies once Technology is arriving. */
   nav.nav-clear{background:transparent;transition:none;}
-  /* the nav lives on the hero. Once the hero is behind you it lifts out rather than
-     riding along for the rest of the page. */
-  nav.nav-gone{transform:translateY(-100%);opacity:0;pointer-events:none;
-    transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .3s ease;}
+  /* Parked: once the hero's bottom edge reaches the nav, the nav stops being fixed and
+     is pinned to that point in the page instead -- so it scrolls away with the hero
+     rather than following you down or flicking out. */
+  nav.nav-parked{position:absolute;}
   /* links sit right next to the logo rather than being centred: space-between pushed the link
      group into the middle of the bar, leaving it stranded far from the wordmark. The CTA is
      pushed to the far right on its own with margin-left:auto. */
@@ -1029,8 +1029,33 @@ document.addEventListener('click',e=>{
      every fade well clear of the scene itself. */
   navEl.classList.add('nav-clear');
   ScrollTrigger.create({trigger:'#proof',start:'top 85%',
-    onEnter:()=>{navEl.classList.remove('nav-clear');navEl.classList.add('nav-gone');},
-    onLeaveBack:()=>{navEl.classList.add('nav-clear');navEl.classList.remove('nav-gone');}});
+    onEnter:()=>navEl.classList.remove('nav-clear'),
+    onLeaveBack:()=>navEl.classList.add('nav-clear')});
+
+  /* Nav rides along for the length of the hero, then stops dead at its bottom edge. Implemented
+     by swapping fixed -> absolute at the hand-off point rather than animating anything: the nav
+     never moves relative to the page at the moment it parks, so there's no visible jump. */
+  const heroEl=document.getElementById('heroBlock');
+  if(heroEl){
+    let limit=0;
+    const measure=()=>{limit=heroEl.offsetTop+heroEl.offsetHeight-navEl.offsetHeight;};
+    /* takes the position from Lenis when it drives the scroll, and falls back to the native
+       value otherwise -- binding to lenis alone missed programmatic scrolls and anchor jumps. */
+    const park=(y)=>{
+      if(typeof y!=='number')y=window.scrollY||document.documentElement.scrollTop;
+      if(y>limit){
+        navEl.classList.add('nav-parked');
+        navEl.style.top=limit+'px';
+      }else{
+        navEl.classList.remove('nav-parked');
+        navEl.style.top='0px';
+      }
+    };
+    measure();park();
+    addEventListener('resize',()=>{measure();park();},{passive:true});
+    addEventListener('scroll',()=>park(),{passive:true});
+    if(lenis)lenis.on('scroll',(e)=>park(e&&typeof e.scroll==='number'?e.scroll:undefined));
+  }
 
   const eyebrow=document.querySelector('.hero-left .eyebrow');
   const right=document.querySelector('.hero-right');
