@@ -250,8 +250,12 @@
   /* min-height is NOT optional here: this is a cover-layer, and at 584px it left ~157px of
      the Services section visible below it. Every layer must fill the slot or the stack
      comes apart. */
+  /* sized to its CONTENT, not to a full viewport. It still cover-stacks exactly as before --
+     position:sticky and the rising z-index are untouched -- but it no longer reserves a screen's
+     worth of height for ~450px of content, which is where the white gap before the footer came
+     from. The footer now starts rising as soon as the About content has been read. */
   .team-block{z-index:6;text-align:center;align-items:center;justify-content:flex-start;
-    min-height:calc(100vh - var(--nav-h));padding:44px 0 250px;}
+    min-height:auto;padding:44px 0 96px;}
   /* stack pulled tight so the stats sit just under the heading and the CTA follows straight
      after -- the block was spreading over most of the viewport with big dead gaps between each
      element. The section's own bottom padding gives the breathing room instead. */
@@ -1157,7 +1161,7 @@
 <section id="services" class="wrap">
   <div class="eyebrow">What I build</div>
   <h2 class="fx-rise">The work</h2>
-  <p class="process-lead fx-words">Three parts, one machine — a site that sells, booking that runs itself, and an AI that works the leads while you work.</p>
+  <p class="process-lead fx-words">Three parts, one machine — a site that sells, booking that runs itself, and an AI that works the leads while you work. Each piece is built for your business, not pulled off a shelf, and they're designed to run together: the site earns the click, the booking takes it, the AI makes sure nobody slips through.</p>
   <div class="card-grid fx-group">
 
     <article class="card">
@@ -1222,6 +1226,7 @@
 <div class="team-block wrap" id="about">
   <div class="eyebrow">About</div>
   <h2 class="fx-rise">The business in one prompt.</h2>
+  <p class="about-lead fx-words">MVS Solves is me — one person who designs, builds and ships the whole thing. Websites that convert and automations that run themselves, for businesses that want it done properly the first time. No layers, no hand-offs, no juniors learning on your budget.</p>
   <div class="team-stats fx-group">
     <div><div class="stat-num" data-count="100">0</div><div class="stat-label">websites made</div></div>
     <div><div class="stat-num" data-count="5">0</div><div class="stat-label">businesses at 10K a month</div></div>
