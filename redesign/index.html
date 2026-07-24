@@ -548,6 +548,34 @@
   }
 
   /* WHY ME -- personal note on the left, a real timeline on the right */
+  /* WHITE SECTION -- kept light so the whole stack stays one consistent theme. The earlier flat
+     wash read as low-tier because it was ONLY a gradient; this keeps the pieces that made the dark
+     version feel built -- fine grain, an off-centre bloom, a masked hairline grid and the cropped
+     ghost stat -- inverted onto white. Structure, not just a tint. */
+  #why{background:linear-gradient(180deg,#ffffff 0%,#faf9fd 58%,#f5f2fb 100%);overflow:hidden;}
+  /* bloom + hairline grid, masked to a soft oval so the edges dissolve instead of ending on a line */
+  #why::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;border-radius:inherit;
+    background:
+      radial-gradient(56% 64% at 52% 40%, rgba(144,112,223,.14), transparent 72%),
+      repeating-linear-gradient(90deg, rgba(11,11,12,.038) 0 1px, transparent 1px 132px),
+      repeating-linear-gradient(0deg,  rgba(11,11,12,.026) 0 1px, transparent 1px 132px);
+    -webkit-mask-image:radial-gradient(80% 84% at 48% 42%, #000 22%, rgba(0,0,0,.4) 60%, transparent 92%);
+            mask-image:radial-gradient(80% 84% at 48% 42%, #000 22%, rgba(0,0,0,.4) 60%, transparent 92%);}
+  /* fine grain -- dark fractal noise at very low opacity gives the white a subtle paper tooth,
+     the thing a plain #fff panel never has */
+  #why::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;border-radius:inherit;
+    opacity:.05;background-size:180px 180px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+  /* content rides above both ground layers */
+  #why > *{position:relative;z-index:1;}
+  /* cropped ghost stat -- violet outline on white, faded at the top so it never crowds the copy */
+  #why > .me-ghost{position:absolute;z-index:0;right:1.5%;bottom:-15%;pointer-events:none;user-select:none;
+    font-size:clamp(190px,25vw,370px);font-weight:800;letter-spacing:-.05em;line-height:.8;
+    color:transparent;-webkit-text-stroke:1.6px rgba(144,112,223,.17);
+    -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 42%,#000 100%);
+            mask-image:linear-gradient(180deg,transparent 0,#000 42%,#000 100%);}
+  /* heading + body use the site's default ink; eyebrow keeps brand violet */
+  #why .eyebrow{color:var(--accent);}
   .me-layout{display:flex;gap:clamp(40px,6vw,72px);align-items:flex-start;margin-top:34px;}
   .me-copy{flex:1 1 400px;max-width:520px;}
   .me-copy p{font-size:clamp(16px,1.6vw,19px);line-height:1.6;color:#4a4753;margin-bottom:16px;}
@@ -844,8 +872,8 @@
   </div>
   <div class="expertise-layout">
     <div class="expertise-copy">
-      <p class="fx-lines">50+ businesses now run on systems I built around how they actually work — not a template with their logo on it.</p>
-      <p class="fx-lines">The top six were doing 10K a month inside two months.</p>
+      <p class="fx-lines" data-hl="50+"><span class="hl">50+</span> businesses now run on systems I built around how they actually work — not a template with their logo on it.</p>
+      <p class="fx-lines" data-hl="10K">The top six were doing <span class="hl">10K</span> a month inside two months.</p>
       <p class="fx-lines">Same three moves every time: a site built to convert, booking that runs itself, follow-up that never forgets.</p>
       <div class="stats-row fx-group">
         <!-- static values mirror tab one, so the row reads correctly before the JS runs -->
@@ -954,6 +982,7 @@
 
 <!-- TECHNOLOGY (WHY ME) -- layer 4, covers Key Features. -->
 <section id="why" class="wrap">
+  <span class="me-ghost" aria-hidden="true">10K</span>
   <div class="eyebrow">Why me</div>
   <h2 class="fx-rise">Straight from me</h2>
   <div class="me-layout">
@@ -1757,6 +1786,7 @@ function odometer(el, value, opts){
   if(reduce)return;
   document.querySelectorAll('.fx-lines').forEach(el=>{
     const full=el.textContent.trim();
+    const hlWords=(el.dataset.hl||'').split(',').map(w=>w.trim()).filter(Boolean);
     let inners=[];
     function build(){
       /* measure where the browser actually breaks the text, then rebuild it line by line */
@@ -1789,7 +1819,9 @@ function odometer(el, value, opts){
         mask.style.cssText='display:block;overflow:hidden;';
         const inner=document.createElement('span');
         inner.style.cssText='display:block;';
-        inner.textContent=line;
+        if(hlWords.length){
+          inner.innerHTML=line.split(' ').map(w=>hlWords.includes(w)?'<span class="hl">'+w+'</span>':w).join(' ');
+        }else{ inner.textContent=line; }
         mask.appendChild(inner); el.appendChild(mask);
         return inner;
       });
