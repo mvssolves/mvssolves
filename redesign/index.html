@@ -344,8 +344,11 @@
      the width is capped and the box carries the film's own 3:2. contain (not cover) keeps the
      whole frame visible; any letterbox lands on --ink, the film's own background, so the bars
      can't be seen. */
-  .expertise-visual{flex:1 1 460px;min-width:300px;max-width:900px;aspect-ratio:3/2;
-    margin-right:-40px;
+  /* margin-left:auto pushes the film hard against the right edge. Without it both columns hit
+     their max-widths and the row's leftover space collected on the right as dead white --
+     the gap between copy and film should absorb it, not the page edge. */
+  .expertise-visual{flex:1 1 460px;min-width:300px;max-width:1000px;aspect-ratio:3/2;
+    margin-left:auto;margin-right:-40px;
     border-radius:24px 0 0 24px;overflow:hidden;background:var(--ink);position:relative;
     contain:paint;box-shadow:0 30px 70px -40px rgba(30,16,70,.55);}
   .expertise-visual video{width:100%;height:100%;object-fit:contain;display:block;
