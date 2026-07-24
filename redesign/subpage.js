@@ -14,7 +14,6 @@
   var text = wm.textContent.trim();
   wm.textContent = '';
   var i = 0;
-  var risers = [];
   for (var c = 0; c < text.length; c++) {
     var ch = text[c];
     if (ch === ' ') {
@@ -44,37 +43,9 @@
     face.textContent = ch;
     inner.appendChild(face);
     outer.appendChild(inner);
-
-    /* reveal wrappers -- .wm-l already animates transform, and an animation beats an inline
-       style, so the scroll lift has to sit on a parent */
-    var clip = document.createElement('span');
-    clip.className = 'wm-w';
-    var riser = document.createElement('span');
-    riser.className = 'wm-r';
-    riser.appendChild(outer);
-    clip.appendChild(riser);
-    wm.appendChild(clip);
-    risers.push(riser);
+    wm.appendChild(outer);
     i++;
   }
-
-  /* Letters peek up one at a time as the footer arrives, each on its own overlapping slice of
-     the scroll range, so it reads as a wave rather than a stepped sequence. */
-  var N = risers.length;
-  function reveal() {
-    var r = wm.getBoundingClientRect();
-    var vh = window.innerHeight || 1;
-    var p = Math.max(0, Math.min(1, (vh - r.top) / (vh * 0.55)));
-    for (var k = 0; k < N; k++) {
-      var start = (k / N) * 0.72;
-      var local = Math.max(0, Math.min(1, (p - start) / 0.34));
-      var eased = local < 0.5 ? 4 * local * local * local : 1 - Math.pow(-2 * local + 2, 3) / 2;
-      risers[k].style.transform = 'translateY(' + ((1 - eased) * 105) + '%)';
-    }
-  }
-  reveal();
-  addEventListener('scroll', reveal, {passive: true});
-  addEventListener('resize', reveal, {passive: true});
 
   /* the blurred glow behind it only animates while the footer is actually on screen */
   if (reduce || !('IntersectionObserver' in window)) return;

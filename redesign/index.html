@@ -99,10 +99,9 @@
      Default is solid so the no-JS / reduced-motion path stays legible; JS adds .nav-clear while
      the hero is on screen. The background transition is deliberately NOT applied while clear --
      see .nav-clear below. */
-  /* fixed: the nav stays put on screen for the whole page. It starts transparent over the
-     dark hero and picks up the white background once you've scrolled past it -- see the
-     nav-clear toggle below. */
-  nav{position:fixed;top:0;left:0;right:0;background:#fff;z-index:20;
+  /* absolute, not fixed: the nav belongs to the hero and scrolls away with it, rather
+     than following the viewport down the page. */
+  nav{position:absolute;top:0;left:0;right:0;background:transparent;z-index:20;
     transition:background .3s ease;}
   /* transparent for the WHOLE hero section, and it does not fade back in until the hero is gone.
      Previously the nav faded from transparent to white across the hero's own scroll, which put a
@@ -415,16 +414,7 @@
   /* wordmark is the LAST thing in the footer, so it can only ever sit at the very bottom of the
      page -- it can't ride up over the columns or the Send CTA no matter the viewport, which was
      the recurring overlap bug. Sized to fit "MVS Solves" whole: no clipping, no bleed-off. */
-  /* A still lifted straight out of the hero film, blurred, sitting behind the wordmark -- the
-     footer gets the same 3D material as the top of the page instead of a flat black slab. */
   .foot-bottom{position:relative;margin-top:12px;padding-top:0;}
-  .foot-bottom::after{content:'';position:absolute;inset:-30% -12% 0;z-index:0;pointer-events:none;
-    background:url('./media/footer-bg.jpg') center/cover no-repeat;opacity:.30;
-    mask-image:linear-gradient(to top,#000 40%,transparent 100%);
-    -webkit-mask-image:linear-gradient(to top,#000 40%,transparent 100%);}
-  /* hairline the letters rise up out of */
-  .foot-rule{position:relative;z-index:3;height:1px;background:rgba(255,255,255,.22);
-    margin:0 0 -1px;}
   /* halftone dot field behind the wordmark, faded out toward the top so it dissolves into the
      footer rather than ending on a hard edge. */
   .foot-bottom::before{content:'';position:absolute;inset:0;pointer-events:none;
@@ -454,11 +444,6 @@
      compound cycles that never line up means the letter's path doesn't visibly repeat, the way a
      single keyframe on a single element always does. Per-letter --rx/--ry/--rz/--z/--a/--d1/--d2
      are set from JS, so no two letters share an orbit either. */
-  /* Reveal is its own pair of wrappers on purpose. .wm-l already owns an animation on transform,
-     and an animation wins over an inline style -- so the scroll lift has to live on a parent or it
-     simply never applies. .wm-w clips, .wm-r lifts. */
-  .wm-w{display:inline-block;overflow:hidden;vertical-align:bottom;}
-  .wm-r{display:inline-block;will-change:transform;}
   .wm-l{display:inline-block;transform-style:preserve-3d;
     animation:wmSway var(--d1) ease-in-out infinite;
     animation-delay:calc(var(--i) * -.53s);}
@@ -781,7 +766,6 @@
        up over the columns/CTA. Full text, no clipping, halftone dot field behind it. -->
   <div class="foot-bottom">
     <div class="foot-glow" aria-hidden="true"></div>
-    <div class="foot-rule" aria-hidden="true"></div>
     <div class="foot-wordmark" aria-hidden="true">MVS Solves</div>
   </div>
 </footer>
@@ -966,7 +950,6 @@ document.addEventListener('click',e=>{
   const text=wm.textContent.trim();
   wm.textContent='';
   let i=0;
-  const risers=[];
   for(const ch of text){
     if(ch===' '){
       const sp=document.createElement('span');
@@ -1001,38 +984,10 @@ document.addEventListener('click',e=>{
     inner.appendChild(face);
     outer.appendChild(inner);
 
-    const clip=document.createElement('span');
-    clip.className='wm-w';
-    const riser=document.createElement('span');
-    riser.className='wm-r';
-    riser.appendChild(outer);
-    clip.appendChild(riser);
-    wm.appendChild(clip);
-    risers.push(riser);
+    wm.appendChild(outer);
     i++;
   }
 
-  /* Letters peek up one at a time as the footer arrives, rather than the whole word appearing at
-     once. Each letter gets its own slice of the scroll range with a deliberate overlap, so it
-     reads as a wave rolling across the word instead of a stepped sequence.
-     Driven off Lenis's scroll event where available -- a separate rAF loop here would fight the
-     one already running the page. */
-  const N=risers.length;
-  function reveal(){
-    const r=wm.getBoundingClientRect();
-    const vh=window.innerHeight||1;
-    /* 0 when the wordmark's top is a screen below the fold, 1 once it's fully up */
-    const p=Math.max(0,Math.min(1,(vh-r.top)/(vh*0.55)));
-    for(let k=0;k<N;k++){
-      const start=(k/N)*0.72;             /* overlap: each letter starts before the last finishes */
-      const local=Math.max(0,Math.min(1,(p-start)/0.34));
-      const eased=local<0.5?4*local*local*local:1-Math.pow(-2*local+2,3)/2;
-      risers[k].style.transform='translateY('+((1-eased)*105)+'%)';
-    }
-  }
-  reveal();
-  if(window.lenis)lenis.on('scroll',reveal); else addEventListener('scroll',reveal,{passive:true});
-  addEventListener('resize',reveal,{passive:true});
 
   if(!('IntersectionObserver' in window))return;
   new IntersectionObserver(es=>{
