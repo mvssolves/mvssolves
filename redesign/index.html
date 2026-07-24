@@ -1369,15 +1369,20 @@ function odometer(el, value, opts){
   const v=document.getElementById('proofFilm');
   if(!v||!('IntersectionObserver' in window))return;
   if(reduce)return;                       /* poster frame only, no motion */
-  let loaded=false;
+  let loaded=false, ready=false;
+  /* wait for canplaythrough before the first play(). Calling play() the instant load() is issued
+     starts decoding against an empty buffer, which stalls a beat in and reads as a stutter right
+     at the point the viewer first looks at it. */
+  v.addEventListener('canplaythrough',()=>{ready=true;},{once:true});
   new IntersectionObserver(es=>{
     if(es[0].isIntersecting){
       if(!loaded){v.load();loaded=true;}
-      v.play().catch(()=>{});             /* autoplay refusal is not an error worth surfacing */
+      const go=()=>v.play().catch(()=>{});   /* autoplay refusal isn't worth surfacing */
+      if(ready)go(); else v.addEventListener('canplaythrough',go,{once:true});
     }else if(loaded){
       v.pause();
     }
-  },{rootMargin:'200px',threshold:0.05}).observe(v);
+  },{rootMargin:'300px',threshold:0.01}).observe(v);
 })();
 
 /* Proof tabs drive the stat pair: each tab counts the two odometers to its own values. */
