@@ -1097,15 +1097,17 @@ document.addEventListener('click',e=>{
 (function(){
   const navEl=document.querySelector('nav');
   if(!navEl)return;
-  /* transparent (white text) over the dark hero, solid white once the first white section
-     (Proof) rises into view. Driven by ScrollTrigger on #proof -- not a guessed pixel threshold,
-     which flipped the nav white while still over the dark hero. This is the original behaviour. */
-  navEl.classList.add('nav-clear');
-  if(window.ScrollTrigger){
-    ScrollTrigger.create({trigger:'#proof',start:'top 82%',
-      onEnter:()=>navEl.classList.remove('nav-clear'),
-      onLeaveBack:()=>navEl.classList.add('nav-clear')});
-  }
+  /* Transparent at the very top, solid white a bit after you start scrolling. Plain
+     viewport-relative threshold -- no ScrollTrigger, no measured hero height, nothing that can
+     drift or fail to fire. Transparent while within the first ~65% of a screen; white past that. */
+  const setNav=()=>{
+    const y=window.scrollY||document.documentElement.scrollTop||0;
+    navEl.classList.toggle('nav-clear', y < window.innerHeight*0.65);
+  };
+  setNav();
+  addEventListener('scroll',setNav,{passive:true});
+  addEventListener('resize',setNav,{passive:true});
+  if(lenis)lenis.on('scroll',setNav);
 })();
 
 (function(){
