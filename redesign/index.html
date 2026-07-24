@@ -540,6 +540,29 @@
     .iso-svg{max-width:440px;}
   }
 
+  /* WHY ME -- personal note on the left, a real timeline on the right */
+  .me-layout{display:flex;gap:clamp(40px,6vw,72px);align-items:flex-start;margin-top:34px;}
+  .me-copy{flex:1 1 400px;max-width:520px;}
+  .me-copy p{font-size:clamp(16px,1.6vw,19px);line-height:1.6;color:#4a4753;margin-bottom:16px;}
+  .me-copy .btn{margin-top:8px;}
+  /* vertical timeline: a violet->grey rail with a node per beat, the last one lime (Today) */
+  .me-timeline{flex:1 1 380px;list-style:none;position:relative;padding-left:30px;margin-top:2px;}
+  .me-timeline::before{content:'';position:absolute;left:5px;top:8px;bottom:14px;width:2px;
+    background:linear-gradient(var(--accent),#dcdce2);}
+  .me-timeline li{position:relative;padding:0 0 20px;}
+  .me-timeline li:last-child{padding-bottom:0;}
+  .me-timeline li::before{content:'';position:absolute;left:-30px;top:4px;width:12px;height:12px;
+    border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px #fff;}
+  .me-timeline li:last-child::before{background:var(--accent2);box-shadow:0 0 0 4px #fff,0 0 14px 2px rgba(230,245,54,.6);}
+  .tl-date{font-family:monospace;font-size:12px;color:var(--accent);letter-spacing:.06em;text-transform:uppercase;}
+  .me-timeline p{margin:4px 0 0;font-size:14.5px;color:#55525c;line-height:1.5;max-width:44ch;}
+  @media(max-width:820px){.me-layout{flex-direction:column;gap:28px;}}
+  @media(max-height:900px){
+    .me-copy p{font-size:16px;margin-bottom:12px;}
+    .me-timeline li{padding-bottom:15px;}
+    .me-layout{margin-top:24px;}
+  }
+
   /* FOOTER */
   /* tight top pad: there was a dead band of black between the footer's top edge and the first
      column heading, which just read as a gap the cover-transition had to scroll through.
@@ -800,7 +823,7 @@
   </div>
   <div class="expertise-layout">
     <div class="expertise-copy">
-      <p class="fx-lines">Fifty-plus businesses now run on systems I built around how they actually work — not a template with their logo on it.</p>
+      <p class="fx-lines">50+ businesses now run on systems I built around how they actually work — not a template with their logo on it.</p>
       <p class="fx-lines">The top six were doing 10K a month inside two months.</p>
       <p class="fx-lines">Same three moves every time: a site built to convert, booking that runs itself, follow-up that never forgets.</p>
       <div class="stats-row fx-group">
@@ -912,8 +935,20 @@
 <section id="why" class="wrap">
   <div class="eyebrow">Why me</div>
   <h2 class="fx-rise">Straight from me</h2>
-  <p class="fx-clip">[Body paragraph one — template placeholder copy describing this section's real content once written.]</p>
-  <p class="fx-words" style="margin-top:10px;">[Body paragraph two — template placeholder copy.]</p>
+  <div class="me-layout">
+    <div class="me-copy">
+      <p class="fx-lines">I'm Martin — self-taught, no agency background. I started in marketing and sales and built MVS Solves because most agencies stack layers between you and the actual work.</p>
+      <p class="fx-lines">Every project is mine alone: strategy, design, build, delivery. Your business is my only priority until it's done — and if it's not growing, I'm not finished.</p>
+      <a class="btn filled" href="#" data-contact>Work with me</a>
+    </div>
+    <ol class="me-timeline fx-group">
+      <li><span class="tl-date">2025</span><p>Started in marketing and sales — learned the trade hands-on, no classroom.</p></li>
+      <li><span class="tl-date">2026</span><p>Founded MVS Solves. Went solo on purpose — no layers between me and the client.</p></li>
+      <li><span class="tl-date">First 30 days</span><p>Onboarded 15 new clients.</p></li>
+      <li><span class="tl-date">3 months in</span><p>Helped 6 businesses hit five figures.</p></li>
+      <li><span class="tl-date">Today</span><p>Every project still runs through me personally. That's not changing as this grows.</p></li>
+    </ol>
+  </div>
 </section>
 
 <!-- PRODUCTS (WHAT I BUILD) -- layer 5, covers Technology. -->
