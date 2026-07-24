@@ -28,6 +28,10 @@ function init(host) {
     return;                                   // no WebGL — the CSS collage simply stays
   }
 
+  /* hide the CSS fallback the INSTANT WebGL is confirmed. Waiting for the first rendered frame
+     meant the collage was visible for a beat on load, which read as a glitch. */
+  host.classList.add('scene-booting');
+
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
   camera.position.set(0, 0, 20);
@@ -35,7 +39,10 @@ function init(host) {
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.setClearAlpha(0);
   const canvas = renderer.domElement;
-  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;';
+  /* centred, not top-left anchored: the host shrinks to an inset card as the hero scrubs, and a
+     top-left anchored buffer would crop to the corner instead of staying on the subject. */
+  canvas.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);'
+    + 'width:100vw;height:100vh;display:block;';
   host.appendChild(canvas);
 
   /* ---- particles --------------------------------------------------------------------------- */
@@ -126,15 +133,19 @@ function init(host) {
     ty = e.clientY / innerHeight - 0.5;
   }, { passive: true });
 
-  /* ---- resize: the hero box is scrubbed from 100vh to an inset card, so watch the ELEMENT ---- */
+  /* ---- resize -------------------------------------------------------------------------------
+     Sized to the VIEWPORT, never to #hero3d. The hero box's height is scrubbed by GSAP on every
+     scroll frame, and reallocating a WebGL drawing buffer that often is exactly what made the
+     hero judder while scrolling. The canvas is pinned at viewport size and the host simply crops
+     it (overflow:hidden), which costs nothing per frame. */
   const resize = () => {
-    const w = host.clientWidth || 1, h = host.clientHeight || 1;
+    const w = innerWidth, h = innerHeight;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
-    camera.fov = w < 700 ? 54 : 38;           // pull back on narrow screens so it never crops
+    camera.fov = w < 700 ? 54 : 38;
     camera.updateProjectionMatrix();
   };
-  new ResizeObserver(resize).observe(host);
+  addEventListener('resize', resize, { passive: true });
   resize();
 
   /* ---- don't burn a GPU on an invisible canvas ---------------------------------------------- */
@@ -180,9 +191,19 @@ function init(host) {
       const i3 = i * 3;
       const drift = Math.sin(t * 0.5 + spin[i]) * (1 - m) * 0.7;
 
-      const x = chaos[i3]     + (target[i3]     - chaos[i3])     * m + drift;
-      const y = chaos[i3 + 1] + (target[i3 + 1] - chaos[i3 + 1]) * m + drift * 0.7;
-      const z = chaos[i3 + 2] + (target[i3 + 2] - chaos[i3 + 2]) * m;
+      /* while the figure is HELD, it stays alive: a slow wave breathes through the glyphs, and
+         every 24th particle refuses to settle and keeps orbiting the number as a loose satellite.
+         Without this the held beat froze solid and looked like a static image. */
+      const wave = m * Math.sin(target[i3] * 0.5 - t * 1.4 + spin[i] * 0.3) * 0.09;
+      const orbiter = (i % 24 === 0) ? m : 0;
+      const oa = t * 0.6 + spin[i];
+
+      const x = chaos[i3]     + (target[i3]     - chaos[i3])     * m + drift + wave
+              + orbiter * Math.cos(oa) * 1.5;
+      const y = chaos[i3 + 1] + (target[i3 + 1] - chaos[i3 + 1]) * m + drift * 0.7 + wave * 0.6
+              + orbiter * Math.sin(oa * 1.3) * 1.1;
+      const z = chaos[i3 + 2] + (target[i3 + 2] - chaos[i3 + 2]) * m
+              + orbiter * Math.sin(oa) * 1.2;
 
       dummy.position.set(x, y, z);
       dummy.scale.setScalar(0.42 + m * 0.55);

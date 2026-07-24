@@ -255,7 +255,7 @@
      worth of height for ~450px of content, which is where the white gap before the footer came
      from. The footer now starts rising as soon as the About content has been read. */
   .team-block{z-index:6;text-align:center;align-items:center;justify-content:flex-start;
-    min-height:auto;padding:44px 0 96px;}
+    min-height:auto;padding:44px 0 190px;}
   /* stack pulled tight so the stats sit just under the heading and the CTA follows straight
      after -- the block was spreading over most of the viewport with big dead gaps between each
      element. The section's own bottom padding gives the breathing room instead. */
@@ -359,6 +359,9 @@
   .hero-cap b{font-size:0;}
   .hero-cap span{font-family:monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
     color:#6c6879;}
+  /* .scene-booting is set the moment WebGL is confirmed, BEFORE the first frame renders, with no
+     transition -- so the fallback collage never flashes on load. .scene-live keeps it hidden. */
+  #hero3d.scene-booting .hs-scene{opacity:0;transition:none;}
   #hero3d.scene-live .hs-scene{opacity:0;}
   .hs-stage{position:relative;width:min(880px,88vw);aspect-ratio:16/8;perspective:1500px;
     transform-style:preserve-3d;}
@@ -452,62 +455,37 @@
   @media(prefers-reduced-motion:reduce){.marquee-track{animation:none;}}
 
   /* CARD GRIDS (products) */
-  /* WORK -- three equal cards, each topped with a small live product mock (browser / calendar /
-     chat) so the section shows the deliverable instead of describing it. All pure CSS+SVG. */
-  .card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:28px;perspective:1300px;}
-  @media(max-width:860px){.card-grid{grid-template-columns:1fr;max-width:440px;}}
-  .card{position:relative;border:1px solid #e8e6ee;border-radius:20px;padding:16px 16px 28px;
-    background:#fff;overflow:hidden;transform-style:preserve-3d;
-    box-shadow:0 2px 4px -2px rgba(20,12,50,.06),0 18px 40px -28px rgba(20,12,50,.45);
-    will-change:transform;
-    transition:transform .2s ease,box-shadow .28s ease,border-color .28s ease;}
-  .card:hover{transform:translateY(-6px);border-color:#d6cdf2;box-shadow:0 30px 56px -30px rgba(144,112,223,.6);}
-  .svc-tag{position:absolute;top:26px;right:26px;z-index:3;font-family:monospace;font-size:11px;
-    letter-spacing:.12em;color:#c9c2da;}
-  /* neutral stage, not a violet wash. The old radial flooded every card in purple and the mocks
-     -- which are themselves purple -- disappeared into it, which is what made them read weak.
-     place-items:stretch + a fixed aspect on the mock means nothing is ever cropped. */
-  .card-viz{aspect-ratio:16/10;border-radius:13px;overflow:hidden;position:relative;
-    display:grid;place-items:center;padding:18px;
-    background:linear-gradient(180deg,#f7f7fa,#f2f2f7);border:1px solid #ececf2;}
-  .card-viz.dark{background:linear-gradient(180deg,#241d3b,#0E0D12);border-color:#2b2448;}
-  .card-body{padding:22px 12px 0;}
-  .card h3{font-size:20px;letter-spacing:-.015em;margin:0 0 10px;display:flex;align-items:center;gap:11px;line-height:1.15;font-weight:800;}
-  .card p{font-size:14.5px;line-height:1.6;color:#57545f;}
+  /* WORK -- editorial cards, no mock UI.
+     Two previous passes tried to illustrate each service with a little fake browser / calendar /
+     chat window. At card size they read as toy screenshots, and because the mocks were violet on
+     a violet stage they had no contrast to stand on. The offer is strong enough to be set as
+     type: a big index numeral, the promise, and exactly what's included. Nothing to render badly. */
+  .card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:34px;}
+  @media(max-width:860px){.card-grid{grid-template-columns:1fr;max-width:460px;}}
+  .card{position:relative;border:1px solid #e8e6ee;border-radius:18px;padding:30px 28px 32px;
+    background:#fff;overflow:hidden;
+    box-shadow:0 2px 4px -2px rgba(20,12,50,.05),0 20px 44px -32px rgba(20,12,50,.4);
+    transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease;}
+  .card:hover{transform:translateY(-5px);border-color:#d9d0f2;
+    box-shadow:0 3px 6px -2px rgba(20,12,50,.06),0 34px 60px -34px rgba(144,112,223,.55);}
+  /* a hairline accent along the top edge, drawn in on hover -- the only decoration on the card */
+  .card::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:var(--accent);
+    transform:scaleX(0);transform-origin:left;transition:transform .4s cubic-bezier(.4,0,.2,1);}
+  .card:hover::before{transform:scaleX(1);}
+  .card.feat::before{background:var(--accent2);transform:scaleX(1);}
+  .svc-num{display:block;font-family:monospace;font-size:13px;letter-spacing:.18em;
+    color:var(--accent);margin-bottom:20px;}
+  .card.feat .svc-num{color:#a3ae1f;}
+  .card h3{font-size:clamp(20px,2vw,24px);letter-spacing:-.02em;line-height:1.15;
+    font-weight:800;margin:0 0 12px;}
+  .card p{font-size:14.5px;line-height:1.62;color:#57545f;margin:0;}
   .card p b{color:var(--accent);font-weight:700;}
-  .svc-ico{flex:none;width:34px;height:34px;border-radius:9px;display:grid;place-items:center;
-    background:rgba(144,112,223,.12);color:var(--accent);}
-  .svc-ico svg{width:19px;height:19px;}
-  .card.feat{border-color:#ded4f5;}
-  .card.feat::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent2);z-index:3;}
-  /* mock 1 -- browser */
-  .mk-browser{width:100%;height:100%;background:#fff;border:1px solid #e7e5ee;border-radius:9px;
-    overflow:hidden;display:flex;flex-direction:column;
-    box-shadow:0 10px 22px -16px rgba(20,12,50,.5);}
-  .mk-bar{height:22px;background:#f4f4f8;border-bottom:1px solid #ececf2;
-    display:flex;align-items:center;gap:5px;padding:0 10px;}
-  .mk-dot{width:6px;height:6px;border-radius:50%;background:#d9d7e2;}
-  .mk-hero{flex:1;padding:14px 16px;display:flex;flex-direction:column;gap:8px;justify-content:center;}
-  .mk-line{height:8px;border-radius:4px;background:#eceaf3;}
-  .mk-line.lg{width:72%;height:11px;background:var(--accent);opacity:.85;}
-  .mk-line.sm{width:48%;}
-  .mk-cta{margin-top:7px;width:84px;height:21px;border-radius:11px;background:var(--accent2);}
-  /* mock 2 -- calendar */
-  .mk-cal{width:100%;height:100%;background:#fff;border:1px solid #e7e5ee;border-radius:9px;
-    padding:12px;display:flex;flex-direction:column;gap:9px;
-    box-shadow:0 10px 22px -16px rgba(20,12,50,.5);}
-  .mk-cal-top{display:flex;justify-content:space-between;align-items:center;}
-  .mk-cal-title{width:46px;height:8px;border-radius:4px;background:var(--accent);opacity:.85;}
-  .mk-chip{font-size:9.5px;font-weight:700;color:#fff;background:var(--accent);border-radius:20px;padding:3px 9px;}
-  .mk-grid{display:grid;grid-template-columns:repeat(5,1fr);grid-auto-rows:1fr;gap:4px;flex:1;}
-  .mk-cell{border-radius:4px;background:#f1f0f6;}
-  .mk-cell.on{background:var(--accent);}
-  /* mock 3 -- chat (on dark) */
-  .svc-list{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:7px;}
-  .svc-list li{position:relative;padding-left:20px;font-size:13px;color:#6a6675;line-height:1.45;}
-  .svc-list li::before{content:'';position:absolute;left:0;top:6px;width:7px;height:7px;border-radius:2px;
-    background:var(--accent);box-shadow:0 0 0 3px rgba(144,112,223,.15);}
-  .card.feat .svc-list li::before{background:var(--accent2);box-shadow:0 0 0 3px rgba(230,245,54,.2);}
+  .svc-list{list-style:none;margin:22px 0 0;padding:18px 0 0;border-top:1px solid #eeecf4;
+    display:flex;flex-direction:column;gap:9px;}
+  .svc-list li{position:relative;padding-left:16px;font-size:13px;color:#77737f;line-height:1.45;}
+  .svc-list li::before{content:'';position:absolute;left:0;top:9px;width:7px;height:1.5px;
+    background:var(--accent);opacity:.75;}
+  .card.feat .svc-list li::before{background:#b9c41d;}
   /* closing line + the stack it's all built on -- credibility without another card */
   .svc-foot{margin-top:34px;display:flex;justify-content:space-between;align-items:center;gap:26px;flex-wrap:wrap;}
   .svc-close{font-size:clamp(17px,1.7vw,21px);font-weight:700;letter-spacing:-.01em;color:var(--ink);margin:0;}
@@ -1182,52 +1160,24 @@
   <div class="card-grid fx-group">
 
     <article class="card">
-      <span class="svc-tag">01</span>
-      <div class="card-viz">
-        <div class="mk-browser">
-          <div class="mk-bar"><i class="mk-dot"></i><i class="mk-dot"></i><i class="mk-dot"></i></div>
-          <div class="mk-hero">
-            <div class="mk-line lg"></div><div class="mk-line"></div><div class="mk-line"></div><div class="mk-line sm"></div>
-            <div class="mk-cta"></div>
-          </div>
-        </div>
-      </div>
-      <div class="card-body">
-        <h3><span class="svc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M3 8h18M8 21h8M12 17v4"/></svg></span>A site built to convert</h3>
-        <p>Fast, premium and built around one job — turning visitors into booked, paying clients. Not a brochure that sits there looking pretty.</p>
-        <ul class="svc-list"><li>Conversion-first copy &amp; layout</li><li>Mobile-first, Core Web Vitals</li><li>SEO foundations built in</li></ul>
-      </div>
+      <span class="svc-num">01</span>
+      <h3>A site built to convert</h3>
+      <p>Fast, premium and built around one job — turning visitors into booked, paying clients. Not a brochure that sits there looking pretty.</p>
+      <ul class="svc-list"><li>Conversion-first copy &amp; layout</li><li>Mobile-first, Core Web Vitals</li><li>SEO foundations built in</li></ul>
     </article>
 
     <article class="card">
-      <span class="svc-tag">02</span>
-      <div class="card-viz">
-        <div class="mk-cal">
-          <div class="mk-cal-top"><span class="mk-cal-title"></span><span class="mk-chip">Booked ✓</span></div>
-          <div class="mk-grid"><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell on"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i></div>
-        </div>
-      </div>
-      <div class="card-body">
-        <h3><span class="svc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4M8.5 14l2.5 2.5 4.5-5"/></svg></span>Booking that runs itself</h3>
-        <p>Always-open scheduling and enquiry capture that books the client while you're busy — no phone tag, no leads slipping through the cracks.</p>
-        <ul class="svc-list"><li>Always-open online booking</li><li>Auto reminders &amp; confirmations</li><li>Enquiry capture that never sleeps</li></ul>
-      </div>
+      <span class="svc-num">02</span>
+      <h3>Booking that runs itself</h3>
+      <p>Always-open scheduling and enquiry capture that books the client while you're busy — no phone tag, no leads slipping through the cracks.</p>
+      <ul class="svc-list"><li>Always-open online booking</li><li>Auto reminders &amp; confirmations</li><li>Enquiry capture that never sleeps</li></ul>
     </article>
 
     <article class="card feat">
-      <span class="svc-tag">03</span>
-      <div class="card-viz dark">
-        <div class="mk-chat" aria-hidden="true">
-          <div class="chat in">New enquiry — quote for Friday?</div>
-          <div class="chat out">On it — booked you 2pm Friday ✓</div>
-          <div class="chat out">Reminder + invoice sent.</div>
-        </div>
-      </div>
-      <div class="card-body">
-        <h3><span class="svc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg></span>An AI receptionist</h3>
-        <p>Answers, qualifies and follows up every lead the moment it lands — day or night — then hands you the ones ready to buy. <b>10,000+</b> automations a month, quietly doing the admin.</p>
-        <ul class="svc-list"><li>Instant reply, day or night</li><li>Qualifies and books for you</li><li>Follow-up until they answer</li></ul>
-      </div>
+      <span class="svc-num">03</span>
+      <h3>An AI receptionist</h3>
+      <p>Answers, qualifies and follows up every lead the moment it lands — day or night — then hands you the ones ready to buy. <b>10,000+</b> automations a month, quietly doing the admin.</p>
+      <ul class="svc-list"><li>Instant reply, day or night</li><li>Qualifies and books for you</li><li>Follow-up until they answer</li></ul>
     </article>
 
   </div>
