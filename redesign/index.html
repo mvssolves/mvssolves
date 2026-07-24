@@ -230,8 +230,11 @@
   /* content sits HIGH in the block with a deep bottom pad. The footer is the next sticky layer
      and rises up to cover this one, so anything low in the block gets swallowed -- the padding
      below is the buffer the footer eats first, keeping the stats and CTA clear of it. */
+  /* top pad small so the About block starts right under the nav when it's fully scrolled up;
+     bottom pad is the buffer the footer eats as it rises -- enough to keep the stats and CTA
+     clear of it, but no more, or the gap reads as dead space. */
   .team-block{z-index:6;text-align:center;align-items:center;justify-content:flex-start;
-    min-height:auto;padding:120px 0 380px;}
+    min-height:auto;padding:44px 0 250px;}
   /* stack pulled tight so the stats sit just under the heading and the CTA follows straight
      after -- the block was spreading over most of the viewport with big dead gaps between each
      element. The section's own bottom padding gives the breathing room instead. */
@@ -342,9 +345,12 @@
     border:1px dashed #bbb;border-right:none;
     display:flex;align-items:center;justify-content:center;color:#aaa;font-size:13px;}
 
-  .stats-row{display:flex;gap:64px;margin-top:44px;flex-wrap:wrap;}
-  .stat-num{font-size:clamp(56px,7vw,104px);font-weight:800;line-height:.92;
-    letter-spacing:-.04em;color:var(--accent);}
+  /* sized so the WIDEST pair (10,000+ beside 50+) still fits on one line inside the copy
+     column. At 104px they wrapped, which doubled the row's height and pushed the second stat
+     out through the bottom of the sticky section. */
+  .stats-row{display:flex;gap:44px;margin-top:38px;flex-wrap:wrap;}
+  .stat-num{font-size:clamp(42px,4.6vw,74px);font-weight:800;line-height:.94;
+    letter-spacing:-.04em;color:var(--accent);white-space:nowrap;}
   /* ODOMETER digits. The window is exactly ONE line tall and every digit in the strip is exactly
      one line tall too -- that equality is what makes the roll land on a digit instead of between
      two. line-height:1 on both, and tabular-nums so the number doesn't jitter horizontally as
@@ -353,7 +359,7 @@
   .odo-d{display:inline-block;overflow:hidden;height:1em;line-height:1;}
   .odo-strip{display:block;will-change:transform;}
   .odo-strip>span{display:block;height:1em;line-height:1;}
-  .stat-label{color:#77737f;font-size:15px;max-width:22ch;margin-top:14px;line-height:1.35;}
+  .stat-label{color:#77737f;font-size:14px;max-width:20ch;margin-top:10px;line-height:1.35;}
 
   /* KEY FEATURES -- numbered editorial rows. Deliberately NOT cards: Products is already a card
      grid and Expertise is already a copy/visual split, so rows are the one shape the page isn't
@@ -413,7 +419,7 @@
   .foot-wordmark{position:relative;z-index:2;display:flex;justify-content:center;
     align-items:flex-end;font-size:clamp(40px,11.5vw,164px);font-weight:800;
     line-height:1.04;letter-spacing:-.02em;white-space:nowrap;
-    user-select:none;pointer-events:none;perspective:620px;
+    user-select:none;pointer-events:none;perspective:1100px;
     transform-origin:50% 0;transform:translateY(8%) scaleY(1.24);}
   /* Each letter is TWO nested elements, and that's the whole trick for the motion not looking
      canned: the outer sways (rotateY / translateZ / drift) on one duration, the inner bobs
@@ -949,11 +955,14 @@ document.addEventListener('click',e=>{
     const outer=document.createElement('span');
     outer.className='wm-l';
     outer.style.setProperty('--i',n);
-    outer.style.setProperty('--rx',(7+(n*37)%10)+'deg');
-    outer.style.setProperty('--ry',(5+(n*53)%9)+'deg');
-    outer.style.setProperty('--rz',(((n*29)%9)-4)+'deg');
-    outer.style.setProperty('--z',(34+(n*41)%46)+'px');
-    outer.style.setProperty('--a',(0.028+((n*13)%6)/180).toFixed(4)+'em');
+    /* dialled well back from the first pass: the letters were swinging far enough to read as a
+       carnival sign. The two-clock structure is what makes it feel alive, not the amplitude, so
+       the ranges shrink and the non-repeating motion survives. */
+    outer.style.setProperty('--rx',(2+(n*37)%3)+'deg');
+    outer.style.setProperty('--ry',(2+(n*53)%3)+'deg');
+    outer.style.setProperty('--rz',(((n*29)%5)-2)+'deg');
+    outer.style.setProperty('--z',(8+(n*41)%13)+'px');
+    outer.style.setProperty('--a',(0.008+((n*13)%6)/700).toFixed(4)+'em');
     outer.style.setProperty('--d1',(5.4+((n*7)%14)/10).toFixed(2)+'s');
     outer.style.setProperty('--d2',(7.1+((n*11)%19)/10).toFixed(2)+'s');
     /* third clock, for the water flow itself -- without this every letter's caustics ran on the
