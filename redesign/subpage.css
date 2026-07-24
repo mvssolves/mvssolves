@@ -190,17 +190,6 @@ footer{background:var(--ink);color:#fff;padding:44px 40px 0;overflow:hidden;
 /* ---- SHARED SUBPAGE BITS ------------------------------------------------------------------ */
 /* Beyond the policy pages: FAQ, careers and the contact page all sit on this same shell. */
 .sub-lead{font-size:clamp(17px,2vw,20px);color:var(--soft);max-width:52ch;margin-top:18px;}
-.btn{display:inline-block;padding:13px 26px;border-radius:999px;border:1px solid var(--ink);
-  font-size:14px;font-weight:600;text-decoration:none;color:var(--ink);cursor:pointer;
-  background:none;font-family:inherit;
-  transition:transform .22s cubic-bezier(.34,1.4,.64,1),box-shadow .22s ease,
-             background .22s ease,color .22s ease;}
-.btn:hover{transform:translateY(-2px);background:var(--ink);color:#fff;}
-.btn.filled{background:var(--accent2);color:var(--ink);border-color:var(--accent2);}
-.btn.filled:hover{background:var(--accent2);color:var(--ink);
-  box-shadow:0 8px 22px -8px rgba(230,245,54,.55);}
-.btn[disabled]{opacity:.5;pointer-events:none;}
-.hero .btn{margin-top:30px;}
 
 /* ---- FAQ ACCORDION ------------------------------------------------------------------------ */
 .faq{margin-top:4px;}
@@ -259,18 +248,30 @@ footer{background:var(--ink);color:#fff;padding:44px 40px 0;overflow:hidden;
   animation:glowDrift 19s ease-in-out infinite alternate;}
 .foot-bottom.live .foot-glow{animation-play-state:running;}
 
-
-/* ---- FOOTER COLUMNS -- same block as the home page ------------------------------------- */
+/* ---- FOOTER -- lifted verbatim from index.html so the two can't drift ----------------- */
+.btn{display:inline-block;padding:12px 24px;border-radius:999px;border:1px solid #111;font-size:14px;font-weight:600;text-decoration:none;color:#111;cursor:pointer;background:none;}
+.btn.filled{background:var(--accent2);color:var(--ink);border-color:var(--accent2);}
+.btn{transition:transform .22s cubic-bezier(.34,1.4,.64,1),box-shadow .22s ease, background .22s ease,color .22s ease;}
+.btn:hover{transform:translateY(-2px);}
+.btn.filled:hover{box-shadow:0 8px 22px -8px rgba(230,245,54,.55);}
+.btn:not(.filled):hover{background:var(--ink);color:#fff;}
+.btn:active{transform:translateY(0);}
+.foot-col a{position:relative;display:inline-block;transition:color .2s ease;}
+.foot-col a::after{content:'';position:absolute;left:0;right:0;bottom:-2px;height:1px; background:var(--accent2);transform:scaleX(0);transform-origin:left; transition:transform .3s cubic-bezier(.4,0,.2,1);}
+.foot-col a:hover{color:#fff;}
+.foot-email{transition:border-color .2s ease;}
+.foot-email:focus{outline:none;border-color:var(--accent2);}
+footer{position:relative;z-index:7;border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);}
+footer{background:var(--ink);color:#fff;padding:20px 40px 0;overflow:hidden;}
 .foot-inner{position:relative;z-index:1;display:flex;gap:48px;flex-wrap:wrap;justify-content:space-between;padding-bottom:22px;border-bottom:1px solid #333;}
 .foot-col{min-width:160px;}
 .foot-col h3{font-size:13px;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;}
-.foot-col a{position:relative;display:inline-block;transition:color .2s ease;}
+.foot-col a{display:block;color:#ccc;text-decoration:none;font-size:14px;margin-bottom:8px;}
 .foot-cta{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
-.foot-email{transition:border-color .2s ease;}
+.foot-email{background:transparent;border:1px solid #444;border-radius:999px;padding:12px 18px;color:#fff;font-size:14px;min-width:220px;}
 .foot-plain{display:block;color:#888;font-size:14px;margin-bottom:8px;}
-.foot-col a{position:relative;display:block;transition:color .2s ease;}
-.foot-col a:hover{color:#fff;}
-.foot-legal{max-width:1400px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;
-  gap:8px;font-size:12px;color:#666;padding:14px 0 20px;border-bottom:none;}
-.foot-copy{margin-left:auto;color:#666;}
-@media(max-width:760px){.foot-inner{gap:28px;}}
+.foot-legal{padding:14px 0 0;font-size:12px;color:#666;display:flex;flex-wrap:wrap; align-items:center;gap:8px;}
+.foot-legal a{color:#888;text-decoration:none;transition:color .2s ease;}
+.foot-legal a:hover{color:#fff;}
+.foot-legal span{color:#444;}
+.foot-copy{margin-left:auto;color:#666 !important;}
