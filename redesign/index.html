@@ -598,7 +598,7 @@
 <!-- EXPERTISE (PROOF) -- layer 2, rises over the hero. Testimonials + stats. -->
 <section id="proof" class="wrap">
   <div class="eyebrow">Proof</div>
-  <h2 class="fx-rise">Fifty businesses. The top six do 10K a month.</h2>
+  <h2 class="fx-rise">Six businesses. 10K a month. Each.</h2>
   <!-- Each tab swaps the stat pair below, numbers and labels together. Scale is the same six
        businesses viewed in aggregate (6 x 10K = 60K/mo = 720K/yr) -- one fact, biggest honest
        framing of it. -->
@@ -616,10 +616,7 @@
   </div>
   <div class="expertise-layout">
     <div class="expertise-copy">
-      <p class="fx-lines">Every one gets a system built around how they actually work — not a
-        template with their logo on it. The top six were doing 10K a month inside two months. Same
-        three moves every time: a site built to convert, booking that runs itself, follow-up that
-        never forgets.</p>
+      <p class="fx-lines">Fifty-plus businesses now run on systems I built around how they actually work — not a template with their logo on it. The top six were doing 10K a month inside two months. Same three moves every time: a site built to convert, booking that runs itself, follow-up that never forgets.</p>
       <div class="stats-row fx-group">
         <!-- static values mirror tab one, so the row reads correctly before the JS runs -->
         <div><div class="stat-num">6</div><div class="stat-label">businesses at 10K a month</div></div>
@@ -1406,14 +1403,22 @@ function odometer(el, value, opts){
       probe.style.cssText='display:inline';
       el.appendChild(probe);
       const words=full.split(/\s+/);
-      const lines=[]; let cur=[], lastTop=null;
+      const lines=[]; let cur=[];
+      /* Detect a wrap by asking whether the probe ITSELF spans more than one line box, and reset
+         the probe to just the overflowing word each time it does. The previous version compared
+         the last rect's top against the previous measurement -- but once the probe wrapped, its
+         last rect sat on line two while the next measurement (a freshly short string) sat back on
+         line one, so every word after a break looked like another break. That's what was chopping
+         the paragraph into two- and three-word fragments. */
       words.forEach(word=>{
         probe.textContent=cur.concat(word).join(' ');
-        const r=probe.getClientRects();
-        const top=r.length?r[r.length-1].top:null;
-        if(lastTop!==null&&top!==lastTop&&cur.length){lines.push(cur.join(' '));cur=[word];}
-        else cur.push(word);
-        lastTop=top;
+        if(cur.length&&probe.getClientRects().length>1){
+          lines.push(cur.join(' '));
+          cur=[word];
+          probe.textContent=word;
+        }else{
+          cur.push(word);
+        }
       });
       if(cur.length)lines.push(cur.join(' '));
       el.textContent='';
