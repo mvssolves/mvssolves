@@ -486,12 +486,6 @@
   .svc-list li::before{content:'';position:absolute;left:0;top:9px;width:7px;height:1.5px;
     background:var(--accent);opacity:.75;}
   .card.feat .svc-list li::before{background:#b9c41d;}
-  /* closing line + the stack it's all built on -- credibility without another card */
-  .svc-foot{margin-top:34px;display:flex;justify-content:space-between;align-items:center;gap:26px;flex-wrap:wrap;}
-  .svc-close{font-size:clamp(17px,1.7vw,21px);font-weight:700;letter-spacing:-.01em;color:var(--ink);margin:0;}
-  .svc-stack{list-style:none;display:flex;gap:8px;flex-wrap:wrap;margin:0;padding:0;}
-  .svc-stack li{font-family:monospace;font-size:11.5px;letter-spacing:.04em;color:#6c6879;
-    border:1px solid #e4e0ee;border-radius:20px;padding:6px 13px;background:#fff;}
   .mk-chat{width:100%;display:flex;flex-direction:column;gap:9px;}
   .chat{font-size:12px;line-height:1.35;padding:8px 12px;border-radius:13px;max-width:88%;}
   .chat.in{align-self:flex-start;background:#fff;color:#3a3745;border-bottom-left-radius:4px;}
@@ -1002,7 +996,7 @@
 <!-- EXPERTISE (PROOF) -- layer 2, rises over the hero. Testimonials + stats. -->
 <section id="proof" class="wrap">
   <div class="eyebrow">Proof</div>
-  <h2 class="fx-rise" data-hl="Six,10K">Six businesses. 10K a month. Each.</h2>
+  <h2 class="fx-mask" data-hl="Six,10K">Six businesses. 10K a month. Each.</h2>
   <!-- Each tab swaps the stat pair below, numbers and labels together. Scale is the same six
        businesses viewed in aggregate (6 x 10K = 60K/mo = 720K/yr) -- one fact, biggest honest
        framing of it. -->
@@ -1047,7 +1041,7 @@
 <!-- KEY FEATURES (HOW IT WORKS) -- layer 3, covers Expertise. -->
 <section id="process" class="wrap">
   <div class="eyebrow">How it works</div>
-  <h2 class="fx-rise">The systems</h2>
+  <h2 class="fx-mask">The systems</h2>
   <p class="process-lead fx-lines">Three systems that turn a stranger into a booked, paying client — and keep running while you work.</p>
 
   <div class="sys">
@@ -1134,7 +1128,7 @@
 <section id="why" class="wrap">
   <span class="me-ghost" aria-hidden="true">10K</span>
   <div class="eyebrow">Why me</div>
-  <h2 class="fx-rise">Straight from me</h2>
+  <h2 class="fx-mask">Straight from me</h2>
   <div class="me-layout">
     <div class="me-copy">
       <p class="fx-lines" data-hl="two,months,six,10K">I'm Martin — self-taught, no agency pedigree, and better for it. In under <span class="hl">two months</span> I took <span class="hl">six</span> businesses to <span class="hl">10K</span> a month each. That's not a pitch — it's the track record.</p>
@@ -1155,8 +1149,8 @@
 <!-- PRODUCTS (WHAT I BUILD) -- layer 5, covers Technology. -->
 <section id="services" class="wrap">
   <div class="eyebrow">What I build</div>
-  <h2 class="fx-rise">The work</h2>
-  <p class="process-lead fx-lines">Three parts, one machine — a site that sells, booking that runs itself, and an AI that works the leads while you work. Each piece is built for your business, not pulled off a shelf, and they're designed to run together: the site earns the click, the booking takes it, the AI makes sure nobody slips through.</p>
+  <h2 class="fx-mask">The work</h2>
+  <p class="process-lead fx-lines">Three parts, one machine — a site that sells, booking that runs itself, and an AI that works the leads while you work. Built for your business, not pulled off a shelf.</p>
   <div class="card-grid fx-group">
 
     <article class="card">
@@ -1181,18 +1175,12 @@
     </article>
 
   </div>
-  <div class="svc-foot fx-group">
-    <p class="svc-close">One system. Built once. Yours to keep.</p>
-    <ul class="svc-stack" aria-label="Built with">
-      <li>Webflow</li><li>Next.js</li><li>Make</li><li>n8n</li><li>GSAP</li><li>Custom AI</li>
-    </ul>
-  </div>
 </section>
 
 <!-- ABOUT -- last content layer, covers Services; footer covers it. About the business/founder. -->
 <div class="team-block wrap" id="about">
   <div class="eyebrow">About</div>
-  <h2 class="fx-rise">The business in one prompt.</h2>
+  <h2 class="fx-mask">The business in one prompt.</h2>
   <div class="team-stats fx-group">
     <div><div class="stat-num" data-count="100">0</div><div class="stat-label">websites made</div></div>
     <div><div class="stat-num" data-count="5">0</div><div class="stat-label">businesses at 10K a month</div></div>
@@ -1711,22 +1699,30 @@ function fxRise(el){
 /* MASK -- each word slides up from behind its own clipping window. */
 function fxMask(el){
   if(reduce)return;
+  const hl=(el.dataset.hl||'').split(',').map(w=>w.trim()).filter(Boolean);
   const words=splitWords(el);
   words.forEach(w=>{
     const inner=document.createElement('span');
     inner.style.display='inline-block';
     inner.textContent=w.textContent;
+    /* data-hl tinting lives on the INNER span: the outer one is the clipping window and gets
+       overflow:hidden, so colouring it would be invisible. applyHl only understands splitChars
+       output, which this effect doesn't produce. */
+    if(hl.includes(w.textContent))inner.classList.add('hl');
     w.textContent='';
     w.style.overflow='hidden';
     w.style.verticalAlign='bottom';
+    w.style.paddingBottom='.06em';   /* descenders would otherwise be clipped by the window */
     w.appendChild(inner);
     w._inner=inner;
   });
   const inners=words.map(w=>w._inner);
-  gsap.set(inners,{yPercent:115});
+  gsap.set(inners,{yPercent:120});
   replayIn(el,()=>{
-    gsap.fromTo(inners,{yPercent:115},
-      {yPercent:0,duration:0.75,stagger:0.08,ease:'power4.out',overwrite:true});
+    /* deliberately pronounced: this is now the house effect for every heading on the site, so it
+       has to register rather than whisper. */
+    gsap.fromTo(inners,{yPercent:120},
+      {yPercent:0,duration:1.0,stagger:0.11,ease:'power4.out',overwrite:true});
   });
 }
 /* SCALE -- whole heading punches in from slightly small + blurred, then settles. */
@@ -2097,8 +2093,8 @@ function odometer(el, value, opts){
     }
     build();
     replayIn(el,()=>{
-      gsap.fromTo(inners,{yPercent:110},
-        {yPercent:0,duration:0.7,stagger:0.09,ease:'power4.out',overwrite:true});
+      gsap.fromTo(inners,{yPercent:115},
+        {yPercent:0,duration:0.9,stagger:0.1,ease:'power4.out',overwrite:true});
     });
     let rt=null;
     addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{build();

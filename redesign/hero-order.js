@@ -61,6 +61,7 @@ function init(host) {
   const VIOLET = new THREE.Color('#9070DF');
   const LIME   = new THREE.Color('#E6F536');
   const INK    = new THREE.Color('#4b4166');
+  const BG     = new THREE.Color('#efecf7');   // the hero's own background, for depth fade
 
   /* ---- targets ------------------------------------------------------------------------------
      The particles don't just tidy up -- they SPELL THE NUMBERS. Each phrase is rasterised to an
@@ -100,7 +101,7 @@ function init(host) {
       const jx = (Math.random() - 0.5) * 1.6, jy = (Math.random() - 0.5) * 1.6;
       out[i * 3]     = ((hits[h] + jx) / W - 0.5) * 20;
       out[i * 3 + 1] = -((hits[h + 1] + jy) / H - 0.5) * 6.4;
-      out[i * 3 + 2] = (Math.random() - 0.5) * 0.9;   // slight depth so it's a slab, not a decal
+      out[i * 3 + 2] = (Math.random() - 0.5) * 2.2;   // real thickness, so the glyph has volume
     }
     return out;
   }
@@ -109,10 +110,15 @@ function init(host) {
   const forms = PHRASES.map(t => sampleText(t, COUNT));
   const spin  = new Float32Array(COUNT);
 
+  /* The scattered state deliberately overflows the frame on every axis -- particles fly past the
+     left/right edges and well toward the camera. A cloud that politely stays inside the viewport
+     reads as a flat panel of dots; one that spills past the borders reads as a space the page is
+     sitting inside. The Z spread is the part that sells it: near particles blow past the camera
+     plane while far ones sit deep behind the glyphs. */
   for (let i = 0; i < COUNT; i++) {
-    chaos[i * 3]     = (Math.random() - 0.5) * 22;
-    chaos[i * 3 + 1] = (Math.random() - 0.5) * 12;
-    chaos[i * 3 + 2] = (Math.random() - 0.5) * 12;
+    chaos[i * 3]     = (Math.random() - 0.5) * 32;
+    chaos[i * 3 + 1] = (Math.random() - 0.5) * 19;
+    chaos[i * 3 + 2] = (Math.random() - 0.5) * 22;
     spin[i] = Math.random() * Math.PI * 2;
   }
 
@@ -189,7 +195,7 @@ function init(host) {
 
     for (let i = 0; i < COUNT; i++) {
       const i3 = i * 3;
-      const drift = Math.sin(t * 0.5 + spin[i]) * (1 - m) * 0.7;
+      const drift = Math.sin(t * 0.5 + spin[i]) * (1 - m) * 1.6;
 
       /* while the figure is HELD, it stays alive: a slow wave breathes through the glyphs, and
          every 24th particle refuses to settle and keeps orbiting the number as a loose satellite.
@@ -206,7 +212,7 @@ function init(host) {
               + orbiter * Math.sin(oa) * 1.2;
 
       dummy.position.set(x, y, z);
-      dummy.scale.setScalar(0.42 + m * 0.55);
+      dummy.scale.setScalar(0.62 + m * 0.42);
       dummy.rotation.set(spin[i] + t * 0.25, spin[i] * 1.7 + t * 0.2, 0);
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
@@ -215,6 +221,11 @@ function init(host) {
          full assembly -- the number "switching on" */
       const crest = m > 0.9 ? Math.pow(Math.max(0, Math.sin(x * 0.4 - t * 1.8)), 6) : 0;
       col.copy(INK).lerp(VIOLET, m).lerp(LIME, crest * 0.9);
+      /* wash out toward the depth extremes: distant particles sink into the background and the
+         ones rushing past the camera lighten off, which is what makes the overflow read as
+         atmosphere rather than as debris */
+      const depth = Math.min(1, Math.abs(z) / 18);
+      col.lerp(BG, depth * 0.42);
       mesh.setColorAt(i, col);
     }
     mesh.instanceMatrix.needsUpdate = true;
