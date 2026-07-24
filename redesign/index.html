@@ -377,11 +377,27 @@
 
   /* CARD GRIDS (products) */
   .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-top:24px;}
-  .card{border:1px solid #ddd;border-radius:12px;padding:28px;}
-  .card.wide{grid-column:1/-1;display:flex;gap:24px;align-items:center;flex-wrap:wrap;}
-  .card.wide .img-placeholder{flex:1;min-width:200px;height:220px;background:repeating-linear-gradient(45deg,#eee,#eee 10px,#f7f7f7 10px,#f7f7f7 20px);border:1px dashed #bbb;}
-  .card.wide .card-copy{flex:1;min-width:200px;}
-  .icon-placeholder{width:32px;height:32px;border:1px dashed #999;border-radius:8px;margin-bottom:14px;}
+  .card{position:relative;border:1px solid #e7e5ee;border-radius:16px;padding:30px 28px;
+    background:linear-gradient(180deg,#ffffff,#fbfaff);overflow:hidden;
+    transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;}
+  .card:hover{transform:translateY(-4px);border-color:#d6cdf2;box-shadow:0 24px 48px -26px rgba(144,112,223,.5);}
+  .card h3{font-size:20px;letter-spacing:-.01em;margin:16px 0 8px;}
+  .card p{font-size:14.5px;line-height:1.6;color:#5a5760;}
+  .svc-ico{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;
+    background:rgba(144,112,223,.12);color:var(--accent);}
+  .svc-tag{position:absolute;top:20px;right:22px;font-family:monospace;font-size:11px;
+    letter-spacing:.1em;color:#c3bdd4;}
+  /* featured card: light violet wash + lime edge, with a tiny chat mock so it reads as "the AI at work" */
+  .card.wide{grid-column:1/-1;display:flex;gap:40px;align-items:center;flex-wrap:wrap;
+    background:linear-gradient(120deg,#faf7ff,#f2ecfd);border-color:#e0d6f7;padding:34px 32px;}
+  .card.wide::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent2);}
+  .card.wide .card-copy{flex:1 1 320px;min-width:260px;}
+  .card.wide .svc-art{flex:1 1 300px;min-width:240px;display:flex;flex-direction:column;gap:10px;}
+  .chat{font-size:13.5px;line-height:1.4;padding:11px 15px;border-radius:14px;max-width:82%;
+    box-shadow:0 6px 16px -10px rgba(90,60,150,.4);}
+  .chat.in{align-self:flex-start;background:#fff;border:1px solid #e7e2f2;color:#3a3745;border-bottom-left-radius:5px;}
+  .chat.out{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:5px;}
+  @media(max-width:640px){.card.wide .svc-art{width:100%;}}
 
   /* EXPERTISE (stats + tabs) */
   /* one rounded track holding all the tabs, active one a filled pill inside it -- reads as a
@@ -571,7 +587,7 @@
   /* cropped ghost stat -- violet outline on white, faded at the top so it never crowds the copy */
   #why > .me-ghost{position:absolute;z-index:0;right:1.5%;bottom:-15%;pointer-events:none;user-select:none;
     font-size:clamp(190px,25vw,370px);font-weight:800;letter-spacing:-.05em;line-height:.8;
-    color:transparent;-webkit-text-stroke:1.6px rgba(144,112,223,.17);
+    color:transparent;-webkit-text-stroke:2px rgba(144,112,223,.32);
     -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 42%,#000 100%);
             mask-image:linear-gradient(180deg,transparent 0,#000 42%,#000 100%);}
   /* heading + body use the site's default ink; eyebrow keeps brand violet */
@@ -872,9 +888,11 @@
   </div>
   <div class="expertise-layout">
     <div class="expertise-copy">
-      <p class="fx-lines" data-hl="50+"><span class="hl">50+</span> businesses now run on systems I built around how they actually work — not a template with their logo on it.</p>
-      <p class="fx-lines" data-hl="10K">The top six were doing <span class="hl">10K</span> a month inside two months.</p>
-      <p class="fx-lines">Same three moves every time: a site built to convert, booking that runs itself, follow-up that never forgets.</p>
+      <div class="pf-copy" id="pfCopy">
+        <p><span class="hl">50+</span> businesses now run on systems I built around how they actually work — not a template with their logo on it.</p>
+        <p>The top six were doing <span class="hl">10K</span> a month inside two months.</p>
+        <p>Same three moves every time: a site built to convert, booking that runs itself, follow-up that never forgets.</p>
+      </div>
       <div class="stats-row fx-group">
         <!-- static values mirror tab one, so the row reads correctly before the JS runs -->
         <div><div class="stat-num">$720K</div><div class="stat-label">annual revenue created</div></div>
@@ -987,8 +1005,9 @@
   <h2 class="fx-rise">Straight from me</h2>
   <div class="me-layout">
     <div class="me-copy">
-      <p class="fx-lines">I'm Martin — self-taught, with no agency background. I came up through marketing and sales, and built MVS Solves because agencies pile layers between the client and the work that actually matters.</p>
-      <p class="fx-lines">Every project is mine end to end: strategy, design, build, delivery. Your business is my only focus until it's done — and if it isn't growing, I'm not finished.</p>
+      <p class="fx-lines">I'm Martin — self-taught, no agency pedigree, and better for it. In under two months I took six businesses to 10K a month each. That's not a pitch — it's the track record.</p>
+      <p class="fx-lines">50+ businesses now run on systems I designed and built myself, end to end. No account managers, no hand-offs, no watered-down work passed down a chain — just the person who built it, answering for it.</p>
+      <p class="fx-lines">I don't stop at "launched." I'm done when your numbers are climbing — and I back myself to get them there.</p>
       <a class="btn filled" href="#" data-contact>Work with me</a>
     </div>
     <ol class="me-timeline fx-group">
@@ -1005,12 +1024,32 @@
 <section id="services" class="wrap">
   <div class="eyebrow">What I build</div>
   <h2 class="fx-rise">The work</h2>
+  <p class="process-lead fx-lines">Three parts, one machine — a site that sells, booking that runs itself, and an AI that works the leads while you work.</p>
   <div class="card-grid fx-group">
-    <div class="card"><div class="icon-placeholder"></div><h3>[Product one]</h3><p>[Template copy placeholder.]</p></div>
-    <div class="card"><div class="icon-placeholder"></div><h3>[Product two]</h3><p>[Template copy placeholder.]</p></div>
+    <div class="card">
+      <div class="svc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M3 8h18M8 21h8M12 17v4"/></svg></div>
+      <span class="svc-tag">01</span>
+      <h3>A site built to convert</h3>
+      <p>Fast, premium and built around one job — turning visitors into booked, paying clients. Not a brochure that sits there looking pretty.</p>
+    </div>
+    <div class="card">
+      <div class="svc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4M8.5 14l2.5 2.5 4.5-5"/></svg></div>
+      <span class="svc-tag">02</span>
+      <h3>Booking that runs itself</h3>
+      <p>Always-open scheduling and enquiry capture that books the client while you're busy — no phone tag, no leads slipping through the cracks.</p>
+    </div>
     <div class="card wide">
-      <div class="img-placeholder"></div>
-      <div class="card-copy"><div class="icon-placeholder"></div><h3>[Product three — wide]</h3><p>[Template copy placeholder for the larger featured card.]</p></div>
+      <div class="card-copy">
+        <div class="svc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg></div>
+        <span class="svc-tag">03</span>
+        <h3>An AI receptionist that never clocks off</h3>
+        <p>Answers, qualifies and follows up every lead the moment it lands — day or night — then hands you the ones ready to buy. It's the 10,000+ automations a month quietly doing the admin so you don't have to.</p>
+      </div>
+      <div class="svc-art" aria-hidden="true">
+        <div class="chat in">New enquiry — quote for Friday?</div>
+        <div class="chat out">On it. Booked you 2pm Friday ✓</div>
+        <div class="chat out">Reminder + invoice sent automatically.</div>
+      </div>
     </div>
   </div>
 </section>
@@ -1716,7 +1755,28 @@ function odometer(el, value, opts){
   const statEls=[...document.querySelectorAll('#proof .stat-num')];
   if(!tabs.length||!statEls.length)return;
   const labelEls=[...document.querySelectorAll('#proof .stat-label')];
+  const pfCopy=document.querySelector('#pfCopy');
+  /* one distinct story per tab -- Scale = the money in aggregate, Systems = the machinery,
+     Results = the outcome. Kept in sync with the stat pair each tab counts to. */
+  const PF_COPY=[
+    ['<span class="hl">Six</span> businesses. One operator. <span class="hl">$720K</span> in new annual revenue between them.',
+     "Scale here isn't headcount — it's a system that keeps producing long after it's built.",
+     'Every account compounds: more traffic, more booked calls, more repeat work, month after month.'],
+    ['<span class="hl">50+</span> businesses now run on systems I built around how they actually work — not a template with their logo on it.',
+     'Each one runs a site, a booking engine and follow-up that never sleeps — <span class="hl">10,000+</span> automations firing every month.',
+     "Built once, owned by you, quietly working whether you're at the desk or not."],
+    ['The top six went from low four figures to <span class="hl">10K a month</span> — in <span class="hl">two months</span> or less.',
+     'No ad-budget bonfire, no year-long retainer. A system that converts, and the time to let it.',
+     "The job isn't done when the site ships. It's done when the numbers move."],
+  ];
+  function swapCopy(i){
+    if(!pfCopy||!PF_COPY[i])return;
+    pfCopy.innerHTML=PF_COPY[i].map(t=>'<p>'+t+'</p>').join('');
+    if(window.gsap&&!reduce)gsap.fromTo(pfCopy.children,{y:14,opacity:0},
+      {y:0,opacity:1,duration:.5,stagger:.07,ease:'power3.out',overwrite:true});
+  }
   function activate(tab){
+    swapCopy(tabs.indexOf(tab));
     tabs.forEach(t=>t.classList.toggle('active',t===tab));
     odometer(statEls[0],+tab.dataset.stat1,
       {pre:tab.dataset.pre1,post:tab.dataset.post1,group:!!tab.dataset.group1});
