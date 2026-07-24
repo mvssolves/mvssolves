@@ -261,7 +261,7 @@
      element. The section's own bottom padding gives the breathing room instead. */
   .team-block h2{margin-bottom:0;line-height:1.02;}
   .about-lead{max-width:58ch;margin:14px auto 0;color:#444;font-size:clamp(15px,1.5vw,18px);line-height:1.55;}
-  .team-stats{display:flex;gap:56px;justify-content:center;flex-wrap:wrap;margin:22px 0 0;}
+  .team-stats{display:flex;gap:56px;justify-content:center;flex-wrap:wrap;margin:30px 0 0;}
   .team-stats .stat-label{margin-top:2px;}
   .team-cta{margin-top:18px;}
   footer{position:relative;z-index:7;border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);}
@@ -449,47 +449,52 @@
      chat) so the section shows the deliverable instead of describing it. All pure CSS+SVG. */
   .card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:28px;perspective:1300px;}
   @media(max-width:860px){.card-grid{grid-template-columns:1fr;max-width:440px;}}
-  .card{position:relative;border:1px solid #e7e5ee;border-radius:20px;padding:14px 14px 26px;
-    background:linear-gradient(180deg,#ffffff,#fbfaff);overflow:hidden;transform-style:preserve-3d;
-    box-shadow:0 10px 26px -20px rgba(30,16,70,.4);will-change:transform;
+  .card{position:relative;border:1px solid #e8e6ee;border-radius:20px;padding:16px 16px 28px;
+    background:#fff;overflow:hidden;transform-style:preserve-3d;
+    box-shadow:0 2px 4px -2px rgba(20,12,50,.06),0 18px 40px -28px rgba(20,12,50,.45);
+    will-change:transform;
     transition:transform .2s ease,box-shadow .28s ease,border-color .28s ease;}
   .card:hover{transform:translateY(-6px);border-color:#d6cdf2;box-shadow:0 30px 56px -30px rgba(144,112,223,.6);}
   .svc-tag{position:absolute;top:26px;right:26px;z-index:3;font-family:monospace;font-size:11px;
     letter-spacing:.12em;color:#c9c2da;}
-  .card-viz{height:172px;border-radius:13px;overflow:hidden;position:relative;
-    display:grid;place-items:center;padding:20px;
-    background:radial-gradient(120% 100% at 50% 0,#f3eefe,#ece4fb);border:1px solid #eae3f8;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.8),inset 0 -16px 30px -22px rgba(90,60,150,.5);}
-  .card-viz.dark{background:radial-gradient(120% 100% at 50% 0,#211a37,#0E0D12);border-color:#2b2448;}
+  /* neutral stage, not a violet wash. The old radial flooded every card in purple and the mocks
+     -- which are themselves purple -- disappeared into it, which is what made them read weak.
+     place-items:stretch + a fixed aspect on the mock means nothing is ever cropped. */
+  .card-viz{aspect-ratio:16/10;border-radius:13px;overflow:hidden;position:relative;
+    display:grid;place-items:center;padding:18px;
+    background:linear-gradient(180deg,#f7f7fa,#f2f2f7);border:1px solid #ececf2;}
+  .card-viz.dark{background:linear-gradient(180deg,#241d3b,#0E0D12);border-color:#2b2448;}
   .card-body{padding:22px 12px 0;}
-  .card h3{font-size:19px;letter-spacing:-.01em;margin:0 0 9px;display:flex;align-items:center;gap:10px;line-height:1.15;}
-  .card p{font-size:14px;line-height:1.62;color:#5a5760;}
+  .card h3{font-size:20px;letter-spacing:-.015em;margin:0 0 10px;display:flex;align-items:center;gap:11px;line-height:1.15;font-weight:800;}
+  .card p{font-size:14.5px;line-height:1.6;color:#57545f;}
   .card p b{color:var(--accent);font-weight:700;}
   .svc-ico{flex:none;width:34px;height:34px;border-radius:9px;display:grid;place-items:center;
     background:rgba(144,112,223,.12);color:var(--accent);}
   .svc-ico svg{width:19px;height:19px;}
-  .card.feat{border-color:#e0d6f7;background:linear-gradient(180deg,#fdfbff,#f6f1fe);}
+  .card.feat{border-color:#ded4f5;}
   .card.feat::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent2);z-index:3;}
   /* mock 1 -- browser */
-  .mk-browser{width:100%;height:100%;background:#fff;border-radius:10px;overflow:hidden;
-    display:flex;flex-direction:column;box-shadow:0 14px 30px -18px rgba(90,60,150,.6);}
-  .mk-bar{height:23px;background:#f2ecfd;display:flex;align-items:center;gap:5px;padding:0 10px;}
-  .mk-dot{width:7px;height:7px;border-radius:50%;background:#d5c8f0;}
-  .mk-hero{flex:1;padding:16px 18px;display:flex;flex-direction:column;gap:9px;justify-content:center;}
-  .mk-line{height:9px;border-radius:5px;background:#e7dcfb;}
-  .mk-line.lg{width:78%;height:12px;background:#c4adf0;}
-  .mk-line.sm{width:52%;}
-  .mk-cta{margin-top:8px;width:96px;height:23px;border-radius:12px;background:var(--accent2);
-    box-shadow:0 6px 14px -6px rgba(200,220,40,.8);}
+  .mk-browser{width:100%;height:100%;background:#fff;border:1px solid #e7e5ee;border-radius:9px;
+    overflow:hidden;display:flex;flex-direction:column;
+    box-shadow:0 10px 22px -16px rgba(20,12,50,.5);}
+  .mk-bar{height:22px;background:#f4f4f8;border-bottom:1px solid #ececf2;
+    display:flex;align-items:center;gap:5px;padding:0 10px;}
+  .mk-dot{width:6px;height:6px;border-radius:50%;background:#d9d7e2;}
+  .mk-hero{flex:1;padding:14px 16px;display:flex;flex-direction:column;gap:8px;justify-content:center;}
+  .mk-line{height:8px;border-radius:4px;background:#eceaf3;}
+  .mk-line.lg{width:72%;height:11px;background:var(--accent);opacity:.85;}
+  .mk-line.sm{width:48%;}
+  .mk-cta{margin-top:7px;width:84px;height:21px;border-radius:11px;background:var(--accent2);}
   /* mock 2 -- calendar */
-  .mk-cal{width:90%;height:90%;background:#fff;border-radius:10px;padding:13px;
-    display:flex;flex-direction:column;gap:9px;box-shadow:0 14px 30px -18px rgba(90,60,150,.6);}
+  .mk-cal{width:100%;height:100%;background:#fff;border:1px solid #e7e5ee;border-radius:9px;
+    padding:12px;display:flex;flex-direction:column;gap:9px;
+    box-shadow:0 10px 22px -16px rgba(20,12,50,.5);}
   .mk-cal-top{display:flex;justify-content:space-between;align-items:center;}
-  .mk-cal-title{width:52px;height:9px;border-radius:5px;background:#c4adf0;}
-  .mk-chip{font-size:10px;font-weight:700;color:#fff;background:var(--accent);border-radius:20px;padding:3px 10px;}
-  .mk-grid{display:grid;grid-template-columns:repeat(5,1fr);grid-auto-rows:1fr;gap:6px;flex:1;}
-  .mk-cell{border-radius:5px;background:#f0eafc;}
-  .mk-cell.on{background:var(--accent);box-shadow:0 0 0 3px rgba(144,112,223,.22);}
+  .mk-cal-title{width:46px;height:8px;border-radius:4px;background:var(--accent);opacity:.85;}
+  .mk-chip{font-size:9.5px;font-weight:700;color:#fff;background:var(--accent);border-radius:20px;padding:3px 9px;}
+  .mk-grid{display:grid;grid-template-columns:repeat(5,1fr);grid-auto-rows:1fr;gap:4px;flex:1;}
+  .mk-cell{border-radius:4px;background:#f1f0f6;}
+  .mk-cell.on{background:var(--accent);}
   /* mock 3 -- chat (on dark) */
   .svc-list{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:7px;}
   .svc-list li{position:relative;padding-left:20px;font-size:13px;color:#6a6675;line-height:1.45;}
@@ -502,7 +507,7 @@
   .svc-stack{list-style:none;display:flex;gap:8px;flex-wrap:wrap;margin:0;padding:0;}
   .svc-stack li{font-family:monospace;font-size:11.5px;letter-spacing:.04em;color:#6c6879;
     border:1px solid #e4e0ee;border-radius:20px;padding:6px 13px;background:#fff;}
-  .mk-chat{width:100%;display:flex;flex-direction:column;gap:8px;}
+  .mk-chat{width:100%;display:flex;flex-direction:column;gap:9px;}
   .chat{font-size:12px;line-height:1.35;padding:8px 12px;border-radius:13px;max-width:88%;}
   .chat.in{align-self:flex-start;background:#fff;color:#3a3745;border-bottom-left-radius:4px;}
   .chat.out{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:4px;}
@@ -1175,7 +1180,7 @@
         <div class="mk-browser">
           <div class="mk-bar"><i class="mk-dot"></i><i class="mk-dot"></i><i class="mk-dot"></i></div>
           <div class="mk-hero">
-            <div class="mk-line lg"></div><div class="mk-line"></div><div class="mk-line sm"></div>
+            <div class="mk-line lg"></div><div class="mk-line"></div><div class="mk-line"></div><div class="mk-line sm"></div>
             <div class="mk-cta"></div>
           </div>
         </div>
@@ -1192,7 +1197,7 @@
       <div class="card-viz">
         <div class="mk-cal">
           <div class="mk-cal-top"><span class="mk-cal-title"></span><span class="mk-chip">Booked ✓</span></div>
-          <div class="mk-grid"><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell on"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i></div>
+          <div class="mk-grid"><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell on"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i><i class="mk-cell"></i></div>
         </div>
       </div>
       <div class="card-body">
@@ -1231,7 +1236,6 @@
 <div class="team-block wrap" id="about">
   <div class="eyebrow">About</div>
   <h2 class="fx-rise">The business in one prompt.</h2>
-  <p class="about-lead fx-lines">MVS Solves is me — one person who designs, builds and ships the whole thing. Websites that convert and automations that run themselves, for businesses that want it done properly the first time. No layers, no hand-offs, no juniors learning on your budget.</p>
   <div class="team-stats fx-group">
     <div><div class="stat-num" data-count="100">0</div><div class="stat-label">websites made</div></div>
     <div><div class="stat-num" data-count="5">0</div><div class="stat-label">businesses at 10K a month</div></div>
