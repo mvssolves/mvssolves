@@ -70,7 +70,7 @@
   section{padding:96px 0;}
   .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;font-family:monospace;}
   h1,h2,h3{font-weight:700;letter-spacing:-.01em;}
-  h2{font-size:clamp(28px,4vw,44px);margin-bottom:16px;}
+  h2{font-size:clamp(34px,5.4vw,68px);line-height:1.02;letter-spacing:-.03em;margin-bottom:24px;}
   /* typewriter caret -- only present while the heading is actually typing */
   .is-typing::after{content:'';display:inline-block;width:3px;height:.85em;margin-left:4px;
     background:currentColor;vertical-align:-.08em;animation:caret .8s steps(1) infinite;}
@@ -151,7 +151,8 @@
 
   /* expertise tabs */
   .tab{transition:border-color .2s ease,color .2s ease,background .2s ease,transform .2s ease;}
-  .tab:hover{border-color:var(--accent);color:var(--ink);transform:translateY(-1px);}
+  .tab:hover{color:var(--ink);}
+  .tab.active:hover{transform:none;}
 
   /* footer links get the same underline draw as the nav */
   .foot-col a{position:relative;display:inline-block;transition:color .2s ease;}
@@ -181,7 +182,7 @@
   #why,#services,#proof,#process,.team-block{
     position:sticky;top:var(--nav-h);background:#fff;min-height:calc(100vh - var(--nav-h));
     border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);
-    display:flex;flex-direction:column;justify-content:flex-start;padding-top:150px;
+    display:flex;flex-direction:column;justify-content:flex-start;padding-top:96px;
   }
   /* hero is NOT a sticky cover-layer like the others -- it's a tall scroll RUNWAY containing an
      inner sticky viewport (.hero-sticky). That inner element is what actually holds still on
@@ -322,15 +323,28 @@
   .icon-placeholder{width:32px;height:32px;border:1px dashed #999;border-radius:8px;margin-bottom:14px;}
 
   /* EXPERTISE (stats + tabs) */
-  .tab-row{display:flex;gap:10px;margin:20px 0;flex-wrap:wrap;}
-  .tab{border:1px solid #ddd;border-radius:999px;padding:8px 16px;font-size:13px;color:#555;cursor:pointer;background:none;font-family:inherit;}
-  .tab.active{border-color:#111;color:#111;font-weight:600;background:#f2f2f2;}
-  .expertise-layout{display:flex;gap:48px;flex-wrap:wrap;align-items:flex-start;margin-top:24px;}
-  .expertise-copy{flex:1;min-width:260px;}
-  .expertise-visual{flex:1;min-width:260px;height:280px;background:repeating-linear-gradient(45deg,#eee,#eee 10px,#f7f7f7 10px,#f7f7f7 20px);border:1px dashed #bbb;}
+  /* one rounded track holding all the tabs, active one a filled pill inside it -- reads as a
+     control rather than as a row of loose buttons. */
+  .tab-row{display:inline-flex;gap:4px;margin:0 0 40px;flex-wrap:wrap;align-self:flex-start;
+    background:#f4f4f6;border:1px solid #ececf0;border-radius:999px;padding:6px;}
+  .tab{border:1px solid transparent;border-radius:999px;padding:11px 22px;font-size:15px;
+    color:#6b6875;cursor:pointer;background:none;font-family:inherit;font-weight:500;}
+  .tab.active{color:var(--ink);font-weight:700;background:var(--accent2);border-color:var(--accent2);}
+  .expertise-layout{display:flex;gap:56px;flex-wrap:wrap;align-items:center;margin-top:8px;}
+  .expertise-copy{flex:1 1 440px;min-width:280px;max-width:560px;}
+  .expertise-copy p{font-size:clamp(16px,1.5vw,19px);line-height:1.62;color:#4a4753;
+    margin-bottom:16px;}
+  /* bleeds past the wrap's right padding to the viewport edge, like theirs -- that full-bleed
+     is a big part of why their section reads as filled rather than as a boxed column. */
+  .expertise-visual{flex:1 1 460px;min-width:300px;height:min(64vh,620px);margin-right:-40px;
+    border-radius:24px 0 0 24px;
+    background:repeating-linear-gradient(45deg,#eee,#eee 10px,#f7f7f7 10px,#f7f7f7 20px);
+    border:1px dashed #bbb;border-right:none;
+    display:flex;align-items:center;justify-content:center;color:#aaa;font-size:13px;}
 
-  .stats-row{display:flex;gap:40px;margin-top:28px;flex-wrap:wrap;}
-  .stat-num{font-size:44px;font-weight:800;}
+  .stats-row{display:flex;gap:64px;margin-top:44px;flex-wrap:wrap;}
+  .stat-num{font-size:clamp(56px,7vw,104px);font-weight:800;line-height:.92;
+    letter-spacing:-.04em;color:var(--accent);}
   /* ODOMETER digits. The window is exactly ONE line tall and every digit in the strip is exactly
      one line tall too -- that equality is what makes the roll land on a digit instead of between
      two. line-height:1 on both, and tabular-nums so the number doesn't jitter horizontally as
@@ -339,7 +353,7 @@
   .odo-d{display:inline-block;overflow:hidden;height:1em;line-height:1;}
   .odo-strip{display:block;will-change:transform;}
   .odo-strip>span{display:block;height:1em;line-height:1;}
-  .stat-label{color:#888;font-size:13px;max-width:20ch;}
+  .stat-label{color:#77737f;font-size:15px;max-width:22ch;margin-top:14px;line-height:1.35;}
 
   /* KEY FEATURES -- numbered editorial rows. Deliberately NOT cards: Products is already a card
      grid and Expertise is already a copy/visual split, so rows are the one shape the page isn't
@@ -616,7 +630,9 @@
   </div>
   <div class="expertise-layout">
     <div class="expertise-copy">
-      <p class="fx-lines">Fifty-plus businesses now run on systems I built around how they actually work — not a template with their logo on it. The top six were doing 10K a month inside two months. Same three moves every time: a site built to convert, booking that runs itself, follow-up that never forgets.</p>
+      <p class="fx-lines">Fifty-plus businesses now run on systems I built around how they actually work — not a template with their logo on it.</p>
+      <p class="fx-lines">The top six were doing 10K a month inside two months.</p>
+      <p class="fx-lines">Same three moves every time: a site built to convert, booking that runs itself, follow-up that never forgets.</p>
       <div class="stats-row fx-group">
         <!-- static values mirror tab one, so the row reads correctly before the JS runs -->
         <div><div class="stat-num">6</div><div class="stat-label">businesses at 10K a month</div></div>
