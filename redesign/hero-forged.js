@@ -107,7 +107,7 @@ function boot() {
      loop. Shader compilation, geometry upload and the environment map all land on the first render,
      and starting the animation into that cost is exactly what made the opening stutter. The
      sequence now begins on a warm renderer, and runs slower besides. */
-  let introOn = !reduce, introT0 = null, warmFrames = 0;
+  let introOn = !reduce, introT0 = null, warmFrames = 0, readyFired = false, warmAt = 0;
   const CORE_IN = [0.10, 1.05], RING_IN = 1.20, RING_GAP = 0.26, RING_START = 0.55;
   const INTRO_END = RING_START + RING_GAP * 3 + RING_IN + 0.25;
   const seg = (t, a, b) => Math.min(1, Math.max(0, (t - a) / (b - a)));
@@ -205,7 +205,18 @@ function boot() {
        from that moment. The first render is where the shaders compile and the geometry uploads;
        animating through that is what was seen as lag at start-up. */
     if (introOn && introT0 === null) {
-      if (++warmFrames >= 4) introT0 = t;
+      if (++warmFrames >= 4) {
+        /* warm: shaders are built and the geometry is uploaded. Tell the preloader it can leave. */
+        if (!readyFired) { readyFired = true; window.__heroReady = true;
+          dispatchEvent(new Event('hero:ready')); }
+        /* and hold the assembly until the curtain is actually going up, so the entrance is not
+           played out behind a loading screen. __heroGo is false only while a preloader owns it.
+           warmAt is the safety: if nothing ever releases us -- preloader script failed, threw, or
+           was stripped -- start anyway after 5s rather than leaving an empty hero on screen
+           forever. Waiting on another component is fine; depending on it is not. */
+        if (warmAt === 0) warmAt = Date.now();
+        if (window.__heroGo !== false || Date.now() - warmAt > 5000) introT0 = t;
+      }
     } else if (introOn) {
       playIntro(t - introT0);
     }
