@@ -3,7 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>[Redesign skeleton — structure only]</title>
+<title>MVS Solves — Websites &amp; automations that book paying clients</title>
+<meta name="description" content="I build high-converting websites, booking systems and AI receptionists for service businesses. 50+ businesses run on systems I designed and built myself.">
+<meta name="author" content="Martin — MVS Solves">
+<meta name="theme-color" content="#9070DF">
+<link rel="canonical" href="https://mvssolves.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MVS Solves">
+<meta property="og:title" content="MVS Solves — Websites &amp; automations that book paying clients">
+<meta property="og:description" content="High-converting websites, booking that runs itself, and an AI receptionist that works every lead. Built end to end by one person.">
+<meta property="og:url" content="https://mvssolves.com/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MVS Solves — Websites &amp; automations that book paying clients">
+<meta name="twitter:description" content="High-converting websites, booking that runs itself, and an AI receptionist that works every lead. Built end to end by one person.">
 <!--
   STRUCTURE-ONLY SKELETON. Not the live site, not linked from it, not pushed.
   Mirrors NeoLeaf's (neoleaf.bytetown.agency) actual section order and scroll
@@ -83,10 +95,12 @@
   h3{font-size:18px;margin-bottom:8px;}
   p{color:#555;max-width:60ch;}
   .tag{display:inline-block;background:#f2f2f2;border:1px solid #ddd;border-radius:999px;padding:10px 18px;font-size:13px;}
+  /* buttons stay PUT. They get hover and click reactions, but never translate -- a CTA that
+     drifts around under the cursor is harder to hit and reads as a bug. */
   .btn{position:relative;display:inline-block;padding:12px 24px;border-radius:999px;
     border:1px solid #111;font-size:14px;font-weight:600;text-decoration:none;color:#111;
     cursor:pointer;background:none;overflow:hidden;isolation:isolate;
-    transition:transform .35s cubic-bezier(.2,.8,.3,1),color .3s ease,border-color .3s ease;}
+    transition:color .3s ease,border-color .3s ease,box-shadow .3s ease;}
   /* FILL WIPE -- a disc scales up from under the label on hover. Sits at -1 so the label rides
      over it; the label itself is re-thrown by the JS below. */
   .btn::after{content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;
@@ -94,6 +108,7 @@
     transition:transform .45s cubic-bezier(.2,.8,.3,1);}
   .btn:hover::after{transform:scale(1.02);}
   .btn:hover{color:#fff;border-color:var(--accent);}
+  .btn:hover{box-shadow:0 10px 26px -12px rgba(144,112,223,.65);}
   .btn:active{transform:scale(.97);}
   .btn-ripple{position:absolute;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;
     background:rgba(255,255,255,.55);pointer-events:none;z-index:-1;
@@ -166,7 +181,10 @@
     background:currentColor;transform:scaleX(0);transform-origin:left;
     transition:transform .32s cubic-bezier(.4,0,.2,1);}
   .nav-links a:hover::after{transform:scaleX(1);}
-  nav.nav-clear .nav-links a:hover{color:var(--accent2);}
+  /* lime on hover in BOTH nav states -- the scrolled state had a separate violet rule further
+     down that was overriding this one. */
+  .nav-links a:hover,nav.nav-clear .nav-links a:hover{color:var(--accent2);}
+  .nav-links a:hover::after{background:var(--accent2);}
 
   /* buttons: lift + shadow, and the filled one warms slightly */
   .btn{transition:transform .22s cubic-bezier(.34,1.4,.64,1),box-shadow .22s ease,
@@ -260,7 +278,7 @@
   .hero-sub{color:#4a4753;}
   /* nav sits over the now-WHITE hero while transparent, so its text is dark to stay readable */
   nav.nav-clear .nav-links a,nav.nav-clear .nav-logo{color:#111;}
-  nav.nav-clear .nav-links a:hover{color:var(--accent);}
+  /* (nav hover colour is owned by the lime rule in the hover layer above) */
   /* hero marquee on white: dark words, outline .ol ones knocked out to a dark stroke */
   .hero-block .marquee-track span{color:var(--ink);}
   .hero-block .marquee-track .ol{color:transparent;-webkit-text-stroke:1.2px rgba(11,11,12,.5);}
@@ -638,11 +656,11 @@
      wash read as low-tier because it was ONLY a gradient; this keeps the pieces that made the dark
      version feel built -- fine grain, an off-centre bloom, a masked hairline grid and the cropped
      ghost stat -- inverted onto white. Structure, not just a tint. */
-  #why{background:linear-gradient(180deg,#ffffff 0%,#faf9fd 58%,#f5f2fb 100%);overflow:hidden;}
+  #why{background:linear-gradient(180deg,#ffffff 0%,#fcfbfd 60%,#f8f7fa 100%);overflow:hidden;}
   /* bloom + hairline grid, masked to a soft oval so the edges dissolve instead of ending on a line */
   #why::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;border-radius:inherit;
     background:
-      radial-gradient(56% 64% at 52% 40%, rgba(144,112,223,.14), transparent 72%),
+      radial-gradient(56% 64% at 52% 40%, rgba(144,112,223,.06), transparent 72%),
       repeating-linear-gradient(90deg, rgba(11,11,12,.038) 0 1px, transparent 1px 132px),
       repeating-linear-gradient(0deg,  rgba(11,11,12,.026) 0 1px, transparent 1px 132px);
     -webkit-mask-image:radial-gradient(80% 84% at 48% 42%, #000 22%, rgba(0,0,0,.4) 60%, transparent 92%);
@@ -657,7 +675,7 @@
   /* cropped ghost stat -- violet outline on white, faded at the top so it never crowds the copy */
   #why > .me-ghost{position:absolute;z-index:0;right:1.5%;bottom:-15%;pointer-events:none;user-select:none;
     font-size:clamp(190px,25vw,370px);font-weight:800;letter-spacing:-.05em;line-height:.8;
-    color:transparent;-webkit-text-stroke:2px rgba(144,112,223,.32);
+    color:transparent;-webkit-text-stroke:2px rgba(120,116,136,.20);
     -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 42%,#000 100%);
             mask-image:linear-gradient(180deg,transparent 0,#000 42%,#000 100%);}
   /* heading + body use the site's default ink; eyebrow keeps brand violet */
@@ -671,7 +689,7 @@
   .me-timeline{flex:1 1 380px;list-style:none;position:relative;padding-left:34px;margin-top:2px;}
   /* the rail: a rounded violet->grey bar with a faint inner highlight so it reads as a raised tube */
   .me-timeline::before{content:'';position:absolute;left:6px;top:9px;bottom:16px;width:4px;
-    border-radius:4px;background:linear-gradient(180deg,var(--accent) 0%,#b6a2ea 60%,#dcdce2 100%);
+    border-radius:4px;background:linear-gradient(180deg,#b6a2ea 0%,#cfc7e4 55%,#e2e2e8 100%);
     box-shadow:inset 1px 0 0 rgba(255,255,255,.5),0 2px 6px -2px rgba(90,60,150,.4);}
   /* a lime pulse travelling top->bottom down the rail, on a loop */
   .me-timeline::after{content:'';position:absolute;left:4px;width:8px;height:8px;border-radius:50%;
@@ -682,7 +700,7 @@
   .me-timeline li:last-child{padding-bottom:0;}
   /* beaded node: radial highlight (top-left light) + cast shadow = a small sphere sitting proud */
   .me-timeline li::before{content:'';position:absolute;left:-34px;top:3px;width:15px;height:15px;
-    border-radius:50%;background:radial-gradient(circle at 35% 30%,#c9b6ff,#7a63c2);
+    border-radius:50%;background:radial-gradient(circle at 35% 30%,#d8ccf5,#9d8ad0);
     box-shadow:0 0 0 4px #fff,0 4px 8px -2px rgba(90,60,150,.5);}
   .me-timeline li:last-child::before{background:radial-gradient(circle at 35% 30%,#f6ffa0,#c9d92e);
     box-shadow:0 0 0 4px #fff,0 4px 8px -2px rgba(120,120,20,.4),0 0 16px 3px rgba(230,245,54,.6);}
@@ -959,9 +977,9 @@
   <div class="expertise-layout">
     <div class="expertise-copy">
       <div class="pf-copy" id="pfCopy">
-        <p><span class="hl">50+</span> businesses now run on systems I built around how they actually work — not a template with their logo on it.</p>
-        <p>The top six were doing <span class="hl">10K</span> a month inside two months.</p>
-        <p>Same three moves every time: a site built to convert, booking that runs itself, follow-up that never forgets.</p>
+        <p class="fx-lines"><span class="hl">50+</span> businesses now run on systems I built around how they actually work — not a template with their logo on it.</p>
+        <p class="fx-lines">The top six were doing <span class="hl">10K</span> a month inside two months.</p>
+        <p class="fx-lines">Same three moves every time: a site built to convert, booking that runs itself, follow-up that never forgets.</p>
       </div>
       <div class="stats-row fx-group">
         <!-- static values mirror tab one, so the row reads correctly before the JS runs -->
@@ -1075,8 +1093,8 @@
   <h2 class="fx-rise">Straight from me</h2>
   <div class="me-layout">
     <div class="me-copy">
-      <p class="fx-rise" data-hl="two,months,six,10K">I'm Martin — self-taught, no agency pedigree, and better for it. In under <span class="hl">two months</span> I took <span class="hl">six</span> businesses to <span class="hl">10K</span> a month each. That's not a pitch — it's the track record.</p>
-      <p class="fx-rise" data-hl="50+"><span class="hl">50+</span> businesses now run on systems I designed and built myself, end to end. No account managers, no hand-offs, no watered-down work passed down a chain — just the person who built it, answering for it.</p>
+      <p class="fx-rise">I'm Martin — self-taught, no agency pedigree, and better for it. In under two months I took six businesses to 10K a month each. That's not a pitch — it's the track record.</p>
+      <p class="fx-rise">50+ businesses now run on systems I designed and built myself, end to end. No account managers, no hand-offs, no watered-down work passed down a chain — just the person who built it, answering for it.</p>
       <p class="fx-rise">I don't stop at "launched." I'm done when your numbers are climbing — and I back myself to get them there.</p>
       <a class="btn filled" href="#" data-contact>Work with me</a>
     </div>
@@ -1127,7 +1145,7 @@
   <h2 class="fx-rise">The business in one prompt.</h2>
   <div class="team-stats fx-group">
     <div><div class="stat-num" data-count="100">0</div><div class="stat-label">websites made</div></div>
-    <div><div class="stat-num" data-count="5">0</div><div class="stat-label">businesses at 10K a month</div></div>
+    <div><div class="stat-num" data-count="6">0</div><div class="stat-label">businesses at 10K a month</div></div>
     <div><div class="stat-num" data-count="10000" data-group>0</div><div class="stat-label">automations run monthly</div></div>
   </div>
   <a class="btn filled team-cta" href="#" data-contact>Work with me</a>
@@ -1422,10 +1440,12 @@ document.addEventListener('click',e=>{
   gsap.set(h1,{perspective:600});
   gsap.fromTo(chars,{opacity:0,y:34,rotateX:-75,transformOrigin:'50% 100%'},
     {opacity:1,y:0,rotateX:0,duration:.6,stagger:.022,ease:'back.out(1.7)',delay:.15});
-  /* subhead + CTA follow the headline in, on the same clock */
+  /* eyebrow, subhead and CTA simply FADE up into place -- a pure opacity settle reads calmer
+     next to the headline's per-character rise than a second sliding element would. */
+  const eyebrow=document.querySelector('.hero-copy .eyebrow');
   const sub=document.querySelector('.hero-sub'), ctas=document.querySelector('.hero-ctas');
-  gsap.fromTo([sub,ctas].filter(Boolean),{opacity:0,y:18},
-    {opacity:1,y:0,duration:.7,stagger:.09,ease:'power3.out',delay:.55});
+  gsap.fromTo([eyebrow,sub,ctas].filter(Boolean),{opacity:0},
+    {opacity:1,duration:1.1,stagger:.14,ease:'power2.out',delay:.45});
 })();
 
 /* HERO SEQUENCE -- deliberately split into TWO mechanisms, not one scrubbed timeline:
@@ -2065,8 +2085,10 @@ function odometer(el, value, opts){
    at runtime, so nothing depends on JS to be usable.
 
      re-throw   the label is wrapped and duplicated so it can roll over on hover (CSS drives it)
-     magnetic   the button drifts toward the cursor while it's near, and springs back on leave
      ripple     a click sends a soft ring out from the exact point pressed
+
+   Deliberately NO magnetic/drift behaviour: the buttons hold their position. A CTA that moves
+   toward the cursor is harder to click and reads as a glitch rather than as polish.
 */
 (function(){
   const btns=[...document.querySelectorAll('.btn')];
@@ -2077,19 +2099,6 @@ function odometer(el, value, opts){
       b.innerHTML='<span class="btn-t"><i>'+txt+'</i><i class="dup" aria-hidden="true">'+txt+'</i></span>';
     }
     if(reduce)return;
-
-    /* magnetic pull -- capped hard, because a button that follows the cursor too far stops
-       reading as a button and starts reading as a bug */
-    const R=70, MAX=9;
-    b.addEventListener('pointermove',e=>{
-      const r=b.getBoundingClientRect();
-      const dx=e.clientX-(r.left+r.width/2), dy=e.clientY-(r.top+r.height/2);
-      const d=Math.hypot(dx,dy);
-      if(d>r.width/2+R){b.style.transform='';return;}
-      const f=Math.min(1,1-d/(r.width/2+R));
-      b.style.transform='translate('+(dx*f*0.3).toFixed(1)+'px,'+(dy*f*0.4).toFixed(1)+'px)';
-    });
-    b.addEventListener('pointerleave',()=>{b.style.transform='';});
 
     b.addEventListener('pointerdown',e=>{
       const r=b.getBoundingClientRect();

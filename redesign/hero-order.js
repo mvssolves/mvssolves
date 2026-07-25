@@ -76,6 +76,40 @@ function init(host) {
   const dummy = new THREE.Object3D();
   const col = new THREE.Color();
 
+  /* ---- artwork layer -------------------------------------------------------------------------
+     Not just loose particles: a subset of the field is wired into a constellation. Each frame the
+     link endpoints are refreshed from the live particle positions, so the graphic breathes and
+     reacts along with everything else instead of being a static overlay.
+
+     Pairs are chosen ONCE, at build time, from particles that start near each other. Rebuilding
+     the neighbour search every frame would be O(n^2); the springs keep particles near home, so a
+     pair picked at the start stays a plausible pair forever. */
+  const LINKS = 900;
+  const linkPairs = new Int32Array(LINKS * 2);
+  {
+    let made = 0, guard = 0;
+    while (made < LINKS && guard++ < LINKS * 60) {
+      const a = (Math.random() * COUNT) | 0, b = (Math.random() * COUNT) | 0;
+      if (a === b) continue;
+      const dx = home[a * 3] - home[b * 3];
+      const dy = home[a * 3 + 1] - home[b * 3 + 1];
+      const dz = home[a * 3 + 2] - home[b * 3 + 2];
+      if (dx * dx + dy * dy + dz * dz > 9) continue;      // near neighbours only
+      linkPairs[made * 2] = a; linkPairs[made * 2 + 1] = b; made++;
+    }
+  }
+  const linkGeo = new THREE.BufferGeometry();
+  const linkPos = new Float32Array(LINKS * 6);
+  const linkCol = new Float32Array(LINKS * 6);
+  linkGeo.setAttribute('position', new THREE.BufferAttribute(linkPos, 3));
+  linkGeo.setAttribute('color', new THREE.BufferAttribute(linkCol, 3));
+  const links = new THREE.LineSegments(
+    linkGeo,
+    new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.5 })
+  );
+  links.position.y = mesh.position.y;
+  scene.add(links);
+
   /* ---- pointer -------------------------------------------------------------------------------
      The cursor is projected onto the z=0 plane so "distance to cursor" is measured in the same
      world units as the particles, not in screen pixels — otherwise the interaction radius would
@@ -143,10 +177,16 @@ function init(host) {
     for (let i = 0; i < COUNT; i++) {
       const i3 = i * 3;
 
-      /* ambient drift — the field is never completely still */
-      const hx = home[i3]     + Math.sin(t * 0.35 + spin[i]) * 0.5;
-      const hy = home[i3 + 1] + Math.cos(t * 0.28 + spin[i] * 1.3) * 0.42;
-      const hz = home[i3 + 2] + Math.sin(t * 0.22 + spin[i] * 0.7) * 0.4;
+      /* CONSTANT FLOW. The home position itself travels on a curl-like field built from cheap
+         layered sines, so nothing ever settles -- the field is always moving even when untouched.
+         Amplitudes are large enough to read as motion at a glance, slow enough not to distract
+         from the headline. */
+      const px0 = home[i3], py0 = home[i3 + 1], pz0 = home[i3 + 2];
+      const hx = px0 + Math.sin(t * 0.32 + py0 * 0.13 + spin[i]) * 2.2
+                     + Math.cos(t * 0.17 + pz0 * 0.09) * 1.1;
+      const hy = py0 + Math.cos(t * 0.27 + px0 * 0.11 + spin[i] * 1.3) * 1.8
+                     + Math.sin(t * 0.21 + pz0 * 0.12) * 0.9;
+      const hz = pz0 + Math.sin(t * 0.24 + px0 * 0.10 + spin[i] * 0.7) * 1.9;
 
       /* spring home + damping: any disturbance heals itself */
       vel[i3]     += (hx - pos[i3])     * 5.5 * dt;
@@ -201,9 +241,30 @@ function init(host) {
     mesh.instanceMatrix.needsUpdate = true;
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
 
+    /* redraw the constellation from live positions. Links fade out as their two particles drift
+       apart, so the graphic forms and dissolves continuously rather than looking like fixed wire. */
+    for (let l = 0; l < LINKS; l++) {
+      const a = linkPairs[l * 2] * 3, b = linkPairs[l * 2 + 1] * 3, o = l * 6;
+      linkPos[o]     = pos[a];     linkPos[o + 1] = pos[a + 1]; linkPos[o + 2] = pos[a + 2];
+      linkPos[o + 3] = pos[b];     linkPos[o + 4] = pos[b + 1]; linkPos[o + 5] = pos[b + 2];
+      const dx = pos[a] - pos[b], dy = pos[a + 1] - pos[b + 1], dz = pos[a + 2] - pos[b + 2];
+      const d = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      const k = Math.max(0, 1 - d / 5.5);          // 0 once the pair has drifted too far apart
+      col.copy(VIOLET).lerp(BG, 1 - k * 0.85);
+      linkCol[o] = linkCol[o + 3] = col.r;
+      linkCol[o + 1] = linkCol[o + 4] = col.g;
+      linkCol[o + 2] = linkCol[o + 5] = col.b;
+    }
+    linkGeo.attributes.position.needsUpdate = true;
+    linkGeo.attributes.color.needsUpdate = true;
+
     if (!reduceMotion) {
-      mesh.rotation.y = ndc.x * 0.10;
-      mesh.rotation.x = -ndc.y * 0.06;
+      /* a permanent slow yaw on top of cursor parallax, so the whole volume is always turning and
+         the depth of the field is legible even without moving the mouse */
+      const ry = ndc.x * 0.10 + Math.sin(t * 0.06) * 0.16;
+      const rx = -ndc.y * 0.06 + Math.sin(t * 0.045) * 0.07;
+      mesh.rotation.y = links.rotation.y = ry;
+      mesh.rotation.x = links.rotation.x = rx;
     }
 
     renderer.render(scene, camera);
