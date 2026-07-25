@@ -203,7 +203,7 @@
   /* FIXED, and it stays that way. The nav locks to the top from the moment the page
      loads and never moves. It only changes background: transparent over the dark hero,
      solid white once you're past it. */
-  nav{position:fixed;top:0;left:0;right:0;background:#FFFFFF;z-index:20;
+  nav{position:fixed;top:0;left:0;right:0;background:var(--paper);z-index:20;
     transition:background .3s ease;}
   /* transparent for the WHOLE hero section, and it does not fade back in until the hero is gone.
      Previously the nav faded from transparent to white across the hero's own scroll, which put a
@@ -680,7 +680,7 @@
   .s-a{animation:stageLit 10.5s infinite;}
   .s-b{animation:stageLit 10.5s infinite;animation-delay:-7s;}
   .s-c{animation:stageLit 10.5s infinite;animation-delay:-3.5s;}
-  @keyframes stageLit{0%,24%{background:#F6F2FB;}34%,100%{background:var(--paper-raised);}}
+  @keyframes stageLit{0%,24%{background:#FBF5F2;}34%,100%{background:var(--paper-raised);}}
   .s-a::before{animation:litBar 10.5s infinite;}
   .s-b::before{animation:litBar 10.5s infinite;animation-delay:-7s;}
   .s-c::before{animation:litBar 10.5s infinite;animation-delay:-3.5s;}
@@ -806,10 +806,13 @@
   /* vertical timeline: a raised rail with 3D beaded nodes and a lime pulse that travels down it.
      Nodes are radial-shaded spheres with a soft cast shadow so they sit above the card, not on it. */
   .me-timeline{flex:1 1 380px;list-style:none;position:relative;padding-left:34px;margin-top:2px;}
-  /* the rail: a rounded violet->grey bar with a faint inner highlight so it reads as a raised tube */
-  .me-timeline::before{content:'';position:absolute;left:6px;top:9px;bottom:16px;width:4px;
-    border-radius:4px;background:linear-gradient(180deg,#A996D8 0%,#C6BEDC 55%,#E0DACE 100%);
-    box-shadow:inset 1px 0 0 rgba(255,255,255,.5),0 2px 6px -2px rgba(60,48,36,.4);}
+  /* the rail. It used to run violet->grey at 4px with a lit edge and a cast shadow, which on a
+     warm ground read as a stray rule standing between the copy and the timeline rather than as
+     part of it. Now 2px, warm, low contrast and fading out at both ends, so it supports the beads
+     instead of competing with them. */
+  .me-timeline::before{content:'';position:absolute;left:7px;top:9px;bottom:16px;width:2px;
+    border-radius:2px;box-shadow:none;
+    background:linear-gradient(180deg,transparent 0%,#DED5C7 14%,#E6DFD3 60%,transparent 100%);}
   /* a pulse travelling top->bottom down the rail, on a loop. No halo: a zero-offset chromatic
      glow is the default "cool" look of generated UI, and on warm paper it just reads as a smudge.
      The dot carries itself on colour and motion. */
@@ -833,7 +836,7 @@
   .me-timeline li:last-child{padding-bottom:0;}
   /* beaded node: radial highlight (top-left light) + cast shadow = a small sphere sitting proud */
   .me-timeline li::before{content:'';position:absolute;left:-34px;top:3px;width:15px;height:15px;
-    border-radius:50%;background:radial-gradient(circle at 35% 30%,#D3C7EE,#8E7BC0);
+    border-radius:50%;background:radial-gradient(circle at 35% 30%,#EED3C7,#C0907B);
     box-shadow:0 0 0 4px #fff,0 4px 8px -2px rgba(60,48,36,.5);}
   .me-timeline li:last-child::before{background:radial-gradient(circle at 35% 30%,#F7B893,#C4531F);
     box-shadow:0 0 0 4px #fff,0 4px 8px -2px rgba(34,28,20,.35);}
@@ -918,13 +921,13 @@
      Steps are in em so the depth scales with the clamped font-size instead of thinning out to
      nothing on a big viewport. */
   .wm-i::before{content:attr(data-ch);position:absolute;left:0;top:0;z-index:0;
-    color:#5A4A90;-webkit-text-fill-color:#5A4A90;
+    color:#905F4A;-webkit-text-fill-color:#905F4A;
     text-shadow:
-      .011em .011em 0 #554587,.022em .022em 0 #50407F,.033em .033em 0 #4B3C77,
-      .044em .044em 0 #46386F,.055em .055em 0 #413367,.066em .066em 0 #3C2F5F,
-      .077em .077em 0 #372B57,.088em .088em 0 #32274F,.099em .099em 0 #2D2347,
-      .110em .110em 0 #281F3F,.121em .121em 0 #231B37,.132em .132em 0 #1E172F,
-      .143em .143em 0 #191327,.154em .154em 0 #140F1F,
+      .011em .011em 0 #875945,.022em .022em 0 #7F5340,.033em .033em 0 #774E3C,
+      .044em .044em 0 #6F4838,.055em .055em 0 #674333,.066em .066em 0 #5F3D2F,
+      .077em .077em 0 #57382B,.088em .088em 0 #4F3327,.099em .099em 0 #472E23,
+      .110em .110em 0 #3F291F,.121em .121em 0 #37231B,.132em .132em 0 #2F1E17,
+      .143em .143em 0 #271913,.154em .154em 0 #1F140F,
       .17em .17em .2em rgba(20,15,10,.55);}
   /* water surface: a depth gradient for the body, plus two highlight bands drifting across it in
      OPPOSITE directions at different rates -- that crossing is what reads as caustics rather
@@ -933,7 +936,7 @@
     background-image:
       linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.95) 11%,rgba(255,255,255,0) 24%),
       linear-gradient(76deg,rgba(201,168,255,0) 0%,rgba(217,196,255,.85) 14%,rgba(201,168,255,0) 30%),
-      linear-gradient(180deg,#FFFFFF 0%,#EFE7DA 34%,#B8A9D6 70%,#E4622F 100%);
+      linear-gradient(180deg,#FFFFFF 0%,#EFE7DA 34%,#D6B6A9 70%,#E4622F 100%);
     background-size:300% 100%,380% 100%,100% 100%;
     background-repeat:repeat-x;
     -webkit-background-clip:text;background-clip:text;
@@ -1535,14 +1538,33 @@
     color:rgba(239,234,225,.72);max-width:34ch;}
   #services .work-lead .work-n{color:var(--flare);margin-bottom:auto;}
 
-  /* absolute, so art can never push the panel past its pin. Crossfades with the copy. */
-  #services .work-lead{position:relative;}
-  #services .work-art{position:absolute;top:clamp(20px,2vw,30px);right:clamp(20px,2vw,32px);
-    width:clamp(96px,11vw,150px);aspect-ratio:120/84;color:rgba(239,234,225,.62);}
+  /* Absolute, so art can never push the panel past its pin. It sits in its own raised well rather
+     than floating loose on the panel: a rounded plate a shade lighter than the ink, a hairline
+     rim, and an inner top highlight so it reads as a recessed screen the drawing lives inside.
+     Sized off the panel (cqw) rather than the viewport, so it scales with its container. */
+  #services .work-lead{position:relative;container-type:inline-size;}
+  #services .work-art{position:absolute;top:clamp(18px,1.9vw,26px);right:clamp(18px,1.9vw,26px);
+    width:clamp(140px,34cqw,220px);aspect-ratio:4/3;
+    border-radius:18px;overflow:hidden;
+    background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02) 58%,transparent);
+    box-shadow:inset 0 0 0 1px rgba(239,234,225,.14),
+               inset 0 1px 0 rgba(255,255,255,.16),
+               0 12px 28px -20px rgba(0,0,0,.7);
+    color:rgba(239,234,225,.78);}
+  /* a faint dot field inside the well so the plate has a surface instead of being flat black */
+  #services .work-art::before{content:'';position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(1px 1px at 50% 50%, rgba(239,234,225,.16) 1px, transparent 1px);
+    background-size:14px 14px;
+    -webkit-mask-image:radial-gradient(78% 78% at 50% 46%,#000 20%,transparent 86%);
+            mask-image:radial-gradient(78% 78% at 50% 46%,#000 20%,transparent 86%);}
   #services .work-art svg{position:absolute;inset:0;width:100%;height:100%;
-    opacity:0;transition:opacity .32s ease;}
-  #services .work-art svg.on{opacity:1;}
-  @media(max-width:900px){ #services .work-art{width:88px;top:18px;right:18px;} }
+    padding:14%;opacity:0;transform:scale(.965);
+    transition:opacity .34s ease,transform .34s cubic-bezier(.22,1,.36,1);}
+  #services .work-art svg.on{opacity:1;transform:scale(1);}
+  @media(max-width:900px){
+    #services .work-art{width:118px;top:16px;right:16px;border-radius:14px;}
+    #services .work-art svg{padding:12%;}
+  }
 
   #services .work-rest{display:flex;flex-direction:column;justify-content:space-between;gap:2px;}
   /* rows are real buttons so the rotation can be driven from the keyboard as well as the clock */
@@ -1596,8 +1618,14 @@
      being painted underneath it and could never be seen. Every filled CTA on the page was dead on
      hover. They shift tone instead; nothing moves, per the no-moving-buttons rule. */
   .btn.filled:hover{background:var(--accent-deep)!important;}
+  /* in the hero the hover INVERTS -- white fill, ink text -- rather than stepping ink to
+     ink-raised, which is a 12-value difference and reads as "the button just stays black". Still
+     only white and ink, so the hero picks up no new colour. */
   nav.nav-clear .btn.filled:hover,
-  .hero-block .btn.filled:hover{background:var(--ink-raised)!important;}
+  .hero-block .btn.filled:hover{background:#FFFFFF!important;color:var(--ink)!important;
+    border-color:var(--ink)!important;}
+  nav.nav-clear .btn.filled:hover .btn-t i,
+  .hero-block .btn.filled:hover .btn-t i{color:var(--ink)!important;}
 
   /* every cover-layer takes the footer's 48px lip, so the whole stack shares one corner instead of
      the sections reading at 32px and the footer arriving at 48px. Mobile keeps its smaller 34px. */
@@ -1838,24 +1866,24 @@
           <radialGradient id="gem" cx="40%" cy="35%"><stop offset="0" stop-color="#F9C7A8"/><stop offset="1" stop-color="#D2591F"/></radialGradient>
           <radialGradient id="glow" cx="50%" cy="50%"><stop offset="0" stop-color="#E4622F" stop-opacity=".55"/><stop offset="1" stop-color="#E4622F" stop-opacity="0"/></radialGradient>
           <radialGradient id="tok" cx="38%" cy="32%"><stop offset="0" stop-color="#F9C7A8"/><stop offset="1" stop-color="#C4531F"/></radialGradient>
-          <linearGradient id="bT" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C6B7E8"/><stop offset="1" stop-color="#9C86C9"/></linearGradient>
-          <linearGradient id="bL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7D68B0"/><stop offset="1" stop-color="#5C4A90"/></linearGradient>
-          <linearGradient id="bR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5A4A93"/><stop offset="1" stop-color="#403374"/></linearGradient>
+          <linearGradient id="bT" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E8C6B7"/><stop offset="1" stop-color="#C99A86"/></linearGradient>
+          <linearGradient id="bL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B07E68"/><stop offset="1" stop-color="#905F4A"/></linearGradient>
+          <linearGradient id="bR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#93604A"/><stop offset="1" stop-color="#744633"/></linearGradient>
         </defs>
-        <ellipse cx="170" cy="403" rx="80" ry="35" fill="#2E2547" opacity=".16" filter="url(#soft)"/>
-        <ellipse cx="310" cy="389" rx="80" ry="35" fill="#2E2547" opacity=".16" filter="url(#soft)"/>
-        <ellipse cx="452" cy="377" rx="80" ry="35" fill="#2E2547" opacity=".16" filter="url(#soft)"/>
+        <ellipse cx="170" cy="403" rx="80" ry="35" fill="#472F25" opacity=".16" filter="url(#soft)"/>
+        <ellipse cx="310" cy="389" rx="80" ry="35" fill="#472F25" opacity=".16" filter="url(#soft)"/>
+        <ellipse cx="452" cy="377" rx="80" ry="35" fill="#472F25" opacity=".16" filter="url(#soft)"/>
         <polygon points="100,320 170,355 170,397 100,362" fill="url(#bL)"/><polygon points="170,355 240,320 240,362 170,397" fill="url(#bR)"/><polygon points="100,320 170,285 240,320 170,355" fill="url(#bT)"/>
-        <line x1="100" y1="320" x2="170" y2="285" stroke="#E7DFF6" stroke-width="1.5" opacity=".7"/><line x1="170" y1="285" x2="240" y2="320" stroke="#E7DFF6" stroke-width="1.5" opacity=".55"/>
+        <line x1="100" y1="320" x2="170" y2="285" stroke="#F6E6DF" stroke-width="1.5" opacity=".7"/><line x1="170" y1="285" x2="240" y2="320" stroke="#F6E6DF" stroke-width="1.5" opacity=".55"/>
         <polygon points="240,262 310,297 310,383 240,348" fill="url(#bL)"/><polygon points="310,297 380,262 380,348 310,383" fill="url(#bR)"/><polygon points="240,262 310,227 380,262 310,297" fill="url(#bT)"/>
-        <line x1="240" y1="262" x2="310" y2="227" stroke="#E7DFF6" stroke-width="1.5" opacity=".7"/><line x1="310" y1="227" x2="380" y2="262" stroke="#E7DFF6" stroke-width="1.5" opacity=".55"/>
+        <line x1="240" y1="262" x2="310" y2="227" stroke="#F6E6DF" stroke-width="1.5" opacity=".7"/><line x1="310" y1="227" x2="380" y2="262" stroke="#F6E6DF" stroke-width="1.5" opacity=".55"/>
         <polygon points="382,204 452,239 452,371 382,336" fill="url(#bL)"/><polygon points="452,239 522,204 522,336 452,371" fill="url(#bR)"/><polygon points="382,204 452,169 522,204 452,239" fill="url(#bT)"/>
-        <line x1="382" y1="204" x2="452" y2="169" stroke="#E7DFF6" stroke-width="1.5" opacity=".7"/><line x1="452" y1="169" x2="522" y2="204" stroke="#E7DFF6" stroke-width="1.5" opacity=".55"/>
-        <polygon points="134,320 170,302 206,320 170,338" fill="#B3A2DC" opacity=".85"/>
+        <line x1="382" y1="204" x2="452" y2="169" stroke="#F6E6DF" stroke-width="1.5" opacity=".7"/><line x1="452" y1="169" x2="522" y2="204" stroke="#F6E6DF" stroke-width="1.5" opacity=".55"/>
+        <polygon points="134,320 170,302 206,320 170,338" fill="#DCB3A2" opacity=".85"/>
         <line x1="145" y1="312" x2="170" y2="299" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".9"/><line x1="134" y1="324" x2="170" y2="306" stroke="#E4622F" stroke-width="2.4" stroke-linecap="round" opacity=".9"/>
-        <g class="iso-slot" style="--i:0"><polygon points="281,251 293,245 305,251 293,257" fill="#F4F0FA"/></g>
-        <g class="iso-slot" style="--i:1"><polygon points="298,260 310,254 322,260 310,266" fill="#F4F0FA"/></g>
-        <g class="iso-slot" style="--i:2"><polygon points="315,269 327,263 339,269 327,275" fill="#F4F0FA"/></g>
+        <g class="iso-slot" style="--i:0"><polygon points="281,251 293,245 305,251 293,257" fill="#FAF3F0"/></g>
+        <g class="iso-slot" style="--i:1"><polygon points="298,260 310,254 322,260 310,266" fill="#FAF3F0"/></g>
+        <g class="iso-slot" style="--i:2"><polygon points="315,269 327,263 339,269 327,275" fill="#FAF3F0"/></g>
         <g class="ai-core">
           <circle class="ai-glow" cx="452" cy="154" r="44" fill="url(#glow)"/>
           <ellipse class="ai-ring" cx="452" cy="154" rx="46" ry="18" fill="none" stroke="#E4622F" stroke-width="2.4" opacity=".7"/>
@@ -2356,9 +2384,17 @@ document.addEventListener('click',e=>{
   /* Transparent at the very top, solid white a bit after you start scrolling. Plain
      viewport-relative threshold -- no ScrollTrigger, no measured hero height, nothing that can
      drift or fail to fire. Transparent while within the first ~65% of a screen; white past that. */
+  /* the bar goes cream exactly when PROOF lands under it, not at a guessed fraction of a screen.
+     The hero is white and every section after it is cream, so the nav has to change at that
+     boundary or it is the wrong colour on one side of it. Measured off Proof's own top edge, so it
+     stays correct whatever the hero's height does. */
+  const proofEl=document.getElementById('proof');
   const setNav=()=>{
-    const y=window.scrollY||document.documentElement.scrollTop||0;
-    navEl.classList.toggle('nav-clear', y < window.innerHeight*0.65);
+    const navH=parseFloat(getComputedStyle(document.documentElement)
+      .getPropertyValue('--nav-h'))||72;
+    const clear=proofEl ? proofEl.getBoundingClientRect().top > navH
+                        : (window.scrollY||0) < window.innerHeight*0.65;
+    navEl.classList.toggle('nav-clear', clear);
   };
   setNav();
   addEventListener('scroll',setNav,{passive:true});

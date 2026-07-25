@@ -13,7 +13,7 @@
   --accent:#E4622F;
   --accent2:#E4622F;
   --ink:#16130F;
-  --text:#1c1a1f;
+  --text:#1F1B1A;
   --soft:#4a4753;
   --muted:#8a8694;
   --line:rgba(11,11,12,.10);
@@ -128,13 +128,13 @@ footer{background:var(--ink);color:#fff;padding:44px 40px 0;overflow:hidden;
    Steps are in em so the depth scales with the clamped font-size instead of thinning out to
    nothing on a big viewport. */
 .wm-i::before{content:attr(data-ch);position:absolute;left:0;top:0;z-index:0;
-  color:#5A4A90;-webkit-text-fill-color:#5A4A90;
+  color:#905F4A;-webkit-text-fill-color:#905F4A;
   text-shadow:
-    .011em .011em 0 #534b92,.022em .022em 0 #4e468a,.033em .033em 0 #494183,
-    .044em .044em 0 #443c7b,.055em .055em 0 #3f3774,.066em .066em 0 #3a326c,
-    .077em .077em 0 #352d65,.088em .088em 0 #30285d,.099em .099em 0 #2b2356,
-    .110em .110em 0 #261e4e,.121em .121em 0 #211947,.132em .132em 0 #1c143f,
-    .143em .143em 0 #170f38,.154em .154em 0 #120a30,
+    .011em .011em 0 #92604B,.022em .022em 0 #8A5A46,.033em .033em 0 #835541,
+    .044em .044em 0 #7B4F3C,.055em .055em 0 #744937,.066em .066em 0 #6C4332,
+    .077em .077em 0 #653E2D,.088em .088em 0 #5D3828,.099em .099em 0 #563223,
+    .110em .110em 0 #4E2C1E,.121em .121em 0 #472719,.132em .132em 0 #3F2114,
+    .143em .143em 0 #381B0F,.154em .154em 0 #30150A,
     .17em .17em .2em rgba(0,0,0,.6);}
 /* water surface: a depth gradient for the body, plus two highlight bands drifting across it in
    OPPOSITE directions at different rates -- that crossing is what reads as caustics rather
@@ -143,7 +143,7 @@ footer{background:var(--ink);color:#fff;padding:44px 40px 0;overflow:hidden;
   background-image:
     linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.95) 11%,rgba(255,255,255,0) 24%),
     linear-gradient(76deg,rgba(201,168,255,0) 0%,rgba(217,196,255,.85) 14%,rgba(201,168,255,0) 30%),
-    linear-gradient(180deg,#fff 0%,#dfe4ff 34%,#9aa4e6 70%,#6f74c0 100%);
+    linear-gradient(180deg,#fff 0%,#FFE9DF 34%,#E6B19A 70%,#C0876F 100%);
   background-size:300% 100%,380% 100%,100% 100%;
   background-repeat:repeat-x;
   -webkit-background-clip:text;background-clip:text;
@@ -218,7 +218,7 @@ footer{background:var(--ink);color:#fff;padding:44px 40px 0;overflow:hidden;
 .field-row .field{flex:1;min-width:0;}
 .field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;
   color:var(--muted);margin-bottom:6px;font-family:monospace;}
-.field input,.field select,.field textarea{width:100%;background:#fbfbfc;
+.field input,.field select,.field textarea{width:100%;background:#FCFBFB;
   border:1px solid rgba(11,11,12,.16);border-radius:12px;padding:13px 15px;color:var(--ink);
   font-size:15px;font-family:inherit;transition:border-color .2s ease,background .2s ease;}
 .field textarea{min-height:130px;resize:vertical;}
