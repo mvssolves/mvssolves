@@ -1203,7 +1203,7 @@
 
   /* the figure row: hairline-separated, tabular, quiet enough not to fight the headline */
   .hero-figures{display:flex;gap:clamp(22px,4vw,56px);margin:26px 0 0;padding-top:20px;
-    border-top:1px solid var(--line);flex-wrap:wrap;}
+    flex-wrap:wrap;}   /* no rule: the hero carries no hairlines */
   .hero-figures dt{font-size:clamp(24px,2.6vw,36px);font-weight:800;letter-spacing:-.03em;
     line-height:1;color:var(--text);font-variant-numeric:tabular-nums;}
   .hero-figures dt span{color:var(--accent);}
@@ -1244,7 +1244,7 @@
     /* the figure row becomes a hairline-divided 3-up grid rather than a wrapping flex row --
        wrapping put "10,000+" alone on a second line and broke the rhythm */
     .hero-figures{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:22px;
-      padding-top:16px;}
+      padding-top:16px;border-top:0;}
     .hero-figures>div{padding-left:12px;border-left:1px solid var(--line);}
     .hero-figures>div:first-child{padding-left:0;border-left:0;}
     .hero-figures dt{font-size:clamp(19px,5.6vw,24px);}
@@ -1340,14 +1340,20 @@
      instead of a viewport later. */
   /* sized to its content with a short tail, so the black rises the moment the CTA has been read
      instead of after a screenful of empty paper */
-  .team-block{min-height:auto!important;
+  /* About is its own full cover-layer again so it can travel the whole way up under the nav on
+     its own, and the footer follows it rather than being welded to its bottom edge. */
+  .team-block{min-height:calc(100dvh - var(--nav-h))!important;
     padding-top:clamp(44px,6vh,72px)!important;
     padding-bottom:clamp(30px,4vh,48px)!important;}
-  footer{margin-top:clamp(14px,2vh,26px)!important;}
+  footer{margin-top:0!important;}
 
   /* (2) a very subtle plane behind the About copy: one wide bloom, a whisper of dot grid, both
      masked to an oval so nothing reaches the edges. Present, not decorative. */
-  .team-block{position:relative;overflow:hidden;}
+  /* position:sticky, NOT relative. Setting relative here silently clobbered the sticky from the
+     shared stack rule, so About stopped rising -- and because that rule also sets top:72px, a
+     RELATIVE element was pushed 72px down its own flow position, opening a gap that showed the
+     Systems section behind it. That gap was the "hole in the site". */
+  .team-block{position:sticky;overflow:hidden;}
   .team-block::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
     background:
       radial-gradient(52% 62% at 50% 34%, rgba(102,80,168,.075), transparent 72%),
@@ -1435,6 +1441,58 @@
     .card-grid{margin-right:auto;margin-left:0;width:100%;}
   }
 
+
+  /* =========================================================================================
+     SEAMLESS — soft seams instead of hard edges
+     Every layer boundary on the page was a crisp 1px line: the lit lip on top of each sticky
+     card, the section's own edge, the change of ground. Crisp edges are what made the page read
+     as separate panels stacked up rather than one continuous surface. Each layer now carries a
+     soft warm gradient at its top and bottom, so a boundary dissolves instead of announcing
+     itself. Gradients only -- no filter:blur(), which would force the whole layer onto its own
+     composited surface and cost a repaint on every scroll frame.
+     ========================================================================================= */
+  /* NO position declaration here. position:sticky already establishes a containing block for
+     absolutely positioned children, and re-declaring relative silently downgrades the sticky --
+     which is exactly what opened the 72px hole above About once already. */
+  #proof::before,#process::before,#why::before,#services::before,.team-block::before,
+  footer::before{pointer-events:none;}
+
+  /* the soft seam elements. Separate from ::before/::after, which several sections already use
+     for their own grounds, so this can never collide with them. */
+  .seam{position:absolute;left:0;right:0;z-index:2;pointer-events:none;}
+  .seam-top{top:0;height:clamp(48px,7vh,110px);
+    background:linear-gradient(180deg,rgba(247,244,239,.92) 0%,rgba(247,244,239,.55) 46%,transparent 100%);}
+  .seam-bot{bottom:0;height:clamp(56px,8vh,130px);
+    background:linear-gradient(0deg,rgba(247,244,239,.9) 0%,rgba(247,244,239,.5) 48%,transparent 100%);}
+  /* the dark layer fades to ink, not paper */
+  footer .seam-top{background:linear-gradient(180deg,rgba(22,19,15,.92) 0%,rgba(22,19,15,.5) 50%,transparent 100%);}
+
+  /* the lit lip goes: a soft seam and a hard highlight are contradictory instructions */
+  #proof,#process,.team-block{
+    box-shadow:0 -26px 56px -30px rgba(40,32,22,.30)!important;
+  }
+  #why{box-shadow:0 -26px 56px -30px rgba(40,32,22,.30)!important;}
+  footer{box-shadow:0 -26px 56px -30px rgba(40,32,22,.42)!important;}
+
+  /* ---- the Why-me plane bleeds THROUGH the seam into The work -------------------------------
+     #why's depth plane stopped dead at its own bottom edge, which re-drew the boundary the merge
+     was meant to remove. It now extends past the section and #services picks the same wash up at
+     its top, so the ground reads as one continuous field behind both halves. */
+  #why{overflow:visible;}
+  #why > .me-ghost{overflow:hidden;}
+  #why::before{bottom:-180px!important;}
+  #services::before{
+    background:
+      radial-gradient(70% 40% at 76% 0%, rgba(102,80,168,.055), transparent 72%),
+      radial-gradient(58% 78% at 50% 100%, rgba(102,80,168,.09), transparent 72%),
+      linear-gradient(180deg, transparent, rgba(239,233,223,.85))!important;
+    height:100%!important;
+  }
+  /* the ghost fades out INTO the seam rather than being cut by it */
+  #why > .me-ghost{
+    -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 44%,#000 74%,transparent 100%)!important;
+            mask-image:linear-gradient(180deg,transparent 0,#000 44%,#000 74%,transparent 100%)!important;}
+
 </style>
 </head>
 <body>
@@ -1487,7 +1545,7 @@
           <h1 data-em="only">Systems that only win.</h1>
         </div>
         <div class="hero-right">
-          <p class="hero-sub">Websites that convert and automations that run themselves — built end to end by one person, for businesses that want it done properly the first time.</p>
+          <p class="hero-sub fx-rise">One person builds the whole machine: the site that sells, the booking that answers, the follow-up that closes. No agency layers, no hand-offs, no juniors on your budget.</p>
           <div class="hero-ctas">
             <a class="btn filled" href="#" data-contact>Start a project</a>
             <a class="btn hero-ghost" href="#proof">See the proof</a>
@@ -2335,16 +2393,23 @@ document.querySelectorAll('.fx-rise').forEach(fxRise);
   gsap.set(row,{perspective:600});
   gsap.set(chars,{opacity:0,y:30,rotateX:-70,transformOrigin:'50% 100%'});
   gsap.set(dds,{opacity:0,y:8});
-  let armed=true;
+  let armed=true, played=false;
   const play=()=>{
+    played=true;
     gsap.fromTo(chars,{opacity:0,y:30,rotateX:-70,transformOrigin:'50% 100%'},
       {opacity:1,y:0,rotateX:0,duration:.55,stagger:.02,ease:'back.out(1.7)',overwrite:true});
     gsap.fromTo(dds,{opacity:0,y:8},{opacity:1,y:0,duration:.5,stagger:.06,delay:.22,ease:'power2.out',overwrite:true});
   };
+  /* The figures sit inside the hero, which is on screen at load -- so visibility alone fires them
+     immediately. They must wait for a real SCROLL: the gate needs both the row genuinely in view
+     AND the page to have moved. */
+  const scrolled=()=>(window.scrollY||document.documentElement.scrollTop||0)>60;
+  const tryPlay=()=>{ if(!played&&armed&&scrolled())  {armed=false;play();} };
   new IntersectionObserver(es=>es.forEach(e=>{
-    if(e.isIntersecting&&e.intersectionRatio>=0.6){ if(armed){armed=false;play();} }
-    else if(!e.isIntersecting){ armed=true; }
-  }),{threshold:[0,0.6]}).observe(row);
+    if(e.isIntersecting&&e.intersectionRatio>=0.5) tryPlay();
+    else if(!e.isIntersecting&&played===false) armed=true;
+  }),{threshold:[0,0.5]}).observe(row);
+  addEventListener('scroll',tryPlay,{passive:true});
 })();
 document.querySelectorAll('.fx-mask').forEach(fxMask);
 document.querySelectorAll('.fx-scale').forEach(fxScale);
@@ -2794,6 +2859,23 @@ function odometer(el, value, opts){
     {threshold:0.22}).observe(foot);
   bar.removeAttribute('aria-hidden');
 })();
+
+/* ---- SEAMS ---------------------------------------------------------------------------------
+   Injected rather than authored into the markup: five sections and the footer would otherwise
+   need twelve hand-written divs kept in sync by hand. Purely decorative, so aria-hidden. */
+(function(){
+  const layers=['#proof','#process','#why','#services','.team-block','footer'];
+  layers.forEach((sel,i)=>{
+    const el=document.querySelector(sel);
+    if(!el)return;
+    /* #why and #services share one canvas: the seam between them is exactly what we removed, so
+       #why gets no bottom seam and #services gets no top seam. */
+    const skipBot = sel==='#why';
+    const skipTop = sel==='#services';
+    if(!skipTop){const t=document.createElement('span');t.className='seam seam-top';t.setAttribute('aria-hidden','true');el.appendChild(t);}
+    if(!skipBot){const b=document.createElement('span');b.className='seam seam-bot';b.setAttribute('aria-hidden','true');el.appendChild(b);}
+  });
+})();
 </script>
 
 <!-- hero WebGL scene. type="module" is mandatory, not stylistic: modern three.js ships ESM only,
@@ -2801,7 +2883,8 @@ function odometer(el, value, opts){
      by default, so #hero3d exists by the time it runs. Kept in its own file so iterating on the
      scene never touches this one. -->
 
-<script type="module" src="./hero-order.js?v=3"></script>
+<!-- the original six-form WebGL scene, restored and recoloured onto Bone & Iris -->
+<script type="module" src="./hero-scene.js?v=5"></script>
 
 </body>
 </html>
