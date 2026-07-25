@@ -19,6 +19,7 @@ const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 if (host) init(host);
 
 function init(host) {
+  const MOBILE_DPR_CAP = innerWidth <= 760 ? 1.6 : 2;
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -32,7 +33,9 @@ function init(host) {
   const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 200);
   camera.position.set(0, 0, 26);
 
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  /* cap DPR harder on phones: a 3x retina buffer of a full-screen particle field is the single
+     biggest cost on mobile and is invisible at this particle size. */
+  renderer.setPixelRatio(Math.min(devicePixelRatio, MOBILE_DPR_CAP));
   renderer.setClearAlpha(0);
   const canvas = renderer.domElement;
   canvas.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);'
@@ -43,7 +46,11 @@ function init(host) {
      Spread deliberately overflows the frame on every axis. A cloud that stays politely inside the
      viewport reads as a flat panel of dots; one that spills past the borders reads as a space the
      page is sitting inside. */
-  const COUNT = 7000;
+  /* particle budget. 7000 instanced meshes with a per-frame CPU loop is fine on a laptop and
+     punishing on a mid-range phone, where it also burns battery for a decorative background.
+     The field still reads as a field at 2400 because the spread is unchanged -- it just thins. */
+  const MOBILE = innerWidth <= 760;
+  const COUNT = MOBILE ? 2400 : 7000;
   const mesh = new THREE.InstancedMesh(
     new THREE.OctahedronGeometry(0.055, 0),
     new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.95 }),
@@ -140,7 +147,7 @@ function init(host) {
      Pairs are chosen ONCE, at build time, from particles that start near each other. Rebuilding
      the neighbour search every frame would be O(n^2); the springs keep particles near home, so a
      pair picked at the start stays a plausible pair forever. */
-  const LINKS = 900;
+  const LINKS = MOBILE ? 260 : 900;
   const linkPairs = new Int32Array(LINKS * 2);
   {
     let made = 0, guard = 0;
@@ -159,7 +166,7 @@ function init(host) {
      writhes rather than looping identically. This is the piece that reads as deliberate ARTWORK
      over the top of the particle field -- the constellation links alone were too incidental to
      carry the frame on their own. */
-  const RIB = 420;
+  const RIB = MOBILE ? 220 : 420;
   const ribGeo = new THREE.BufferGeometry();
   const ribPos = new Float32Array(RIB * 3);
   const ribCol = new Float32Array(RIB * 3);

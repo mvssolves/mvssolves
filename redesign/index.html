@@ -369,8 +369,17 @@
      with an asymmetric pad (deep at the bottom) drops the whole group down the viewport the way
      the earlier redesign had it, while still leaving a clear run of paper under the CTA so the
      footer arrives as a transition rather than as a collision. */
+  /* Shorter than a full cover layer. At 100dvh the About group sat centred in a screen-tall box
+     with a deep tail, so the footer could not arrive until a whole viewport had passed -- the
+     black felt far away and the content drifted high as the layer scrolled. ~80dvh keeps the
+     group in view through the whole beat and brings the footer up behind it, while the asymmetric
+     pad still leaves a clear run of paper so the black transitions rather than collides. */
+  /* Centred in its own cover-layer so the stack sits in the middle of the view rather than
+     pinned to the ceiling, and the bottom pad is only deep enough to keep the footer off the CTA
+     -- the previous 200px reserve was pure empty paper that held the black section down. */
   .team-block{z-index:6;text-align:center;align-items:center;justify-content:center;
-    min-height:calc(100dvh - var(--nav-h));padding:clamp(90px,14vh,170px) 0 clamp(180px,26vh,300px);}
+    min-height:calc(74dvh - var(--nav-h));
+    padding:clamp(44px,6vh,80px) 0 clamp(76px,10vh,124px);}
   /* stack pulled tight so the stats sit just under the heading and the CTA follows straight
      after -- the block was spreading over most of the viewport with big dead gaps between each
      element. The section's own bottom padding gives the breathing room instead. */
@@ -951,6 +960,120 @@
   .form-msg.ok{color:var(--flare);}
   .form-msg.err{color:#ff8fb0;}
   @media(max-width:520px){.field-row{flex-direction:column;gap:0;}}
+
+  /* =========================================================================================
+     MOBILE  (<=760px)
+     A real mobile layout, not a squashed desktop.
+
+     THE CENTRAL RULING: the sticky cover-stack is RELAXED on phones. It is the site's signature
+     motion, but it works by pinning each section to exactly one viewport, and every section here
+     overflows that on a 390x844 screen -- Proof by 235px, Systems by 245, Why by 311, Work by
+     611. Pinned content that overflows is simply unreachable, which is why the page read as
+     broken on a phone. Sections become normal flow and are allowed to be as tall as their
+     content, while KEEPING the rounded top edge, the lift shadow and the warm ground -- so the
+     layered-card look survives even though the layering motion doesn't.
+     ========================================================================================= */
+  @media (max-width:760px){
+
+    /* ---- foundation ---- */
+    :root{--nav-h:60px;}
+    .wrap{padding-left:clamp(18px,5vw,28px);padding-right:clamp(18px,5vw,28px);}
+
+    #why,#services,#proof,#process,.team-block{
+      position:static;min-height:0;
+      padding-top:clamp(56px,9vh,76px);
+      padding-bottom:clamp(64px,10vh,88px);
+      border-radius:26px 26px 0 0;
+      /* the stack no longer moves, so the top edge has to do the separating on its own */
+      box-shadow:0 -14px 28px -20px rgba(40,32,22,.3),inset 0 1px 0 rgba(255,255,255,.8);
+      margin-top:-26px;                 /* each card still tucks under the one above it */
+    }
+    #proof{margin-top:0;}
+    footer{border-radius:26px 26px 0 0;margin-top:-26px;position:relative;}
+
+    /* ---- type: the mobile end of every ramp ---- */
+    .hero-copy h1{font-size:clamp(30px,8.4vw,38px);line-height:1.04;max-width:15ch;}
+    h2{font-size:clamp(27px,7.4vw,34px)!important;line-height:1.06;}
+    .hero-sub,.process-lead,.expertise-copy p,.me-copy p{font-size:15.5px;line-height:1.55;}
+    .stat-num{font-size:clamp(38px,11vw,52px);}
+    .card h3{font-size:19px;}
+
+    /* ---- nav: links are dropped, not squeezed. Four links plus a CTA measured 414px of
+       content in a 390px bar. The sections are a single scroll away and the CTA is the only
+       thing that has to survive. ---- */
+    .nav-links{display:none;}
+    nav .btn{padding:10px 18px;font-size:13.5px;}
+    .nav-inner{padding:0 clamp(18px,5vw,28px);}
+
+    /* ---- hero: a much shorter runway. 225vh of scrub before any copy is a lot of thumb. ---- */
+    .hero-block{min-height:165vh;}
+    .hero-copy{padding:22px 0 26px;}
+    .hero-grid{flex-direction:column;align-items:flex-start;gap:18px;}
+    .hero-right{flex:1 1 auto;max-width:100%;}
+    /* the ticker bleeds to the screen edge. overflow-x:clip on the root (NOT hidden -- hidden
+       makes the root a scroll container and would kill the hero's inner position:sticky) absorbs
+       the bleed instead of letting it create a horizontal scrollbar. */
+    .marquee{margin-left:calc(clamp(18px,5vw,28px) * -1)!important;
+             margin-right:calc(clamp(18px,5vw,28px) * -1)!important;}
+    html{overflow-x:clip;}
+    body{overflow-x:clip;}
+    .marquee-track span{font-size:clamp(15px,4.4vw,19px);margin-right:14px;}
+
+    /* ---- two-column compositions all become single column ---- */
+    .expertise-layout,.sys,.me-layout,.card-grid{display:flex;flex-direction:column;gap:26px;}
+    .expertise-copy,.expertise-visual,.stages,.iso-stage,.me-copy,.me-timeline{
+      flex:1 1 auto;width:100%;max-width:100%;min-width:0;}
+
+    /* Proof: copy first, film after -- the numbers are the argument, the film is the evidence.
+       The tab row scrolls horizontally rather than wrapping to two lines. */
+    .tab-row{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+             margin-inline:calc(clamp(18px,5vw,28px) * -1);padding-inline:clamp(18px,5vw,28px);}
+    .tab-row::-webkit-scrollbar{display:none;}
+    .tab{flex:0 0 auto;min-height:44px;}
+    .expertise-visual{order:2;margin-left:0;aspect-ratio:16/10;max-height:none;transform:none;}
+    .stats-row{gap:26px;margin-top:26px;}
+
+    /* Systems: the isometric scene keeps its aspect and simply scales down */
+    .iso-stage{height:auto;aspect-ratio:4/3;}
+    .iso-svg{width:100%;max-width:100%;}
+    .stage{padding:15px 18px;}
+
+    /* Why me: timeline under the copy, ghost numeral pulled in so it can't dominate */
+    #why > .me-ghost{font-size:clamp(120px,34vw,190px);right:-4%;bottom:-6%;}
+    .me-timeline{padding-left:30px;}
+
+    /* Work: cards stack full width */
+    .card-grid{max-width:100%;}
+    .card{padding:24px 20px 26px;}
+
+    /* About + footer */
+    .team-stats{gap:26px;margin-top:22px;}
+    .foot-inner{grid-template-columns:1fr 1fr;gap:26px;}
+    footer{padding:22px clamp(18px,5vw,28px) 0;}
+
+    /* ---- touch: no hover-only affordances, everything thumb-sized ---- */
+    .btn{min-height:46px;display:inline-flex;align-items:center;justify-content:center;}
+    .btn::after{transform:scale(1);opacity:0;transition:opacity .3s ease;}
+    .btn:active::after{opacity:1;}
+    .card:hover{transform:none;}
+    .card::before{transform:scaleX(1);}     /* the accent edge is always drawn, never hover-gated */
+  }
+
+  /* very small phones: one more step down */
+  @media (max-width:380px){
+    .stats-row{flex-direction:column;gap:18px;}
+    .foot-inner{grid-template-columns:1fr;}
+  }
+
+  /* respect the notch */
+  @supports(padding:max(0px)){
+    @media (max-width:760px){
+      .wrap,.nav-inner,footer{
+        padding-left:max(clamp(18px,5vw,28px),env(safe-area-inset-left));
+        padding-right:max(clamp(18px,5vw,28px),env(safe-area-inset-right));}
+    }
+  }
+
 </style>
 </head>
 <body>
@@ -1573,7 +1696,8 @@ document.addEventListener('click',e=>{
     /* Longer runway and NO snap. Snapping to [0,1] meant releasing the wheel mid-recede yanked
        the frame back to fullscreen or forward to settled -- the user could never stop where they
        wanted. The scene now sits wherever it is left. */
-    scrollTrigger:{trigger:'#heroBlock',start:'top top',end:'+=95%',scrub:true,
+    scrollTrigger:{trigger:'#heroBlock',start:'top top',
+      end:()=>'+='+(innerWidth<=760?45:95)+'%',scrub:true,
       invalidateOnRefresh:true}});
 
   /* the scene recedes. Geometry ONLY -- height/top/left/right/radius. Deliberately no opacity,
