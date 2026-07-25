@@ -10,7 +10,7 @@
 
 :root{
   --nav-h:72px;
-  --accent:#6650A8;
+  --accent:#E4622F;
   --accent2:#E4622F;
   --ink:#16130F;
   --text:#1c1a1f;
@@ -244,7 +244,7 @@ footer{background:var(--ink);color:#fff;padding:44px 40px 0;overflow:hidden;
 .foot-glow{position:absolute;inset:-40% -12% -60%;z-index:0;pointer-events:none;
   filter:blur(72px);opacity:.6;animation-play-state:paused;
   background:
-    radial-gradient(38% 62% at 20% 46%,rgba(102,80,168,.9),transparent 70%),
+    radial-gradient(38% 62% at 20% 46%,rgba(228, 98, 47,.9),transparent 70%),
     radial-gradient(34% 56% at 58% 62%,rgba(90,200,250,.55),transparent 70%),
     radial-gradient(30% 52% at 84% 40%,rgba(228,98,47,.3),transparent 70%);
   animation:glowDrift 19s ease-in-out infinite alternate;}
@@ -286,6 +286,6 @@ body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;o
   background-size:180px 180px;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
 @media (prefers-reduced-transparency:reduce){body::after{display:none;}}
-::selection{background:#6650A8;color:#fff;}
-html{scrollbar-color:#DDD6C8 #F7F4EF;scrollbar-width:thin;caret-color:#6650A8;}
-a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #6650A8;outline-offset:3px;}
+::selection{background:#E4622F;color:#fff;}
+html{scrollbar-color:#DDD6C8 #F7F4EF;scrollbar-width:thin;caret-color:#E4622F;}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #E4622F;outline-offset:3px;}

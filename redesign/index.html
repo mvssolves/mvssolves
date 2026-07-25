@@ -5,13 +5,13 @@
 <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
 <link rel="preload" as="style" href="https://api.fontshare.com/v2/css?f[]=satoshi@700,900,500,400,800,600&display=swap">
 <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@700,900,500,400,800,600&display=swap">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2316130F'/%3E%3Cpolyline points='14,49 14,15 32,41 50,15 50,49' fill='none' stroke='%236650A8' stroke-width='7' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2316130F'/%3E%3Cpolyline points='14,49 14,15 32,41 50,15 50,49' fill='none' stroke='%23E4622F' stroke-width='7' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MVS Solves — Websites &amp; automations that book paying clients</title>
 <meta name="description" content="I build high-converting websites, booking systems and AI receptionists for service businesses. 50+ businesses run on systems I designed and built myself.">
 <meta name="author" content="Martin — MVS Solves">
-<meta name="theme-color" content="#6650A8">
+<meta name="theme-color" content="#E4622F">
 <link rel="canonical" href="https://mvssolves.com/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="MVS Solves">
@@ -97,9 +97,9 @@
     --text-muted:#6B655B;     /* 5.26:1 on paper -- lightest that still carries words*/
     --text-invert:#EFEAE1;    /* 15.5:1 on ink                                       */
 
-    --accent:#6650A8;         /* iris. buttons, active states                        */
-    --accent-deep:#4C3D7D;    /* hover/pressed, and violet AS TEXT on light (8.4:1)  */
-    --accent-lift:#9F8AD9;    /* violet on DARK only                                 */
+    --accent:#E4622F;         /* iris. buttons, active states                        */
+    --accent-deep:#B84B1F;    /* hover/pressed, and violet AS TEXT on light (8.4:1)  */
+    --accent-lift:#F2854F;    /* violet on DARK only                                 */
 
     --flare:#E4622F;          /* send / win / booked. rare.                          */
     /* retired: lime #E4622F. Every usage was retargeted individually -- active states to
@@ -337,7 +337,9 @@
   /* hero marquee on white: dark words, outline .ol ones knocked out to a dark stroke */
   .hero-block .marquee-track span{color:var(--ink);}
   .hero-block .marquee-track .ol{color:transparent;-webkit-text-stroke:1.2px rgba(11,11,12,.5);}
-  .hero-block .marquee-track .dot{color:var(--accent);-webkit-text-stroke:0;}
+  /* separators in the hero marquee go neutral too -- accent dots were the last spot of colour
+     left in the section besides the sculpture. */
+  .hero-block .marquee-track .dot{color:var(--text-muted);-webkit-text-stroke:0;}
   .hero-sticky{position:sticky;top:0;height:100vh;overflow:hidden;}
   #proof{z-index:2;}
   #process{z-index:3;}
@@ -496,11 +498,10 @@
   /* warm ground, not the old lavender wash: the sculpture is lit by a flare key and the headline
      sits over this in near-black, so the surface has to stay in the Bone & Iris family. The two
      glows are flare-tinted rather than violet -- no violet gradients anywhere. */
-  .hero-3d-placeholder.has-scene{font-size:0;overflow:hidden;
-    background:
-      radial-gradient(72% 62% at 50% 32%, rgba(228,98,47,.07), transparent 68%),
-      radial-gradient(90% 80% at 82% 88%, rgba(228,98,47,.035), transparent 72%),
-      #FFFFFF;}
+  /* PURE WHITE. No wash, no bloom, no tint. The only colour anywhere in the hero is the metal of
+     the rings and the flare core -- everything else is white or near-black. Any gradient here,
+     however faint, reads as a second colour sitting behind the sculpture. */
+  .hero-3d-placeholder.has-scene{font-size:0;overflow:hidden;background:#FFFFFF;}
   /* per-form label -- shown as written (title case), gently spaced */
   /* absolutely anchored to the BOTTOM of the sticky viewport, not a flex child. As a flex child
      it was flex:1 in a column whose first item (the scene) already fills the whole 100vh, so its
@@ -670,8 +671,8 @@
     background:var(--accent);animation:dotPulse 2.4s ease-in-out infinite;}
   .s-b::after{animation-delay:.5s;} .s-c::after{animation-delay:1s;}
   @keyframes dotPulse{
-    0%,100%{transform:scale(.85);opacity:.45;box-shadow:0 0 0 0 rgba(102,80,168,.45);}
-    50%{transform:scale(1.25);opacity:1;box-shadow:0 0 0 7px rgba(102,80,168,0);}
+    0%,100%{transform:scale(.85);opacity:.45;box-shadow:0 0 0 0 rgba(228, 98, 47,.45);}
+    50%{transform:scale(1.25);opacity:1;box-shadow:0 0 0 7px rgba(228, 98, 47,0);}
   }
   /* auto sync: each card tints faint violet during its third of the 10.5s cycle -- and its dot
      goes lime -- so the eye follows the token climbing the machine. Background only, so hover
@@ -692,7 +693,7 @@
   .iso-stage{flex:1;min-width:320px;display:flex;flex-direction:column;align-items:center;
     justify-content:center;gap:10px;position:relative;}
   .iso-stage::before{content:'';position:absolute;inset:-4% -2% 14%;z-index:0;pointer-events:none;
-    background-image:radial-gradient(rgba(102,80,168,.18) 1.4px,transparent 1.5px);
+    background-image:radial-gradient(rgba(228, 98, 47,.18) 1.4px,transparent 1.5px);
     background-size:21px 21px;
     -webkit-mask-image:radial-gradient(58% 52% at 54% 40%,#000 26%,transparent 74%);
             mask-image:radial-gradient(58% 52% at 54% 40%,#000 26%,transparent 74%);}
@@ -771,7 +772,7 @@
   /* bloom + hairline grid, masked to a soft oval so the edges dissolve instead of ending on a line */
   #why::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;border-radius:inherit;
     background:
-      radial-gradient(56% 64% at 52% 40%, rgba(102,80,168,.06), transparent 72%),
+      radial-gradient(56% 64% at 52% 40%, rgba(228, 98, 47,.06), transparent 72%),
       repeating-linear-gradient(90deg, rgba(11,11,12,.038) 0 1px, transparent 1px 132px),
       repeating-linear-gradient(0deg,  rgba(11,11,12,.026) 0 1px, transparent 1px 132px);
     -webkit-mask-image:radial-gradient(80% 84% at 48% 42%, #000 22%, rgba(0,0,0,.4) 60%, transparent 92%);
@@ -790,7 +791,7 @@
   #why > .me-ghost{position:absolute;z-index:0;right:clamp(16px,3vw,54px);bottom:-2%;
     pointer-events:none;user-select:none;
     font-size:clamp(150px,20vw,290px);font-weight:900;letter-spacing:-.04em;line-height:.78;
-    color:transparent;-webkit-text-stroke:2.6px rgba(102,80,168,.30);
+    color:transparent;-webkit-text-stroke:2.6px rgba(228, 98, 47,.30);
     /* fades in AND out, so it dissolves before the seam into The work rather than being sliced
        off by the section edge */
     /* fades in low and out again, so it never rises into the timeline text above it */
@@ -932,7 +933,7 @@
     background-image:
       linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.95) 11%,rgba(255,255,255,0) 24%),
       linear-gradient(76deg,rgba(201,168,255,0) 0%,rgba(217,196,255,.85) 14%,rgba(201,168,255,0) 30%),
-      linear-gradient(180deg,#FFFFFF 0%,#EFE7DA 34%,#B8A9D6 70%,#6650A8 100%);
+      linear-gradient(180deg,#FFFFFF 0%,#EFE7DA 34%,#B8A9D6 70%,#E4622F 100%);
     background-size:300% 100%,380% 100%,100% 100%;
     background-repeat:repeat-x;
     -webkit-background-clip:text;background-clip:text;
@@ -968,7 +969,7 @@
   .foot-glow{position:absolute;inset:-40% -12% -60%;z-index:0;pointer-events:none;
     filter:blur(72px);opacity:.6;animation-play-state:paused;
     background:
-      radial-gradient(38% 62% at 20% 46%,rgba(102,80,168,.55),transparent 70%),
+      radial-gradient(38% 62% at 20% 46%,rgba(228, 98, 47,.55),transparent 70%),
       radial-gradient(34% 56% at 58% 62%,rgba(167,156,136,.34),transparent 70%),
       radial-gradient(30% 52% at 84% 40%,rgba(228,98,47,.22),transparent 70%);
     animation:glowDrift 19s ease-in-out infinite alternate;}
@@ -1186,7 +1187,7 @@
 
   /* ---- CARDS: one shadow language, tinted warm, lifting on hover -------------------------- */
   .card{box-shadow:0 1px 2px -1px rgba(40,32,22,.10),0 18px 40px -30px rgba(40,32,22,.45);}
-  .card:hover{box-shadow:0 2px 4px -1px rgba(40,32,22,.12),0 34px 60px -34px rgba(102,80,168,.5);}
+  .card:hover{box-shadow:0 2px 4px -1px rgba(40,32,22,.12),0 34px 60px -34px rgba(228, 98, 47,.5);}
 
   /* ---- the film panel matches the card language --------------------------------------------- */
   .expertise-visual{box-shadow:0 2px 6px -2px rgba(40,32,22,.2),0 46px 84px -40px rgba(40,32,22,.55);}
@@ -1209,7 +1210,9 @@
      coloured heading */
   .hero-copy h1{font-size:clamp(38px,7.2vw,92px);line-height:.95;letter-spacing:-.045em;
     max-width:20ch;}
-  .hero-copy h1 em,.hero-copy h1 .is-em{font-style:normal;color:var(--accent);}
+  /* the emphasised word carries no colour -- the hero is white, metal and ink only. It still
+     reads as emphasis because the rest of the headline is the same weight around it. */
+  .hero-copy h1 em,.hero-copy h1 .is-em{font-style:normal;color:var(--ink);}
 
   .hero-ctas{gap:12px;flex-wrap:wrap;}
   .hero-ghost{border-color:var(--line);color:var(--text);}
@@ -1384,8 +1387,8 @@
   .team-block{position:sticky;overflow:hidden;}
   .team-block::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
     background:
-      radial-gradient(52% 62% at 50% 34%, rgba(102,80,168,.075), transparent 72%),
-      radial-gradient(1.1px 1.1px at 50% 50%, rgba(102,80,168,.14) 1px, transparent 1px);
+      radial-gradient(52% 62% at 50% 34%, rgba(228, 98, 47,.075), transparent 72%),
+      radial-gradient(1.1px 1.1px at 50% 50%, rgba(228, 98, 47,.14) 1px, transparent 1px);
     background-size:auto, 26px 26px;
     -webkit-mask-image:radial-gradient(66% 68% at 50% 44%, #000 25%, transparent 88%);
             mask-image:radial-gradient(66% 68% at 50% 44%, #000 25%, transparent 88%);}
@@ -1397,7 +1400,7 @@
      low, so the timeline reads as sitting in front of something. */
   #why::before{
     background:
-      radial-gradient(46% 40% at 74% 22%, rgba(102,80,168,.10), transparent 70%),
+      radial-gradient(46% 40% at 74% 22%, rgba(228, 98, 47,.10), transparent 70%),
       radial-gradient(70% 55% at 18% 88%, rgba(228,98,47,.055), transparent 72%),
       repeating-linear-gradient(90deg, rgba(11,11,12,.028) 0 1px, transparent 1px 132px),
       repeating-linear-gradient(0deg,  rgba(11,11,12,.02)  0 1px, transparent 1px 132px)!important;
@@ -1559,6 +1562,28 @@
     #services .work-lead{padding:22px;}
     #services .work-lead h3{font-size:24px;}
     #services .work-rest{gap:0;}
+  }
+
+  /* ---- HERO STAYS COLOURLESS ------------------------------------------------------------------
+     Flare is now the one active colour across the site, which would put an orange pill in the nav
+     while it floats over the white hero. The nav already knows when it is over the hero -- it
+     carries .nav-clear there -- so it takes an ink button in the hero and picks the flare up like
+     every other CTA once it has left. The hero's own CTA follows the same rule.
+     Hover stays colourless in here too: the lift comes from ink-raised, not from the accent. */
+  nav.nav-clear .btn.filled,
+  .hero-block .btn.filled{background:var(--ink)!important;border-color:var(--ink)!important;}
+  nav.nav-clear .btn.filled::after,
+  .hero-block .btn.filled::after{background:var(--ink-raised)!important;}
+  nav.nav-clear .btn:hover,
+  .hero-block .btn:hover{border-color:var(--ink)!important;}
+
+  /* every cover-layer takes the footer's 48px lip, so the whole stack shares one corner instead of
+     the sections reading at 32px and the footer arriving at 48px. Mobile keeps its smaller 34px. */
+  @media(min-width:761px){
+    #proof,#process,#why,#services,.team-block{border-radius:48px 48px 0 0!important;}
+  }
+  @media(max-width:760px){
+    #proof,#process,#why,#services,.team-block{border-radius:34px 34px 0 0!important;}
   }
 
   /* ---- FOOTER, matched to the NeoLeaf reference -----------------------------------------------
