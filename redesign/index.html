@@ -977,9 +977,9 @@
   <div class="expertise-layout">
     <div class="expertise-copy">
       <div class="pf-copy" id="pfCopy">
-        <p class="fx-lines"><span class="hl">50+</span> businesses now run on systems I built around how they actually work — not a template with their logo on it.</p>
-        <p class="fx-lines">The top six were doing <span class="hl">10K</span> a month inside two months.</p>
-        <p class="fx-lines">Same three moves every time: a site built to convert, booking that runs itself, follow-up that never forgets.</p>
+        <p><span class="hl">50+</span> businesses now run on systems I built around how they actually work — not a template with their logo on it.</p>
+        <p>The top six were doing <span class="hl">10K</span> a month inside two months.</p>
+        <p>Same three moves every time: a site built to convert, booking that runs itself, follow-up that never forgets.</p>
       </div>
       <div class="stats-row fx-group">
         <!-- static values mirror tab one, so the row reads correctly before the JS runs -->
@@ -1936,8 +1936,8 @@ function odometer(el, value, opts){
     });
     /* same rise as the headings, at word granularity: per-character on three paragraphs of
        swapped copy is a lot of nodes to rebuild on every tab click. */
-    gsap.fromTo(inners,{yPercent:115},
-      {yPercent:0,duration:.9,stagger:.1,ease:'power4.out',overwrite:true});
+    gsap.fromTo(inners,{xPercent:-105,opacity:0},
+      {xPercent:0,opacity:1,duration:.85,stagger:.09,ease:'power4.out',overwrite:true});
   }
   function activate(tab){
     swapCopy(tabs.indexOf(tab));
