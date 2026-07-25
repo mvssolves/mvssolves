@@ -1,3 +1,4 @@
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700,800,900&display=swap');
 /* Shared stylesheet for the redesign's legal / policy pages.
    Deliberately one file rather than the live site's per-page inline <style> blocks -- six copies
    of the same ~80 lines is how those pages drifted apart in the first place.
@@ -20,7 +21,8 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+body{font-family:'Satoshi',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased;
   background:#fff;color:var(--text);font-size:16px;line-height:1.65;
   -webkit-font-smoothing:antialiased;}
 ::selection{background:var(--accent);color:#fff;}

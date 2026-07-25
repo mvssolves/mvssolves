@@ -2,6 +2,10 @@
 <html lang="en">
 <head>
 <script>document.documentElement.className+=' has-js';</script>
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link rel="preload" as="style" href="https://api.fontshare.com/v2/css?f[]=satoshi@700,900,500,400,800,600&display=swap">
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@700,900,500,400,800,600&display=swap">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230B0B0C'/%3E%3Cpolyline points='14,49 14,15 32,41 50,15 50,49' fill='none' stroke='%239070DF' stroke-width='7' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MVS Solves — Websites &amp; automations that book paying clients</title>
@@ -74,12 +78,20 @@
      --ink     near-black for the dark sections (hero + footer), not pure #000 */
   :root{--nav-h:72px;--accent:#9070DF;--accent2:#E6F536;--ink:#0B0B0C;}
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#111;background:#fff;line-height:1.5;}
+  /* Satoshi, with the old system stack kept as the fallback so nothing reflows badly if the
+     webfont fails. A real typeface is the single biggest lift here -- the system stack rendered
+     as SF Pro on Mac and Segoe on Windows, so the page had no consistent voice. */
+  body{font-family:'Satoshi',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    color:#111;background:#fff;line-height:1.5;
+    font-feature-settings:'ss01' 1;-webkit-font-smoothing:antialiased;}
   /* full viewport width, small edge gutter -- NOT a centered narrow column. Confirmed on the
      reference: nav/hero/cards run near edge-to-edge on a real desktop viewport, not capped to
      a ~1200px centered block with big dead margins either side. Paragraph text still reads
      fine -- <p> has its own max-width:60ch typographic cap independent of this. */
-  .wrap{padding:0 40px;}
+  /* capped and centred: at 1920 and above the copy columns were running to the very edges of
+     the viewport, which is what made wide screens feel unfinished. The cap is generous (1560)
+     so the near-full-bleed look the design was built around is preserved. */
+  .wrap{padding:0 40px;max-width:1560px;margin-inline:auto;width:100%;}
   section{padding:96px 0;}
   .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;font-family:monospace;}
   h1,h2,h3{font-weight:700;letter-spacing:-.01em;}
@@ -111,6 +123,13 @@
   .btn:hover{color:#fff;border-color:var(--accent);}
   .btn:hover{box-shadow:0 10px 26px -12px rgba(144,112,223,.65);}
   .btn:active{transform:scale(.97);}
+  /* keyboard focus was invisible everywhere: the only :focus rules were on the modal inputs. */
+  a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
+    outline:2px solid var(--accent);outline-offset:3px;border-radius:4px;}
+  .skip-link{position:absolute;left:16px;top:-60px;z-index:100;background:var(--ink);color:#fff;
+    padding:10px 18px;border-radius:0 0 10px 10px;font-size:14px;font-weight:600;
+    text-decoration:none;transition:top .2s ease;}
+  .skip-link:focus{top:0;}
   .btn-ripple{position:absolute;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;
     background:rgba(255,255,255,.55);pointer-events:none;z-index:-1;
     animation:btnRipple .6s cubic-bezier(.2,.8,.3,1) forwards;}
@@ -250,7 +269,7 @@
      by keeping each section's content within a screen -- see the max-height comfort rules and the
      per-section tightening below, not by abandoning the sticky. */
   #why,#services,#proof,#process,.team-block{
-    position:sticky;top:var(--nav-h);background:#fff;min-height:calc(100vh - var(--nav-h));
+    position:sticky;top:var(--nav-h);background:#fff;min-height:calc(100dvh - var(--nav-h));
     border-radius:32px 32px 0 0;
     box-shadow:0 -18px 40px -20px rgba(30,16,70,.28),inset 0 1px 0 rgba(255,255,255,.75);
     display:flex;flex-direction:column;justify-content:flex-start;padding-top:96px;
@@ -529,7 +548,7 @@
      column. At 104px they wrapped, which doubled the row's height and pushed the second stat
      out through the bottom of the sticky section. */
   .stats-row{display:flex;gap:44px;margin-top:38px;flex-wrap:wrap;}
-  .stat-num{font-size:clamp(42px,4.6vw,74px);font-weight:800;line-height:.94;
+  .stat-num{font-size:clamp(42px,4.6vw,74px);font-weight:800;line-height:.94;font-variant-numeric:tabular-nums;
     letter-spacing:-.04em;color:var(--accent);white-space:nowrap;}
   /* ODOMETER digits. The window is exactly ONE line tall and every digit in the strip is exactly
      one line tall too -- that equality is what makes the roll land on a digit instead of between
@@ -897,6 +916,7 @@
 </head>
 <body>
 <span id="top"></span>
+<a class="skip-link" href="#proof">Skip to content</a>
 
 <nav>
   <div class="nav-inner">
@@ -921,6 +941,7 @@
      that de-glitches into a tree render on load) behind the headline. Out of scope for this
      pass per explicit priority call; placeholder box marks where it goes, but it DOES now get
      the confirmed on-load settle animation (blur+scale -> sharp) even without real 3D content. -->
+<main id="content">
 <div class="hero-block" id="heroBlock">
   <!-- inner sticky viewport: THIS is what holds still on screen while the visual shrinks.
        The visual starts at a full 100vh (filling this whole box, nav floating over it), so the
@@ -1154,6 +1175,8 @@
   </div>
   <a class="btn filled team-cta" href="#" data-contact>Work with me</a>
 </div>
+
+</main>
 
 <!-- FOOTER -- last layer, covers the team bridge. Halftone-style wordmark bleed. -->
 
