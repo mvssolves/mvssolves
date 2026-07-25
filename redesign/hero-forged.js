@@ -27,9 +27,10 @@ function boot() {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  /* no transform set here on purpose -- the canvas transform is owned by CSS so the scrub can
+     drive it through --sc / --ty. An inline transform would win over the stylesheet and freeze it. */
   Object.assign(renderer.domElement.style, {
-    position: 'absolute', top: '50%', left: '50%', display: 'block',
-    transformOrigin: '50% 50%'
+    position: 'absolute', top: '50%', left: '50%', display: 'block'
   });
   host.appendChild(renderer.domElement);
   host.classList.add('has-scene');
@@ -82,29 +83,17 @@ function boot() {
 
   const SPAN = 2 * 11.4 * Math.tan(THREE.MathUtils.degToRad(34) / 2);  // world height of the frame
 
-  /* The sculpture is framed by the SETTLED CARD and never changes size afterwards. It sits in the
-     band above the bottom-anchored copy -- clear of the headline at full bleed, and already
-     perfectly framed once the crop closes in. The recede then reads as the frame closing around a
-     fixed object rather than the object shrinking, and there is exactly one thing controlling
-     scale instead of a canvas transform and a rig scale fighting each other. */
-  const TOP_INSET = 88, GAP = 16;
+  /* Sized to the VIEWPORT, not to the settled card: at load the sculpture is meant to be big.
+     Compacting into the card is handled entirely by the scrub, which drives --sc and --ty on
+     #hero3d and is consumed by a CSS transform on this canvas. Nothing here changes with scroll,
+     so there is still exactly one thing controlling scale -- it just lives in the timeline now
+     instead of in this file. */
   const SCULPT_H = 2 * RINGS[0].r;   // the outer ring is the widest part
+  const FILL = 0.82;                 // share of the frame height the sculpture occupies at load
 
   function place() {
-    const copy = document.querySelector('.hero-copy');
-    const copyH = copy ? copy.offsetHeight : 0;
-    const cardTop = innerWidth <= 760 ? 72 : TOP_INSET;
-    const cardBot = innerHeight - (copyH + GAP);
-    const bandPx = Math.max(80, cardBot - cardTop);
-    const bandWorld = (bandPx / innerHeight) * SPAN;
-
-    rig.position.y = ((innerHeight / 2 - (cardTop + cardBot) / 2) / innerHeight) * SPAN;
-    rig.scale.setScalar((bandWorld / SCULPT_H) * 0.96);
-
-    /* pushed off-axis on wide screens so it shares the frame with the headline instead of sitting
-       on top of it: sculpture right, copy bottom-left. Centred once there is no room to do that. */
-    const spanX = SPAN * (innerWidth / innerHeight);
-    rig.position.x = innerWidth >= 1024 ? spanX * 0.19 : 0;
+    rig.position.set(0, 0, 0);
+    rig.scale.setScalar((SPAN * FILL) / SCULPT_H);
   }
 
   /* ---- sizing ----------------------------------------------------------------------------- */
@@ -121,8 +110,6 @@ function boot() {
   let rt = null;
   addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resize, 120); });
   resize();
-
-  renderer.domElement.style.transform = 'translate(-50%,-50%)';
 
   /* ---- pointer parallax -------------------------------------------------------------------- */
   let tx = 0, ty = 0, px = 0, py = 0;
@@ -145,9 +132,7 @@ function boot() {
     py += (ty - py) * 0.05;
     camera.position.x = px * 0.85;
     camera.position.y = -py * 0.55;
-    /* aims at the frame centre, NOT at the rig: tracking rig.position.x would re-centre the
-       sculpture in view and silently undo the off-axis placement. */
-    camera.lookAt(0, rig.position.y, 0);
+    camera.lookAt(0, 0, 0);
 
     rings.forEach(m => {
       m.rotation.x = m.userData.base[0] + m.userData.spin[0] * t;

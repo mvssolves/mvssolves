@@ -466,7 +466,7 @@
      scene's ResizeObserver each frame, which is what made the shrink stutter. These four custom
      properties are what the scrub tweens; the box, the canvas and the layout all stay put. */
   .hero-3d-placeholder{position:absolute;top:0;left:0;right:0;height:100vh;
-    --ci-t:0px;--ci-x:0px;--ci-b:0px;--ci-rad:0px;
+    --ci-t:0px;--ci-x:0px;--ci-b:0px;--ci-rad:0px;--sc:1;--ty:0px;
     clip-path:inset(var(--ci-t) var(--ci-x) var(--ci-b) var(--ci-x) round var(--ci-rad));
     will-change:clip-path;
     overflow:hidden;
@@ -479,6 +479,14 @@
      their glow -- a light/white bg would wash them out entirely. */
   .hero-3d-placeholder video{width:100%;height:100%;object-fit:cover;display:block;
     transform:translateZ(0);backface-visibility:hidden;}
+  /* The sculpture COMPACTS as the frame closes rather than being cropped by it, and rides upward
+     with the frame. Both values come from the same scrub as the clip-path, inherited down as
+     custom properties, so this whole move is one composited transform and costs nothing per frame.
+     translate(0,var(--ty)) sits AFTER the centring translate and BEFORE scale deliberately -- put
+     it after scale and the rise gets multiplied by --sc and collapses to nothing. */
+  .hero-3d-placeholder canvas{
+    transform:translate(-50%,-50%) translate(0,var(--ty,0px)) scale(var(--sc,1));
+    transform-origin:50% 50%;will-change:transform;}
   /* scene card, now LIGHT to match the white hero -- a soft lavender wash with faint brand glows,
      so it reads as a bright panel the dark headline sits cleanly over. Drop a video back in and it
      covers this entirely. */
@@ -2137,10 +2145,14 @@ document.addEventListener('click',e=>{
   const eyebrow=document.querySelector('.hero-left .eyebrow');
   const right=document.querySelector('.hero-right');
   const marq=document.getElementById('heroMarquee');
+  const figs=document.querySelector('.hero-figures');
 
   /* hidden up front so nothing shows before its own beat -- set here rather than in CSS so the
      no-JS / reduced-motion path still renders the full layout normally. */
-  gsap.set([eyebrow,right,marq].filter(Boolean),{opacity:0,y:16});
+  /* the figures row is hidden at load with the rest: nothing but the headline should be on screen
+     while the sculpture is at full size. Opacity only -- it keeps its space in the layout, so the
+     card geometry measured off .hero-copy stays constant through the whole scrub. */
+  gsap.set([eyebrow,right,marq,figs].filter(Boolean),{opacity:0,y:16});
 
   /* the settled card is expressed as INSETS from the full-bleed box, not as a height. The bottom
      inset is measured off the copy block so the card's lower edge always lands exactly GAP above
@@ -2152,6 +2164,12 @@ document.addEventListener('click',e=>{
      edge finished hidden under the nav, so the whole top of the card was never actually seen. */
   const TOP_INSET=88,GAP=16;
   const botInset=()=>(copy?copy.offsetHeight:0)+GAP;
+  /* the scene compacts INTO the card instead of being cropped by it, so nothing is ever cut off.
+     --sc is the card's share of the viewport height; --ty carries the canvas up to the card's
+     centre, because the card sits in the top band while the canvas is centred on the viewport. */
+  const cardH=()=>Math.max(1,innerHeight-TOP_INSET-botInset());
+  const cardScale=()=>cardH()/innerHeight;
+  const cardRise=()=>(TOP_INSET+cardH()/2)-innerHeight/2;
 
   const tl=gsap.timeline({defaults:{ease:'none'},
     /* scrub:true, NOT a catch-up value: any catch-up means the scene lags behind the wheel and
@@ -2171,9 +2189,10 @@ document.addEventListener('click',e=>{
      Tweening the four custom properties rather than the clip-path string itself: string
      interpolation across an inset() with a round argument is fragile, four plain numbers are not. */
   tl.fromTo(ph,
-    {'--ci-t':'0px','--ci-x':'0px','--ci-b':'0px','--ci-rad':'0px'},
-    {'--ci-t':TOP_INSET+'px','--ci-x':'40px','--ci-b':()=>botInset()+'px',
-      '--ci-rad':'28px',duration:1,ease:'power2.inOut'},0);
+    {'--ci-t':'0px','--ci-x':'0px','--ci-b':'0px','--ci-rad':'0px','--sc':1,'--ty':'0px'},
+    {'--ci-t':TOP_INSET+'px','--ci-x':'40px','--ci-b':()=>botInset()+'px','--ci-rad':'28px',
+      '--sc':()=>cardScale(),'--ty':()=>cardRise()+'px',
+      duration:1,ease:'power2.inOut'},0);
 
   /* COPY FADE, scroll-driven. eyebrow (MVS Solves) + subhead/CTA column + marquee fade in as you
      scroll rather than popping at the end. Positioned in the FIRST HALF of the scrub so they're
@@ -2188,6 +2207,7 @@ document.addEventListener('click',e=>{
      (~70% of the shrink) and only then fades in. Marquee last of all. */
   if(eyebrow)tl.fromTo(eyebrow,{opacity:0,y:16},{opacity:1,y:0,duration:0.35},0.08);
   if(right)tl.fromTo(right,{opacity:0,y:18},{opacity:1,y:0,duration:0.3,ease:'power2.out'},0.7);
+  if(figs)tl.fromTo(figs,{opacity:0,y:16},{opacity:1,y:0,duration:0.3,ease:'power2.out'},0.78);
   if(marq)tl.fromTo(marq,{opacity:0,y:16},{opacity:1,y:0,duration:0.25},0.85);
 
   /* the settled scene height is derived from the copy block's measured height, and web fonts
