@@ -342,14 +342,21 @@
      where it earns its keep: About over this block, then the footer over About.
      z-index:4 (not auto) is load-bearing: #process is a sticky layer at z-index 3, and a static
      sibling would paint BENEATH it and slide under the pin instead of over it. */
-  #why,#services{position:relative;z-index:4;min-height:auto;}
-  /* the seam: #why owns the top edge, #services owns the bottom, nothing in between */
-  #why{border-radius:32px 32px 0 0;padding-bottom:clamp(24px,4vh,52px);}
-  #services{border-radius:0;box-shadow:none;background:var(--paper);
-    padding-top:clamp(28px,5vh,64px);margin-top:0;}
-  /* a hairline rule marks the change of subject inside the shared surface */
-  #services::after{content:'';position:absolute;left:0;right:0;top:0;height:1px;
-    background:linear-gradient(90deg,transparent,var(--line) 12%,var(--line) 88%,transparent);}
+  /* Leaving the shared sticky rule also cost these two everything it supplied -- the 96px
+     padding-top, the flex layout, the ground and the edge shadow. That is why the Why-me eyebrow
+     was sitting on the section's very top edge with no room above it. Restored explicitly, with
+     real height so the section breathes instead of collapsing to its content. */
+  #why,#services{position:relative;z-index:4;background:var(--paper);
+    display:flex;flex-direction:column;justify-content:flex-start;}
+  #why{border-radius:32px 32px 0 0;
+    box-shadow:0 -18px 40px -20px rgba(40,32,22,.28),inset 0 1px 0 rgba(255,255,255,.75);
+    padding-top:clamp(84px,11vh,120px);
+    padding-bottom:clamp(64px,9vh,110px);
+    min-height:calc(96dvh - var(--nav-h));}
+  /* no rule, no seam, no shadow: one uninterrupted canvas straight into The work */
+  #services{border-radius:0;box-shadow:none;margin-top:0;
+    padding-top:clamp(40px,7vh,88px);
+    padding-bottom:clamp(72px,10vh,120px);}
   /* min-height:auto, not 60vh: with justify-content:center inherited from the stack-layer rule,
      a 60vh floor on ~400px of content split the leftover ~300px evenly above and below, which is
      where the dead space above the tag strip came from. Sized to its content with real padding
@@ -762,13 +769,18 @@
   /* content rides above both ground layers */
   #why > *{position:relative;z-index:1;}
   /* cropped ghost stat -- violet outline on white, faded at the top so it never crowds the copy */
-  #why > .me-ghost{position:absolute;z-index:0;right:1.5%;bottom:-15%;pointer-events:none;user-select:none;
-    font-size:clamp(230px,31vw,460px);font-weight:900;letter-spacing:-.055em;line-height:.74;
+  /* sits LOW and fully inside the section: at right:1.5% the K's overhang was being cut by the
+     section's overflow, and at bottom:-15% with a 460px cap it was reaching up into the timeline
+     copy. Pulled in from the right, dropped, and capped smaller. */
+  #why > .me-ghost{position:absolute;z-index:0;right:clamp(16px,3vw,54px);bottom:-2%;
+    pointer-events:none;user-select:none;
+    font-size:clamp(150px,20vw,290px);font-weight:900;letter-spacing:-.04em;line-height:.78;
     color:transparent;-webkit-text-stroke:2.6px rgba(102,80,168,.30);
     /* fades in AND out, so it dissolves before the seam into The work rather than being sliced
        off by the section edge */
-    -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 38%,#000 76%,transparent 100%);
-            mask-image:linear-gradient(180deg,transparent 0,#000 38%,#000 76%,transparent 100%);}
+    /* fades in low and out again, so it never rises into the timeline text above it */
+    -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 46%,#000 82%,transparent 100%);
+            mask-image:linear-gradient(180deg,transparent 0,#000 46%,#000 82%,transparent 100%);}
   /* heading + body use the site's default ink; eyebrow keeps brand violet */
   #why .eyebrow{color:var(--accent);}
   .me-layout{display:flex;gap:clamp(40px,6vw,72px);align-items:flex-start;margin-top:34px;}
@@ -1408,6 +1420,20 @@
             mask-image:linear-gradient(90deg,transparent,#000 70%);}
   .page-rails i:first-child{left:0;}
   .page-rails i:last-child{right:0;transform:scaleX(-1);}
+
+
+  /* ---- (4) THE WORK mirrors STRAIGHT FROM ME -------------------------------------------------
+     Why-me leads from the left, so the section sharing its canvas leads from the right. The
+     heading block is pushed right and set ragged-left; the card grid stays weighted left, so the
+     eye crosses the surface instead of stacking down one edge. */
+  @media(min-width:861px){
+    #services .eyebrow,
+    #services h2,
+    #services .process-lead{margin-left:auto;margin-right:0;text-align:right;}
+    #services .process-lead{max-width:54ch;}
+    #services h2{max-width:none;}
+    .card-grid{margin-right:auto;margin-left:0;width:100%;}
+  }
 
 </style>
 </head>
