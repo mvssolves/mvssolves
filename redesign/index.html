@@ -1975,11 +1975,14 @@
     #services .work-n{font-size:11px;padding-top:2px;}
 
     /* ---- ABOUT ---------------------------------------------------------------------------- */
-    /* About holds its own full screen and STOPS there -- the black then climbs over it rather
-       than starting where About happens to end. The 200px that had been cut to reduce dead paper
-       goes back: with the footer riding up over it, that space is never seen. */
-    .team-block{min-height:calc(100svh - var(--nav-h))!important;
-      justify-content:flex-start!important;}
+    /* About is sized to its CONTENT, not to a full screen. A full-height About means the footer
+       cannot start until a whole screen has passed, and the gap between the CTA and the black is
+       that leftover paper -- which is the dead white space. Content height plus a short tail puts
+       the black directly under the CTA. It still pins and still stops; the paper fill below it
+       (the box-shadow) keeps the Work section from showing through while it does. */
+    .team-block{min-height:0!important;
+      justify-content:flex-start!important;
+      padding-bottom:clamp(28px,5vh,48px)!important;}
     .team-stats{gap:12px;}
 
 
@@ -2140,7 +2143,7 @@
           <h1 data-em="only">Systems that only win.</h1>
         </div>
         <div class="hero-right">
-          <p class="hero-sub fx-rise">One person builds the whole machine: the site that sells, the booking that answers, the follow-up that closes. No agency layers.</p>
+          <p class="hero-sub fx-rise" data-short="One person builds the whole machine: the site that sells, the booking that answers, the follow-up that closes.">One person builds the whole machine: the site that sells, the booking that answers, the follow-up that closes. No agency layers.</p>
           <div class="hero-ctas">
             <a class="btn filled" href="/redesign/contact/">Start a project</a>
           </div>
@@ -2213,7 +2216,7 @@
 <section id="process" class="wrap">
   <div class="eyebrow">How it works</div>
   <h2 class="fx-rise">The systems</h2>
-  <p class="process-lead fx-rise">Three systems that turn a stranger into a booked, paying client, and keep running while you work.</p>
+  <p class="process-lead fx-rise" data-short="Three systems that turn a stranger into a booked client, and keep running while you work.">Three systems that turn a stranger into a booked, paying client, and keep running while you work.</p>
 
   <div class="sys">
     <!-- stages: light in sequence, synced to the token climbing the machine -->
@@ -2305,8 +2308,8 @@
       <!-- data-hl, not <span>: splitChars rebuilds these from textContent for the rise effect and
            would throw inline markup away. applyHl re-applies the colour to the word wrappers after
            the split, so the figures survive it. -->
-      <p class="fx-rise" data-hl="six,10K">I'm Martin. Self-taught, no agency pedigree, and better for it. In under two months I took six businesses to 10K a month each. That's not a pitch — it's the track record.</p>
-      <p class="fx-rise" data-hl="50+">50+ businesses now run on systems I designed and built myself, end to end. No account managers, no hand-offs, no watered-down work passed down a chain — just the person who built it, answering for it.</p>
+      <p class="fx-rise" data-hl="six,10K" data-short="I'm Martin. Self-taught, no agency pedigree, and better for it. In under two months I took six businesses to 10K a month each.">I'm Martin. Self-taught, no agency pedigree, and better for it. In under two months I took six businesses to 10K a month each. That's not a pitch — it's the track record.</p>
+      <p class="fx-rise" data-hl="50+" data-short="50+ businesses now run on systems I designed and built myself, end to end. No hand-offs — the person who built it answers for it.">50+ businesses now run on systems I designed and built myself, end to end. No account managers, no hand-offs, no watered-down work passed down a chain — just the person who built it, answering for it.</p>
       <p class="fx-rise">I don't stop at "launched." I'm done when your numbers are climbing, and I back myself to get them there.</p>
       <a class="btn filled" href="/redesign/contact/">Work with me</a>
     </div>
@@ -2332,7 +2335,7 @@
 <section id="services" class="wrap">
   <div class="eyebrow">What I build</div>
   <h2 class="fx-rise">The work</h2>
-  <p class="process-lead fx-rise">One machine, six moving parts: the site that sells, the booking that runs itself, the AI that answers, and the follow-through that keeps all three earning. Built around how your business actually works, not pulled off a shelf.</p>
+  <p class="process-lead fx-rise" data-short="One machine, six moving parts. Built around how your business actually works, not pulled off a shelf.">One machine, six moving parts: the site that sells, the booking that runs itself, the AI that answers, and the follow-through that keeps all three earning. Built around how your business actually works, not pulled off a shelf.</p>
   <!-- One lead panel plus five supporting rows, NOT six equal boxes. Six identical cards gave the
        strongest thing on offer the same weight as the smallest, so nothing landed. Named noun-first
        (the site, the calendar, the receptionist) so the six read as parts of one machine, which is
@@ -2926,6 +2929,15 @@ document.addEventListener('click',e=>{
      calculated against fallback-font metrics and the gap creeps back. */
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>ScrollTrigger.refresh());
 })();
+
+/* SHORTER COPY ON A PHONE. Every [data-short] carries a trimmed version of its own paragraph --
+   the clause that is scaffolding rather than substance, dropped. Desktop text stays in the markup
+   as the source of truth, so the two can never drift into separate copies of the same sentence.
+   This has to run BEFORE the reveal library below: splitChars rebuilds these elements from
+   textContent, and a swap made after the split would simply be discarded. */
+if(innerWidth<=760){
+  document.querySelectorAll('[data-short]').forEach(el=>{el.textContent=el.dataset.short;});
+}
 
 /* ---- TEXT REVEAL LIBRARY -------------------------------------------------------------------
    Each section heading gets its OWN entrance rather than one effect repeated five times. All of
