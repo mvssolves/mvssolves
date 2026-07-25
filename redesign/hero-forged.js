@@ -22,7 +22,10 @@ function boot() {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  /* 1.6, not 2. At devicePixelRatio 2 on a full-screen canvas this allocates a 2880x1800 MSAA
+     buffer; the edges of a polished tube do not visibly improve past ~1.6 and the fill cost drops
+     by roughly a third. */
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.6));
   renderer.setClearColor(0x000000, 0);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
@@ -75,7 +78,9 @@ function boot() {
     const mat = cfg.mat.clone();
     mat.transparent = true;
     mat.opacity = reduce ? 1 : 0;
-    const m = new THREE.Mesh(new THREE.TorusGeometry(cfg.r, cfg.t, 28, 260), mat);
+    /* 20x132 rather than 28x260: that was 14.5k triangles per ring, 58k across the four, all built
+       and uploaded during load. At this size the silhouette is identical and the cost is a quarter. */
+    const m = new THREE.Mesh(new THREE.TorusGeometry(cfg.r, cfg.t, 20, 132), mat);
     m.rotation.set(...cfg.rot);
     m.userData.spin = cfg.spin;
     m.userData.base = [...cfg.rot];
@@ -86,7 +91,7 @@ function boot() {
   });
 
   const core = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(0.52, 3),
+    new THREE.IcosahedronGeometry(0.52, 2),
     new THREE.MeshStandardMaterial({ color: FLARE, metalness: 0.35, roughness: 0.28,
       emissive: FLARE, emissiveIntensity: 0.35, transparent: true, opacity: reduce ? 1 : 0 })
   );
@@ -98,8 +103,12 @@ function boot() {
      oversized and spinning as it comes in. Driven off the same clock as the idle motion rather
      than a tween library, so there is one source of time in this file and nothing to keep in sync.
      Skipped wholesale under reduced motion -- the scene simply starts settled. */
-  let introOn = !reduce;
-  const CORE_IN = [0.15, 0.85], RING_IN = 0.90, RING_GAP = 0.17, RING_START = 0.45;
+  /* introT0 is set only once the scene has actually rendered a few frames -- see the warm-up in the
+     loop. Shader compilation, geometry upload and the environment map all land on the first render,
+     and starting the animation into that cost is exactly what made the opening stutter. The
+     sequence now begins on a warm renderer, and runs slower besides. */
+  let introOn = !reduce, introT0 = null, warmFrames = 0;
+  const CORE_IN = [0.10, 1.05], RING_IN = 1.20, RING_GAP = 0.26, RING_START = 0.55;
   const INTRO_END = RING_START + RING_GAP * 3 + RING_IN + 0.25;
   const seg = (t, a, b) => Math.min(1, Math.max(0, (t - a) / (b - a)));
   const easeOut = t => 1 - Math.pow(1 - t, 3);
@@ -192,7 +201,14 @@ function boot() {
     camera.position.y = -py * 0.55;
     camera.lookAt(0, 0, 0);
 
-    if (introOn) playIntro(t);
+    /* hold the assembly off-stage until the renderer has drawn a few frames, then start the clock
+       from that moment. The first render is where the shaders compile and the geometry uploads;
+       animating through that is what was seen as lag at start-up. */
+    if (introOn && introT0 === null) {
+      if (++warmFrames >= 4) introT0 = t;
+    } else if (introOn) {
+      playIntro(t - introT0);
+    }
 
     rings.forEach(m => {
       const s = m.userData.introSpin;
@@ -208,6 +224,10 @@ function boot() {
 
   function start() { if (!running) { running = true; clock.getDelta(); frame(); } }
   function stop()  { running = false; if (raf) cancelAnimationFrame(raf); raf = null; }
+
+  /* compile every material against this camera up front, so the shader build happens here rather
+     than on the first animated frame */
+  renderer.compile(scene, camera);
 
   if (reduce) {
     /* one static frame: the sculpture still reads, nothing moves. */
