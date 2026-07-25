@@ -128,7 +128,7 @@ footer{background:var(--ink);color:#fff;padding:44px 40px 0;overflow:hidden;
    Steps are in em so the depth scales with the clamped font-size instead of thinning out to
    nothing on a big viewport. */
 .wm-i::before{content:attr(data-ch);position:absolute;left:0;top:0;z-index:0;
-  color:#585099;-webkit-text-fill-color:#585099;
+  color:#5A4A90;-webkit-text-fill-color:#5A4A90;
   text-shadow:
     .011em .011em 0 #534b92,.022em .022em 0 #4e468a,.033em .033em 0 #494183,
     .044em .044em 0 #443c7b,.055em .055em 0 #3f3774,.066em .066em 0 #3a326c,
@@ -277,3 +277,15 @@ footer{background:var(--ink);color:#fff;padding:20px 40px 0;overflow:hidden;}
 .foot-legal a:hover{color:#fff;}
 .foot-legal span{color:#444;}
 .foot-copy{margin-left:auto;color:#666 !important;}
+
+
+/* ---- match the home page's material -------------------------------------------------------
+   The legal/FAQ pages shared the palette but not the SURFACE: flat paper with no grain and no
+   lit edge read as a different, cheaper site once the home page got its stock. */
+body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.055;
+  background-size:180px 180px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+@media (prefers-reduced-transparency:reduce){body::after{display:none;}}
+::selection{background:#6650A8;color:#fff;}
+html{scrollbar-color:#DDD6C8 #F7F4EF;scrollbar-width:thin;caret-color:#6650A8;}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #6650A8;outline-offset:3px;}

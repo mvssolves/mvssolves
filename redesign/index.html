@@ -87,7 +87,7 @@
     --paper:#F7F4EF;          /* default light surface. NOT #fff                     */
     --paper-raised:#FFFFFF;   /* cards, expanded panels -- white is a RAISED state   */
     --bone:#EFE9DF;           /* recessed bands + the ink for surface texture        */
-    --line:#DDD6C8;           /* hairlines, card borders, dividers                   */
+    --line:#DDD6C86C8;           /* hairlines, card borders, dividers                   */
 
     --ink:#16130F;            /* warm near-black: footer, video panel, dark cards    */
     --ink-raised:#221E18;     /* elevated surface inside a dark area                 */
@@ -134,12 +134,12 @@
   /* data-hl words in a split heading get tinted with the brand violet */
   .hl{color:var(--accent);}
   h3{font-size:18px;margin-bottom:8px;}
-  p{color:#555;max-width:60ch;}
-  .tag{display:inline-block;background:#f2f2f2;border:1px solid #ddd;border-radius:999px;padding:10px 18px;font-size:13px;}
+  p{color:#5A5248;max-width:60ch;}
+  .tag{display:inline-block;background:#F1EEE7;border:1px solid #DDD6C8;border-radius:999px;padding:10px 18px;font-size:13px;}
   /* buttons stay PUT. They get hover and click reactions, but never translate -- a CTA that
      drifts around under the cursor is harder to hit and reads as a bug. */
   .btn{position:relative;display:inline-block;padding:12px 24px;border-radius:999px;
-    border:1px solid #111;font-size:14px;font-weight:600;text-decoration:none;color:var(--text);
+    border:1px solid #16130F;font-size:14px;font-weight:600;text-decoration:none;color:var(--text);
     cursor:pointer;background:none;overflow:hidden;isolation:isolate;
     transition:color .3s ease,border-color .3s ease,box-shadow .3s ease;}
   /* FILL WIPE -- a disc scales up from under the label on hover. Sits at -1 so the label rides
@@ -225,7 +225,7 @@
      Every interactive element now responds. Transforms/opacity only, so nothing triggers layout. */
 
   /* nav links: underline draws in from the left rather than blinking on */
-  .nav-links a{position:relative;color:#333;text-decoration:none;transition:color .2s ease;}
+  .nav-links a{position:relative;color:#3A342C;text-decoration:none;transition:color .2s ease;}
   .nav-links a::after{content:'';position:absolute;left:0;right:0;bottom:-4px;height:1.5px;
     background:currentColor;transform:scaleX(0);transform-origin:left;
     transition:transform .32s cubic-bezier(.4,0,.2,1);}
@@ -233,7 +233,7 @@
   /* hover is INK in both nav states -- the links sit on white, where lime has almost no contrast
      and violet competed with the CTA. The underline draw is the tell, not a colour change. */
   .nav-links a:hover,nav.nav-clear .nav-links a:hover{color:var(--text);}
-  .nav-links a:hover::after{background:#111;}
+  .nav-links a:hover::after{background:#16130F;}
 
   /* buttons: lift + shadow, and the filled one warms slightly */
   .btn{transition:transform .22s cubic-bezier(.22,1,.36,1),box-shadow .22s ease,
@@ -251,7 +251,7 @@
 
   /* feature rows: the index number colours up and the row nudges right */
   .feature-row{transition:background .25s ease;}
-  .feature-row:hover{background:#fafafa;}
+  .feature-row:hover{background:#FAF7F1;}
   .feature-row .feat-num,.feature-row h3{transition:color .25s ease,transform .25s ease;}
   .feature-row:hover .feat-num{color:var(--accent);transform:translateX(3px);}
 
@@ -322,7 +322,7 @@
   /* WHITE hero -- inverted from the old dark treatment. Light section, dark copy, so it reads as
      one continuous white site rather than a dark slab up top. */
   .hero-block{position:relative;z-index:1;min-height:225vh;
-    background:linear-gradient(180deg,#FFFFFF 0%,#F9F6F1 60%,#F3EFE7 100%);}
+    background:linear-gradient(180deg,#FFFDFA 0%,var(--paper) 55%,#F2EEE5 100%);}
   .hero-copy{color:var(--ink);}
   .hero-copy h1{color:var(--ink);}
   .hero-sub{color:var(--text-muted);}
@@ -384,11 +384,11 @@
      after -- the block was spreading over most of the viewport with big dead gaps between each
      element. The section's own bottom padding gives the breathing room instead. */
   .team-block h2{margin-bottom:0;line-height:1.02;}
-  .about-lead{max-width:58ch;margin:14px auto 0;color:#444;font-size:clamp(15px,1.5vw,18px);line-height:1.55;}
+  .about-lead{max-width:58ch;margin:14px auto 0;color:#4A4239;font-size:clamp(15px,1.5vw,18px);line-height:1.55;}
   .team-stats{display:flex;gap:56px;justify-content:center;flex-wrap:wrap;margin:30px 0 0;}
   .team-stats .stat-label{margin-top:2px;}
   .team-cta{margin-top:18px;}
-  footer{position:relative;z-index:7;border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(0,0,0,.18);}
+  footer{position:relative;z-index:7;border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(40,32,22,.22);}
 
   /* SHORT-VIEWPORT COMFORT -- a pinned cover card only shows one screen, so on shorter laptops the
      content has to be tightened to fit within it. These trims keep the richest sections (Proof,
@@ -446,8 +446,8 @@
      panel rather than a light one punched into black. */
   .hero-3d-placeholder{position:absolute;top:0;left:0;right:0;height:100vh;will-change:height,top;
     overflow:hidden;
-    background:repeating-linear-gradient(135deg,#161618,#161618 20px,#1d1d20 20px,#1d1d20 40px);
-    display:flex;align-items:center;justify-content:center;color:#6a6a72;font-size:13px;}
+    background:repeating-linear-gradient(135deg,#1A1712,#1A1712 20px,#221E18 20px,#221E18 40px);
+    display:flex;align-items:center;justify-content:center;color:#736A5C;font-size:13px;}
   /* once the WebGL scene mounts, drop the placeholder stripes and label -- the canvas is the
      content now. Kept as a fallback for no-WebGL / reduced-motion, where the scene never loads. */
   /* atmospheric backdrop instead of flat black: a soft indigo glow lifts the mood toward the
@@ -513,7 +513,7 @@
   .card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:34px;}
   @media(max-width:860px){.card-grid{grid-template-columns:1fr;max-width:460px;}}
   .card{position:relative;border:1px solid var(--line);border-radius:18px;padding:30px 28px 32px;
-    background:#fff;overflow:hidden;
+    background:var(--paper-raised);overflow:hidden;
     box-shadow:0 2px 4px -2px rgba(34,28,20,.05),0 20px 44px -32px rgba(34,28,20,.4);
     transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease;}
   .card:hover{transform:translateY(-5px);border-color:var(--accent-lift);
@@ -538,14 +538,14 @@
   .card.feat .svc-list li::before{background:var(--flare);}
   .mk-chat{width:100%;display:flex;flex-direction:column;gap:9px;}
   .chat{font-size:12px;line-height:1.35;padding:8px 12px;border-radius:13px;max-width:88%;}
-  .chat.in{align-self:flex-start;background:#fff;color:#3a3745;border-bottom-left-radius:4px;}
+  .chat.in{align-self:flex-start;background:var(--paper-raised);color:#3A342C;border-bottom-left-radius:4px;}
   .chat.out{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:4px;}
 
   /* EXPERTISE (stats + tabs) */
   /* one rounded track holding all the tabs, active one a filled pill inside it -- reads as a
      control rather than as a row of loose buttons. */
   .tab-row{display:inline-flex;gap:4px;margin:0 0 20px;flex-wrap:wrap;align-self:flex-start;
-    background:#f4f4f6;border:1px solid #ececf0;border-radius:999px;padding:6px;}
+    background:#F4F1EA;border:1px solid #E8E3D9;border-radius:999px;padding:6px;}
   .tab{border:1px solid transparent;border-radius:999px;padding:11px 22px;font-size:15px;
     color:var(--text-muted);cursor:pointer;background:none;font-family:inherit;font-weight:500;}
   .tab.active{color:var(--ink);font-weight:700;}
@@ -614,16 +614,16 @@
   .sys{display:flex;gap:30px;align-items:center;margin-top:20px;}
 
   .stages{flex:0 0 clamp(300px,33vw,372px);display:flex;flex-direction:column;gap:14px;}
-  .stage{border:1px solid var(--line);border-radius:14px;padding:18px 44px 18px 22px;background:#fff;
+  .stage{border:1px solid var(--line);border-radius:14px;padding:18px 44px 18px 22px;background:var(--paper-raised);
     position:relative;overflow:hidden;cursor:default;
     transition:transform .3s cubic-bezier(.2,.8,.2,1),border-color .3s ease,box-shadow .3s ease;}
   /* HOVER: lifts and lights, independent of the auto sync (which only tints the background, below,
      so the two never fight over the same property) */
   .stage:hover{transform:translateY(-4px);border-color:var(--accent);
     box-shadow:0 20px 44px -22px rgba(34,28,20,.4);}
-  .stage-k{font-family:monospace;font-size:11px;color:#c0c0c8;letter-spacing:.1em;}
+  .stage-k{font-family:monospace;font-size:11px;color:#C6BFB2;letter-spacing:.1em;}
   .stage h3{font-size:clamp(18px,1.9vw,21px);letter-spacing:-.01em;margin:4px 0 4px;color:var(--ink);}
-  .stage p{font-size:13.5px;color:#5a5760;line-height:1.45;}
+  .stage p{font-size:13.5px;color:#5E574C;line-height:1.45;}
   /* the lime edge bar -- scales in during this card's turn in the sync cycle */
   .stage::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);
     transform:scaleY(0);transform-origin:top;transition:transform .4s ease;z-index:2;}
@@ -641,7 +641,7 @@
   .s-a{animation:stageLit 10.5s infinite;}
   .s-b{animation:stageLit 10.5s infinite;animation-delay:-7s;}
   .s-c{animation:stageLit 10.5s infinite;animation-delay:-3.5s;}
-  @keyframes stageLit{0%,24%{background:#f7f4ff;}34%,100%{background:#fff;}}
+  @keyframes stageLit{0%,24%{background:#F6F2FB;}34%,100%{background:var(--paper-raised);}}
   .s-a::before{animation:litBar 10.5s infinite;}
   .s-b::before{animation:litBar 10.5s infinite;animation-delay:-7s;}
   .s-c::before{animation:litBar 10.5s infinite;animation-delay:-3.5s;}
@@ -663,7 +663,7 @@
   .sys-stats>div{text-align:center;}
   .sys-stats b{display:block;font-size:clamp(24px,2.8vw,38px);font-weight:800;color:var(--accent);
     letter-spacing:-.03em;line-height:1;}
-  .sys-stats span{font-family:monospace;font-size:12px;color:#7a7784;letter-spacing:.02em;
+  .sys-stats span{font-family:monospace;font-size:12px;color:#7E7466;letter-spacing:.02em;
     margin-top:6px;display:block;}
   /* the lime token climbs the three block tops (positions passed in as --x1..--y3), hopping up
      between each. transform-box:fill-box so the transform origin is the token's own art. */
@@ -725,7 +725,7 @@
      wash read as low-tier because it was ONLY a gradient; this keeps the pieces that made the dark
      version feel built -- fine grain, an off-centre bloom, a masked hairline grid and the cropped
      ghost stat -- inverted onto white. Structure, not just a tint. */
-  #why{background:linear-gradient(180deg,#FFFFFF 0%,#FAF7F2 60%,#F5F1E9 100%);overflow:hidden;}
+  #why{background:linear-gradient(180deg,#FFFDFA 0%,var(--paper) 55%,#F2EEE5 100%);overflow:hidden;}
   /* bloom + hairline grid, masked to a soft oval so the edges dissolve instead of ending on a line */
   #why::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;border-radius:inherit;
     background:
@@ -758,7 +758,7 @@
   .me-timeline{flex:1 1 380px;list-style:none;position:relative;padding-left:34px;margin-top:2px;}
   /* the rail: a rounded violet->grey bar with a faint inner highlight so it reads as a raised tube */
   .me-timeline::before{content:'';position:absolute;left:6px;top:9px;bottom:16px;width:4px;
-    border-radius:4px;background:linear-gradient(180deg,#b6a2ea 0%,#cfc7e4 55%,#e2e2e8 100%);
+    border-radius:4px;background:linear-gradient(180deg,#A996D8 0%,#C6BEDC 55%,#E0DACE 100%);
     box-shadow:inset 1px 0 0 rgba(255,255,255,.5),0 2px 6px -2px rgba(60,48,36,.4);}
   /* a pulse travelling top->bottom down the rail, on a loop. No halo: a zero-offset chromatic
      glow is the default "cool" look of generated UI, and on warm paper it just reads as a smudge.
@@ -771,7 +771,7 @@
   .me-timeline li:last-child{padding-bottom:0;}
   /* beaded node: radial highlight (top-left light) + cast shadow = a small sphere sitting proud */
   .me-timeline li::before{content:'';position:absolute;left:-34px;top:3px;width:15px;height:15px;
-    border-radius:50%;background:radial-gradient(circle at 35% 30%,#d8ccf5,#9d8ad0);
+    border-radius:50%;background:radial-gradient(circle at 35% 30%,#D3C7EE,#8E7BC0);
     box-shadow:0 0 0 4px #fff,0 4px 8px -2px rgba(60,48,36,.5);}
   .me-timeline li:last-child::before{background:radial-gradient(circle at 35% 30%,#F7B893,#C4531F);
     box-shadow:0 0 0 4px #fff,0 4px 8px -2px rgba(34,28,20,.35);}
@@ -795,20 +795,20 @@
   footer{background:var(--ink);color:var(--text-invert);padding:20px 40px 0;overflow:hidden;}
   /* z-index above the wordmark: even if the wordmark's glyphs bleed past their box at some
      viewport, the columns and the Send CTA always paint on top and stay readable. */
-  .foot-inner{position:relative;z-index:1;display:flex;gap:48px;flex-wrap:wrap;justify-content:space-between;padding-bottom:22px;border-bottom:1px solid #333;}
+  .foot-inner{position:relative;z-index:1;display:flex;gap:48px;flex-wrap:wrap;justify-content:space-between;padding-bottom:22px;border-bottom:1px solid #3A342C;}
   .foot-col{min-width:160px;}
-  .foot-col h3{font-size:13px;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;}
-  .foot-col a{display:block;color:#ccc;text-decoration:none;font-size:14px;margin-bottom:8px;}
+  .foot-col h3{font-size:13px;color:#8A8072;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;}
+  .foot-col a{display:block;color:#CFC7B8;text-decoration:none;font-size:14px;margin-bottom:8px;}
   .foot-cta{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
   .foot-email{background:transparent;border:1px solid var(--line-dark);border-radius:999px;padding:12px 18px;color:#fff;font-size:14px;min-width:220px;}
-  .foot-plain{display:block;color:#888;font-size:14px;margin-bottom:8px;}
+  .foot-plain{display:block;color:#8A8072;font-size:14px;margin-bottom:8px;}
   /* legal row runs inline and wraps -- it is a dense strip, not a column of links */
-  .foot-legal{padding:14px 0 0;font-size:12px;color:#666;display:flex;flex-wrap:wrap;
+  .foot-legal{padding:14px 0 0;font-size:12px;color:#6B6255;display:flex;flex-wrap:wrap;
     align-items:center;gap:8px;}
-  .foot-legal a{color:#888;text-decoration:none;transition:color .2s ease;}
+  .foot-legal a{color:#8A8072;text-decoration:none;transition:color .2s ease;}
   .foot-legal a:hover{color:#fff;}
-  .foot-legal span{color:#444;}
-  .foot-copy{margin-left:auto;color:#666 !important;}
+  .foot-legal span{color:#4A4239;}
+  .foot-copy{margin-left:auto;color:#6B6255 !important;}
   /* wordmark is the LAST thing in the footer, so it can only ever sit at the very bottom of the
      page -- it can't ride up over the columns or the Send CTA no matter the viewport, which was
      the recurring overlap bug. Sized to fit "MVS Solves" whole: no clipping, no bleed-off. */
@@ -856,14 +856,14 @@
      Steps are in em so the depth scales with the clamped font-size instead of thinning out to
      nothing on a big viewport. */
   .wm-i::before{content:attr(data-ch);position:absolute;left:0;top:0;z-index:0;
-    color:#585099;-webkit-text-fill-color:#585099;
+    color:#5A4A90;-webkit-text-fill-color:#5A4A90;
     text-shadow:
-      .011em .011em 0 #534b92,.022em .022em 0 #4e468a,.033em .033em 0 #494183,
-      .044em .044em 0 #443c7b,.055em .055em 0 #3f3774,.066em .066em 0 #3a326c,
-      .077em .077em 0 #352d65,.088em .088em 0 #30285d,.099em .099em 0 #2b2356,
-      .110em .110em 0 #261e4e,.121em .121em 0 #211947,.132em .132em 0 #1c143f,
-      .143em .143em 0 #170f38,.154em .154em 0 #120a30,
-      .17em .17em .2em rgba(0,0,0,.6);}
+      .011em .011em 0 #554587,.022em .022em 0 #50407F,.033em .033em 0 #4B3C77,
+      .044em .044em 0 #46386F,.055em .055em 0 #413367,.066em .066em 0 #3C2F5F,
+      .077em .077em 0 #372B57,.088em .088em 0 #32274F,.099em .099em 0 #2D2347,
+      .110em .110em 0 #281F3F,.121em .121em 0 #231B37,.132em .132em 0 #1E172F,
+      .143em .143em 0 #191327,.154em .154em 0 #140F1F,
+      .17em .17em .2em rgba(20,15,10,.55);}
   /* water surface: a depth gradient for the body, plus two highlight bands drifting across it in
      OPPOSITE directions at different rates -- that crossing is what reads as caustics rather
      than as a chrome sweep. --d3 is per-letter, so no two letters' water runs on the same clock. */
@@ -942,7 +942,7 @@
   .field-row{display:flex;gap:14px;}
   .field-row .field{flex:1;min-width:0;}
   .field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;
-    color:#8d8aa0;margin-bottom:6px;font-family:monospace;}
+    color:#94897A;margin-bottom:6px;font-family:monospace;}
   .field input,.field select,.field textarea{width:100%;background:rgba(255,255,255,.04);
     border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:12px 14px;color:#fff;
     font-size:15px;font-family:inherit;transition:border-color .2s ease,background .2s ease;}
@@ -953,7 +953,7 @@
   /* honeypot: bots fill every field they can see in the DOM; humans never see this one. */
   .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;}
   .modal-actions{display:flex;align-items:center;gap:16px;margin-top:20px;flex-wrap:wrap;}
-  .modal-note{font-size:12px;color:#6f6c80;}
+  .modal-note{font-size:12px;color:#736A5C;}
   .modal-actions .btn[disabled]{opacity:.5;pointer-events:none;}
   .form-msg{margin-top:14px;font-size:14px;display:none;}
   .form-msg.show{display:block;}
@@ -1072,6 +1072,67 @@
         padding-left:max(clamp(18px,5vw,28px),env(safe-area-inset-left));
         padding-right:max(clamp(18px,5vw,28px),env(safe-area-inset-right));}
     }
+  }
+
+
+  /* =========================================================================================
+     POLISH PASS
+     Material, not just colour. Three things carry it: one grain sheet over the whole page so no
+     surface is bare paper, a lit lip on every section edge so the stack reads as stock rather
+     than as coloured rectangles, and consistent state styling everywhere.
+     ========================================================================================= */
+
+  /* ---- PAPER STOCK: a single fixed grain sheet -------------------------------------------------
+     One element, one cached tile, zero per-frame cost. Deliberately NOT mix-blend-mode: blending
+     over the hero would pull the three.js canvas into a blending group and force a per-frame
+     readback, which tanks the particle field. Plain low opacity does the job. */
+  body::after{
+    content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px 180px;opacity:.055;
+  }
+  @media (prefers-reduced-transparency:reduce){ body::after{display:none;} }
+
+  /* ---- SECTION EDGE: the lit lip ---------------------------------------------------------------
+     A 1px highlight on the top edge, a hairline containment ring, and a tight warm seam under it.
+     This is what stops each cover-layer being a flat coloured rectangle sliding over another. */
+  #why,#services,#proof,#process,.team-block{
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.9),
+      inset 0 0 0 1px rgba(221,214,200,.5),
+      0 -20px 44px -26px rgba(40,32,22,.34);
+  }
+  footer{box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 -20px 44px -26px rgba(40,32,22,.4);}
+
+  /* ---- NAV: a real material once it leaves the hero ---------------------------------------- */
+  nav{backdrop-filter:saturate(1.15) blur(8px);border-bottom:1px solid transparent;}
+  nav:not(.nav-clear){border-bottom-color:var(--line);background:rgba(247,244,239,.86);}
+
+  /* ---- selection + caret + scrollbar: brand details most sites forget --------------------- */
+  ::selection{background:var(--accent);color:#fff;}
+  ::-moz-selection{background:var(--accent);color:#fff;}
+  html{scrollbar-color:var(--line) var(--paper);scrollbar-width:thin;caret-color:var(--accent);}
+  ::-webkit-scrollbar{width:11px;height:11px;}
+  ::-webkit-scrollbar-track{background:var(--paper);}
+  ::-webkit-scrollbar-thumb{background:#CFC7B8;border-radius:99px;border:3px solid var(--paper);}
+  ::-webkit-scrollbar-thumb:hover{background:var(--accent);}
+
+  /* ---- TYPE: optical corrections at display sizes ----------------------------------------- */
+  h1{letter-spacing:-.035em;}
+  h2{letter-spacing:-.028em;}
+  .eyebrow{font-variant-numeric:tabular-nums;}
+  /* numerals in body copy shouldn't jitter against surrounding text */
+  .tl-num,.card p b,.stat-label{font-variant-numeric:tabular-nums;}
+
+  /* ---- CARDS: one shadow language, tinted warm, lifting on hover -------------------------- */
+  .card{box-shadow:0 1px 2px -1px rgba(40,32,22,.10),0 18px 40px -30px rgba(40,32,22,.45);}
+  .card:hover{box-shadow:0 2px 4px -1px rgba(40,32,22,.12),0 34px 60px -34px rgba(102,80,168,.5);}
+
+  /* ---- the film panel matches the card language --------------------------------------------- */
+  .expertise-visual{box-shadow:0 2px 6px -2px rgba(40,32,22,.2),0 46px 84px -40px rgba(40,32,22,.55);}
+
+  /* ---- reduced motion: kill every ambient loop, keep every state change ------------------- */
+  @media (prefers-reduced-motion:reduce){
+    .marquee-track,.me-timeline::after,.iso-token,.ai-gem,.ai-ring,.slot{animation:none!important;}
   }
 
 </style>
@@ -1224,24 +1285,24 @@
           <radialGradient id="gem" cx="40%" cy="35%"><stop offset="0" stop-color="#F9C7A8"/><stop offset="1" stop-color="#D2591F"/></radialGradient>
           <radialGradient id="glow" cx="50%" cy="50%"><stop offset="0" stop-color="#E4622F" stop-opacity=".55"/><stop offset="1" stop-color="#E4622F" stop-opacity="0"/></radialGradient>
           <radialGradient id="tok" cx="38%" cy="32%"><stop offset="0" stop-color="#F9C7A8"/><stop offset="1" stop-color="#C4531F"/></radialGradient>
-          <linearGradient id="bT" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c9b6ff"/><stop offset="1" stop-color="#a88ef0"/></linearGradient>
-          <linearGradient id="bL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8f79d6"/><stop offset="1" stop-color="#6f59b8"/></linearGradient>
-          <linearGradient id="bR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6e58bc"/><stop offset="1" stop-color="#4e3c94"/></linearGradient>
+          <linearGradient id="bT" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C6B7E8"/><stop offset="1" stop-color="#9C86C9"/></linearGradient>
+          <linearGradient id="bL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7D68B0"/><stop offset="1" stop-color="#5C4A90"/></linearGradient>
+          <linearGradient id="bR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5A4A93"/><stop offset="1" stop-color="#403374"/></linearGradient>
         </defs>
-        <ellipse cx="170" cy="403" rx="80" ry="35" fill="#3a2a6e" opacity=".16" filter="url(#soft)"/>
-        <ellipse cx="310" cy="389" rx="80" ry="35" fill="#3a2a6e" opacity=".16" filter="url(#soft)"/>
-        <ellipse cx="452" cy="377" rx="80" ry="35" fill="#3a2a6e" opacity=".16" filter="url(#soft)"/>
+        <ellipse cx="170" cy="403" rx="80" ry="35" fill="#2E2547" opacity=".16" filter="url(#soft)"/>
+        <ellipse cx="310" cy="389" rx="80" ry="35" fill="#2E2547" opacity=".16" filter="url(#soft)"/>
+        <ellipse cx="452" cy="377" rx="80" ry="35" fill="#2E2547" opacity=".16" filter="url(#soft)"/>
         <polygon points="100,320 170,355 170,397 100,362" fill="url(#bL)"/><polygon points="170,355 240,320 240,362 170,397" fill="url(#bR)"/><polygon points="100,320 170,285 240,320 170,355" fill="url(#bT)"/>
-        <line x1="100" y1="320" x2="170" y2="285" stroke="#e8ddff" stroke-width="1.5" opacity=".7"/><line x1="170" y1="285" x2="240" y2="320" stroke="#e8ddff" stroke-width="1.5" opacity=".55"/>
+        <line x1="100" y1="320" x2="170" y2="285" stroke="#E7DFF6" stroke-width="1.5" opacity=".7"/><line x1="170" y1="285" x2="240" y2="320" stroke="#E7DFF6" stroke-width="1.5" opacity=".55"/>
         <polygon points="240,262 310,297 310,383 240,348" fill="url(#bL)"/><polygon points="310,297 380,262 380,348 310,383" fill="url(#bR)"/><polygon points="240,262 310,227 380,262 310,297" fill="url(#bT)"/>
-        <line x1="240" y1="262" x2="310" y2="227" stroke="#e8ddff" stroke-width="1.5" opacity=".7"/><line x1="310" y1="227" x2="380" y2="262" stroke="#e8ddff" stroke-width="1.5" opacity=".55"/>
+        <line x1="240" y1="262" x2="310" y2="227" stroke="#E7DFF6" stroke-width="1.5" opacity=".7"/><line x1="310" y1="227" x2="380" y2="262" stroke="#E7DFF6" stroke-width="1.5" opacity=".55"/>
         <polygon points="382,204 452,239 452,371 382,336" fill="url(#bL)"/><polygon points="452,239 522,204 522,336 452,371" fill="url(#bR)"/><polygon points="382,204 452,169 522,204 452,239" fill="url(#bT)"/>
-        <line x1="382" y1="204" x2="452" y2="169" stroke="#e8ddff" stroke-width="1.5" opacity=".7"/><line x1="452" y1="169" x2="522" y2="204" stroke="#e8ddff" stroke-width="1.5" opacity=".55"/>
-        <polygon points="134,320 170,302 206,320 170,338" fill="#b9a2ff" opacity=".85"/>
+        <line x1="382" y1="204" x2="452" y2="169" stroke="#E7DFF6" stroke-width="1.5" opacity=".7"/><line x1="452" y1="169" x2="522" y2="204" stroke="#E7DFF6" stroke-width="1.5" opacity=".55"/>
+        <polygon points="134,320 170,302 206,320 170,338" fill="#B3A2DC" opacity=".85"/>
         <line x1="145" y1="312" x2="170" y2="299" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".9"/><line x1="134" y1="324" x2="170" y2="306" stroke="#E4622F" stroke-width="2.4" stroke-linecap="round" opacity=".9"/>
-        <g class="iso-slot" style="--i:0"><polygon points="281,251 293,245 305,251 293,257" fill="#f4f0ff"/></g>
-        <g class="iso-slot" style="--i:1"><polygon points="298,260 310,254 322,260 310,266" fill="#f4f0ff"/></g>
-        <g class="iso-slot" style="--i:2"><polygon points="315,269 327,263 339,269 327,275" fill="#f4f0ff"/></g>
+        <g class="iso-slot" style="--i:0"><polygon points="281,251 293,245 305,251 293,257" fill="#F4F0FA"/></g>
+        <g class="iso-slot" style="--i:1"><polygon points="298,260 310,254 322,260 310,266" fill="#F4F0FA"/></g>
+        <g class="iso-slot" style="--i:2"><polygon points="315,269 327,263 339,269 327,275" fill="#F4F0FA"/></g>
         <g class="ai-core">
           <circle class="ai-glow" cx="452" cy="154" r="44" fill="url(#glow)"/>
           <ellipse class="ai-ring" cx="452" cy="154" rx="46" ry="18" fill="none" stroke="#E4622F" stroke-width="2.4" opacity=".7"/>
@@ -1262,7 +1323,7 @@
         </g>
         <g class="iso-token" style="--x1:170px;--y1:320px;--x2:310px;--y2:262px;--x3:452px;--y3:204px;">
           <polygon points="0,-13 11,-7 11,6 0,12 -11,6 -11,-7" fill="url(#tok)"/>
-          <polygon points="0,-13 11,-7 0,0 -11,-7" fill="#f6ff9c"/>
+          <polygon points="0,-13 11,-7 0,0 -11,-7" fill="#F9C7A8"/>
         </g>
       </svg>
       <div class="sys-stats fx-group">
@@ -1423,7 +1484,7 @@
       <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="modal-actions">
         <button class="btn filled lime" type="submit" id="contactSend">Send it</button>
-        <span class="modal-note">Or email <a href="mailto:martin@mvssolves.com" style="color:#9d9ab0">martin@mvssolves.com</a></span>
+        <span class="modal-note">Or email <a href="mailto:martin@mvssolves.com" style="color:#A29A8C">martin@mvssolves.com</a></span>
       </div>
       <div class="form-msg" id="contactMsg" role="status"></div>
     </form>
