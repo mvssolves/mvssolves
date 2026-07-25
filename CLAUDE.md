@@ -110,3 +110,13 @@ is the only thing that works.
 
 Fall back to a full `Read` only when the index genuinely returns nothing
 relevant, or when verifying exact bytes before a script-loading push.
+
+## Design skills — PRIORITY (installed 2026-07-25)
+
+Any UI/design work on this site invokes these BEFORE writing CSS or building
+from memory: `impeccable` (primary — design/critique/audit/polish/animate),
+`redesign-existing-projects` (audit an existing page, strip generic AI
+patterns), `high-end-visual-design` (make it feel expensive),
+`design-taste-frontend` (anti-slop), `gpt-taste` (GSAP motion).
+
+Audit first, then change. Full table in the agency CLAUDE.md §0.1.
