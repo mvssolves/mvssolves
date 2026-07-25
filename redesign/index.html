@@ -298,11 +298,19 @@
      The one-viewport constraint it imposes (a pinned card can only show one screenful) is handled
      by keeping each section's content within a screen -- see the max-height comfort rules and the
      per-section tightening below, not by abandoning the sticky. */
+  /* ============================================================================================
+     FLAT FULL-BLEED SECTIONS  (the cover-stack is gone)
+     Every section was position:sticky with a 32px rounded top and a rising z-index, so they slid
+     over one another as cards. The reference this is now modelled on does none of that: sections
+     are full-bleed rectangles with square corners in normal flow, separated by generous padding
+     rather than by layering. Removing it also permanently fixes mobile -- the one-viewport pin was
+     the thing that broke every section there.
+     ============================================================================================ */
   #proof,#process,.team-block{
-    position:sticky;top:var(--nav-h);background:var(--paper);min-height:calc(100dvh - var(--nav-h));
-    border-radius:32px 32px 0 0;
-    box-shadow:0 -18px 40px -20px rgba(40,32,22,.28),inset 0 1px 0 rgba(255,255,255,.75);
-    display:flex;flex-direction:column;justify-content:flex-start;padding-top:96px;
+    position:static;background:var(--paper);min-height:0;
+    border-radius:0;box-shadow:none;
+    display:flex;flex-direction:column;justify-content:flex-start;
+    padding-top:clamp(88px,12vh,150px);padding-bottom:clamp(88px,12vh,150px);
   }
   /* hero is NOT a sticky cover-layer like the others -- it's a tall scroll RUNWAY containing an
      inner sticky viewport (.hero-sticky). That inner element is what actually holds still on
@@ -321,7 +329,9 @@
      shares the scene's lighter mood rather than reading as a dead black void */
   /* WHITE hero -- inverted from the old dark treatment. Light section, dark copy, so it reads as
      one continuous white site rather than a dark slab up top. */
-  .hero-block{position:relative;z-index:1;min-height:225vh;
+  /* full-bleed and exactly one viewport tall. The 225vh runway existed only to give the
+     scrub-to-inset-card somewhere to happen, and that behaviour is gone with the stack. */
+  .hero-block{position:relative;z-index:auto;min-height:100dvh;
     background:var(--paper);}
   .hero-copy{color:var(--ink);}
   .hero-copy h1{color:var(--ink);}
@@ -333,9 +343,8 @@
   .hero-block .marquee-track span{color:var(--ink);}
   .hero-block .marquee-track .ol{color:transparent;-webkit-text-stroke:1.2px rgba(11,11,12,.5);}
   .hero-block .marquee-track .dot{color:var(--accent);-webkit-text-stroke:0;}
-  .hero-sticky{position:sticky;top:0;height:100vh;overflow:hidden;}
-  #proof{z-index:2;}
-  #process{z-index:3;}
+  .hero-sticky{position:relative;height:100dvh;overflow:hidden;}
+  /* z-index laddering removed with the stack */
   /* #why and #services are ONE section now. Both leave the sticky stack and become a single
      tall relative block that rises over Systems as a unit -- so there is no card-flip between
      the bio and the offer, and the reader travels one continuous surface. The flip survives
@@ -346,17 +355,15 @@
      padding-top, the flex layout, the ground and the edge shadow. That is why the Why-me eyebrow
      was sitting on the section's very top edge with no room above it. Restored explicitly, with
      real height so the section breathes instead of collapsing to its content. */
-  #why,#services{position:relative;z-index:4;background:var(--paper);
+  #why,#services{position:relative;z-index:auto;background:var(--paper);
     display:flex;flex-direction:column;justify-content:flex-start;}
-  #why{border-radius:32px 32px 0 0;
-    box-shadow:0 -18px 40px -20px rgba(40,32,22,.28),inset 0 1px 0 rgba(255,255,255,.75);
-    padding-top:clamp(84px,11vh,120px);
-    padding-bottom:clamp(64px,9vh,110px);
-    min-height:calc(96dvh - var(--nav-h));}
+  #why{border-radius:0;box-shadow:none;
+    padding-top:clamp(88px,12vh,150px);
+    padding-bottom:clamp(56px,7vh,96px);min-height:0;}
   /* no rule, no seam, no shadow: one uninterrupted canvas straight into The work */
   #services{border-radius:0;box-shadow:none;margin-top:0;
     padding-top:clamp(40px,7vh,88px);
-    padding-bottom:clamp(72px,10vh,120px);}
+    padding-bottom:clamp(96px,13vh,160px);}
   /* min-height:auto, not 60vh: with justify-content:center inherited from the stack-layer rule,
      a 60vh floor on ~400px of content split the leftover ~300px evenly above and below, which is
      where the dead space above the tag strip came from. Sized to its content with real padding
@@ -398,7 +405,7 @@
      -- the previous 200px reserve was pure empty paper that held the black section down. */
   /* a FULL cover-layer again, so the block genuinely pins under the nav and holds there while
      it is read, instead of being short enough to slide straight past. */
-  .team-block{z-index:6;text-align:center;align-items:center;justify-content:center;
+  .team-block{text-align:center;align-items:center;justify-content:center;
     min-height:calc(100dvh - var(--nav-h));
     padding:clamp(44px,6vh,80px) 0 clamp(72px,9vh,110px);}
   /* stack pulled tight so the stats sit just under the heading and the CTA follows straight
@@ -411,7 +418,7 @@
   .team-cta{margin-top:18px;}
   /* the black arrives LOOSE: a band of paper is left above it so it reads as a separate slab
      rising, not as a colour change welded to the bottom of the About section. */
-  footer{position:relative;z-index:7;margin-top:clamp(44px,7vh,96px);border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(40,32,22,.22);}
+  footer{position:relative;z-index:auto;border-radius:0;box-shadow:0 -16px 32px -18px rgba(40,32,22,.22);}
 
   /* SHORT-VIEWPORT COMFORT -- a pinned cover card only shows one screen, so on shorter laptops the
      content has to be tightened to fit within it. These trims keep the richest sections (Proof,
@@ -1026,16 +1033,12 @@
     .wrap{padding-left:clamp(18px,5vw,28px);padding-right:clamp(18px,5vw,28px);}
 
     #proof,#process,#why,#services,.team-block{
-      position:static;min-height:0;
+      min-height:0;
       padding-top:clamp(56px,9vh,76px);
       padding-bottom:clamp(64px,10vh,88px);
-      border-radius:26px 26px 0 0;
-      /* the stack no longer moves, so the top edge has to do the separating on its own */
-      box-shadow:0 -14px 28px -20px rgba(40,32,22,.3),inset 0 1px 0 rgba(255,255,255,.8);
-      margin-top:-26px;                 /* each card still tucks under the one above it */
+      border-radius:0;box-shadow:none;margin-top:0;
     }
-    #proof{margin-top:0;}
-    footer{border-radius:26px 26px 0 0;margin-top:-26px;position:relative;}
+    footer{border-radius:0;margin-top:0;position:relative;}
 
     /* ---- type: the mobile end of every ramp ---- */
     .hero-copy h1{font-size:clamp(30px,8.4vw,38px);line-height:1.04;max-width:15ch;}
@@ -1052,7 +1055,7 @@
     .nav-inner{padding:0 clamp(18px,5vw,28px);}
 
     /* ---- hero: a much shorter runway. 225vh of scrub before any copy is a lot of thumb. ---- */
-    .hero-block{min-height:165vh;}
+    .hero-block{min-height:100dvh;}
     .hero-copy{padding:22px 0 26px;}
     .hero-grid{flex-direction:column;align-items:flex-start;gap:18px;}
     .hero-right{flex:1 1 auto;max-width:100%;}
@@ -1342,9 +1345,9 @@
      instead of after a screenful of empty paper */
   /* About is its own full cover-layer again so it can travel the whole way up under the nav on
      its own, and the footer follows it rather than being welded to its bottom edge. */
-  .team-block{min-height:calc(100dvh - var(--nav-h))!important;
-    padding-top:clamp(44px,6vh,72px)!important;
-    padding-bottom:clamp(30px,4vh,48px)!important;}
+  .team-block{min-height:0!important;
+    padding-top:clamp(96px,13vh,160px)!important;
+    padding-bottom:clamp(96px,13vh,160px)!important;}
   footer{margin-top:0!important;}
 
   /* (2) a very subtle plane behind the About copy: one wide bloom, a whisper of dot grid, both
@@ -1353,7 +1356,7 @@
      shared stack rule, so About stopped rising -- and because that rule also sets top:72px, a
      RELATIVE element was pushed 72px down its own flow position, opening a gap that showed the
      Systems section behind it. That gap was the "hole in the site". */
-  .team-block{position:sticky;overflow:hidden;}
+  .team-block{position:static;overflow:hidden;}
   .team-block::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
     background:
       radial-gradient(52% 62% at 50% 34%, rgba(102,80,168,.075), transparent 72%),
@@ -1460,6 +1463,7 @@
   /* the soft seam elements. Separate from ::before/::after, which several sections already use
      for their own grounds, so this can never collide with them. */
   .seam{position:absolute;left:0;right:0;z-index:2;pointer-events:none;}
+  .seam{display:none;}   /* flat flow needs no seam fades: there are no edges to dissolve */
   .seam-top{top:0;height:clamp(48px,7vh,110px);
     background:linear-gradient(180deg,rgba(247,244,239,.92) 0%,rgba(247,244,239,.55) 46%,transparent 100%);}
   .seam-bot{bottom:0;height:clamp(56px,8vh,130px);
@@ -1468,11 +1472,10 @@
   footer .seam-top{background:linear-gradient(180deg,rgba(22,19,15,.92) 0%,rgba(22,19,15,.5) 50%,transparent 100%);}
 
   /* the lit lip goes: a soft seam and a hard highlight are contradictory instructions */
-  #proof,#process,.team-block{
-    box-shadow:0 -26px 56px -30px rgba(40,32,22,.30)!important;
-  }
-  #why{box-shadow:0 -26px 56px -30px rgba(40,32,22,.30)!important;}
-  footer{box-shadow:0 -26px 56px -30px rgba(40,32,22,.42)!important;}
+  /* no layer shadows: nothing overlaps anything now, so a rising shadow would be drawing depth
+     that isn't there. Flat sections separate by SPACE, not by elevation. */
+  #proof,#process,.team-block,#why{box-shadow:none!important;}
+  footer{box-shadow:none!important;}
 
   /* ---- the Why-me plane bleeds THROUGH the seam into The work -------------------------------
      #why's depth plane stopped dead at its own bottom edge, which re-drew the boundary the merge
@@ -2132,66 +2135,6 @@ document.addEventListener('click',e=>{
   if(lenis)lenis.on('scroll',setNav);
 })();
 
-(function(){
-  const ph=document.getElementById('hero3d');
-  const navEl=document.querySelector('nav');
-  if(!ph||reduce)return;
-
-  const eyebrow=document.querySelector('.hero-left .eyebrow');
-  const right=document.querySelector('.hero-right');
-  const marq=document.getElementById('heroMarquee');
-
-  /* hidden up front so nothing shows before its own beat -- set here rather than in CSS so the
-     no-JS / reduced-motion path still renders the full layout normally. */
-  gsap.set([eyebrow,right,marq].filter(Boolean),{opacity:0,y:16});
-
-  /* the scene's settled height is MEASURED, not a guessed vh value, so it fills the viewport
-     exactly: from its top inset down to the top of the bottom-anchored copy, leaving no gap.
-     Recomputed on refresh (resize / font load) via invalidateOnRefresh below. */
-  const copy=document.querySelector('.hero-copy');
-  /* settles BELOW the fixed nav (72px) rather than behind it -- at the old 40px the scene's top
-     edge finished hidden under the nav, so the whole top of the card was never actually seen. */
-  const TOP_INSET=88,GAP=16;
-  const sceneH=()=>Math.max(220,window.innerHeight-(copy?copy.offsetHeight:0)-TOP_INSET-GAP);
-
-  const tl=gsap.timeline({defaults:{ease:'none'},
-    /* scrub:true, NOT a catch-up value: any catch-up means the scene lags behind the wheel and
-       the whole section feels stuck. 1:1 keeps it locked to whatever speed the user scrolls. */
-    /* Longer runway and NO snap. Snapping to [0,1] meant releasing the wheel mid-recede yanked
-       the frame back to fullscreen or forward to settled -- the user could never stop where they
-       wanted. The scene now sits wherever it is left. */
-    scrollTrigger:{trigger:'#heroBlock',start:'top top',
-      end:()=>'+='+(innerWidth<=760?45:95)+'%',scrub:true,
-      invalidateOnRefresh:true}});
-
-  /* the scene recedes. Geometry ONLY -- height/top/left/right/radius. Deliberately no opacity,
-     no blur, no scale anywhere on this element: it will hold a video, and fading or filtering a
-     playing video causes compositing glitches. Every edge is a hard geometric move. */
-  tl.fromTo(ph,
-    {height:()=>window.innerHeight+'px',left:'0px',right:'0px',top:'0px',borderRadius:'0px'},
-    {height:()=>sceneH()+'px',left:'40px',right:'40px',top:TOP_INSET+'px',
-      borderRadius:'28px',duration:1,ease:'power2.inOut'},0);
-
-  /* COPY FADE, scroll-driven. eyebrow (MVS Solves) + subhead/CTA column + marquee fade in as you
-     scroll rather than popping at the end. Positioned in the FIRST HALF of the scrub so they're
-     essentially in by the time the scene has receded ~halfway, but they start immediately -- even
-     a small scroll begins revealing them. Because the copy is bottom-anchored and the scene
-     shrinks upward off the bottom, the copy sits in the clear space below the card as it appears,
-     so it's never stranded on top of the scene ("not in the way of the video"). The headline is
-     handled by the on-load intro and stays put. */
-  /* eyebrow (top-left "MVS Solves") clears early -- it sits above the shrinking card's path -- so
-     it fades in near the start. The RIGHT column (description + CTA) sits lower and stays under
-     the receding scene longer, so it's deliberately held until the scene has clearly cleared it
-     (~70% of the shrink) and only then fades in. Marquee last of all. */
-  if(eyebrow)tl.fromTo(eyebrow,{opacity:0,y:16},{opacity:1,y:0,duration:0.35},0.08);
-  if(right)tl.fromTo(right,{opacity:0,y:18},{opacity:1,y:0,duration:0.3,ease:'power2.out'},0.7);
-  if(marq)tl.fromTo(marq,{opacity:0,y:16},{opacity:1,y:0,duration:0.25},0.85);
-
-  /* the settled scene height is derived from the copy block's measured height, and web fonts
-     land after this script runs -- so remeasure once they're in, or the scene keeps a height
-     calculated against fallback-font metrics and the gap creeps back. */
-  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>ScrollTrigger.refresh());
-})();
 
 /* ---- TEXT REVEAL LIBRARY -------------------------------------------------------------------
    Each section heading gets its OWN entrance rather than one effect repeated five times. All of
