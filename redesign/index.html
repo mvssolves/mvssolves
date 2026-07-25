@@ -119,7 +119,9 @@
   /* capped and centred: at 1920 and above the copy columns were running to the very edges of
      the viewport, which is what made wide screens feel unfinished. The cap is generous (1560)
      so the near-full-bleed look the design was built around is preserved. */
-  .wrap{padding:0 40px;max-width:1560px;margin-inline:auto;width:100%;}
+  /* full-bleed: the 1560px cap left visible paper gutters on wide monitors. Content now runs the
+     whole width with an edge gutter only. */
+  .wrap{padding:0 clamp(24px,3.2vw,64px);max-width:none;width:100%;}
   section{padding:96px 0;}
   .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;font-family:monospace;}
   h1,h2,h3{font-weight:700;letter-spacing:-.01em;}
@@ -1334,10 +1336,14 @@
      instead of after a screenful of empty paper */
   /* About is its own full cover-layer again so it can travel the whole way up under the nav on
      its own, and the footer follows it rather than being welded to its bottom edge. */
-  .team-block{min-height:calc(100dvh - var(--nav-h))!important;
-    padding-top:clamp(44px,6vh,72px)!important;
-    padding-bottom:clamp(30px,4vh,48px)!important;}
-  footer{margin-top:0!important;}
+  /* About stops where its content stops. min-height is safe to drop here -- the 72px gap bug was
+     caused by position:relative downgrading the sticky, never by the height. */
+  .team-block{min-height:0!important;
+    padding-top:clamp(56px,8vh,104px)!important;
+    padding-bottom:clamp(44px,6vh,72px)!important;}
+  /* loose, not welded: a band of paper stays above the black so it reads as a separate slab
+     rising to meet the CTA rather than a colour change bolted to it. */
+  footer{margin-top:clamp(18px,3vh,44px)!important;}
 
   /* (2) a very subtle plane behind the About copy: one wide bloom, a whisper of dot grid, both
      masked to an oval so nothing reaches the edges. Present, not decorative. */
@@ -1403,7 +1409,7 @@
      Two hairline rails mark the container edge and a sparse tick pattern gives the margin some
      character, both fixed so they read as the page's frame rather than per-section decoration.
      Hidden below the cap, where there are no gutters to fill. */
-  .page-rails{position:fixed;inset:0;z-index:1;pointer-events:none;display:none;}
+  .page-rails{display:none!important;}   /* no container edge to mark once the cap is gone */
   @media(min-width:1620px){ .page-rails{display:block;} }
   .page-rails::before,.page-rails::after{content:'';position:absolute;top:0;bottom:0;width:1px;
     background:linear-gradient(180deg,transparent,var(--line) 8%,var(--line) 92%,transparent);
@@ -1465,6 +1471,33 @@
   }
   footer{box-shadow:0 -26px 56px -30px rgba(40,32,22,.42)!important;}
 
+
+
+  /* ---- CARDS REWORKED: one row of six ---------------------------------------------------------
+     Two rows of tall cards measured 1151px inside an 828px sticky pin, so 323px of the section
+     was simply unreachable. Full-bleed width buys the horizontal room for a single row of six
+     narrow columns, and dropping the second row is what makes the section fit its own layer.
+     No lists, no plinth, no gutter verticals -- the cards carry themselves. */
+  #services .card-grid{grid-template-columns:repeat(6,minmax(0,1fr))!important;
+    gap:clamp(12px,1.1vw,20px)!important;row-gap:0!important;margin-top:clamp(26px,4vh,48px);}
+  #services .card{padding:22px 20px 26px;border-radius:16px;display:flex;flex-direction:column;}
+  #services .svc-num{margin-bottom:16px;font-size:12px;}
+  #services .card h3{font-size:clamp(15px,1.16vw,18px);line-height:1.2;letter-spacing:-.02em;
+    margin:0 0 9px;}
+  #services .card p{font-size:13px;line-height:1.5;margin:0;}
+  #services .card::before{height:2px;}
+  /* the plinth and gutter rules were drawn for a two-row grid */
+  #services::before{display:none!important;}
+  #services .card-grid::before{display:none!important;}
+
+  @media(max-width:1200px){
+    #services .card-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;
+      row-gap:clamp(12px,1.4vh,20px)!important;}
+  }
+  @media(max-width:760px){
+    #services .card-grid{grid-template-columns:1fr!important;max-width:460px;}
+    #services .card{padding:20px 18px 22px;}
+  }
 
 </style>
 </head>
@@ -1702,49 +1735,30 @@
   <h2 class="fx-rise">The work</h2>
   <p class="process-lead fx-rise">One machine, six moving parts: the site that sells, the booking that runs itself, the AI that answers, and the follow-through that keeps all three earning. Built around how your business actually works, not pulled off a shelf.</p>
   <div class="card-grid fx-group">
-
-    <article class="card">
-      <span class="svc-num">01</span>
+    <article class="card"><span class="svc-num">01</span>
       <h3>A site built to convert</h3>
-      <p>Fast, premium and built around one job: turning visitors into booked, paying clients. Not a brochure that sits there looking pretty.</p>
-      <ul class="svc-list"><li>Conversion-first copy &amp; layout</li><li>Mobile-first, Core Web Vitals</li><li>SEO foundations built in</li></ul>
+      <p>Fast, premium, built around one job: turning visitors into booked, paying clients.</p>
     </article>
-
-    <article class="card">
-      <span class="svc-num">02</span>
+    <article class="card"><span class="svc-num">02</span>
       <h3>Booking that runs itself</h3>
-      <p>Always-open scheduling and enquiry capture that books the client while you're busy. No phone tag, no leads slipping through the cracks.</p>
-      <ul class="svc-list"><li>Always-open online booking</li><li>Auto reminders &amp; confirmations</li><li>Enquiry capture that never sleeps</li></ul>
+      <p>Always-open scheduling that books the client while you're busy. No phone tag.</p>
     </article>
-
-    <article class="card feat">
-      <span class="svc-num">03</span>
+    <article class="card feat"><span class="svc-num">03</span>
       <h3>An AI receptionist</h3>
-      <p>Answers, qualifies and follows up every lead the moment it lands — day or night — then hands you the ones ready to buy. <b>10,000+</b> automations a month, quietly doing the admin.</p>
-      <ul class="svc-list"><li>Instant reply, day or night</li><li>Qualifies and books for you</li><li>Follow-up until they answer</li></ul>
+      <p>Answers, qualifies and follows up every lead the moment it lands, day or night.</p>
     </article>
-
-    <article class="card">
-      <span class="svc-num">04</span>
+    <article class="card"><span class="svc-num">04</span>
       <h3>Reviews on autopilot</h3>
-      <p>Every finished job asks for the review at the right moment, in your words. Your rating climbs without you chasing anyone.</p>
-      <ul class="svc-list"><li>Timed request after each job</li><li>Routed to Google or wherever it counts</li><li>Quiet nudge if there's no reply</li></ul>
+      <p>Every finished job asks at the right moment. Your rating climbs without chasing.</p>
     </article>
-
-    <article class="card">
-      <span class="svc-num">05</span>
+    <article class="card"><span class="svc-num">05</span>
       <h3>Follow-up that never forgets</h3>
-      <p>The enquiries that go quiet are the ones that cost you. They get chased on a schedule until they answer or opt out.</p>
-      <ul class="svc-list"><li>Sequences by enquiry type</li><li>Stops the moment they reply</li><li>Nothing sits unanswered</li></ul>
+      <p>The enquiries that go quiet get chased until they answer or opt out.</p>
     </article>
-
-    <article class="card">
-      <span class="svc-num">06</span>
+    <article class="card"><span class="svc-num">06</span>
       <h3>Numbers you actually read</h3>
-      <p>One view: enquiries in, calls booked, jobs closed, revenue. No dashboard nobody opens — just what you need to make the next call.</p>
-      <ul class="svc-list"><li>Enquiry to booking to closed</li><li>Where the leads come from</li><li>Weekly summary, one message</li></ul>
+      <p>Enquiries in, calls booked, jobs closed, revenue. One weekly message.</p>
     </article>
-
   </div>
 </section>
 
