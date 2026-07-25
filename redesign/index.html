@@ -1776,9 +1776,14 @@
     .expertise-visual{display:none!important;}
 
     /* ---- HERO: copy block from 895px to roughly a third of the screen --------------------- */
-    /* the figure row and the ticker are supporting detail. On a phone they are what pushes the
-       headline and the CTA off the screen entirely, so they go. */
-    .hero-block .hero-figures,.hero-block #heroMarquee{display:none!important;}
+    /* the figure row carries real proof -- 100+ websites, 10,000+ automations. It was cut when the
+       hero had no scene and the copy block was 895px on an 844px screen; with the scene and its
+       runway back, and the copy block at 280px, it fits and the numbers belong on the page.
+       The ticker stays out: a 2148px marquee on a 390px screen is noise. */
+    .hero-block #heroMarquee{display:none!important;}
+    .hero-figures{gap:14px;margin-top:14px;}
+    .hero-figures dt{font-size:16px;}
+    .hero-figures dd{font-size:10px;}
     .hero-copy{padding:18px 18px 22px!important;}
     .hero-copy h1{font-size:clamp(30px,8.6vw,40px)!important;max-width:15ch;}
     .hero-grid{gap:14px;}
@@ -3272,6 +3277,15 @@ function odometer(el, value, opts){
           k.style.opacity='1'; k.style.visibility='visible'; k.style.transform='none';}
       });
     });
+    /* Counters are a separate failure: they are not hidden, they simply never ran, so the markup's
+       placeholder stays on screen -- About was reading "0 websites made, 0 businesses, 0
+       automations". Any counter still sitting on its placeholder gets run here. */
+    sec.querySelectorAll('.stat-num[data-count]').forEach(el=>{
+      if(el.dataset.odoDone)return;
+      if(el.textContent.replace(/[^0-9]/g,'')!=='0')return;
+      el.dataset.odoDone='1';
+      odometer(el,+el.dataset.count,{group:'group' in el.dataset});
+    });
   };
   const secs=[...document.querySelectorAll('#proof,#process,#why,#services,.team-block,.hero-block')];
   secs.forEach(sec=>{
@@ -3339,10 +3353,19 @@ function odometer(el, value, opts){
 /* team stats -- same odometer, driven by [data-count]. The Expertise stats are driven by their
    own tab logic instead, so this deliberately only claims elements with data-count. */
 (function(){
+  /* Observed DIRECTLY rather than through replayIn. Inside the sticky stack that harness was not
+     releasing these at all on a narrow screen: About sat on its markup placeholders reading
+     "0 websites made, 0 businesses, 0 automations" -- not a missing animation, a wrong number on
+     the page. One observer per counter, fires once at half visibility, no re-arm to miss. */
   document.querySelectorAll('.stat-num[data-count]').forEach(el=>{
     const target=+el.dataset.count;
     const group='group' in el.dataset;   /* comma-grouped, for the five-digit one */
-    replayIn(el,()=>odometer(el,target,{group}));
+    let ran=false;
+    new IntersectionObserver((es,obs)=>{
+      if(!es[0].isIntersecting||ran)return;
+      ran=true; obs.disconnect();
+      odometer(el,target,{group});
+    },{threshold:0.5}).observe(el);
   });
 })();
 
