@@ -1666,9 +1666,11 @@
     font-size:12px;font-weight:500;letter-spacing:.12em;color:rgba(255,255,255,.6);
     font-variant-numeric:tabular-nums;}
   @media(max-width:760px){
-    .pl-inner{width:88vw;}
-    .pl-word{font-size:15.5vw;}
-    .pl-num{font-size:11px;}
+    /* the wordmark is ten characters on a 390px screen: 15.5vw ran it past the edge and pushed the
+       percentage out with it. Sized so the whole lockup fits with margin either side. */
+    .pl-inner{width:86vw;}
+    .pl-word{font-size:12.4vw;letter-spacing:-.05em;}
+    .pl-num{font-size:10px;letter-spacing:.1em;margin-top:8px;}
   }
   @media(prefers-reduced-motion:reduce){ #preloader{display:none;} }
 
@@ -1769,15 +1771,9 @@
        The scene is not rendered here at all (see hero-forged.js) and the proof film is a megabyte
        of decoration on a handset. Both come out, and the hero becomes what it should be on a
        phone: type, a line of copy and two buttons. */
-    #hero3d{display:none!important;}
+    /* the section visuals go -- the isometric scene and the proof film. The HERO scene stays: it
+       is the one piece of 3D that is actually the point of the page. */
     .expertise-visual{display:none!important;}
-
-    /* the hero is one screen now, not a 190vh runway for a scene that is not there */
-    .hero-block{min-height:100svh!important;}
-    .hero-sticky{position:static!important;height:auto!important;}
-    .hero-copy{position:static!important;display:flex;align-items:center;
-      min-height:calc(100svh - var(--nav-h));}
-    .hero-grid{width:100%;}
 
     /* ---- HERO: copy block from 895px to roughly a third of the screen --------------------- */
     /* the figure row and the ticker are supporting detail. On a phone they are what pushes the
@@ -1848,27 +1844,12 @@
     #services .work-item p{font-size:12.2px;line-height:1.35;}
 
     /* ---- ABOUT ---------------------------------------------------------------------------- */
-    .team-block{min-height:calc(100svh - var(--nav-h))!important;justify-content:flex-start!important;}
+    /* About ran a full screen with its content at the top, so most of it was empty paper before
+       the black arrived. Short by 200px, which is white cut without the content moving. */
+    .team-block{min-height:calc(100svh - var(--nav-h) - 200px)!important;
+      justify-content:flex-start!important;}
     .team-stats{gap:12px;}
 
-    /* ---- CONTENT IS ALWAYS VISIBLE ON MOBILE ---------------------------------------------
-       The reveal harness gates opacity behind an IntersectionObserver and then animates with
-       GSAP. Inside a sticky stack on a phone that misfires badly: measured on this layout,
-       How-it-works showed 5 of 8 elements and Why-me 9 of 14 -- headline, copy and stats simply
-       never appeared, leaving sections that read as empty boxes with a stray hairline floating in
-       them. Anyone scrolling fast or landing from an anchor gets that.
-       So the gate comes off below 760px. The sliding card stack -- the motion that actually
-       carries this design -- is untouched; only the per-element fade is dropped, in exchange for
-       content that is never missing. GSAP writes inline styles, hence !important. */
-    .fx-rise,.fx-rise *,.fx-group,.fx-group *,.pf-copy,.pf-copy *,
-    .stats-row,.stats-row *,.team-stats,.team-stats *,
-    .me-timeline li,.me-timeline li *,.stage,.stage *,
-    .work-item,.work-item *,.me-copy p,.process-lead,.sub-lead,
-    .hero-copy h1,.hero-copy h1 *,.hero-sub,.hero-ctas,.hero-ctas *,.eyebrow,
-    .hero-right,.hero-left,.hero-copy,.hero-copy *{
-      opacity:1!important;transform:none!important;visibility:visible!important;}
-    /* NOT a blanket "#proof *" -- the work panel's six glyphs crossfade on opacity, and forcing
-       those to 1 would stack all six on top of each other. */
 
     /* ---- FOOTER: 793px is most of a screen ------------------------------------------------ */
     footer{padding-bottom:96px;}
@@ -2713,11 +2694,6 @@ document.addEventListener('click',e=>{
   const ph=document.getElementById('hero3d');
   const navEl=document.querySelector('nav');
   if(!ph||reduce)return;
-  /* MOBILE HAS NO HERO SCRUB. The scrub hides the eyebrow, the right column, the figures and the
-     marquee up front and only reveals them as the scene recedes -- but the scene is not rendered
-     on a phone, so nothing ever reveals them and the hero showed a headline and nothing else. No
-     scene, no scrub, nothing hidden: the copy is simply there. */
-  if(innerWidth<=760)return;
 
   const eyebrow=document.querySelector('.hero-left .eyebrow');
   const right=document.querySelector('.hero-right');
@@ -3269,6 +3245,43 @@ function odometer(el, value, opts){
 /* KEY FEATURES has no bespoke behaviour: it's a plain sticky cover-layer identical to
    Technology / Products / Expertise, its rows entering with the shared .fx-group stagger. The
    scroll-pinned accordion that used to live here made it the odd one out. */
+
+/* REVEAL SAFETY NET.
+   The reveal harness gates elements and, inside a sticky stack on a narrow screen, does not always
+   release them: measured on this layout, How-it-works showed 5 of 8 elements and Why-me 9 of 14,
+   with headlines and stats simply absent. The previous fix disabled every reveal on mobile with
+   !important, which traded the bug for a dead page.
+   This keeps the animations. Once a section has been properly on screen for a beat, anything in it
+   still sitting at opacity 0 or visibility hidden is released -- with a transition, so a late
+   element still arrives rather than snapping. Elements that revealed normally are untouched,
+   because they no longer match. */
+(function(){
+  if(reduce)return;
+  const SEL='.fx-rise,.fx-group,.pf-copy,.stats-row,.team-stats,.me-timeline li,.stage,'
+           +'.work-item,.me-copy p,.process-lead,.hero-right,.hero-copy h1,.eyebrow';
+  const rescue=sec=>{
+    sec.querySelectorAll(SEL).forEach(el=>{
+      const cs=getComputedStyle(el);
+      if(parseFloat(cs.opacity)>0.02&&cs.visibility!=='hidden')return;
+      el.style.transition='opacity .5s ease,transform .5s ease';
+      el.style.opacity='1'; el.style.visibility='visible'; el.style.transform='none';
+      /* children carry their own gated styles when the parent was split into words */
+      el.querySelectorAll('*').forEach(k=>{
+        const ks=getComputedStyle(k);
+        if(parseFloat(ks.opacity)<=0.02||ks.visibility==='hidden'){
+          k.style.opacity='1'; k.style.visibility='visible'; k.style.transform='none';}
+      });
+    });
+  };
+  const secs=[...document.querySelectorAll('#proof,#process,#why,#services,.team-block,.hero-block')];
+  secs.forEach(sec=>{
+    let timer=null;
+    new IntersectionObserver(es=>es.forEach(e=>{
+      if(e.isIntersecting){ if(!timer)timer=setTimeout(()=>{rescue(sec);timer=null;},900); }
+      else { clearTimeout(timer); timer=null; }
+    }),{threshold:0.25}).observe(sec);
+  });
+})();
 
 /* THE WORK -- the lead panel cycles through the six rows on a 5s clock.
    Only the text swaps; the panel's geometry is fixed, so nothing reflows and the section can't
