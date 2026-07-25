@@ -1592,11 +1592,31 @@
      sticky cannot outlive its containing block, a short About made main end early, so Work
      UNPINNED and slid away while About was still arriving on screen.
      Full height covers the layer and extends main, so Work stays put the whole way through.
-     Content sits at the TOP -- eyebrow first, straight under the nav -- and the paper runs out
-     beneath the CTA. That lower band is not dead space: it is what the footer rises into, so the
-     black arrives as a slab climbing the page rather than as a colour change welded to the CTA. */
-  .team-block{min-height:calc(100dvh - var(--nav-h))!important;
-    justify-content:flex-start!important;}
+     Content sits at the TOP -- eyebrow first, straight under the nav.
+
+     About's height was doing two jobs at once and they were pulling against each other: it sets how
+     much paper shows under the CTA, AND it is the sticky runway that keeps Work pinned. Shrinking
+     it to kill the dead space unpinned Work; keeping it tall to hold Work left 484px of paper.
+
+     Split the two. About's card gets shorter by --about-tail, main takes that height back, and the
+     footer is pulled up by the same amount so it still meets About's bottom edge. Net document
+     height and Work's pin are identical; only the visible band of paper shrinks.
+
+     main gets the height back as an ::after SPACER, not as padding. A sticky element is constrained
+     by its containing block's CONTENT box, and padding sits outside it -- padding-bottom looks like
+     it should extend the runway and does nothing at all, which unpinned Work 300px early. An empty
+     in-flow block is content, so it genuinely extends the box. It is never seen: About's paper
+     shadow covers it and the footer is painted over it. */
+  @media(min-width:761px){
+    :root{--about-tail:300px;}
+    .team-block{min-height:calc(100dvh - var(--nav-h) - var(--about-tail))!important;
+      justify-content:flex-start!important;}
+    main#content::after{content:'';display:block;height:var(--about-tail);}
+    footer{margin-top:calc(var(--about-tail) * -1)!important;}
+  }
+  @media(max-width:760px){
+    .team-block{justify-content:flex-start!important;}
+  }
 
   /* About's paper fill. Both shadows in one declaration because the seamless block above sets
      box-shadow on this selector with !important: the first is that block's soft top edge, kept
