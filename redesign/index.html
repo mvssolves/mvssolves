@@ -1775,6 +1775,14 @@
        is the one piece of 3D that is actually the point of the page. */
     .expertise-visual{display:none!important;}
 
+    /* ---- CHROME OFF -----------------------------------------------------------------------
+       No nav CTA and no bottom bar on a phone. That leaves the hero's own two buttons as the only
+       call to action above the fold, which is the point of them. */
+    nav .btn.filled{display:none!important;}
+    .thumb-bar{display:none!important;}
+    /* the footer's bottom padding existed to clear the thumb bar */
+    footer{padding-bottom:34px;}
+
     /* ---- HERO: copy block from 895px to roughly a third of the screen --------------------- */
     /* the figure row carries real proof -- 100+ websites, 10,000+ automations. It was cut when the
        hero had no scene and the copy block was 895px on an 844px screen; with the scene and its
@@ -1784,7 +1792,16 @@
     .hero-figures{gap:14px;margin-top:14px;}
     .hero-figures dt{font-size:16px;}
     .hero-figures dd{font-size:10px;}
-    .hero-copy{padding:18px 18px 22px!important;}
+    /* copy pushed down the screen so the sculpture has the upper two thirds to itself */
+    .hero-copy{padding:18px 18px 46px!important;}
+
+    /* THE HERO COPY IS ALWAYS ON SCREEN. Two independent systems gate it -- the scrub, which holds
+       it back until the scene recedes, and the reveal harness, which fades it in on intersection.
+       On a 225vh desktop runway that reads as a reveal; on a phone the fold IS the pitch, and
+       fixing one gate kept leaving the other holding the copy hidden. Scoped to .hero-copy only,
+       deliberately: a blanket version of this across the whole mobile layout killed every
+       animation on the page and had to be reverted. */
+    .hero-copy,.hero-copy *{opacity:1!important;visibility:visible!important;transform:none!important;}
     .hero-copy h1{font-size:clamp(30px,8.6vw,40px)!important;max-width:15ch;}
     .hero-grid{gap:14px;}
     /* the grid turns column here, and flex-basis then applies to HEIGHT -- .hero-left carried
@@ -2710,7 +2727,11 @@ document.addEventListener('click',e=>{
   /* the figures row is hidden at load with the rest: nothing but the headline should be on screen
      while the sculpture is at full size. Opacity only -- it keeps its space in the layout, so the
      card geometry measured off .hero-copy stays constant through the whole scrub. */
-  gsap.set([eyebrow,right,marq,figs].filter(Boolean),{opacity:0,y:16});
+  /* On desktop the hero has a 225vh runway, so holding the subhead and CTAs back until the scene
+     recedes is a reveal. On a phone the fold IS the pitch -- the offer and its two buttons have to
+     be on screen the moment it loads, not after a scroll -- so only the marquee starts hidden. */
+  const mob=innerWidth<=760;
+  gsap.set((mob?[marq]:[eyebrow,right,marq,figs]).filter(Boolean),{opacity:0,y:16});
 
   /* the settled card is expressed as INSETS from the full-bleed box, not as a height. The bottom
      inset is measured off the copy block so the card's lower edge always lands exactly GAP above
@@ -2763,9 +2784,11 @@ document.addEventListener('click',e=>{
      it fades in near the start. The RIGHT column (description + CTA) sits lower and stays under
      the receding scene longer, so it's deliberately held until the scene has clearly cleared it
      (~70% of the shrink) and only then fades in. Marquee last of all. */
-  if(eyebrow)tl.fromTo(eyebrow,{opacity:0,y:16},{opacity:1,y:0,duration:0.35},0.08);
-  if(right)tl.fromTo(right,{opacity:0,y:18},{opacity:1,y:0,duration:0.3,ease:'power2.out'},0.7);
-  if(figs)tl.fromTo(figs,{opacity:0,y:16},{opacity:1,y:0,duration:0.3,ease:'power2.out'},0.78);
+  /* these are skipped on mobile: a fromTo starts by writing opacity 0, which would re-hide the
+     copy at scrub progress 0 even though it was never hidden up front. */
+  if(eyebrow&&!mob)tl.fromTo(eyebrow,{opacity:0,y:16},{opacity:1,y:0,duration:0.35},0.08);
+  if(right&&!mob)tl.fromTo(right,{opacity:0,y:18},{opacity:1,y:0,duration:0.3,ease:'power2.out'},0.7);
+  if(figs&&!mob)tl.fromTo(figs,{opacity:0,y:16},{opacity:1,y:0,duration:0.3,ease:'power2.out'},0.78);
   if(marq)tl.fromTo(marq,{opacity:0,y:16},{opacity:1,y:0,duration:0.25},0.85);
 
   /* the settled scene height is derived from the copy block's measured height, and web fonts

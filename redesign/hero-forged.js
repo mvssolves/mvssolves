@@ -166,7 +166,10 @@ function boot() {
        below 1024, where there is no room to sit off-axis.
        camera.lookAt deliberately stays on x=0 -- aiming at the rig would re-centre it in view and
        silently undo this. */
-    rig.position.set(innerWidth >= 1024 ? spanX * 0.17 : 0, 0, 0);
+    /* on a phone the sculpture is lifted into the upper part of the frame: the copy sits low on
+       the screen there, so centring the object put it behind the headline. */
+    const lift = innerWidth <= 760 ? SPAN * 0.17 : 0;
+    rig.position.set(innerWidth >= 1024 ? spanX * 0.17 : 0, lift, 0);
   }
 
   /* ---- sizing ----------------------------------------------------------------------------- */
