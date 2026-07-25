@@ -332,8 +332,11 @@
      position:sticky and the rising z-index are untouched -- but it no longer reserves a screen's
      worth of height for ~450px of content, which is where the white gap before the footer came
      from. The footer now starts rising as soon as the About content has been read. */
+  /* restored to the original scroll geometry: a full cover-layer height with a deep bottom pad.
+     Sizing it to content made the footer rise almost immediately, which shortened the last two
+     scroll beats of the page. */
   .team-block{z-index:6;text-align:center;align-items:center;justify-content:flex-start;
-    min-height:auto;padding:44px 0 190px;}
+    min-height:calc(100dvh - var(--nav-h));padding:44px 0 250px;}
   /* stack pulled tight so the stats sit just under the heading and the CTA follows straight
      after -- the block was spreading over most of the viewport with big dead gaps between each
      element. The section's own bottom padding gives the breathing room instead. */
