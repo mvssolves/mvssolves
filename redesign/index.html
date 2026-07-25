@@ -364,8 +364,12 @@
   /* restored to the original scroll geometry: a full cover-layer height with a deep bottom pad.
      Sizing it to content made the footer rise almost immediately, which shortened the last two
      scroll beats of the page. */
-  .team-block{z-index:6;text-align:center;align-items:center;justify-content:flex-start;
-    min-height:calc(100dvh - var(--nav-h));padding:44px 0 250px;}
+  /* the About stack sits LOW in its layer, not pinned to the top of it. justify-content:center
+     with an asymmetric pad (deep at the bottom) drops the whole group down the viewport the way
+     the earlier redesign had it, while still leaving a clear run of paper under the CTA so the
+     footer arrives as a transition rather than as a collision. */
+  .team-block{z-index:6;text-align:center;align-items:center;justify-content:center;
+    min-height:calc(100dvh - var(--nav-h));padding:clamp(90px,14vh,170px) 0 clamp(180px,26vh,300px);}
   /* stack pulled tight so the stats sit just under the heading and the CTA follows straight
      after -- the block was spreading over most of the viewport with big dead gaps between each
      element. The section's own bottom padding gives the breathing room instead. */
