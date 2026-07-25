@@ -1496,6 +1496,111 @@
     -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 44%,#000 74%,transparent 100%)!important;
             mask-image:linear-gradient(180deg,transparent 0,#000 44%,#000 74%,transparent 100%)!important;}
 
+
+  /* =========================================================================================
+     THE RAIL — left stage + right stack, exactly one row open
+     Modelled on the reference: a large plate on the left carrying a floating UI card that belongs
+     to whichever row is open, and a stack of dark rows on the right where the open one shows its
+     title, paragraph and list while the others compact to a pill and a dot matrix.
+     The open/close is grid-template-rows 0fr -> 1fr, which animates without touching height, so
+     it never triggers layout on the rest of the page.
+     ========================================================================================= */
+  .rail{display:grid;grid-template-columns:minmax(0,0.92fr) minmax(0,1.08fr);
+    gap:clamp(24px,3.4vw,56px);align-items:start;margin-top:clamp(32px,5vh,64px);}
+  @media(max-width:960px){.rail{grid-template-columns:1fr;}}
+
+  /* ---- stage ---- */
+  .rail-stage{position:relative;border-radius:20px;overflow:hidden;
+    aspect-ratio:4/5;min-height:clamp(360px,48vh,560px);
+    background:var(--bone);border:1px solid var(--line);}
+  @media(max-width:960px){.rail-stage{aspect-ratio:4/3;min-height:0;order:2;}}
+  .rail-plate{position:absolute;inset:0;display:grid;place-items:center;padding:clamp(18px,2.4vw,34px);
+    opacity:0;transform:scale(1.03);
+    transition:opacity .6s cubic-bezier(.2,.8,.3,1),transform .8s cubic-bezier(.2,.8,.3,1);}
+  .rail-plate.is-on{opacity:1;transform:scale(1);}
+  /* each plate is its own warm gradient. Swap these for background-image:url(...) to use real
+     photography without touching anything else. */
+  .rail-plate[data-plate="0"]{background:
+    radial-gradient(120% 90% at 22% 12%, rgba(102,80,168,.30), transparent 62%),
+    linear-gradient(155deg,#EDE6F7 0%,#E7DFF3 45%,#DCD3EA 100%);}
+  .rail-plate[data-plate="1"]{background:
+    radial-gradient(120% 90% at 78% 16%, rgba(159,138,217,.34), transparent 64%),
+    linear-gradient(155deg,#F1ECE2 0%,#E6DFF0 55%,#D9D2E8 100%);}
+  .rail-plate[data-plate="2"]{background:
+    radial-gradient(120% 90% at 30% 84%, rgba(228,98,47,.20), transparent 62%),
+    linear-gradient(155deg,#EFE8DC 0%,#E4DCEC 52%,#D6CEE4 100%);}
+
+  /* the floating UI card over the plate */
+  .rail-ui{width:min(86%,340px);background:var(--paper-raised);border:1px solid rgba(255,255,255,.7);
+    border-radius:14px;box-shadow:0 26px 54px -26px rgba(40,32,22,.5);overflow:hidden;
+    transform:translateY(8px);opacity:0;transition:transform .7s cubic-bezier(.2,.8,.3,1),opacity .5s ease;}
+  .rail-plate.is-on .rail-ui{transform:translateY(0);opacity:1;transition-delay:.12s;}
+  .ui-bar{height:24px;background:#F4F1EA;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:5px;padding:0 11px;}
+  .ui-bar i{width:6px;height:6px;border-radius:50%;background:#D9D3C6;}
+  .ui-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:9px;}
+  .ui-l{height:9px;border-radius:5px;background:#ECE7DC;}
+  .ui-l.lg{width:74%;height:12px;background:var(--accent);opacity:.85;}
+  .ui-l.sm{width:48%;}
+  .ui-l.tiny{width:44px;height:8px;display:block;}
+  .ui-cta{margin-top:6px;width:96px;height:24px;border-radius:12px;background:var(--flare);}
+  .ui-book{padding:16px;}
+  .ui-book-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .ui-chip{font-size:10px;font-weight:700;color:#fff;background:var(--accent);border-radius:20px;padding:3px 10px;}
+  .ui-days{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+  .ui-days i{height:18px;border-radius:5px;background:#F1EDE4;}
+  .ui-days i.on{background:var(--accent);}
+  .ui-chat{padding:16px;display:flex;flex-direction:column;gap:8px;background:var(--ink);border-color:var(--line-dark);}
+  .ui-msg{font-size:11.5px;line-height:1.35;padding:7px 11px;border-radius:11px;max-width:88%;}
+  .ui-msg.in{align-self:flex-start;background:#fff;color:#3A342C;border-bottom-left-radius:4px;}
+  .ui-msg.out{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:4px;}
+
+  /* ---- rows ---- */
+  .rail-rows{display:flex;flex-direction:column;gap:12px;}
+  .row{background:var(--ink);border:1px solid var(--line-dark);border-radius:18px;overflow:hidden;
+    transition:background .4s ease,border-color .4s ease;}
+  .row.is-open{background:var(--ink-raised);}
+  .row-head{width:100%;display:flex;align-items:center;justify-content:space-between;gap:18px;
+    background:none;border:0;cursor:pointer;font:inherit;color:inherit;
+    padding:clamp(16px,2vw,22px) clamp(18px,2.2vw,26px);min-height:64px;}
+  .row-pill{display:inline-flex;align-items:center;padding:9px 20px;border-radius:999px;
+    background:rgba(239,234,225,.10);color:var(--text-invert);
+    font-size:14.5px;font-weight:600;letter-spacing:-.01em;
+    transition:background .35s ease,color .35s ease;}
+  .row.is-open .row-pill{background:var(--text-invert);color:var(--ink);}
+  .row-head:hover .row-pill{background:rgba(239,234,225,.2);}
+  .row.is-open .row-head:hover .row-pill{background:var(--text-invert);}
+  /* the 3x3 matrix: lit cells are per-row, so each row has its own signature */
+  .row-dots{display:grid;grid-template-columns:repeat(3,6px);gap:6px;flex:none;}
+  .row-dots i{width:6px;height:6px;border-radius:50%;background:var(--line-dark);
+    transition:background .4s ease;}
+  .row-dots i.on{background:#6B6255;}
+  .row.is-open .row-dots i.on{background:var(--flare);}
+  /* the body: 0fr -> 1fr, no height animation */
+  /* ONE grid row, not three. grid-template-rows:0fr sizes only the first row, so with h3 + p + ul
+     as direct children the other two sat in implicit auto rows and the "collapsed" state stayed
+     full height. Everything lives in .row-inner now. */
+  .row-body{display:grid;grid-template-rows:0fr;
+    transition:grid-template-rows .55s cubic-bezier(.2,.8,.3,1);}
+  .row.is-open .row-body{grid-template-rows:1fr;}
+  .row-body > .row-inner{overflow:hidden;min-height:0;}
+  .row-body h3,.row-body p,.row-body .row-list{
+    opacity:0;transform:translateY(8px);
+    transition:opacity .4s ease,transform .5s cubic-bezier(.2,.8,.3,1);}
+  .row.is-open h3{opacity:1;transform:none;transition-delay:.14s;}
+  .row.is-open p{opacity:1;transform:none;transition-delay:.2s;}
+  .row.is-open .row-list{opacity:1;transform:none;transition-delay:.26s;}
+  .row-body h3{font-size:clamp(21px,2.3vw,30px);letter-spacing:-.025em;line-height:1.1;
+    color:var(--text-invert);margin:0 clamp(18px,2.2vw,26px) 10px;font-weight:800;}
+  .row-body p{font-size:14.5px;line-height:1.6;color:#A29A8C;margin:0 clamp(18px,2.2vw,26px) 0;}
+  .row-body p b{color:var(--accent-lift);font-weight:700;}
+  .row-list{list-style:none;margin:14px clamp(18px,2.2vw,26px) clamp(20px,2.4vw,26px);padding:0;
+    display:flex;flex-direction:column;gap:7px;}
+  .row-list li{position:relative;padding-left:16px;font-size:13px;color:#8A8072;line-height:1.45;}
+  .row-list li::before{content:'';position:absolute;left:0;top:9px;width:7px;height:1.5px;background:var(--flare);opacity:.8;}
+  @media(prefers-reduced-motion:reduce){
+    .rail-plate,.rail-ui,.row-body,.row-body>*>*{transition:none!important;}
+  }
+
 </style>
 </head>
 <body>
@@ -1731,49 +1836,80 @@
   <div class="eyebrow">What I build</div>
   <h2 class="fx-rise">The work</h2>
   <p class="process-lead fx-rise">One machine, six moving parts: the site that sells, the booking that runs itself, the AI that answers, and the follow-through that keeps all three earning. Built around how your business actually works, not pulled off a shelf.</p>
-  <div class="card-grid fx-group">
+  <div class="rail" id="workRail">
 
-    <article class="card">
-      <span class="svc-num">01</span>
-      <h3>A site built to convert</h3>
-      <p>Fast, premium and built around one job: turning visitors into booked, paying clients. Not a brochure that sits there looking pretty.</p>
-      <ul class="svc-list"><li>Conversion-first copy &amp; layout</li><li>Mobile-first, Core Web Vitals</li><li>SEO foundations built in</li></ul>
-    </article>
+    <!-- LEFT: the stage. One plate per row; the active row's plate is shown and its floating UI
+         card rides over it. Plates are gradient plates today -- swapping in real imagery later is
+         a one-line background-image change per .rail-plate. -->
+    <div class="rail-stage" aria-hidden="true">
+      <div class="rail-plate is-on" data-plate="0">
+        <div class="rail-ui ui-site">
+          <div class="ui-bar"><i></i><i></i><i></i></div>
+          <div class="ui-body">
+            <div class="ui-l lg"></div><div class="ui-l"></div><div class="ui-l sm"></div>
+            <div class="ui-cta"></div>
+          </div>
+        </div>
+      </div>
+      <div class="rail-plate" data-plate="1">
+        <div class="rail-ui ui-book">
+          <div class="ui-book-top"><span class="ui-l tiny"></span><span class="ui-chip">Booked</span></div>
+          <div class="ui-days"><i></i><i></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+      </div>
+      <div class="rail-plate" data-plate="2">
+        <div class="rail-ui ui-chat">
+          <div class="ui-msg in">New enquiry — Friday?</div>
+          <div class="ui-msg out">Booked 2pm ✓</div>
+          <div class="ui-msg out">Reminder sent.</div>
+        </div>
+      </div>
+    </div>
 
-    <article class="card">
-      <span class="svc-num">02</span>
-      <h3>Booking that runs itself</h3>
-      <p>Always-open scheduling and enquiry capture that books the client while you're busy. No phone tag, no leads slipping through the cracks.</p>
-      <ul class="svc-list"><li>Always-open online booking</li><li>Auto reminders &amp; confirmations</li><li>Enquiry capture that never sleeps</li></ul>
-    </article>
+    <!-- RIGHT: three dark rows, exactly one open -->
+    <div class="rail-rows">
+      <article class="row is-open" data-row="0">
+        <button class="row-head" type="button" aria-expanded="true">
+          <span class="row-pill">Site</span>
+          <span class="row-dots" aria-hidden="true"><i></i><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i></i><i class="on"></i><i></i><i class="on"></i></span>
+        </button>
+        <div class="row-body">
+          <div class="row-inner">
+          <h3>A site built to convert</h3>
+          <p>Fast, premium, and built around one job — turning visitors into booked, paying clients. Not a brochure that sits there looking pretty.</p>
+          <ul class="row-list"><li>Conversion-first copy and layout</li><li>Mobile-first, Core Web Vitals</li><li>SEO foundations built in</li></ul>
+        </div>
+        </div>
+      </article>
 
-    <article class="card feat">
-      <span class="svc-num">03</span>
-      <h3>An AI receptionist</h3>
-      <p>Answers, qualifies and follows up every lead the moment it lands — day or night — then hands you the ones ready to buy. <b>10,000+</b> automations a month, quietly doing the admin.</p>
-      <ul class="svc-list"><li>Instant reply, day or night</li><li>Qualifies and books for you</li><li>Follow-up until they answer</li></ul>
-    </article>
+      <article class="row" data-row="1">
+        <button class="row-head" type="button" aria-expanded="false">
+          <span class="row-pill">Booking</span>
+          <span class="row-dots" aria-hidden="true"><i class="on"></i><i></i><i class="on"></i><i></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i><i></i></span>
+        </button>
+        <div class="row-body">
+          <div class="row-inner">
+          <h3>Booking that runs itself</h3>
+          <p>Always-open scheduling and enquiry capture that books the client while you're busy. No phone tag, no leads slipping through the cracks.</p>
+          <ul class="row-list"><li>Always-open online booking</li><li>Auto reminders and confirmations</li><li>Reviews requested on autopilot</li></ul>
+        </div>
+        </div>
+      </article>
 
-    <article class="card">
-      <span class="svc-num">04</span>
-      <h3>Reviews on autopilot</h3>
-      <p>Every finished job asks for the review at the right moment, in your words. Your rating climbs without you chasing anyone.</p>
-      <ul class="svc-list"><li>Timed request after each job</li><li>Routed to Google or wherever it counts</li><li>Quiet nudge if there's no reply</li></ul>
-    </article>
-
-    <article class="card">
-      <span class="svc-num">05</span>
-      <h3>Follow-up that never forgets</h3>
-      <p>The enquiries that go quiet are the ones that cost you. They get chased on a schedule until they answer or opt out.</p>
-      <ul class="svc-list"><li>Sequences by enquiry type</li><li>Stops the moment they reply</li><li>Nothing sits unanswered</li></ul>
-    </article>
-
-    <article class="card">
-      <span class="svc-num">06</span>
-      <h3>Numbers you actually read</h3>
-      <p>One view: enquiries in, calls booked, jobs closed, revenue. No dashboard nobody opens — just what you need to make the next call.</p>
-      <ul class="svc-list"><li>Enquiry to booking to closed</li><li>Where the leads come from</li><li>Weekly summary, one message</li></ul>
-    </article>
+      <article class="row" data-row="2">
+        <button class="row-head" type="button" aria-expanded="false">
+          <span class="row-pill">AI</span>
+          <span class="row-dots" aria-hidden="true"><i></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i></i></span>
+        </button>
+        <div class="row-body">
+          <div class="row-inner">
+          <h3>An AI receptionist</h3>
+          <p>Answers, qualifies and follows up every lead the moment it lands — day or night — then hands you the ones ready to buy. <b>10,000+</b> automations a month.</p>
+          <ul class="row-list"><li>Instant reply, day or night</li><li>Follow-up until they answer</li><li>Numbers you actually read</li></ul>
+        </div>
+        </div>
+      </article>
+    </div>
 
   </div>
 </section>
@@ -2817,6 +2953,49 @@ function odometer(el, value, opts){
     const skipTop = sel==='#services';
     if(!skipTop){const t=document.createElement('span');t.className='seam seam-top';t.setAttribute('aria-hidden','true');el.appendChild(t);}
     if(!skipBot){const b=document.createElement('span');b.className='seam seam-bot';b.setAttribute('aria-hidden','true');el.appendChild(b);}
+  });
+})();
+
+/* ---- THE RAIL --------------------------------------------------------------------------------
+   One row open at a time; opening a row swaps the stage plate to match. Click and keyboard both
+   work because the head is a real <button>. No auto-advance: it swaps copy out from under anyone
+   mid-read and is a WCAG 2.2.2 surface. */
+(function(){
+  const rail=document.getElementById('workRail');
+  if(!rail)return;
+  const rows=[...rail.querySelectorAll('.row')];
+  const plates=[...rail.querySelectorAll('.rail-plate')];
+  if(!rows.length)return;
+
+  const open=i=>{
+    rows.forEach((r,n)=>{
+      const on=n===i;
+      r.classList.toggle('is-open',on);
+      const btn=r.querySelector('.row-head');
+      if(btn)btn.setAttribute('aria-expanded',on?'true':'false');
+    });
+    plates.forEach((p,n)=>p.classList.toggle('is-on',n===i));
+  };
+
+  rows.forEach((r,i)=>{
+    const btn=r.querySelector('.row-head');
+    if(!btn)return;
+    btn.addEventListener('click',()=>{
+      /* clicking the open row keeps it open rather than collapsing to nothing -- the stage always
+         needs a plate, so "none open" is not a valid state */
+      open(i);
+    });
+  });
+
+  /* arrow keys move between rows once one has focus */
+  rail.addEventListener('keydown',e=>{
+    if(e.key!=='ArrowDown'&&e.key!=='ArrowUp')return;
+    const heads=rows.map(r=>r.querySelector('.row-head'));
+    const at=heads.indexOf(document.activeElement);
+    if(at<0)return;
+    e.preventDefault();
+    const next=(at+(e.key==='ArrowDown'?1:-1)+rows.length)%rows.length;
+    heads[next].focus(); open(next);
   });
 })();
 </script>
