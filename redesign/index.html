@@ -271,7 +271,7 @@
      shares the scene's lighter mood rather than reading as a dead black void */
   /* WHITE hero -- inverted from the old dark treatment. Light section, dark copy, so it reads as
      one continuous white site rather than a dark slab up top. */
-  .hero-block{position:relative;z-index:1;min-height:142vh;
+  .hero-block{position:relative;z-index:1;min-height:225vh;
     background:linear-gradient(180deg,#ffffff 0%,#f7f5fb 60%,#f2eff9 100%);}
   .hero-copy{color:var(--ink);}
   .hero-copy h1{color:var(--ink);}
@@ -1936,8 +1936,8 @@ function odometer(el, value, opts){
     });
     /* same rise as the headings, at word granularity: per-character on three paragraphs of
        swapped copy is a lot of nodes to rebuild on every tab click. */
-    gsap.fromTo(inners,{opacity:0,y:26,rotateX:-70},
-      {opacity:1,y:0,rotateX:0,duration:.7,stagger:.05,ease:'back.out(1.4)',overwrite:true});
+    gsap.fromTo(inners,{yPercent:115},
+      {yPercent:0,duration:.9,stagger:.1,ease:'power4.out',overwrite:true});
   }
   function activate(tab){
     swapCopy(tabs.indexOf(tab));

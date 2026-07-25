@@ -73,6 +73,58 @@ function init(host) {
     size[i] = 0.55 + Math.random() * 0.7;       // varied scale, so it isn't a uniform dot screen
   }
 
+  /* ---- forming artwork ------------------------------------------------------------------------
+     The field doesn't only flow -- it repeatedly GATHERS into a sculpture, holds it, then releases
+     back into the flow. Four bodies, built from parametric surfaces so points land on real
+     structure (an even distribution is what separates a form that reads as designed from a blob).
+     Crucially the flow keeps running while a form is held, so a gathered shape still breathes and
+     travels instead of freezing into a still image. */
+  const TAU = Math.PI * 2;
+  const forms = [];
+  {
+    const knot = new Float32Array(COUNT * 3), P = 2, Q = 3;
+    for (let i = 0; i < COUNT; i++) {
+      const u = (i / COUNT) * TAU * P;
+      const r = 5.4 + 2.2 * Math.cos(Q * u / P);
+      const j = () => (Math.random() - 0.5) * 1.2;
+      knot[i * 3] = r * Math.cos(u) + j();
+      knot[i * 3 + 1] = r * Math.sin(u) * 0.62 + j();
+      knot[i * 3 + 2] = 2.2 * Math.sin(Q * u / P) + j();
+    }
+    forms.push(knot);
+
+    const helix = new Float32Array(COUNT * 3);
+    for (let i = 0; i < COUNT; i++) {
+      const f = i / COUNT, a = f * TAU * 3.4 + (i % 2 ? Math.PI : 0);
+      const j = () => (Math.random() - 0.5) * 0.7;
+      helix[i * 3] = (f - 0.5) * 21 + j();
+      helix[i * 3 + 1] = Math.sin(a) * 3.6 + j();
+      helix[i * 3 + 2] = Math.cos(a) * 3.6 + j();
+    }
+    forms.push(helix);
+
+    const wave = new Float32Array(COUNT * 3), C = 100, R = Math.ceil(COUNT / C);
+    for (let i = 0; i < COUNT; i++) {
+      const c = i % C, rr = Math.floor(i / C);
+      const x = (c / (C - 1) - 0.5) * 23, y = (rr / (R - 1) - 0.5) * 11;
+      wave[i * 3] = x; wave[i * 3 + 1] = y;
+      wave[i * 3 + 2] = Math.sin(x * 0.5) * 1.8 + Math.cos(y * 0.65) * 1.3;
+    }
+    forms.push(wave);
+
+    const sphere = new Float32Array(COUNT * 3), RAD = 6.4, GA = Math.PI * (3 - Math.sqrt(5));
+    for (let i = 0; i < COUNT; i++) {
+      const y = 1 - (i / (COUNT - 1)) * 2, rad = Math.sqrt(Math.max(0, 1 - y * y)), th = GA * i;
+      sphere[i * 3] = Math.cos(th) * rad * RAD;
+      sphere[i * 3 + 1] = y * RAD * 0.8;
+      sphere[i * 3 + 2] = Math.sin(th) * rad * RAD;
+    }
+    forms.push(sphere);
+  }
+  /* free-flow -> gather -> hold -> release, on a loop */
+  const BEAT = 11;
+  const easeIO = x => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+
   const dummy = new THREE.Object3D();
   const col = new THREE.Color();
 
@@ -189,6 +241,15 @@ function init(host) {
       cursor.y -= mesh.position.y;                 // into the mesh's own space
     }
 
+    /* morph clock: which sculpture, and how gathered we currently are */
+    const formIdx = Math.floor(t / BEAT) % forms.length;
+    const fp = (t % BEAT) / BEAT;
+    let mForm;
+    if (fp < 0.22)      mForm = easeIO(fp / 0.22);                 // gathering
+    else if (fp < 0.68) mForm = 1;                                 // held (still flowing)
+    else if (fp < 0.86) mForm = 1 - easeIO((fp - 0.68) / 0.18);    // releasing
+    else                mForm = 0;                                 // free flow
+
     for (let i = 0; i < waves.length; i++) waves[i].t += dt;
     while (waves.length && waves[0].t > 2.2) waves.shift();
 
@@ -209,10 +270,26 @@ function init(host) {
                      + Math.sin(t * 0.61 + pz0 * 0.15) * 2.4;
       const hz = pz0 + Math.sin(t * 0.71 + px0 * 0.12 + spin[i] * 0.7) * 4.8;
 
+      /* gather toward the current sculpture. The flow is still added on top at reduced amplitude
+         while held, so the formed body keeps moving rather than locking rigid. */
+      let tx2 = hx, ty2 = hy, tz2 = hz;
+      if (mForm > 0.001) {
+        const f = forms[formIdx], swim = 1 - mForm * 0.88;   // held forms stay legible
+        tx2 = f[i3]     + (hx - px0) * swim;
+        ty2 = f[i3 + 1] + (hy - py0) * swim;
+        tz2 = f[i3 + 2] + (hz - pz0) * swim;
+        tx2 = hx + (tx2 - hx) * mForm;
+        ty2 = hy + (ty2 - hy) * mForm;
+        tz2 = hz + (tz2 - hz) * mForm;
+      }
+
       /* spring home + damping: any disturbance heals itself */
-      vel[i3]     += (hx - pos[i3])     * 9.0 * dt;
-      vel[i3 + 1] += (hy - pos[i3 + 1]) * 9.0 * dt;
-      vel[i3 + 2] += (hz - pos[i3 + 2]) * 9.0 * dt;
+      /* pull hardens as the form gathers, so the sculpture actually arrives inside the beat
+         instead of lagging behind a fast-moving flow field */
+      const k = 9.0 + mForm * 9.0;
+      vel[i3]     += (tx2 - pos[i3])     * k * dt;
+      vel[i3 + 1] += (ty2 - pos[i3 + 1]) * k * dt;
+      vel[i3 + 2] += (tz2 - pos[i3 + 2]) * k * dt;
 
       if (pointerIn) {
         const dx = pos[i3] - cursor.x, dy = pos[i3 + 1] - cursor.y;
@@ -254,7 +331,10 @@ function init(host) {
       /* violet field; particles light lime as they're disturbed, so the REACTION is what you see
          rather than a decorative colour cycle */
       const speed = Math.min(1, (vel[i3] * vel[i3] + vel[i3 + 1] * vel[i3 + 1]) * 26);
-      col.copy(VIOLET).lerp(LIME, speed);
+      /* lime rides both the disturbance AND a crest travelling across a gathered form, so the
+         sculpture visibly "switches on" as it completes */
+      const crest = mForm > 0.85 ? Math.pow(Math.max(0, Math.sin(x * 0.32 - t * 1.5)), 6) * mForm : 0;
+      col.copy(VIOLET).lerp(LIME, Math.max(speed, crest * 0.9));
       const depth = Math.min(1, Math.abs(z) / 18);
       col.lerp(BG, depth * 0.42);
       mesh.setColorAt(i, col);
