@@ -298,7 +298,7 @@
      The one-viewport constraint it imposes (a pinned card can only show one screenful) is handled
      by keeping each section's content within a screen -- see the max-height comfort rules and the
      per-section tightening below, not by abandoning the sticky. */
-  #why,#services,#proof,#process,.team-block{
+  #proof,#process,.team-block{
     position:sticky;top:var(--nav-h);background:var(--paper);min-height:calc(100dvh - var(--nav-h));
     border-radius:32px 32px 0 0;
     box-shadow:0 -18px 40px -20px rgba(40,32,22,.28),inset 0 1px 0 rgba(255,255,255,.75);
@@ -336,8 +336,20 @@
   .hero-sticky{position:sticky;top:0;height:100vh;overflow:hidden;}
   #proof{z-index:2;}
   #process{z-index:3;}
-  #why{z-index:4;}
-  #services{z-index:5;}
+  /* #why and #services are ONE section now. Both leave the sticky stack and become a single
+     tall relative block that rises over Systems as a unit -- so there is no card-flip between
+     the bio and the offer, and the reader travels one continuous surface. The flip survives
+     where it earns its keep: About over this block, then the footer over About.
+     z-index:4 (not auto) is load-bearing: #process is a sticky layer at z-index 3, and a static
+     sibling would paint BENEATH it and slide under the pin instead of over it. */
+  #why,#services{position:relative;z-index:4;min-height:auto;}
+  /* the seam: #why owns the top edge, #services owns the bottom, nothing in between */
+  #why{border-radius:32px 32px 0 0;padding-bottom:clamp(24px,4vh,52px);}
+  #services{border-radius:0;box-shadow:none;background:var(--paper);
+    padding-top:clamp(28px,5vh,64px);margin-top:0;}
+  /* a hairline rule marks the change of subject inside the shared surface */
+  #services::after{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+    background:linear-gradient(90deg,transparent,var(--line) 12%,var(--line) 88%,transparent);}
   /* min-height:auto, not 60vh: with justify-content:center inherited from the stack-layer rule,
      a 60vh floor on ~400px of content split the leftover ~300px evenly above and below, which is
      where the dead space above the tag strip came from. Sized to its content with real padding
@@ -399,7 +411,7 @@
      How it works) inside the pinned viewport instead of having their bottoms clipped by the next
      layer. Above ~860px tall there's room and the defaults apply. */
   @media (max-height: 900px){
-    #why,#services,#proof,#process,.team-block{padding-top:clamp(52px,6.5vh,80px);}
+    #proof,#process,#why,#services,.team-block{padding-top:clamp(52px,6.5vh,80px);}
     h2{margin-bottom:12px;}
     .process-lead{margin-top:12px;font-size:clamp(15px,1.5vw,18px);}
     .feature-row{padding:18px 0;}
@@ -421,7 +433,7 @@
     .iso-stage{height:clamp(300px,34vh,380px);}
   }
   @media (max-height: 760px){
-    #why,#services,#proof,#process,.team-block{padding-top:38px;}
+    #proof,#process,#why,#services,.team-block{padding-top:38px;}
     #process h2{font-size:clamp(28px,3.6vw,44px);}
     .process-lead{margin-top:6px;font-size:15px;}
     .sys{margin-top:12px;}
@@ -733,7 +745,7 @@
      wash read as low-tier because it was ONLY a gradient; this keeps the pieces that made the dark
      version feel built -- fine grain, an off-centre bloom, a masked hairline grid and the cropped
      ghost stat -- inverted onto white. Structure, not just a tint. */
-  #why{background:var(--paper);overflow:hidden;}   /* flat, same as every other layer */
+  #why{background:var(--paper);overflow:hidden;}
   /* bloom + hairline grid, masked to a soft oval so the edges dissolve instead of ending on a line */
   #why::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;border-radius:inherit;
     background:
@@ -753,8 +765,10 @@
   #why > .me-ghost{position:absolute;z-index:0;right:1.5%;bottom:-15%;pointer-events:none;user-select:none;
     font-size:clamp(230px,31vw,460px);font-weight:900;letter-spacing:-.055em;line-height:.74;
     color:transparent;-webkit-text-stroke:2.6px rgba(102,80,168,.30);
-    -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 42%,#000 100%);
-            mask-image:linear-gradient(180deg,transparent 0,#000 42%,#000 100%);}
+    /* fades in AND out, so it dissolves before the seam into The work rather than being sliced
+       off by the section edge */
+    -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 38%,#000 76%,transparent 100%);
+            mask-image:linear-gradient(180deg,transparent 0,#000 38%,#000 76%,transparent 100%);}
   /* heading + body use the site's default ink; eyebrow keeps brand violet */
   #why .eyebrow{color:var(--accent);}
   .me-layout{display:flex;gap:clamp(40px,6vw,72px);align-items:flex-start;margin-top:34px;}
@@ -999,7 +1013,7 @@
     :root{--nav-h:60px;}
     .wrap{padding-left:clamp(18px,5vw,28px);padding-right:clamp(18px,5vw,28px);}
 
-    #why,#services,#proof,#process,.team-block{
+    #proof,#process,#why,#services,.team-block{
       position:static;min-height:0;
       padding-top:clamp(56px,9vh,76px);
       padding-bottom:clamp(64px,10vh,88px);
@@ -1115,7 +1129,7 @@
   /* ---- SECTION EDGE: the lit lip ---------------------------------------------------------------
      A 1px highlight on the top edge, a hairline containment ring, and a tight warm seam under it.
      This is what stops each cover-layer being a flat coloured rectangle sliding over another. */
-  #why,#services,#proof,#process,.team-block{
+  #proof,#process,.team-block{
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,.9),
       inset 0 0 0 1px rgba(221,214,200,.5),
@@ -1312,8 +1326,24 @@
      The About layer no longer reserves a screen of paper below its content: it is sized to the
      stack plus a short tail, so the footer's top edge arrives just beneath "Work with me"
      instead of a viewport later. */
-  .team-block{min-height:auto!important;padding-bottom:clamp(40px,5vh,64px)!important;}
-  footer{margin-top:clamp(20px,3vh,40px)!important;}
+  /* sized to its content with a short tail, so the black rises the moment the CTA has been read
+     instead of after a screenful of empty paper */
+  .team-block{min-height:auto!important;
+    padding-top:clamp(44px,6vh,72px)!important;
+    padding-bottom:clamp(30px,4vh,48px)!important;}
+  footer{margin-top:clamp(14px,2vh,26px)!important;}
+
+  /* (2) a very subtle plane behind the About copy: one wide bloom, a whisper of dot grid, both
+     masked to an oval so nothing reaches the edges. Present, not decorative. */
+  .team-block{position:relative;overflow:hidden;}
+  .team-block::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(52% 62% at 50% 34%, rgba(102,80,168,.075), transparent 72%),
+      radial-gradient(1.1px 1.1px at 50% 50%, rgba(102,80,168,.14) 1px, transparent 1px);
+    background-size:auto, 26px 26px;
+    -webkit-mask-image:radial-gradient(66% 68% at 50% 44%, #000 25%, transparent 88%);
+            mask-image:radial-gradient(66% 68% at 50% 44%, #000 25%, transparent 88%);}
+  .team-block > *{position:relative;z-index:1;}
 
 
   /* (5c) WHY ME depth: a second, deeper plane behind the ghost numeral so the section has real
@@ -1351,11 +1381,40 @@
   }
   @media(max-width:860px){.card-grid::before{display:none;}}
 
+
+  /* ---- (3) six cards: two rows of three, with a scroll-in that reads as a deal being dealt ----
+     Each card rises, un-tilts and settles, staggered by column then row. Transform/opacity only,
+     and the whole thing is one GSAP call so there is no per-card observer. */
+  .card-grid{row-gap:22px;}
+  @media(min-width:861px){ .card-grid{grid-template-columns:repeat(3,1fr);} }
+
+  /* ---- (4) the gutters ------------------------------------------------------------------------
+     .wrap caps at 1560px, so on a wide monitor there is bare paper either side of every section.
+     Two hairline rails mark the container edge and a sparse tick pattern gives the margin some
+     character, both fixed so they read as the page's frame rather than per-section decoration.
+     Hidden below the cap, where there are no gutters to fill. */
+  .page-rails{position:fixed;inset:0;z-index:1;pointer-events:none;display:none;}
+  @media(min-width:1620px){ .page-rails{display:block;} }
+  .page-rails::before,.page-rails::after{content:'';position:absolute;top:0;bottom:0;width:1px;
+    background:linear-gradient(180deg,transparent,var(--line) 8%,var(--line) 92%,transparent);
+    opacity:.85;}
+  .page-rails::before{left:calc(50% - 780px);}
+  .page-rails::after{right:calc(50% - 780px);}
+  /* measurement ticks in the margin: sparse, warm, and only in the outer band */
+  .page-rails i{position:absolute;top:0;bottom:0;width:calc(50% - 780px);
+    background-image:repeating-linear-gradient(180deg,var(--line) 0 1px,transparent 1px 96px);
+    opacity:.4;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 70%);
+            mask-image:linear-gradient(90deg,transparent,#000 70%);}
+  .page-rails i:first-child{left:0;}
+  .page-rails i:last-child{right:0;transform:scaleX(-1);}
+
 </style>
 </head>
 <body>
 <span id="top"></span>
 <a class="skip-link" href="#proof">Skip to content</a>
+<div class="page-rails" aria-hidden="true"><i></i><i></i></div>
 
 <nav>
   <div class="nav-inner">
@@ -1606,6 +1665,27 @@
       <h3>An AI receptionist</h3>
       <p>Answers, qualifies and follows up every lead the moment it lands — day or night — then hands you the ones ready to buy. <b>10,000+</b> automations a month, quietly doing the admin.</p>
       <ul class="svc-list"><li>Instant reply, day or night</li><li>Qualifies and books for you</li><li>Follow-up until they answer</li></ul>
+    </article>
+
+    <article class="card">
+      <span class="svc-num">04</span>
+      <h3>Reviews on autopilot</h3>
+      <p>Every finished job asks for the review at the right moment, in your words. Your rating climbs without you chasing anyone.</p>
+      <ul class="svc-list"><li>Timed request after each job</li><li>Routed to Google or wherever it counts</li><li>Quiet nudge if there's no reply</li></ul>
+    </article>
+
+    <article class="card">
+      <span class="svc-num">05</span>
+      <h3>Follow-up that never forgets</h3>
+      <p>The enquiries that go quiet are the ones that cost you. They get chased on a schedule until they answer or opt out.</p>
+      <ul class="svc-list"><li>Sequences by enquiry type</li><li>Stops the moment they reply</li><li>Nothing sits unanswered</li></ul>
+    </article>
+
+    <article class="card">
+      <span class="svc-num">06</span>
+      <h3>Numbers you actually read</h3>
+      <p>One view: enquiries in, calls booked, jobs closed, revenue. No dashboard nobody opens — just what you need to make the next call.</p>
+      <ul class="svc-list"><li>Enquiry to booking to closed</li><li>Where the leads come from</li><li>Weekly summary, one message</li></ul>
     </article>
 
   </div>
@@ -2245,6 +2325,24 @@ document.querySelectorAll('.fx-scale').forEach(fxScale);
 document.querySelectorAll('.fx-words').forEach(fxWords);
 document.querySelectorAll('.fx-clip').forEach(fxClip);
 document.querySelectorAll('.fx-group').forEach(fxGroup);
+/* WORK CARDS: dealt in rather than faded in. Rise + un-tilt + settle, staggered along the grid,
+   so scrolling into six cards feels like a hand being laid out instead of a block appearing. */
+(function(){
+  const grid=document.querySelector('#services .card-grid');
+  if(!grid||reduce)return;
+  const cards=[...grid.querySelectorAll('.card')];
+  if(!cards.length)return;
+  grid.classList.remove('fx-group');            /* the generic stagger would fight this one */
+  gsap.set(cards,{opacity:0,y:42,rotateX:-9,transformOrigin:'50% 100%'});
+  gsap.set(grid,{perspective:1200});
+  let armed=true;
+  const deal=()=>gsap.to(cards,{opacity:1,y:0,rotateX:0,duration:.72,
+    stagger:{each:.075,from:'start'},ease:'power3.out',overwrite:true});
+  new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting&&e.intersectionRatio>=0.15){ if(armed){armed=false;deal();} }
+    else if(!e.isIntersecting){ armed=true; }
+  }),{threshold:[0,0.15]}).observe(grid);
+})();
 
 /* SCRAMBLE-DECODE on eyebrow/label text -- ported verbatim from main.js (proven, live on
    mvssolves.com already; that function's own comment says it was built from watching this
