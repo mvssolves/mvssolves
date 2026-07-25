@@ -203,7 +203,7 @@
   /* FIXED, and it stays that way. The nav locks to the top from the moment the page
      loads and never moves. It only changes background: transparent over the dark hero,
      solid white once you're past it. */
-  nav{position:fixed;top:0;left:0;right:0;background:var(--paper);z-index:20;
+  nav{position:fixed;top:0;left:0;right:0;background:#FFFFFF;z-index:20;
     transition:background .3s ease;}
   /* transparent for the WHOLE hero section, and it does not fade back in until the hero is gone.
      Previously the nav faded from transparent to white across the hero's own scroll, which put a
@@ -1166,8 +1166,11 @@
   footer{box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 -20px 44px -26px rgba(40,32,22,.4);}
 
   /* ---- NAV: a real material once it leaves the hero ---------------------------------------- */
-  nav{backdrop-filter:saturate(1.15) blur(8px);}
-  nav:not(.nav-clear){background:rgba(247,244,239,.88);}
+  /* no blur and no translucency: a frosted bar smears whatever scrolls under it and reads as a
+     grey haze over the cream. The solid colour is set on the BASE nav rule rather than through
+     nav:not(.nav-clear) -- .nav-clear already overrides it to transparent, so one declaration and
+     one override beats two competing rules of equal specificity. */
+  nav{backdrop-filter:none;-webkit-backdrop-filter:none;}
 
   /* ---- selection + caret + scrollbar: brand details most sites forget --------------------- */
   ::selection{background:var(--accent);color:#fff;}
@@ -1398,12 +1401,13 @@
   /* (5c) WHY ME depth: a second, deeper plane behind the ghost numeral so the section has real
      front-to-back separation instead of one flat wash. Radial vignette + a wide soft bloom set
      low, so the timeline reads as sitting in front of something. */
+  /* the two repeating-linear-gradients drew a hairline grid every 132px across this section, and
+     one column landed squarely between the 10K ghost and the timeline -- read as a stray rule, not
+     as texture. Blooms only now, so the ground is smooth. */
   #why::before{
     background:
       radial-gradient(46% 40% at 74% 22%, rgba(228, 98, 47,.10), transparent 70%),
-      radial-gradient(70% 55% at 18% 88%, rgba(228,98,47,.055), transparent 72%),
-      repeating-linear-gradient(90deg, rgba(11,11,12,.028) 0 1px, transparent 1px 132px),
-      repeating-linear-gradient(0deg,  rgba(11,11,12,.02)  0 1px, transparent 1px 132px)!important;
+      radial-gradient(70% 55% at 18% 88%, rgba(228,98,47,.055), transparent 72%)!important;
   }
 
   /* (6) WHAT I BUILD: a quiet dot field so the section has a texture to stand on rather than a
@@ -1531,6 +1535,15 @@
     color:rgba(239,234,225,.72);max-width:34ch;}
   #services .work-lead .work-n{color:var(--flare);margin-bottom:auto;}
 
+  /* absolute, so art can never push the panel past its pin. Crossfades with the copy. */
+  #services .work-lead{position:relative;}
+  #services .work-art{position:absolute;top:clamp(20px,2vw,30px);right:clamp(20px,2vw,32px);
+    width:clamp(96px,11vw,150px);aspect-ratio:120/84;color:rgba(239,234,225,.62);}
+  #services .work-art svg{position:absolute;inset:0;width:100%;height:100%;
+    opacity:0;transition:opacity .32s ease;}
+  #services .work-art svg.on{opacity:1;}
+  @media(max-width:900px){ #services .work-art{width:88px;top:18px;right:18px;} }
+
   #services .work-rest{display:flex;flex-direction:column;justify-content:space-between;gap:2px;}
   /* rows are real buttons so the rotation can be driven from the keyboard as well as the clock */
   #services .work-item{appearance:none;border:0;background:transparent;font:inherit;color:inherit;
@@ -1576,6 +1589,15 @@
   .hero-block .btn.filled::after{background:var(--ink-raised)!important;}
   nav.nav-clear .btn:hover,
   .hero-block .btn:hover{border-color:var(--ink)!important;}
+
+  /* FILLED BUTTONS HAD NO VISIBLE HOVER. .btn::after is the expanding fill and it sits at
+     z-index:-1 -- behind the button. On an outline button that works, because the button's own
+     background is transparent. On a filled one the background is opaque, so the whole effect was
+     being painted underneath it and could never be seen. Every filled CTA on the page was dead on
+     hover. They shift tone instead; nothing moves, per the no-moving-buttons rule. */
+  .btn.filled:hover{background:var(--accent-deep)!important;}
+  nav.nav-clear .btn.filled:hover,
+  .hero-block .btn.filled:hover{background:var(--ink-raised)!important;}
 
   /* every cover-layer takes the footer's 48px lip, so the whole stack shares one corner instead of
      the sections reading at 32px and the footer arriving at 48px. Mobile keeps its smaller 34px. */
@@ -1903,6 +1925,56 @@
   <div class="work fx-group" id="work">
     <article class="work-lead" id="workLead" aria-live="polite">
       <span class="work-n">01</span>
+      <!-- one glyph per offering, swapped with the panel. Absolutely positioned so adding art
+           cannot change the panel's height -- this section is a sticky layer and anything that
+           grows it past its pin becomes unreachable. Stroke drawings rather than images: they
+           stay crisp at any size, weigh nothing, and take the flare from the palette. -->
+      <div class="work-art" id="workArt" aria-hidden="true">
+        <svg class="on" viewBox="0 0 120 84" fill="none" stroke="currentColor" stroke-width="2.4"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="10" y="12" width="100" height="62" rx="8"/>
+          <path d="M10 30h100"/><circle cx="21" cy="21" r="2.2" fill="currentColor" stroke="none"/>
+          <path d="M26 44h34M26 54h22"/>
+          <path class="ac" d="M74 62V44m0 0-9 9m9-9 9 9" stroke="var(--flare)"/>
+        </svg>
+        <svg viewBox="0 0 120 84" fill="none" stroke="currentColor" stroke-width="2.4"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="14" y="16" width="92" height="58" rx="8"/>
+          <path d="M14 32h92M36 16v-8M84 16v-8"/>
+          <path d="M30 44h12M54 44h12M78 44h12M30 58h12M78 58h12"/>
+          <rect class="ac" x="50" y="52" width="20" height="12" rx="3" fill="var(--flare)" stroke="none"/>
+        </svg>
+        <svg viewBox="0 0 120 84" fill="none" stroke="currentColor" stroke-width="2.4"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20a6 6 0 0 1 6-6h48a6 6 0 0 1 6 6v22a6 6 0 0 1-6 6H32l-14 10V48h-0a6 6 0 0 1-6-6z"/>
+          <path d="M26 26h30M26 36h20"/>
+          <path class="ac" d="M64 60a6 6 0 0 1 6-6h32a6 6 0 0 1 6 6v14a6 6 0 0 1-6 6H78l-14 8z"
+                stroke="var(--flare)"/>
+        </svg>
+        <svg viewBox="0 0 120 84" fill="none" stroke="currentColor" stroke-width="2.4"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 54 14 40l8-14 16-2 8-14 8 14 16 2 8 14-8 14"/>
+          <path class="ac" d="M60 30l5.6 11.4 12.6 1.8-9.1 8.9 2.1 12.5L60 58.7 48.8 64.6l2.1-12.5-9.1-8.9 12.6-1.8z"
+                fill="var(--flare)" stroke="var(--flare)"/>
+        </svg>
+        <svg viewBox="0 0 120 84" fill="none" stroke="currentColor" stroke-width="2.4"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M26 30a30 24 0 1 1-4 24"/>
+          <path d="M22 36v-14M22 36h14"/>
+          <circle cx="52" cy="42" r="3" fill="currentColor" stroke="none"/>
+          <circle cx="68" cy="42" r="3" fill="currentColor" stroke="none"/>
+          <circle class="ac" cx="84" cy="42" r="3.6" fill="var(--flare)" stroke="none"/>
+        </svg>
+        <svg viewBox="0 0 120 84" fill="none" stroke="currentColor" stroke-width="2.4"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 70h88"/>
+          <rect x="26" y="50" width="14" height="20" rx="3"/>
+          <rect x="50" y="38" width="14" height="32" rx="3"/>
+          <rect x="74" y="26" width="14" height="44" rx="3" class="ac"
+                fill="var(--flare)" stroke="var(--flare)"/>
+          <path d="M24 22l18 10 16-12 20 8" stroke="currentColor" opacity=".45"/>
+        </svg>
+      </div>
       <h3>The site</h3>
       <p>Fast, premium, and built for one job: turning a visitor into a booked job. Not a brochure
         with your logo on it.</p>
@@ -2862,6 +2934,7 @@ function odometer(el, value, opts){
   if(!rows.length)return;
 
   const n=lead.querySelector('.work-n'), h=lead.querySelector('h3'), p=lead.querySelector('p');
+  const art=[...(document.getElementById('workArt')||{querySelectorAll:()=>[]}).querySelectorAll('svg')];
   const PERIOD=5000;
   let i=0, timer=null, onScreen=false, held=false;
 
@@ -2870,6 +2943,9 @@ function odometer(el, value, opts){
     i=next;
     const row=rows[i];
     rows.forEach((r,k)=>r.classList.toggle('is-on',k===i));
+    /* the glyph crossfades on its own timer rather than waiting for the copy's swap-out, so the
+       art leads the text change by a beat instead of the panel going blank all at once */
+    art.forEach((s,k)=>s.classList.toggle('on',k===i));
     const paint=()=>{
       n.textContent=row.querySelector('.work-n').textContent;
       h.textContent=row.querySelector('h4').textContent;
