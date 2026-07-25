@@ -65,11 +65,22 @@ function boot() {
     { r: 1.64, t: 0.135, rot: [1.15, 0, 0.42],        spin: [0.11, 0.3, 0],   mat: dark  },
     { r: 1.12, t: 0.09,  rot: [0.4, 1.1, 0],          spin: [0, 0.42, -0.2],  mat: steel }
   ];
-  const rings = RINGS.map(cfg => {
-    const m = new THREE.Mesh(new THREE.TorusGeometry(cfg.r, cfg.t, 28, 260), cfg.mat);
+  /* the direction each ring arrives from, so they do not all fly the same line */
+  const ARRIVE = [[-1, .45, .2], [1, .35, -.15], [.1, -1, .35], [.7, .8, -.5]]
+    .map(v => new THREE.Vector3(...v).normalize());
+
+  const rings = RINGS.map((cfg, i) => {
+    /* the material is CLONED per ring. steel is shared by three of them, so fading one during the
+       intro would fade all three at once. */
+    const mat = cfg.mat.clone();
+    mat.transparent = true;
+    mat.opacity = reduce ? 1 : 0;
+    const m = new THREE.Mesh(new THREE.TorusGeometry(cfg.r, cfg.t, 28, 260), mat);
     m.rotation.set(...cfg.rot);
     m.userData.spin = cfg.spin;
     m.userData.base = [...cfg.rot];
+    m.userData.dir = ARRIVE[i];
+    m.userData.introSpin = 0;
     rig.add(m);
     return m;
   });
@@ -77,9 +88,51 @@ function boot() {
   const core = new THREE.Mesh(
     new THREE.IcosahedronGeometry(0.52, 3),
     new THREE.MeshStandardMaterial({ color: FLARE, metalness: 0.35, roughness: 0.28,
-      emissive: FLARE, emissiveIntensity: 0.35 })
+      emissive: FLARE, emissiveIntensity: 0.35, transparent: true, opacity: reduce ? 1 : 0 })
   );
+  if (!reduce) core.scale.setScalar(0.0001);
   rig.add(core);
+
+  /* ---- entrance ---------------------------------------------------------------------------- */
+  /* the ball lands first, then the rings arrive one at a time, each from its own direction, each
+     oversized and spinning as it comes in. Driven off the same clock as the idle motion rather
+     than a tween library, so there is one source of time in this file and nothing to keep in sync.
+     Skipped wholesale under reduced motion -- the scene simply starts settled. */
+  let introOn = !reduce;
+  const CORE_IN = [0.15, 0.85], RING_IN = 0.90, RING_GAP = 0.17, RING_START = 0.45;
+  const INTRO_END = RING_START + RING_GAP * 3 + RING_IN + 0.25;
+  const seg = (t, a, b) => Math.min(1, Math.max(0, (t - a) / (b - a)));
+  const easeOut = t => 1 - Math.pow(1 - t, 3);
+  const backOut = t => { const c1 = 1.70158, c3 = c1 + 1;
+    return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
+
+  function settle() {
+    core.scale.setScalar(1); core.material.opacity = 1;
+    rings.forEach(m => { m.material.opacity = 1; m.scale.setScalar(1);
+      m.position.set(0, 0, 0); m.userData.introSpin = 0; });
+    renderer.toneMappingExposure = 1.05;
+  }
+
+  function playIntro(t) {
+    core.scale.setScalar(Math.max(0.0001, backOut(seg(t, CORE_IN[0], CORE_IN[1]))));
+    core.material.opacity = seg(t, CORE_IN[0], CORE_IN[0] + 0.35);
+
+    rings.forEach((m, i) => {
+      const a = RING_START + i * RING_GAP;
+      const e = easeOut(seg(t, a, a + RING_IN));
+      const k = 1 - e;                       // 1 while off-stage, 0 once landed
+      m.material.opacity = e;
+      m.scale.setScalar(1 + k * 1.3);        // arrives oversized and closes onto the core
+      m.position.copy(m.userData.dir).multiplyScalar(k * 4.4);
+      m.userData.introSpin = k * 2.2;        // unwinds into its resting angle
+    });
+
+    /* the light settles with the assembly: a brighter exposure at the start reads as the scene
+       resolving rather than simply appearing */
+    renderer.toneMappingExposure = 1.05 + 0.55 * (1 - easeOut(seg(t, 0, INTRO_END)));
+
+    if (t > INTRO_END) { introOn = false; settle(); }
+  }
 
   const SPAN = 2 * 11.4 * Math.tan(THREE.MathUtils.degToRad(34) / 2);  // world height of the frame
 
@@ -139,10 +192,13 @@ function boot() {
     camera.position.y = -py * 0.55;
     camera.lookAt(0, 0, 0);
 
+    if (introOn) playIntro(t);
+
     rings.forEach(m => {
+      const s = m.userData.introSpin;
       m.rotation.x = m.userData.base[0] + m.userData.spin[0] * t;
-      m.rotation.y = m.userData.base[1] + m.userData.spin[1] * t;
-      m.rotation.z = m.userData.base[2] + m.userData.spin[2] * t;
+      m.rotation.y = m.userData.base[1] + m.userData.spin[1] * t + s;
+      m.rotation.z = m.userData.base[2] + m.userData.spin[2] * t + s * 0.4;
     });
     core.rotation.y = t * 0.5;
     rig.rotation.y = Math.sin(t * 0.13) * 0.22;
