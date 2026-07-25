@@ -461,7 +461,14 @@
      dash pattern re-tile constantly, which shimmers along the moving edges. */
   /* placeholder restyled for the dark hero -- stands in for the video, so it reads as a dark
      panel rather than a light one punched into black. */
-  .hero-3d-placeholder{position:absolute;top:0;left:0;right:0;height:100vh;will-change:height,top;
+  /* The box NEVER changes size. The recede is a clip-path crop, not a layout animation.
+     Animating height/top/left/right reflowed the whole page on every scroll tick AND fired the
+     scene's ResizeObserver each frame, which is what made the shrink stutter. These four custom
+     properties are what the scrub tweens; the box, the canvas and the layout all stay put. */
+  .hero-3d-placeholder{position:absolute;top:0;left:0;right:0;height:100vh;
+    --ci-t:0px;--ci-x:0px;--ci-b:0px;--ci-rad:0px;
+    clip-path:inset(var(--ci-t) var(--ci-x) var(--ci-b) var(--ci-x) round var(--ci-rad));
+    will-change:clip-path;
     overflow:hidden;
     background:repeating-linear-gradient(135deg,#1A1712,#1A1712 20px,#221E18 20px,#221E18 40px);
     display:flex;align-items:center;justify-content:center;color:#736A5C;font-size:13px;}
@@ -2132,14 +2139,16 @@ document.addEventListener('click',e=>{
      no-JS / reduced-motion path still renders the full layout normally. */
   gsap.set([eyebrow,right,marq].filter(Boolean),{opacity:0,y:16});
 
-  /* the scene's settled height is MEASURED, not a guessed vh value, so it fills the viewport
-     exactly: from its top inset down to the top of the bottom-anchored copy, leaving no gap.
+  /* the settled card is expressed as INSETS from the full-bleed box, not as a height. The bottom
+     inset is measured off the copy block so the card's lower edge always lands exactly GAP above
+     the headline -- which is what the old height math was trying to compute, minus the 220px floor
+     that was silently clamping the card to a letterbox strip on short viewports.
      Recomputed on refresh (resize / font load) via invalidateOnRefresh below. */
   const copy=document.querySelector('.hero-copy');
   /* settles BELOW the fixed nav (72px) rather than behind it -- at the old 40px the scene's top
      edge finished hidden under the nav, so the whole top of the card was never actually seen. */
   const TOP_INSET=88,GAP=16;
-  const sceneH=()=>Math.max(220,window.innerHeight-(copy?copy.offsetHeight:0)-TOP_INSET-GAP);
+  const botInset=()=>(copy?copy.offsetHeight:0)+GAP;
 
   const tl=gsap.timeline({defaults:{ease:'none'},
     /* scrub:true, NOT a catch-up value: any catch-up means the scene lags behind the wheel and
@@ -2151,13 +2160,17 @@ document.addEventListener('click',e=>{
       end:()=>'+='+(innerWidth<=760?45:95)+'%',scrub:true,
       invalidateOnRefresh:true}});
 
-  /* the scene recedes. Geometry ONLY -- height/top/left/right/radius. Deliberately no opacity,
-     no blur, no scale anywhere on this element: it will hold a video, and fading or filtering a
-     playing video causes compositing glitches. Every edge is a hard geometric move. */
+  /* the scene recedes. A CROP, not a resize -- the box stays full-bleed and the clip-path closes
+     in on it. Composited on the GPU, so it costs no layout and never resizes the canvas.
+     Deliberately no opacity, no blur, no scale anywhere on this element: it will hold a video, and
+     fading or filtering a playing video causes compositing glitches. Every edge is a hard
+     geometric move.
+     Tweening the four custom properties rather than the clip-path string itself: string
+     interpolation across an inset() with a round argument is fragile, four plain numbers are not. */
   tl.fromTo(ph,
-    {height:()=>window.innerHeight+'px',left:'0px',right:'0px',top:'0px',borderRadius:'0px'},
-    {height:()=>sceneH()+'px',left:'40px',right:'40px',top:TOP_INSET+'px',
-      borderRadius:'28px',duration:1,ease:'power2.inOut'},0);
+    {'--ci-t':'0px','--ci-x':'0px','--ci-b':'0px','--ci-rad':'0px'},
+    {'--ci-t':TOP_INSET+'px','--ci-x':'40px','--ci-b':()=>botInset()+'px',
+      '--ci-rad':'28px',duration:1,ease:'power2.inOut'},0);
 
   /* COPY FADE, scroll-driven. eyebrow (MVS Solves) + subhead/CTA column + marquee fade in as you
      scroll rather than popping at the end. Positioned in the FIRST HALF of the scrub so they're
