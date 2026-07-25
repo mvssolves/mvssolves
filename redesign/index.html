@@ -806,19 +806,17 @@
   /* vertical timeline: a raised rail with 3D beaded nodes and a lime pulse that travels down it.
      Nodes are radial-shaded spheres with a soft cast shadow so they sit above the card, not on it. */
   .me-timeline{flex:1 1 380px;list-style:none;position:relative;padding-left:34px;margin-top:2px;}
-  /* the rail. It used to run violet->grey at 4px with a lit edge and a cast shadow, which on a
-     warm ground read as a stray rule standing between the copy and the timeline rather than as
-     part of it. Now 2px, warm, low contrast and fading out at both ends, so it supports the beads
-     instead of competing with them. */
-  .me-timeline::before{content:'';position:absolute;left:7px;top:9px;bottom:16px;width:2px;
-    border-radius:2px;box-shadow:none;
-    background:linear-gradient(180deg,transparent 0%,#DED5C7 14%,#E6DFD3 60%,transparent 100%);}
+  /* THE RAIL IS GONE. Softening it from 4px violet to 2px warm was not enough -- any continuous
+     vertical stroke down this column reads as a stray rule between the copy and the timeline,
+     which is what kept getting flagged. The beads alone carry the sequence; they sit on a common
+     left edge, so the eye still reads a column without a line being drawn down it. */
+  .me-timeline::before{display:none;}
   /* a pulse travelling top->bottom down the rail, on a loop. No halo: a zero-offset chromatic
      glow is the default "cool" look of generated UI, and on warm paper it just reads as a smudge.
      The dot carries itself on colour and motion. */
-  .me-timeline::after{content:'';position:absolute;left:4px;width:8px;height:8px;border-radius:50%;
-    background:var(--accent);
-    animation:railPulse 6.4s cubic-bezier(.4,0,.5,1) infinite;}
+  /* the pulse rode the rail. With the rail gone it is a dot sliding down empty paper, which reads
+     as a glitch rather than as motion along a path -- so it goes with it. */
+  .me-timeline::after{display:none;}
   /* travels down, ARRIVES on the flare 'Today' node, pulses there, then lifts back to 2025 --
      it used to simply fade out at the bottom, which read as the animation giving up. */
   @keyframes railPulse{
@@ -1618,14 +1616,21 @@
      being painted underneath it and could never be seen. Every filled CTA on the page was dead on
      hover. They shift tone instead; nothing moves, per the no-moving-buttons rule. */
   .btn.filled:hover{background:var(--accent-deep)!important;}
-  /* in the hero the hover INVERTS -- white fill, ink text -- rather than stepping ink to
-     ink-raised, which is a 12-value difference and reads as "the button just stays black". Still
-     only white and ink, so the hero picks up no new colour. */
+  /* hero buttons go FLARE on hover. The resting state stays ink so the hero is still white, metal
+     and ink at rest -- the colour only exists while the pointer is on the button. Both the filled
+     CTA and the ghost, so the pair behaves the same. */
   nav.nav-clear .btn.filled:hover,
-  .hero-block .btn.filled:hover{background:#FFFFFF!important;color:var(--ink)!important;
-    border-color:var(--ink)!important;}
+  .hero-block .btn.filled:hover,
+  .hero-block .hero-ghost:hover{background:var(--flare)!important;color:#fff!important;
+    border-color:var(--flare)!important;}
   nav.nav-clear .btn.filled:hover .btn-t i,
-  .hero-block .btn.filled:hover .btn-t i{color:var(--ink)!important;}
+  .hero-block .btn.filled:hover .btn-t i,
+  .hero-block .hero-ghost:hover .btn-t i{color:#fff!important;}
+  .hero-block .hero-ghost:hover::after{background:var(--flare)!important;}
+
+  /* stat numbers carry the accent by default, matching the timeline figures rather than only
+     lighting up on hover */
+  .stat-num{color:var(--accent);}
 
   /* every cover-layer takes the footer's 48px lip, so the whole stack shares one corner instead of
      the sections reading at 32px and the footer arriving at 48px. Mobile keeps its smaller 34px. */
