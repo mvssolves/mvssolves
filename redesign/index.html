@@ -1889,55 +1889,41 @@ function odometer(el, value, opts){
     if(!pfCopy||!PF_COPY[i])return;
     pfCopy.innerHTML=PF_COPY[i].map(t=>'<p>'+t+'</p>').join('');
     if(!window.gsap||reduce)return;
-    const inners=[];
+    /* EXACTLY the fxRise treatment every other section's copy gets: split to characters, each one
+       fades and tips up from below on a stagger. Hand-rolled here rather than calling fxRise
+       because fxRise reads textContent (which would throw away the <span class="hl"> tints) and
+       because this block is rebuilt on every tab click, so it must animate immediately rather
+       than waiting on an IntersectionObserver. */
+    const chars=[];
     [...pfCopy.children].forEach(p=>{
-      /* Wrap every WORD in its own span first, walking real text nodes -- an earlier version
-         split the innerHTML string on whitespace, which tore `<span class="hl">` in half at the
-         space inside the attribute and leaked markup as literal text. Words carry the .hl class
-         down from their ancestor so the violet tints survive the rebuild. */
-      const words=[];
       const walker=document.createTreeWalker(p,NodeFilter.SHOW_TEXT,null);
       const texts=[]; let n;
       while(n=walker.nextNode())texts.push(n);
-      texts.forEach(t=>{
-        const lit=t.parentElement&&t.parentElement.closest('.hl');
+      texts.forEach(tn=>{
+        const lit=tn.parentElement&&tn.parentElement.closest('.hl');
         const frag=document.createDocumentFragment();
-        t.textContent.split(/(\s+)/).forEach(tok=>{
+        tn.textContent.split(/(\s+)/).forEach(tok=>{
           if(!tok)return;
           if(/^\s+$/.test(tok)){frag.appendChild(document.createTextNode(' '));return;}
-          const w=document.createElement('span');
-          w.style.display='inline-block';
-          w.textContent=tok;
-          if(lit)w.className='hl';
-          frag.appendChild(w); words.push(w);
+          /* one nowrap wrapper per WORD, characters inside it -- bare inline-block characters give
+             the browser a break opportunity between every letter and the paragraph wraps mid-word */
+          const word=document.createElement('span');
+          word.style.cssText='display:inline-block;white-space:nowrap;';
+          if(lit)word.className='hl';
+          [...tok].forEach(ch=>{
+            const c=document.createElement('span');
+            c.style.display='inline-block';
+            c.textContent=ch;
+            word.appendChild(c); chars.push(c);
+          });
+          frag.appendChild(word);
         });
-        t.parentNode.replaceChild(frag,t);
+        tn.parentNode.replaceChild(frag,tn);
       });
-      if(!words.length)return;
-      /* group the word spans into visual lines by their measured top edge */
-      const lines=[]; let cur=[], top=null;
-      words.forEach(w=>{
-        const t=Math.round(w.getBoundingClientRect().top);
-        if(top===null||Math.abs(t-top)<=2){cur.push(w);top=top===null?t:top;}
-        else{lines.push(cur);cur=[w];top=t;}
-      });
-      if(cur.length)lines.push(cur);
-      /* rebuild: one clipping window per line, words moved inside it */
-      p.innerHTML='';
-      lines.forEach(line=>{
-        const mask=document.createElement('span');
-        mask.style.cssText='display:block;overflow:hidden;';
-        const inner=document.createElement('span');
-        inner.style.cssText='display:block;';
-        line.forEach((w,k)=>{inner.appendChild(w);if(k<line.length-1)inner.appendChild(document.createTextNode(' '));});
-        mask.appendChild(inner); p.appendChild(mask);
-        inners.push(inner);
-      });
+      gsap.set(p,{perspective:600});
     });
-    /* same rise as the headings, at word granularity: per-character on three paragraphs of
-       swapped copy is a lot of nodes to rebuild on every tab click. */
-    gsap.fromTo(inners,{xPercent:-105,opacity:0},
-      {xPercent:0,opacity:1,duration:.85,stagger:.09,ease:'power4.out',overwrite:true});
+    gsap.fromTo(chars,{opacity:0,y:34,rotateX:-75,transformOrigin:'50% 100%'},
+      {opacity:1,y:0,rotateX:0,duration:0.6,stagger:0.012,ease:'back.out(1.7)',overwrite:true});
   }
   function activate(tab){
     swapCopy(tabs.indexOf(tab));

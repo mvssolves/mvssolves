@@ -85,11 +85,11 @@ function init(host) {
     const knot = new Float32Array(COUNT * 3), P = 2, Q = 3;
     for (let i = 0; i < COUNT; i++) {
       const u = (i / COUNT) * TAU * P;
-      const r = 5.4 + 2.2 * Math.cos(Q * u / P);
+      const r = 3.9 + 1.6 * Math.cos(Q * u / P);
       const j = () => (Math.random() - 0.5) * 1.2;
       knot[i * 3] = r * Math.cos(u) + j();
       knot[i * 3 + 1] = r * Math.sin(u) * 0.62 + j();
-      knot[i * 3 + 2] = 2.2 * Math.sin(Q * u / P) + j();
+      knot[i * 3 + 2] = 1.7 * Math.sin(Q * u / P) + j();
     }
     forms.push(knot);
 
@@ -97,22 +97,22 @@ function init(host) {
     for (let i = 0; i < COUNT; i++) {
       const f = i / COUNT, a = f * TAU * 3.4 + (i % 2 ? Math.PI : 0);
       const j = () => (Math.random() - 0.5) * 0.7;
-      helix[i * 3] = (f - 0.5) * 21 + j();
-      helix[i * 3 + 1] = Math.sin(a) * 3.6 + j();
-      helix[i * 3 + 2] = Math.cos(a) * 3.6 + j();
+      helix[i * 3] = (f - 0.5) * 15 + j();
+      helix[i * 3 + 1] = Math.sin(a) * 2.6 + j();
+      helix[i * 3 + 2] = Math.cos(a) * 2.6 + j();
     }
     forms.push(helix);
 
     const wave = new Float32Array(COUNT * 3), C = 100, R = Math.ceil(COUNT / C);
     for (let i = 0; i < COUNT; i++) {
       const c = i % C, rr = Math.floor(i / C);
-      const x = (c / (C - 1) - 0.5) * 23, y = (rr / (R - 1) - 0.5) * 11;
+      const x = (c / (C - 1) - 0.5) * 16, y = (rr / (R - 1) - 0.5) * 8;
       wave[i * 3] = x; wave[i * 3 + 1] = y;
       wave[i * 3 + 2] = Math.sin(x * 0.5) * 1.8 + Math.cos(y * 0.65) * 1.3;
     }
     forms.push(wave);
 
-    const sphere = new Float32Array(COUNT * 3), RAD = 6.4, GA = Math.PI * (3 - Math.sqrt(5));
+    const sphere = new Float32Array(COUNT * 3), RAD = 4.6, GA = Math.PI * (3 - Math.sqrt(5));
     for (let i = 0; i < COUNT; i++) {
       const y = 1 - (i / (COUNT - 1)) * 2, rad = Math.sqrt(Math.max(0, 1 - y * y)), th = GA * i;
       sphere[i * 3] = Math.cos(th) * rad * RAD;
@@ -122,7 +122,7 @@ function init(host) {
     forms.push(sphere);
   }
   /* free-flow -> gather -> hold -> release, on a loop */
-  const BEAT = 11;
+  const BEAT = 8;
   const easeIO = x => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
 
   const dummy = new THREE.Object3D();
@@ -274,19 +274,27 @@ function init(host) {
          while held, so the formed body keeps moving rather than locking rigid. */
       let tx2 = hx, ty2 = hy, tz2 = hz;
       if (mForm > 0.001) {
-        const f = forms[formIdx], swim = 1 - mForm * 0.88;   // held forms stay legible
+        const f = forms[formIdx], swim = 1 - mForm * 0.97;   // held forms read as solid geometry
         tx2 = f[i3]     + (hx - px0) * swim;
         ty2 = f[i3 + 1] + (hy - py0) * swim;
         tz2 = f[i3 + 2] + (hz - pz0) * swim;
         tx2 = hx + (tx2 - hx) * mForm;
         ty2 = hy + (ty2 - hy) * mForm;
         tz2 = hz + (tz2 - hz) * mForm;
+        /* twist peaks mid-transition and vanishes at both ends, so the sculpture itself is never
+           rotated out of true -- only the journey into and out of it spirals */
+        const twist = Math.sin(mForm * Math.PI) * 2.4;
+        if (twist > 0.001) {
+          const ca = Math.cos(twist), sa = Math.sin(twist);
+          const rx2 = tx2 * ca - ty2 * sa, ry2 = tx2 * sa + ty2 * ca;
+          tx2 = rx2; ty2 = ry2;
+        }
       }
 
       /* spring home + damping: any disturbance heals itself */
       /* pull hardens as the form gathers, so the sculpture actually arrives inside the beat
          instead of lagging behind a fast-moving flow field */
-      const k = 9.0 + mForm * 9.0;
+      const k = 9.0 + mForm * 20.0;
       vel[i3]     += (tx2 - pos[i3])     * k * dt;
       vel[i3 + 1] += (ty2 - pos[i3 + 1]) * k * dt;
       vel[i3 + 2] += (tz2 - pos[i3 + 2]) * k * dt;
@@ -323,7 +331,8 @@ function init(host) {
 
       const x = pos[i3], y = pos[i3 + 1], z = pos[i3 + 2];
       dummy.position.set(x, y, z);
-      dummy.scale.setScalar(size[i]);
+      const pop = mForm > 0.9 ? 1 + Math.max(0, Math.sin((mForm - 0.9) / 0.1 * Math.PI)) * 0.5 : 1;
+      dummy.scale.setScalar(size[i] * pop);
       dummy.rotation.set(spin[i] + t * 0.22, spin[i] * 1.7 + t * 0.17, 0);
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
