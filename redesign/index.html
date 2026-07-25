@@ -298,7 +298,7 @@
      The one-viewport constraint it imposes (a pinned card can only show one screenful) is handled
      by keeping each section's content within a screen -- see the max-height comfort rules and the
      per-section tightening below, not by abandoning the sticky. */
-  #proof,#process,.team-block{
+  #proof,#process,#why,#services,.team-block{
     position:sticky;top:var(--nav-h);background:var(--paper);min-height:calc(100dvh - var(--nav-h));
     border-radius:32px 32px 0 0;
     box-shadow:0 -18px 40px -20px rgba(40,32,22,.28),inset 0 1px 0 rgba(255,255,255,.75);
@@ -346,17 +346,9 @@
      padding-top, the flex layout, the ground and the edge shadow. That is why the Why-me eyebrow
      was sitting on the section's very top edge with no room above it. Restored explicitly, with
      real height so the section breathes instead of collapsing to its content. */
-  #why,#services{position:relative;z-index:4;background:var(--paper);
-    display:flex;flex-direction:column;justify-content:flex-start;}
-  #why{border-radius:32px 32px 0 0;
-    box-shadow:0 -18px 40px -20px rgba(40,32,22,.28),inset 0 1px 0 rgba(255,255,255,.75);
-    padding-top:clamp(84px,11vh,120px);
-    padding-bottom:clamp(64px,9vh,110px);
-    min-height:calc(96dvh - var(--nav-h));}
-  /* no rule, no seam, no shadow: one uninterrupted canvas straight into The work */
-  #services{border-radius:0;box-shadow:none;margin-top:0;
-    padding-top:clamp(40px,7vh,88px);
-    padding-bottom:clamp(72px,10vh,120px);}
+  /* separate cover-layers again: each rises over the last on its own, no shared canvas */
+  #why{z-index:4;}
+  #services{z-index:5;}
   /* min-height:auto, not 60vh: with justify-content:center inherited from the stack-layer rule,
      a 60vh floor on ~400px of content split the leftover ~300px evenly above and below, which is
      where the dead space above the tag strip came from. Sized to its content with real padding
@@ -1141,7 +1133,7 @@
   /* ---- SECTION EDGE: the lit lip ---------------------------------------------------------------
      A 1px highlight on the top edge, a hairline containment ring, and a tight warm seam under it.
      This is what stops each cover-layer being a flat coloured rectangle sliding over another. */
-  #proof,#process,.team-block{
+  #proof,#process,#why,#services,.team-block{
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,.9),
       inset 0 0 0 1px rgba(221,214,200,.5),
@@ -1378,7 +1370,7 @@
   /* (6) WHAT I BUILD: the section had a flat ground and three cards floating on nothing.
      A single soft plinth under the row plus hairline verticals between the columns gives the
      cards something to stand on and reads as depth rather than decoration. */
-  #services{position:relative;overflow:hidden;}
+  #services{overflow:hidden;}   /* NO position: it would downgrade the sticky and open a 72px gap */
   #services::before{
     content:'';position:absolute;left:0;right:0;bottom:0;height:62%;z-index:0;pointer-events:none;
     background:
@@ -1468,30 +1460,11 @@
   footer .seam-top{background:linear-gradient(180deg,rgba(22,19,15,.92) 0%,rgba(22,19,15,.5) 50%,transparent 100%);}
 
   /* the lit lip goes: a soft seam and a hard highlight are contradictory instructions */
-  #proof,#process,.team-block{
+  #proof,#process,#why,#services,.team-block{
     box-shadow:0 -26px 56px -30px rgba(40,32,22,.30)!important;
   }
-  #why{box-shadow:0 -26px 56px -30px rgba(40,32,22,.30)!important;}
   footer{box-shadow:0 -26px 56px -30px rgba(40,32,22,.42)!important;}
 
-  /* ---- the Why-me plane bleeds THROUGH the seam into The work -------------------------------
-     #why's depth plane stopped dead at its own bottom edge, which re-drew the boundary the merge
-     was meant to remove. It now extends past the section and #services picks the same wash up at
-     its top, so the ground reads as one continuous field behind both halves. */
-  #why{overflow:visible;}
-  #why > .me-ghost{overflow:hidden;}
-  #why::before{bottom:-180px!important;}
-  #services::before{
-    background:
-      radial-gradient(70% 40% at 76% 0%, rgba(102,80,168,.055), transparent 72%),
-      radial-gradient(58% 78% at 50% 100%, rgba(102,80,168,.09), transparent 72%),
-      linear-gradient(180deg, transparent, rgba(239,233,223,.85))!important;
-    height:100%!important;
-  }
-  /* the ghost fades out INTO the seam rather than being cut by it */
-  #why > .me-ghost{
-    -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 44%,#000 74%,transparent 100%)!important;
-            mask-image:linear-gradient(180deg,transparent 0,#000 44%,#000 74%,transparent 100%)!important;}
 
 </style>
 </head>
@@ -2870,8 +2843,9 @@ function odometer(el, value, opts){
     if(!el)return;
     /* #why and #services share one canvas: the seam between them is exactly what we removed, so
        #why gets no bottom seam and #services gets no top seam. */
-    const skipBot = sel==='#why';
-    const skipTop = sel==='#services';
+    /* they are separate layers again, so both boundaries exist and both get a seam */
+    const skipBot = false;
+    const skipTop = false;
     if(!skipTop){const t=document.createElement('span');t.className='seam seam-top';t.setAttribute('aria-hidden','true');el.appendChild(t);}
     if(!skipBot){const b=document.createElement('span');b.className='seam seam-bot';b.setAttribute('aria-hidden','true');el.appendChild(b);}
   });
