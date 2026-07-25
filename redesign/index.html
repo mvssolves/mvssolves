@@ -1354,14 +1354,23 @@
      instead of after a screenful of empty paper */
   /* About is its own full cover-layer again so it can travel the whole way up under the nav on
      its own, and the footer follows it rather than being welded to its bottom edge. */
-  /* About stops where its content stops. min-height is safe to drop here -- the 72px gap bug was
-     caused by position:relative downgrading the sticky, never by the height. */
+  /* About stays sized to its content so the black arrives directly beneath "Work with me" -- a
+     full-height About just swaps the hole for 280px of dead paper under the CTA, which is the same
+     complaint wearing a different hat.
+     The hole itself was never about About's height: a SHORT sticky layer leaves the layer behind it
+     (Work) visible in the gap below it for the whole pin. So About paints that gap itself. A solid,
+     zero-blur shadow offset a full viewport downward fills everything beneath the section with
+     paper. It sits at About's own stacking level, so it covers Work at z-index 5 while the footer
+     at z-index 7 still lands on top of it -- and being a shadow it is not clipped by the
+     overflow:hidden this block needs for its background bloom. */
   .team-block{min-height:0!important;
     padding-top:clamp(56px,8vh,104px)!important;
     padding-bottom:clamp(44px,6vh,72px)!important;}
-  /* loose, not welded: a band of paper stays above the black so it reads as a separate slab
-     rising to meet the CTA rather than a colour change bolted to it. */
-  footer{margin-top:clamp(18px,3vh,44px)!important;}
+  /* the fill itself is declared in the late block below -- the shared seamless rule further down
+     sets box-shadow with !important on this same selector and would otherwise win. */
+  /* desktop only: under 760px the stack is relaxed to normal flow and the footer's -26px tuck is
+     what preserves the layered look there, so it must survive. */
+  @media(min-width:761px){ footer{margin-top:0!important;} }
 
   /* (2) a very subtle plane behind the About copy: one wide bloom, a whisper of dot grid, both
      masked to an oval so nothing reaches the edges. Present, not decorative. */
@@ -1491,31 +1500,77 @@
 
 
 
-  /* ---- CARDS REWORKED: one row of six ---------------------------------------------------------
-     Two rows of tall cards measured 1151px inside an 828px sticky pin, so 323px of the section
-     was simply unreachable. Full-bleed width buys the horizontal room for a single row of six
-     narrow columns, and dropping the second row is what makes the section fit its own layer.
-     No lists, no plinth, no gutter verticals -- the cards carry themselves. */
-  #services .card-grid{grid-template-columns:repeat(6,minmax(0,1fr))!important;
-    gap:clamp(12px,1.1vw,20px)!important;row-gap:0!important;margin-top:clamp(26px,4vh,48px);}
-  #services .card{padding:22px 20px 26px;border-radius:16px;display:flex;flex-direction:column;}
-  #services .svc-num{margin-bottom:16px;font-size:12px;}
-  #services .card h3{font-size:clamp(15px,1.16vw,18px);line-height:1.2;letter-spacing:-.02em;
-    margin:0 0 9px;}
-  #services .card p{font-size:13px;line-height:1.5;margin:0;}
-  #services .card::before{height:2px;}
-  /* the plinth and gutter rules were drawn for a two-row grid */
-  #services::before{display:none!important;}
-  #services .card-grid::before{display:none!important;}
+  /* ---- THE WORK -------------------------------------------------------------------------------
+     One lead panel carrying the site, five supporting rows carrying the automations. The previous
+     one-row-of-six grid fitted the pin but gave every item identical weight, so the section read
+     as a menu rather than an offer.
+     Zero borders anywhere here: the lead separates by being a dark surface, the rows separate by
+     space alone. Height is the binding constraint -- this section is a sticky layer and anything
+     taller than its pin is unreachable -- so the rows are single-line and the whole block is
+     measured against the pin, not eyeballed. */
+  #services .work{display:grid;grid-template-columns:1.02fr 1fr;gap:clamp(20px,2.4vw,40px);
+    align-items:stretch;margin-top:clamp(22px,3.4vh,40px);}
 
-  @media(max-width:1200px){
-    #services .card-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;
-      row-gap:clamp(12px,1.4vh,20px)!important;}
+  #services .work-lead{background:var(--ink);color:var(--text-invert);
+    border-radius:26px;padding:clamp(24px,2.4vw,34px);
+    display:flex;flex-direction:column;justify-content:flex-end;
+    box-shadow:0 30px 60px -40px rgba(40,32,22,.6);}
+  #services .work-lead h3{font-size:clamp(24px,2.5vw,34px);line-height:1.06;letter-spacing:-.03em;
+    margin:0 0 12px;color:#fff;}
+  #services .work-lead p{font-size:clamp(14px,1.05vw,15.5px);line-height:1.6;margin:0;
+    color:rgba(239,234,225,.72);max-width:34ch;}
+  #services .work-lead .work-n{color:var(--flare);margin-bottom:auto;}
+
+  #services .work-rest{display:flex;flex-direction:column;justify-content:space-between;gap:2px;}
+  #services .work-item{display:flex;gap:clamp(12px,1.1vw,18px);align-items:baseline;
+    padding:clamp(9px,1.15vh,14px) clamp(10px,1vw,16px);border-radius:14px;
+    transition:background .28s ease;}
+  #services .work-item:hover{background:rgba(22,19,15,.045);}
+  #services .work-item h4{font-size:clamp(15px,1.25vw,18px);letter-spacing:-.02em;line-height:1.15;
+    margin:0 0 3px;color:var(--ink);}
+  #services .work-item p{font-size:clamp(12.5px,.95vw,14px);line-height:1.45;margin:0;
+    color:var(--text-muted);}
+  /* the one automation that does the most work gets the flare -- a single marker, not six */
+  #services .work-item.is-key .work-n{color:var(--flare);}
+
+  #services .work-n{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:12px;letter-spacing:.18em;color:var(--text-muted);display:block;flex:0 0 auto;}
+
+  @media(max-width:900px){
+    #services .work{grid-template-columns:1fr;gap:18px;}
+    #services .work-lead{padding:22px;}
+    #services .work-lead h3{font-size:24px;}
+    #services .work-rest{gap:0;}
   }
-  @media(max-width:760px){
-    #services .card-grid{grid-template-columns:1fr!important;max-width:460px;}
-    #services .card{padding:20px 18px 22px;}
-  }
+
+  /* ---- FOOTER, matched to the NeoLeaf reference -----------------------------------------------
+     True #000, a 48px lip, and every light artefact removed. NOTE: this is a deliberate exception
+     to the "every neutral is warm" rule the palette is built on -- the footer is the one cold
+     surface on the page, and it is cold on purpose rather than by drift. */
+  footer{background:#000!important;border-radius:48px 48px 0 0!important;}
+  @media(max-width:760px){ footer{border-radius:34px 34px 0 0!important;} }
+
+  /* the white artefacts: a halftone dot field behind the wordmark and a lit hairline along the top
+     edge. Both read as a glow sitting on the black rather than as material. */
+  .foot-bottom::before{display:none!important;}
+  .foot-glow{display:none!important;}
+  footer{box-shadow:0 -26px 56px -30px rgba(40,32,22,.42)!important;}
+
+  /* the rule under the columns is an edge line like any other */
+  .foot-inner{border-bottom:0!important;}
+
+  /* the seams are gradient bands painted at each layer's top and bottom edge. Over a section of a
+     different colour they read as exactly the visible seam they were meant to hide, and on About
+     the bottom one was drawn straight across the CTA. Removed for these two layers; every ground
+     is already the same paper, so the boundaries blend without them. */
+  .team-block .seam,footer .seam{display:none!important;}
+
+  /* About's paper fill. Both shadows in one declaration because the seamless block above sets
+     box-shadow on this selector with !important: the first is that block's soft top edge, kept
+     verbatim so the layered look survives; the second is a solid, zero-blur shadow a full viewport
+     tall that fills everything below the section with paper, hiding Work in the gap under it. */
+  .team-block{box-shadow:0 -26px 56px -30px rgba(40,32,22,.30),
+                         0 100vh 0 0 var(--paper)!important;}
 
 </style>
 </head>
@@ -1752,31 +1807,40 @@
   <div class="eyebrow">What I build</div>
   <h2 class="fx-rise">The work</h2>
   <p class="process-lead fx-rise">One machine, six moving parts: the site that sells, the booking that runs itself, the AI that answers, and the follow-through that keeps all three earning. Built around how your business actually works, not pulled off a shelf.</p>
-  <div class="card-grid fx-group">
-    <article class="card"><span class="svc-num">01</span>
-      <h3>A site built to convert</h3>
-      <p>Fast, premium, built around one job: turning visitors into booked, paying clients.</p>
+  <!-- One lead panel plus five supporting rows, NOT six equal boxes. Six identical cards gave the
+       strongest thing on offer the same weight as the smallest, so nothing landed. Named noun-first
+       (the site, the calendar, the receptionist) so the six read as parts of one machine, which is
+       what the lead paragraph promises. -->
+  <div class="work fx-group">
+    <article class="work-lead">
+      <span class="work-n">01</span>
+      <h3>The site</h3>
+      <p>Fast, premium, and built for one job: turning a visitor into a booked job. Not a brochure
+        with your logo on it.</p>
     </article>
-    <article class="card"><span class="svc-num">02</span>
-      <h3>Booking that runs itself</h3>
-      <p>Always-open scheduling that books the client while you're busy. No phone tag.</p>
-    </article>
-    <article class="card feat"><span class="svc-num">03</span>
-      <h3>An AI receptionist</h3>
-      <p>Answers, qualifies and follows up every lead the moment it lands, day or night.</p>
-    </article>
-    <article class="card"><span class="svc-num">04</span>
-      <h3>Reviews on autopilot</h3>
-      <p>Every finished job asks at the right moment. Your rating climbs without chasing.</p>
-    </article>
-    <article class="card"><span class="svc-num">05</span>
-      <h3>Follow-up that never forgets</h3>
-      <p>The enquiries that go quiet get chased until they answer or opt out.</p>
-    </article>
-    <article class="card"><span class="svc-num">06</span>
-      <h3>Numbers you actually read</h3>
-      <p>Enquiries in, calls booked, jobs closed, revenue. One weekly message.</p>
-    </article>
+
+    <div class="work-rest">
+      <article class="work-item">
+        <span class="work-n">02</span>
+        <div><h4>The calendar</h4><p>Booking that stays open at 11pm on a Sunday.</p></div>
+      </article>
+      <article class="work-item is-key">
+        <span class="work-n">03</span>
+        <div><h4>The receptionist</h4><p>Every enquiry answered in seconds, qualified, and in your diary.</p></div>
+      </article>
+      <article class="work-item">
+        <span class="work-n">04</span>
+        <div><h4>The reviews</h4><p>Every finished job asks while the client is happiest.</p></div>
+      </article>
+      <article class="work-item">
+        <span class="work-n">05</span>
+        <div><h4>The follow-up</h4><p>The ones who go quiet get chased until they book or say no.</p></div>
+      </article>
+      <article class="work-item">
+        <span class="work-n">06</span>
+        <div><h4>The numbers</h4><p>Enquiries, calls, jobs, revenue. One message a week.</p></div>
+      </article>
+    </div>
   </div>
 </section>
 
