@@ -1187,6 +1187,112 @@
   @media(prefers-reduced-motion:reduce){.hero-cue::after{animation:none;}}
   @media(max-width:760px){.hero-cue{display:none;}}
 
+
+  /* the thumb bar is a MOBILE-ONLY control: without this it falls back to a plain block element
+     in normal flow on desktop and renders as stray copy at the foot of the page. */
+  .thumb-bar{display:none;}
+
+  /* =========================================================================================
+     MOBILE, PURPOSE-BUILT  (<=760px)
+     Not the desktop layout reflowed. Different composition, different hierarchy, different
+     affordances -- because a thumb on a 390px screen is a different instrument to a cursor on a
+     1440px one.
+     ========================================================================================= */
+  @media (max-width:760px){
+
+    /* ---- HERO: stacked, left-aligned, and the figures become a 3-up strip ---------------- */
+    .hero-copy h1{font-size:clamp(34px,10.4vw,46px);line-height:.98;letter-spacing:-.04em;
+      max-width:none;}
+    .hero-status{font-size:10px;letter-spacing:.11em;padding:6px 12px 6px 10px;margin-bottom:14px;}
+    .hero-sub{font-size:15px;line-height:1.5;max-width:34ch;}
+    /* both CTAs go full width and stack: on a phone the primary action should be unmissable and
+       thumb-reachable, not a small pill floating in a row */
+    .hero-ctas{flex-direction:column;align-items:stretch;gap:10px;width:100%;}
+    .hero-ctas .btn{width:100%;min-height:52px;font-size:15px;}
+    /* the figure row becomes a hairline-divided 3-up grid rather than a wrapping flex row --
+       wrapping put "10,000+" alone on a second line and broke the rhythm */
+    .hero-figures{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:22px;
+      padding-top:16px;}
+    .hero-figures>div{padding-left:12px;border-left:1px solid var(--line);}
+    .hero-figures>div:first-child{padding-left:0;border-left:0;}
+    .hero-figures dt{font-size:clamp(19px,5.6vw,24px);}
+    .hero-figures dd{font-size:10.5px;line-height:1.25;margin-top:4px;}
+
+    /* ---- STICKY THUMB BAR: mobile-only ---------------------------------------------------
+       The desktop nav CTA sits at the top of a 6800px page, which on a phone means the action is
+       off-screen for the entire scroll. A bottom bar keeps it in the thumb arc the whole way
+       down. Hidden while the hero is still on screen so it never covers the opening statement. */
+    .thumb-bar{position:fixed;left:0;right:0;bottom:0;z-index:30;
+      display:flex;gap:10px;align-items:center;
+      padding:12px clamp(16px,4vw,22px) calc(12px + env(safe-area-inset-bottom));
+      background:rgba(247,244,239,.94);backdrop-filter:blur(12px) saturate(1.2);
+      box-shadow:0 -1px 0 var(--line),0 -16px 34px -24px rgba(40,32,22,.5);
+      transform:translateY(110%);transition:transform .42s cubic-bezier(.2,.8,.3,1);}
+    .thumb-bar.show{transform:translateY(0);}
+    .thumb-bar .tb-copy{flex:1;min-width:0;font-size:12px;line-height:1.25;color:var(--text-muted);}
+    .thumb-bar .tb-copy b{display:block;font-size:13.5px;color:var(--text);letter-spacing:-.01em;}
+    .thumb-bar .btn{flex:none;min-height:46px;padding:12px 20px;font-size:14px;}
+    /* the page needs room so the bar never sits on top of the footer's last row */
+    body{padding-bottom:0;}
+    footer{padding-bottom:92px;}
+
+    /* ---- PROOF: the tab row becomes a segmented control, film gets a caption ------------- */
+    .tab-row{background:var(--bone);border:1px solid var(--line);border-radius:14px;
+      padding:4px;gap:2px;margin-inline:0;width:100%;}
+    .tab{flex:1 1 0;min-width:0;text-align:center;padding:11px 6px;font-size:13.5px;
+      border-radius:11px;}
+    .tab-pill{border-radius:11px;top:4px;bottom:4px;}
+    .stats-row{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;margin-top:24px;
+      padding-top:18px;border-top:1px solid var(--line);}
+    .stat-num{font-size:clamp(32px,9.4vw,42px);}
+    .stat-label{font-size:11.5px;}
+
+    /* ---- SYSTEMS: the stage cards get numbers as a rail, scene sits under them ----------- */
+    .stage{border-radius:12px;padding:14px 16px 14px 18px;}
+    .stage .k{font-size:11px;}
+    .stage h3{font-size:17px;margin:4px 0 3px;}
+    .stage p{font-size:13px;}
+    .iso-stage{aspect-ratio:1/1;}
+
+    /* ---- WHY ME: timeline tightened, ghost numeral becomes a corner mark ----------------- */
+    .me-timeline li{padding-bottom:16px;}
+    .me-timeline p{font-size:13.5px;max-width:none;}
+    .tl-date{font-size:11px;}
+    #why > .me-ghost{font-size:clamp(96px,28vw,150px);right:-2%;bottom:-3%;
+      -webkit-text-stroke-width:1.4px;}
+
+    /* ---- WORK: cards get a flush index rail and tighter internals ------------------------ */
+    .card{border-radius:16px;}
+    .svc-num{margin-bottom:14px;}
+    .card h3{font-size:18.5px;letter-spacing:-.02em;}
+    .card p{font-size:14px;}
+    .svc-list{margin-top:16px;padding-top:14px;gap:7px;}
+    .svc-list li{font-size:12.5px;}
+
+    /* ---- ABOUT: stats become a 3-up strip like the hero's -------------------------------- */
+    .team-block{min-height:0;padding-top:clamp(52px,8vh,72px);padding-bottom:clamp(56px,9vh,80px);}
+    .team-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:24px;
+      padding-top:18px;border-top:1px solid var(--line);}
+    .team-stats>div{padding-left:10px;border-left:1px solid var(--line);}
+    .team-stats>div:first-child{padding-left:0;border-left:0;}
+    .team-stats .stat-num{font-size:clamp(26px,7.6vw,34px);}
+    .team-stats .stat-label{font-size:10.5px;line-height:1.25;}
+
+    /* ---- FOOTER: two columns, the wordmark scaled to the viewport ------------------------ */
+    .foot-col h3{font-size:11px;}
+    .foot-col a{font-size:13.5px;padding:6px 0;}      /* 44px rows via line-height + padding */
+    .foot-email{width:100%;}
+
+    /* ---- the grain sheet is heavier on small screens: less area, so it needs less opacity - */
+    body::after{opacity:.045;}
+  }
+
+  @media (max-width:400px){
+    .hero-figures dd{font-size:9.5px;}
+    .team-stats .stat-label{font-size:9.5px;}
+    .tab{font-size:12.5px;padding:10px 4px;}
+  }
+
 </style>
 </head>
 <body>
@@ -1461,6 +1567,13 @@
 </div>
 
 </main>
+
+<!-- MOBILE THUMB BAR: the primary action, kept in the thumb arc for the whole scroll. Rendered
+     for every viewport but only displayed under 760px, and only once the hero has been passed. -->
+<div class="thumb-bar" id="thumbBar" aria-hidden="true">
+  <div class="tb-copy"><b>Start a project</b>Reply within a day, usually the same one.</div>
+  <a class="btn filled" href="#" data-contact>Let's talk</a>
+</div>
 
 <!-- FOOTER -- last layer, covers the team bridge. Halftone-style wordmark bleed. -->
 
@@ -2445,6 +2558,25 @@ function odometer(el, value, opts){
   requestAnimationFrame(move);
 })();
 
+
+/* ---- MOBILE THUMB BAR ------------------------------------------------------------------------
+   Shows once the hero is behind you and hides again at the very bottom, where the footer already
+   carries its own capture form -- two competing CTAs stacked on top of each other reads as a
+   pop-up, not as a helpful shortcut. Uses IntersectionObserver on sentinels rather than a scroll
+   handler, so it costs nothing per frame. */
+(function(){
+  const bar=document.getElementById('thumbBar');
+  if(!bar)return;
+  const hero=document.getElementById('heroBlock'), foot=document.querySelector('footer');
+  if(!hero||!foot)return;
+  let pastHero=false, atFoot=false;
+  const sync=()=>bar.classList.toggle('show', pastHero && !atFoot);
+  new IntersectionObserver(([e])=>{pastHero=!e.isIntersecting;sync();},
+    {threshold:0, rootMargin:'-40% 0px 0px 0px'}).observe(hero);
+  new IntersectionObserver(([e])=>{atFoot=e.isIntersecting;sync();},
+    {threshold:0.22}).observe(foot);
+  bar.removeAttribute('aria-hidden');
+})();
 </script>
 
 <!-- hero WebGL scene. type="module" is mandatory, not stylistic: modern three.js ships ESM only,
