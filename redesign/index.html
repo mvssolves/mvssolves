@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>document.documentElement.className+=' has-js';</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MVS Solves — Websites &amp; automations that book paying clients</title>
@@ -488,6 +489,9 @@
      keeps the row balanced without moving the text. */
   .expertise-layout{display:flex;gap:56px;flex-wrap:wrap;align-items:flex-start;margin-top:0;}
   .expertise-visual{align-self:center;}
+  /* hidden until swapCopy has built and staged its characters. Without this the raw paragraphs
+     painted on load and the animation then replayed over the top of already-visible text. */
+  .has-js #pfCopy{visibility:hidden;}
   .expertise-copy{flex:1 1 440px;min-width:280px;max-width:560px;}
   .expertise-copy p{font-size:clamp(16px,1.5vw,19px);line-height:1.62;color:#4a4753;
     margin-bottom:16px;}
@@ -1888,7 +1892,7 @@ function odometer(el, value, opts){
   function swapCopy(i){
     if(!pfCopy||!PF_COPY[i])return;
     pfCopy.innerHTML=PF_COPY[i].map(t=>'<p>'+t+'</p>').join('');
-    if(!window.gsap||reduce)return;
+    if(!window.gsap||reduce){pfCopy.style.visibility='visible';return;}
     /* EXACTLY the fxRise treatment every other section's copy gets: split to characters, each one
        fades and tips up from below on a stagger. Hand-rolled here rather than calling fxRise
        because fxRise reads textContent (which would throw away the <span class="hl"> tints) and
@@ -1922,6 +1926,10 @@ function odometer(el, value, opts){
       });
       gsap.set(p,{perspective:600});
     });
+    /* stage the from-state, THEN reveal: the block is hidden until its characters are already
+       invisible, so nothing flashes and the raw text never leaks. */
+    gsap.set(chars,{opacity:0,y:34,rotateX:-75,transformOrigin:'50% 100%'});
+    pfCopy.style.visibility='visible';
     gsap.fromTo(chars,{opacity:0,y:34,rotateX:-75,transformOrigin:'50% 100%'},
       {opacity:1,y:0,rotateX:0,duration:0.6,stagger:0.012,ease:'back.out(1.7)',overwrite:true});
   }
@@ -2125,7 +2133,7 @@ function odometer(el, value, opts){
      by default, so #hero3d exists by the time it runs. Kept in its own file so iterating on the
      scene never touches this one. -->
 
-<script type="module" src="./hero-order.js"></script>
+<script type="module" src="./hero-order.js?v=3"></script>
 
 </body>
 </html>
