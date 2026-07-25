@@ -1645,21 +1645,31 @@
     #proof,#process,#why,#services,.team-block{border-radius:34px 34px 0 0!important;}
   }
 
-  /* ---- LOADING SCREEN -------------------------------------------------------------------------
-     White, because that is the hero's own ground -- the curtain lifts off the surface it was
-     already showing, so the reveal is the panel moving rather than a colour changing. It leaves
-     upward with a rounded bottom edge, which is the same corner language as the section stack. */
-  #preloader{position:fixed;inset:0;z-index:9999;background:#FFFFFF;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
-    transition:transform .95s cubic-bezier(.76,0,.24,1);will-change:transform;}
+  /* ---- LOADING SCREEN, to the NeoLeaf pattern -------------------------------------------------
+     Black field, wordmark centred and as wide as the viewport allows, dim at rest and filled from
+     the left as loading advances. The fill is a gradient clipped to the glyphs, so the type itself
+     is the progress indicator rather than a bar sitting beside it. Percentage under the right edge,
+     exactly where theirs sits. */
+  #preloader{position:fixed;inset:0;z-index:9999;background:#000;
+    display:flex;align-items:center;justify-content:center;
+    transition:transform 1s cubic-bezier(.76,0,.24,1);will-change:transform;}
   #preloader.done{transform:translateY(-101%);border-radius:0 0 48px 48px;}
   body.is-loading{overflow:hidden;}
-  .pl-mark{width:46px;height:46px;color:var(--ink);}
-  .pl-bar{position:relative;width:min(260px,48vw);height:2px;border-radius:2px;
-    background:var(--line);overflow:hidden;}
-  .pl-bar i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--flare);}
-  .pl-num{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;
-    letter-spacing:.22em;color:var(--text-muted);font-variant-numeric:tabular-nums;}
+  .pl-inner{position:relative;width:min(86vw,965px);}
+  .pl-word{
+    font-weight:900;letter-spacing:-.045em;line-height:.86;white-space:nowrap;
+    font-size:min(13.4vw,150px);
+    background-image:linear-gradient(90deg,#FFF 0 0%,rgba(255,255,255,.22) 0% 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    -webkit-text-fill-color:transparent;}
+  .pl-num{position:absolute;right:0;top:100%;margin-top:10px;
+    font-size:12px;font-weight:500;letter-spacing:.12em;color:rgba(255,255,255,.6);
+    font-variant-numeric:tabular-nums;}
+  @media(max-width:760px){
+    .pl-inner{width:88vw;}
+    .pl-word{font-size:15.5vw;}
+    .pl-num{font-size:11px;}
+  }
   @media(prefers-reduced-motion:reduce){ #preloader{display:none;} }
 
   /* ---- FOOTER, matched to the NeoLeaf reference -----------------------------------------------
@@ -1736,34 +1746,133 @@
   .team-block{box-shadow:0 -26px 56px -30px rgba(40,32,22,.30),
                          0 100vh 0 0 var(--paper)!important;}
 
+
+  /* ==============================================================================================
+     MOBILE PASS (<=760px)
+     The desktop layout was being shrunk rather than re-fitted: every content section overflowed
+     its own sticky pin by 119-280px, the hero's copy block alone stood taller than the screen at
+     895px, and the marquee track pushed 8px of horizontal scroll onto the page.
+     Sections must FIT the pin for the sliding-card stack to work at all -- anything taller has its
+     overflow permanently covered by the next layer. So this trims real height out of each one
+     rather than scaling type down and hoping.
+     ============================================================================================ */
+  @media(max-width:760px){
+
+    /* the ticker is 2148px wide by design; without this its parent never clipped it and the whole
+       page scrolled sideways */
+    /* clipping the ticker at ITS OWN container is the fix. An overflow-x:hidden on html/body was
+       tried first and is not one -- it hides the symptom and makes every overflow measurement read
+       zero, so a real overflow can never be seen again. */
+    .marquee{overflow:hidden;}
+
+    /* ---- HERO: copy block from 895px to roughly a third of the screen --------------------- */
+    /* the figure row and the ticker are supporting detail. On a phone they are what pushes the
+       headline and the CTA off the screen entirely, so they go. */
+    .hero-block .hero-figures,.hero-block #heroMarquee{display:none!important;}
+    .hero-copy{padding:18px 18px 22px!important;}
+    .hero-copy h1{font-size:clamp(30px,8.6vw,40px)!important;max-width:15ch;}
+    .hero-grid{gap:14px;}
+    /* the grid turns column here, and flex-basis then applies to HEIGHT -- .hero-left carried
+       flex:1 1 480px, so it stood 480px tall around a 33px headline and pushed the copy block to
+       727px, taller than the phone screen. Basis off, content sizes itself. */
+    .hero-left,.hero-right{flex:0 0 auto!important;max-width:none;width:100%;}
+    .hero-sub{font-size:14px;line-height:1.5;}
+    .hero-ctas{gap:10px;}
+    .hero-block{min-height:190vh;}
+
+    /* ---- shared: the stack is BACK on mobile, so every layer has to earn its screen -------- */
+    #proof,#process,#why,#services,.team-block{
+      position:sticky;top:var(--nav-h);
+      /* svh, not dvh: dvh tracks the URL bar and resolved 12px taller than the pin here, which is
+         12px of every section permanently under the next layer. svh is the smallest state, so a
+         section that fits it fits at every scroll position. */
+      min-height:calc(100svh - var(--nav-h));
+      padding-top:clamp(26px,4.4vh,44px)!important;
+      padding-bottom:clamp(20px,3.4vh,36px)!important;}
+    #proof h2,#process h2,#why h2,#services h2,.team-block h2{
+      font-size:clamp(27px,7.6vw,34px)!important;line-height:1.04;margin-bottom:10px;}
+    .process-lead,.sub-lead{font-size:13.5px!important;line-height:1.5!important;margin-bottom:14px;}
+    .eyebrow{margin-bottom:8px;}
+
+    /* ---- PROOF: the film is the tall part ------------------------------------------------- */
+    .expertise-visual{max-height:34vh;overflow:hidden;border-radius:16px;}
+    .expertise-visual video{height:100%;object-fit:cover;}
+    .pf-copy p{font-size:13.5px;line-height:1.5;margin:0 0 8px;}
+    .pf-copy p:nth-child(3){display:none;}      /* three paragraphs do not fit; the third is the recap */
+    .stats-row{gap:14px;}
+    .stat-num{font-size:clamp(26px,7.6vw,34px)!important;}
+    .tab{padding:9px 12px;font-size:12.5px;}
+
+    /* ---- HOW IT WORKS: the isometric scene is decorative and the tallest thing here -------- */
+    .iso-stage{display:none!important;}
+    .stages{gap:10px;}
+    .stage{padding:13px 14px 14px!important;border-radius:14px;}
+    .stage h3{font-size:15.5px;margin:0 0 4px;}
+    .stage p{font-size:12.8px;line-height:1.45;}
+    .stage-k{font-size:11px;margin-bottom:6px;}
+
+    /* ---- WHY ME: three paragraphs plus a five-step timeline will not both fit ------------- */
+    .me-ghost{display:none!important;}
+    .me-copy p{font-size:13.5px;line-height:1.52;margin:0 0 10px;}
+    .me-copy p:nth-of-type(3){display:none;}
+    .me-timeline{padding-left:26px;}
+    .me-timeline li{padding-bottom:11px;}
+    .me-timeline li p{font-size:12.6px;line-height:1.4;margin:2px 0 0;}
+    .tl-date{font-size:11px;}
+    .me-timeline li::before{width:11px;height:11px;left:-26px;top:4px;}
+    .me-copy .btn{margin-top:2px;}
+
+    /* ---- THE WORK: panel over rows, both tightened ---------------------------------------- */
+    #services .work{gap:12px;margin-top:14px;}
+    #services .work-lead{padding:16px!important;border-radius:18px;}
+    #services .work-lead h3{font-size:21px!important;margin-bottom:6px;}
+    #services .work-lead p{font-size:13px;line-height:1.45;max-width:none;}
+    #services .work-art{width:76px;top:12px;right:12px;border-radius:12px;}
+    #services .work-item{padding:6px 8px;gap:10px;}
+    #services .work-item h4{font-size:14px;margin-bottom:1px;}
+    #services .work-item p{font-size:12.2px;line-height:1.35;}
+
+    /* ---- ABOUT ---------------------------------------------------------------------------- */
+    .team-block{min-height:calc(100svh - var(--nav-h))!important;justify-content:flex-start!important;}
+    .team-stats{gap:12px;}
+
+    /* ---- FOOTER: 793px is most of a screen ------------------------------------------------ */
+    footer{padding-bottom:96px;}
+    .foot-inner{gap:22px;}
+    .foot-col h3{margin-bottom:8px;}
+    .foot-col a,.foot-plain{font-size:13px;line-height:1.9;}
+    .foot-wordmark{font-size:19vw;}
+  }
 </style>
 </head>
 <body>
 
-<!-- LOADING SCREEN. White, so it is already the hero's ground and the reveal lands on the same
-     surface it lifts off. The bar tracks REAL readiness -- fonts, window load, and the hero scene
-     reporting itself warm -- with a creep so it never sits still, rather than a decorative timer. -->
+<!-- LOADING SCREEN, built to the NeoLeaf pattern: a full-bleed black field, the wordmark
+     centred and huge, dim at rest and progressively FILLED as loading advances, with the
+     percentage sitting under its right edge. Theirs fills a masked canvas; this fills the type
+     itself with background-clip, which needs no canvas and stays crisp at any size. -->
 <div id="preloader" aria-hidden="true">
-  <svg class="pl-mark" viewBox="0 0 64 64" aria-hidden="true">
-    <polyline points="14,49 14,15 32,41 50,15 50,49" fill="none"
-      stroke="currentColor" stroke-width="9" stroke-linejoin="miter" stroke-linecap="butt"/>
-  </svg>
-  <div class="pl-bar"><i id="plFill"></i></div>
-  <div class="pl-num" id="plNum">000</div>
+  <div class="pl-inner">
+    <div class="pl-word" id="plWord">MVS SOLVES</div>
+    <div class="pl-num">loading&hellip; <span id="plNum">0</span>%</div>
+  </div>
 </div>
 <script>
 (function(){
   var el=document.getElementById('preloader');
   if(!el)return;
-  /* claimed before the hero module runs (it is deferred), so the scene knows to hold its entrance
-     until the curtain is on its way up */
   window.__heroGo=false;
   document.body.classList.add('is-loading');
 
-  var fill=document.getElementById('plFill'), num=document.getElementById('plNum');
+  var word=document.getElementById('plWord'), num=document.getElementById('plNum');
   var done=false;
-  function render(v){ var n=Math.round(v);
-    fill.style.width=v+'%'; num.textContent=(n<10?'00':n<100?'0':'')+n; }
+  function render(v){
+    var n=Math.round(v);
+    /* the fill is a hard stop in a gradient clipped to the glyphs -- the wordmark reads as filling
+       up rather than as a bar next to it */
+    word.style.backgroundImage='linear-gradient(90deg,#FFF 0 '+v+'%,rgba(255,255,255,.22) '+v+'% 100%)';
+    num.textContent=n;
+  }
   function finish(instant){
     if(done)return; done=true;
     render(100);
@@ -1771,40 +1880,40 @@
     document.body.classList.remove('is-loading');
     if(instant){el.remove();return;}
     el.classList.add('done');
-    setTimeout(function(){el.remove();},1000);
+    setTimeout(function(){el.remove();},1100);
   }
 
   if(matchMedia('(prefers-reduced-motion: reduce)').matches){finish(true);return;}
 
   var heroReady=!!window.__heroReady, fontsReady=false, winLoaded=document.readyState==='complete';
 
-  /* The escape hatches are TIMERS, never the animation loop. requestAnimationFrame is throttled
-     hard in a background tab and can stall outright, and a preloader is the one component that
-     must never trap someone behind it -- so the loop only animates the bar, and setTimeout owns
-     every decision about when this thing leaves. */
-  var HARD_CAP=setTimeout(function(){finish(false);},4500);
-  function signal(which){
-    if(which==='hero')heroReady=true;
-    if(which==='fonts')fontsReady=true;
-    if(which==='load')winLoaded=true;
+  /* Every exit decision is a TIMER, never the animation loop. requestAnimationFrame is throttled
+     hard in a background tab and can stall outright; a preloader is the one component that must
+     never trap anyone behind it. The loop only paints. */
+  var CAP=setTimeout(function(){finish(false);},4500);
+  function signal(k){
+    if(k==='hero')heroReady=true;
+    if(k==='fonts')fontsReady=true;
+    if(k==='load')winLoaded=true;
     if(heroReady&&fontsReady&&winLoaded){
-      clearTimeout(HARD_CAP);
-      setTimeout(function(){finish(false);},420);   /* let the bar visibly reach the end */
+      clearTimeout(CAP);
+      setTimeout(function(){finish(false);},480);
     }
   }
   addEventListener('hero:ready',function(){signal('hero');});
   addEventListener('load',function(){signal('load');});
   (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve())
     .then(function(){signal('fonts');});
-  if(heroReady||winLoaded)signal(heroReady?'hero':'load');
+  if(heroReady)signal('hero');
+  if(winLoaded)signal('load');
 
   var p=0,t0=Date.now();
+  render(0);
   function tick(){
     if(done)return;
-    /* creeps toward 88 while waiting so it never reads as stuck; the real signals release the rest */
     var elapsed=Date.now()-t0;
-    var target=(heroReady&&fontsReady&&winLoaded)?100:Math.min(88,8+elapsed/18);
-    p+=(target-p)*0.14;
+    var target=(heroReady&&fontsReady&&winLoaded)?100:Math.min(88,6+elapsed/18);
+    p+=(target-p)*0.13;
     render(p>99.4?100:p);
     requestAnimationFrame(tick);
   }
