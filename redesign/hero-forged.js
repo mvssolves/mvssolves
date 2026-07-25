@@ -15,7 +15,15 @@ import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const host = document.getElementById('hero3d');
-if (host) boot();
+
+/* NO WEBGL ON A PHONE. Four ring meshes, an environment probe and a full-viewport canvas is a lot
+   to ask of a handset for a decorative object, and the hero reads perfectly well as type alone.
+   The ready signal still fires -- the preloader waits on it, and without this it would sit until
+   its 4.5s timeout on every mobile visit. */
+if (innerWidth <= 760) {
+  window.__heroReady = true;
+  dispatchEvent(new Event('hero:ready'));
+} else if (host) boot();
 
 function boot() {
   const FLARE = 0xE4622F;

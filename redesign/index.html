@@ -1765,6 +1765,20 @@
        zero, so a real overflow can never be seen again. */
     .marquee{overflow:hidden;}
 
+    /* ---- NO 3D, NO VIDEO ON MOBILE -------------------------------------------------------
+       The scene is not rendered here at all (see hero-forged.js) and the proof film is a megabyte
+       of decoration on a handset. Both come out, and the hero becomes what it should be on a
+       phone: type, a line of copy and two buttons. */
+    #hero3d{display:none!important;}
+    .expertise-visual{display:none!important;}
+
+    /* the hero is one screen now, not a 190vh runway for a scene that is not there */
+    .hero-block{min-height:100svh!important;}
+    .hero-sticky{position:static!important;height:auto!important;}
+    .hero-copy{position:static!important;display:flex;align-items:center;
+      min-height:calc(100svh - var(--nav-h));}
+    .hero-grid{width:100%;}
+
     /* ---- HERO: copy block from 895px to roughly a third of the screen --------------------- */
     /* the figure row and the ticker are supporting detail. On a phone they are what pushes the
        headline and the CTA off the screen entirely, so they go. */
@@ -1787,6 +1801,9 @@
          12px of every section permanently under the next layer. svh is the smallest state, so a
          section that fits it fits at every scroll position. */
       min-height:calc(100svh - var(--nav-h));
+      /* deliberately NOT justify-content:center. Centring in a box that is taller than the pin
+         pushes the tail of the content below the visible area -- it clipped Proof's stat row. Top
+         aligned, with whatever space is left sitting under the content where it does no harm. */
       padding-top:clamp(26px,4.4vh,44px)!important;
       padding-bottom:clamp(20px,3.4vh,36px)!important;}
     #proof h2,#process h2,#why h2,#services h2,.team-block h2{
@@ -1798,7 +1815,6 @@
     .expertise-visual{max-height:34vh;overflow:hidden;border-radius:16px;}
     .expertise-visual video{height:100%;object-fit:cover;}
     .pf-copy p{font-size:13.5px;line-height:1.5;margin:0 0 8px;}
-    .pf-copy p:nth-child(3){display:none;}      /* three paragraphs do not fit; the third is the recap */
     .stats-row{gap:14px;}
     .stat-num{font-size:clamp(26px,7.6vw,34px)!important;}
     .tab{padding:9px 12px;font-size:12.5px;}
@@ -1814,7 +1830,6 @@
     /* ---- WHY ME: three paragraphs plus a five-step timeline will not both fit ------------- */
     .me-ghost{display:none!important;}
     .me-copy p{font-size:13.5px;line-height:1.52;margin:0 0 10px;}
-    .me-copy p:nth-of-type(3){display:none;}
     .me-timeline{padding-left:26px;}
     .me-timeline li{padding-bottom:11px;}
     .me-timeline li p{font-size:12.6px;line-height:1.4;margin:2px 0 0;}
@@ -1849,7 +1864,8 @@
     .stats-row,.stats-row *,.team-stats,.team-stats *,
     .me-timeline li,.me-timeline li *,.stage,.stage *,
     .work-item,.work-item *,.me-copy p,.process-lead,.sub-lead,
-    .hero-copy h1,.hero-copy h1 *,.hero-sub,.hero-ctas,.hero-ctas *,.eyebrow{
+    .hero-copy h1,.hero-copy h1 *,.hero-sub,.hero-ctas,.hero-ctas *,.eyebrow,
+    .hero-right,.hero-left,.hero-copy,.hero-copy *{
       opacity:1!important;transform:none!important;visibility:visible!important;}
     /* NOT a blanket "#proof *" -- the work panel's six glyphs crossfade on opacity, and forcing
        those to 1 would stack all six on top of each other. */
@@ -2697,6 +2713,11 @@ document.addEventListener('click',e=>{
   const ph=document.getElementById('hero3d');
   const navEl=document.querySelector('nav');
   if(!ph||reduce)return;
+  /* MOBILE HAS NO HERO SCRUB. The scrub hides the eyebrow, the right column, the figures and the
+     marquee up front and only reveals them as the scene recedes -- but the scene is not rendered
+     on a phone, so nothing ever reveals them and the hero showed a headline and nothing else. No
+     scene, no scrub, nothing hidden: the copy is simply there. */
+  if(innerWidth<=760)return;
 
   const eyebrow=document.querySelector('.hero-left .eyebrow');
   const right=document.querySelector('.hero-right');
