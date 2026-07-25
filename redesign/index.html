@@ -323,8 +323,11 @@
      shares the scene's lighter mood rather than reading as a dead black void */
   /* WHITE hero -- inverted from the old dark treatment. Light section, dark copy, so it reads as
      one continuous white site rather than a dark slab up top. */
+  /* the hero ground is WHITE, not the paper cream the rest of the stack sits on -- the sculpture
+     reads as lit rather than tinted, and Proof rising over it in cream becomes the first colour
+     change on the page. */
   .hero-block{position:relative;z-index:1;min-height:225vh;
-    background:var(--paper);}
+    background:#FFFFFF;}
   .hero-copy{color:var(--ink);}
   .hero-copy h1{color:var(--ink);}
   .hero-sub{color:var(--text-muted);}
@@ -495,9 +498,9 @@
      glows are flare-tinted rather than violet -- no violet gradients anywhere. */
   .hero-3d-placeholder.has-scene{font-size:0;overflow:hidden;
     background:
-      radial-gradient(72% 62% at 50% 32%, rgba(228,98,47,.10), transparent 68%),
-      radial-gradient(90% 80% at 82% 88%, rgba(228,98,47,.05), transparent 72%),
-      linear-gradient(180deg, #FBF9F5 0%, #F4F0E8 58%, #EFE9DF 100%);}
+      radial-gradient(72% 62% at 50% 32%, rgba(228,98,47,.07), transparent 68%),
+      radial-gradient(90% 80% at 82% 88%, rgba(228,98,47,.035), transparent 72%),
+      #FFFFFF;}
   /* per-form label -- shown as written (title case), gently spaced */
   /* absolutely anchored to the BOTTOM of the sticky viewport, not a flex child. As a flex child
      it was flex:1 in a column whose first item (the scene) already fills the whole 100vh, so its
@@ -1400,15 +1403,19 @@
       repeating-linear-gradient(0deg,  rgba(11,11,12,.02)  0 1px, transparent 1px 132px)!important;
   }
 
-  /* (6) WHAT I BUILD: the section had a flat ground and three cards floating on nothing.
-     A single soft plinth under the row plus hairline verticals between the columns gives the
-     cards something to stand on and reads as depth rather than decoration. */
+  /* (6) WHAT I BUILD: a quiet dot field so the section has a texture to stand on rather than a
+     flat ground. Replaces the old plinth, which was a violet bloom -- violet appears in no
+     gradient on this page. Masked to a soft oval so it dissolves at the edges instead of ending
+     on a line, and faint enough to read as paper grain rather than as a grid. */
   #services{overflow:hidden;}   /* NO position: it would downgrade the sticky and open a 72px gap */
   #services::before{
-    content:'';position:absolute;left:0;right:0;bottom:0;height:62%;z-index:0;pointer-events:none;
+    content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
     background:
-      radial-gradient(58% 78% at 50% 100%, rgba(102,80,168,.09), transparent 72%),
-      linear-gradient(180deg, transparent, rgba(239,233,223,.85));
+      radial-gradient(62% 66% at 50% 10%, rgba(228,98,47,.05), transparent 70%),
+      radial-gradient(1.1px 1.1px at 50% 50%, rgba(22,19,15,.11) 1px, transparent 1px);
+    background-size:auto, 22px 22px;
+    -webkit-mask-image:radial-gradient(80% 78% at 50% 44%, #000 28%, transparent 88%);
+    mask-image:radial-gradient(80% 78% at 50% 44%, #000 28%, transparent 88%);
   }
   #services > *{position:relative;z-index:1;}
   /* hairline verticals aligned to the card gutters -- structure, not a grid overlay */
