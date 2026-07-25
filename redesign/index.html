@@ -377,9 +377,11 @@
   /* Centred in its own cover-layer so the stack sits in the middle of the view rather than
      pinned to the ceiling, and the bottom pad is only deep enough to keep the footer off the CTA
      -- the previous 200px reserve was pure empty paper that held the black section down. */
+  /* a FULL cover-layer again, so the block genuinely pins under the nav and holds there while
+     it is read, instead of being short enough to slide straight past. */
   .team-block{z-index:6;text-align:center;align-items:center;justify-content:center;
-    min-height:calc(74dvh - var(--nav-h));
-    padding:clamp(44px,6vh,80px) 0 clamp(76px,10vh,124px);}
+    min-height:calc(100dvh - var(--nav-h));
+    padding:clamp(44px,6vh,80px) 0 clamp(72px,9vh,110px);}
   /* stack pulled tight so the stats sit just under the heading and the CTA follows straight
      after -- the block was spreading over most of the viewport with big dead gaps between each
      element. The section's own bottom padding gives the breathing room instead. */
@@ -388,7 +390,9 @@
   .team-stats{display:flex;gap:56px;justify-content:center;flex-wrap:wrap;margin:30px 0 0;}
   .team-stats .stat-label{margin-top:2px;}
   .team-cta{margin-top:18px;}
-  footer{position:relative;z-index:7;border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(40,32,22,.22);}
+  /* the black arrives LOOSE: a band of paper is left above it so it reads as a separate slab
+     rising, not as a colour change welded to the bottom of the About section. */
+  footer{position:relative;z-index:7;margin-top:clamp(44px,7vh,96px);border-radius:32px 32px 0 0;box-shadow:0 -16px 32px -18px rgba(40,32,22,.22);}
 
   /* SHORT-VIEWPORT COMFORT -- a pinned cover card only shows one screen, so on shorter laptops the
      content has to be tightened to fit within it. These trims keep the richest sections (Proof,
@@ -2377,11 +2381,28 @@ function odometer(el, value, opts){
     if(labelEls[1]&&tab.dataset.label2)labelEls[1].textContent=tab.dataset.label2;
   }
   tabs.forEach(t=>t.addEventListener('click',()=>activate(t)));
-  /* replayIn (IntersectionObserver) rather than ScrollTrigger: these sections are sticky, so
-     ScrollTrigger's natural-position maths fires at the wrong moment -- same reason the text
-     effects were moved off it. */
-  replayIn(statEls[0].closest('.stats-row'),
-    ()=>activate(tabs.find(t=>t.classList.contains('active'))||tabs[0]));
+  /* Deliberately NOT replayIn here. replayIn uses threshold:0, which fires the moment any pixel
+     of the target enters the viewport -- and inside the sticky cover-stack #proof's copy
+     intersects while it is still visually covered by the hero. The copy was therefore revealed
+     and animated off-screen, and replayIn then re-fired on the next entry, playing the
+     appear-animation over text that was already visible. That is the "comes up too soon and then
+     runs its transition" bug.
+
+     This gate requires the copy to be genuinely on screen (45% visible) before it plays, and
+     re-arms only once it has fully left, so it can never double-fire. */
+  (function(){
+    const gate=pfCopy||statEls[0].closest('.stats-row');
+    if(!gate)return;
+    const play=()=>activate(tabs.find(t=>t.classList.contains('active'))||tabs[0]);
+    if(!('IntersectionObserver' in window)){play();return;}
+    let armed=true;
+    new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting&&e.intersectionRatio>=0.45){ if(armed){armed=false;play();} }
+        else if(!e.isIntersecting){ armed=true; }
+      });
+    },{threshold:[0,0.45,0.75]}).observe(gate);
+  })();
 })();
 
 /* KEY FEATURES has no bespoke behaviour: it's a plain sticky cover-layer identical to
