@@ -181,10 +181,10 @@
     background:currentColor;transform:scaleX(0);transform-origin:left;
     transition:transform .32s cubic-bezier(.4,0,.2,1);}
   .nav-links a:hover::after{transform:scaleX(1);}
-  /* lime on hover in BOTH nav states -- the scrolled state had a separate violet rule further
-     down that was overriding this one. */
-  .nav-links a:hover,nav.nav-clear .nav-links a:hover{color:var(--accent2);}
-  .nav-links a:hover::after{background:var(--accent2);}
+  /* hover is INK in both nav states -- the links sit on white, where lime has almost no contrast
+     and violet competed with the CTA. The underline draw is the tell, not a colour change. */
+  .nav-links a:hover,nav.nav-clear .nav-links a:hover{color:#111;}
+  .nav-links a:hover::after{background:#111;}
 
   /* buttons: lift + shadow, and the filled one warms slightly */
   .btn{transition:transform .22s cubic-bezier(.34,1.4,.64,1),box-shadow .22s ease,
@@ -1504,13 +1504,11 @@ document.addEventListener('click',e=>{
   const tl=gsap.timeline({defaults:{ease:'none'},
     /* scrub:true, NOT a catch-up value: any catch-up means the scene lags behind the wheel and
        the whole section feels stuck. 1:1 keeps it locked to whatever speed the user scrolls. */
-    scrollTrigger:{trigger:'#heroBlock',start:'top top',end:'+=32%',scrub:true,
-      invalidateOnRefresh:true,
-      /* SNAP -- the first scroll lands on the settled hero and stops there, instead of the user
-         blowing straight past the CTA before it has even appeared. Snapping to [0,1] means a
-         gesture either settles the scene fully or returns it to fullscreen; it can't be left
-         parked halfway. Short duration so it assists rather than fights the scroll. */
-      snap:{snapTo:[0,1],duration:{min:0.15,max:0.4},delay:0.04,ease:'power2.inOut'}}});
+    /* Longer runway and NO snap. Snapping to [0,1] meant releasing the wheel mid-recede yanked
+       the frame back to fullscreen or forward to settled -- the user could never stop where they
+       wanted. The scene now sits wherever it is left. */
+    scrollTrigger:{trigger:'#heroBlock',start:'top top',end:'+=95%',scrub:true,
+      invalidateOnRefresh:true}});
 
   /* the scene recedes. Geometry ONLY -- height/top/left/right/radius. Deliberately no opacity,
      no blur, no scale anywhere on this element: it will hold a video, and fading or filtering a

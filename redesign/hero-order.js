@@ -98,6 +98,24 @@ function init(host) {
       linkPairs[made * 2] = a; linkPairs[made * 2 + 1] = b; made++;
     }
   }
+  /* ---- ribbon artwork -------------------------------------------------------------------------
+     A continuous ribbon threaded through the volume on a lissajous path, redrawn every frame so it
+     writhes rather than looping identically. This is the piece that reads as deliberate ARTWORK
+     over the top of the particle field -- the constellation links alone were too incidental to
+     carry the frame on their own. */
+  const RIB = 420;
+  const ribGeo = new THREE.BufferGeometry();
+  const ribPos = new Float32Array(RIB * 3);
+  const ribCol = new Float32Array(RIB * 3);
+  ribGeo.setAttribute('position', new THREE.BufferAttribute(ribPos, 3));
+  ribGeo.setAttribute('color', new THREE.BufferAttribute(ribCol, 3));
+  const ribbon = new THREE.Line(
+    ribGeo,
+    new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.85 })
+  );
+  ribbon.position.y = mesh.position.y;
+  scene.add(ribbon);
+
   const linkGeo = new THREE.BufferGeometry();
   const linkPos = new Float32Array(LINKS * 6);
   const linkCol = new Float32Array(LINKS * 6);
@@ -182,16 +200,19 @@ function init(host) {
          Amplitudes are large enough to read as motion at a glance, slow enough not to distract
          from the headline. */
       const px0 = home[i3], py0 = home[i3 + 1], pz0 = home[i3 + 2];
-      const hx = px0 + Math.sin(t * 0.32 + py0 * 0.13 + spin[i]) * 2.2
-                     + Math.cos(t * 0.17 + pz0 * 0.09) * 1.1;
-      const hy = py0 + Math.cos(t * 0.27 + px0 * 0.11 + spin[i] * 1.3) * 1.8
-                     + Math.sin(t * 0.21 + pz0 * 0.12) * 0.9;
-      const hz = pz0 + Math.sin(t * 0.24 + px0 * 0.10 + spin[i] * 0.7) * 1.9;
+      /* Fast, wide travel. The previous amplitudes were a drift; at a glance the field looked
+         static. These are large enough that individual particles visibly stream across the frame
+         while the volume as a whole stays balanced. */
+      const hx = px0 + Math.sin(t * 0.95 + py0 * 0.16 + spin[i]) * 5.6
+                     + Math.cos(t * 0.52 + pz0 * 0.11) * 3.0;
+      const hy = py0 + Math.cos(t * 0.83 + px0 * 0.14 + spin[i] * 1.3) * 4.4
+                     + Math.sin(t * 0.61 + pz0 * 0.15) * 2.4;
+      const hz = pz0 + Math.sin(t * 0.71 + px0 * 0.12 + spin[i] * 0.7) * 4.8;
 
       /* spring home + damping: any disturbance heals itself */
-      vel[i3]     += (hx - pos[i3])     * 5.5 * dt;
-      vel[i3 + 1] += (hy - pos[i3 + 1]) * 5.5 * dt;
-      vel[i3 + 2] += (hz - pos[i3 + 2]) * 5.5 * dt;
+      vel[i3]     += (hx - pos[i3])     * 9.0 * dt;
+      vel[i3 + 1] += (hy - pos[i3 + 1]) * 9.0 * dt;
+      vel[i3 + 2] += (hz - pos[i3 + 2]) * 9.0 * dt;
 
       if (pointerIn) {
         const dx = pos[i3] - cursor.x, dy = pos[i3 + 1] - cursor.y;
@@ -218,7 +239,7 @@ function init(host) {
         }
       }
 
-      vel[i3] *= 0.90; vel[i3 + 1] *= 0.90; vel[i3 + 2] *= 0.90;
+      vel[i3] *= 0.93; vel[i3 + 1] *= 0.93; vel[i3 + 2] *= 0.93;
       pos[i3]     += vel[i3];
       pos[i3 + 1] += vel[i3 + 1];
       pos[i3 + 2] += vel[i3 + 2];
@@ -258,13 +279,29 @@ function init(host) {
     linkGeo.attributes.position.needsUpdate = true;
     linkGeo.attributes.color.needsUpdate = true;
 
+    /* the ribbon: a lissajous curve whose frequencies drift, so the figure never repeats exactly.
+       Coloured violet->lime along its length so it reads as one travelling stroke. */
+    for (let k = 0; k < RIB; k++) {
+      const u = (k / (RIB - 1)) * Math.PI * 2;
+      const a = 3.1 + Math.sin(t * 0.07) * 0.9;
+      const b = 2.0 + Math.cos(t * 0.05) * 0.7;
+      const o = k * 3;
+      ribPos[o]     = Math.sin(u * a + t * 0.42) * 13.5;
+      ribPos[o + 1] = Math.sin(u * b + t * 0.31) * 7.6;
+      ribPos[o + 2] = Math.cos(u * 2.0 + t * 0.25) * 8.5;
+      col.copy(VIOLET).lerp(LIME, (Math.sin(u * 3 - t * 0.9) + 1) * 0.5 * 0.55);
+      ribCol[o] = col.r; ribCol[o + 1] = col.g; ribCol[o + 2] = col.b;
+    }
+    ribGeo.attributes.position.needsUpdate = true;
+    ribGeo.attributes.color.needsUpdate = true;
+
     if (!reduceMotion) {
       /* a permanent slow yaw on top of cursor parallax, so the whole volume is always turning and
          the depth of the field is legible even without moving the mouse */
       const ry = ndc.x * 0.10 + Math.sin(t * 0.06) * 0.16;
       const rx = -ndc.y * 0.06 + Math.sin(t * 0.045) * 0.07;
-      mesh.rotation.y = links.rotation.y = ry;
-      mesh.rotation.x = links.rotation.x = rx;
+      mesh.rotation.y = links.rotation.y = ribbon.rotation.y = ry;
+      mesh.rotation.x = links.rotation.x = ribbon.rotation.x = rx;
     }
 
     renderer.render(scene, camera);
