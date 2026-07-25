@@ -70,7 +70,6 @@
 -->
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <style>
   /* PALETTE -- locked 2026-07-23.
      --accent  violet, used for eyebrow/label text and secondary marks
@@ -216,7 +215,8 @@
      pushed to the far right on its own with margin-left:auto. */
   .nav-inner{display:flex;align-items:center;gap:40px;padding:18px 40px;}
   /* logo: the M mark alone, top-left. No wordmark -- the footer wordmark carries the name. */
-  .nav-logo{display:flex;align-items:center;color:var(--text);}
+  /* sits a few pixels lower so it optically centres against the nav's cap height */
+  .nav-logo{display:flex;align-items:center;color:var(--text);transform:translateY(3px);}
   /* the M mark inherits currentColor, so it's white over the dark hero and dark on white
      sections automatically -- same reason it's inline SVG rather than a flat black-tile PNG */
   .logo-mark{width:30px;height:30px;flex:none;display:block;color:inherit;}
@@ -1820,6 +1820,35 @@
        it About is 200px shorter than its pin and the Work section shows through the gap beneath
        it -- trading a hole in the page for an optimisation that was not buying anything. */
 
+    /* ---- DECLUTTER --------------------------------------------------------------------------
+       Two things were doing most of the crowding, and both are named anti-patterns rather than
+       matters of taste.
+
+       The eyebrow above every section -- PROOF, HOW IT WORKS, WHY ME, WHAT I BUILD, ABOUT -- is
+       the small-caps kicker that appears on nearly every generated page regardless of brief. One
+       named kicker as a deliberate system is voice; one above every section is scaffolding. Each
+       headline already says what the section is, so the eyebrow is a label on a label. On a phone
+       it also costs a line and a margin five times over.
+
+       The 01-06 markers on the work list are the same reflex a tier down. Numbers earn their place
+       when the thing genuinely is a sequence and the order carries meaning; these six are parts of
+       one machine, not steps, and they read in any order. Six clean titles say it better.
+
+       Both stay on desktop, where there is room for the extra register. */
+    #proof .eyebrow,#process .eyebrow,#why .eyebrow,#services .eyebrow,.team-block .eyebrow{
+      display:none!important;}
+    #services .work-n{display:none!important;}
+    #services .work-item{gap:0;}
+
+    /* headings set their own line breaks rather than leaving one word stranded */
+    #proof h2,#process h2,#why h2,#services h2,.team-block h2,.hero-copy h1{text-wrap:balance;}
+    .me-copy p,.process-lead,.pf-copy p{text-wrap:pretty;}
+
+    /* rhythm, not a uniform gap: the headline sits close to its copy, the copy further from what
+       follows it */
+    #proof h2,#process h2,#why h2,#services h2{margin-bottom:8px!important;}
+    .process-lead{margin-bottom:18px!important;}
+
     /* ---- CHROME OFF -----------------------------------------------------------------------
        No nav CTA and no bottom bar on a phone. That leaves the hero's own two buttons as the only
        call to action above the fold, which is the point of them. */
@@ -1949,12 +1978,12 @@
        salvageable by scaling it down, so mobile gets a flat watermark instead: the animated
        letters are collapsed to font-size 0 and the text is drawn once by a pseudo-element. Same
        intent, none of the machinery. */
-    .foot-wordmark{font-size:0!important;transform:none!important;overflow:hidden;
-      justify-content:flex-start;}
-    .foot-wordmark::after{content:'MVS Solves';display:block;white-space:nowrap;
-      font-size:min(16vw,78px);font-weight:800;letter-spacing:-.035em;line-height:1;
-      color:rgba(239,234,225,.13);}
-    .wm-l,.wm-i,.wm-f{animation:none!important;transform:none!important;}
+    /* the animated wordmark is back. It was flattened to a static pseudo-element because the 3D
+       extrusion overflowed and ghosted at 19vw -- that was a sizing fault, not a reason to kill
+       the motion. Sized to fit the screen instead, with the extrusion depth scaled down with it. */
+    .foot-wordmark{font-size:min(13.5vw,64px);overflow:visible;justify-content:center;
+      transform:translateY(6%) scaleY(1.12);}
+    .foot-wordmark::after{content:none;}
 
     /* the footer CTA spans the column, so its label has to be centred rather than left-hugging */
     .foot-col-cta .btn{width:100%;justify-content:center;text-align:center;}
@@ -2089,7 +2118,6 @@
           <p class="hero-sub fx-rise">One person builds the whole machine: the site that sells, the booking that answers, the follow-up that closes. No agency layers.</p>
           <div class="hero-ctas">
             <a class="btn filled" href="/redesign/contact/">Start a project</a>
-            <a class="btn hero-ghost" href="#proof">See the proof</a>
           </div>
         </div>
       </div>
@@ -2533,25 +2561,16 @@ let lenis=null;   /* hoisted so the nav's smooth-scroll can reach it */
    inspect a section -- particularly on mobile widths, where the layout most needs checking. Layout,
    sticky behaviour and every reveal are identical without it; only the easing goes. */
 const noSmooth=/[?&]nosmooth\b/.test(location.search);
-/* NO SMOOTH SCROLL ON A PHONE. Lenis intercepts touch and re-drives the scroll position from a
-   rAF loop; on a handset that fights the OS's own momentum and the result is the stutter -- the
-   page is being animated to a position the finger has already left. Native scrolling on iOS and
-   Android is hardware-driven and cannot be beaten by a JS loop. Desktop keeps it. */
-const smallScreen=innerWidth<=760;
-if(!reduce&&!noSmooth&&!smallScreen){
-  /* duration 1.2 meant every wheel tick took over a second to settle, which is what made the
-     hero feel stuck and unresponsive -- the page kept gliding on its own schedule instead of the
-     user's. 0.7 keeps the smoothing but lets a fast scroll actually be fast. touchMultiplier /
-     wheelMultiplier at 1 so input isn't scaled down. */
-  lenis = new Lenis({duration:0.7,wheelMultiplier:1,touchMultiplier:1});
-  /* CANONICAL Lenis+GSAP integration: drive Lenis from GSAP's ticker rather than a separate
-     requestAnimationFrame loop. With two independent rAF loops, lenis.scrollTo() and
-     ScrollTrigger fight each other -- which is exactly why programmatic nav scrolling crawled /
-     failed upward. One ticker driving both makes scrollTo reliable in every direction. */
-  lenis.on('scroll', ScrollTrigger.update);
-  gsap.ticker.add(t=>lenis.raf(t*1000));   /* ticker time is seconds; Lenis wants ms */
-  gsap.ticker.lagSmoothing(0);
-}
+/* SMOOTH SCROLL IS GONE. Lenis did not scroll the page -- it let the browser scroll, then
+   continuously re-drove the position from a rAF loop toward a target it was easing. Two
+   consequences, both of which were being felt on the page:
+   - reversing direction has to unwind the ease still running, so the page keeps travelling the old
+     way for a beat before it turns
+   - stopping is an ease-out rather than a stop, so it drifts on after the input has ended
+   Neither is tunable away; they are what the technique is. Native scroll is hardware-driven, turns
+   instantly and stops when the finger does. The stack, the pins and every reveal behave the same
+   without it -- ScrollTrigger listens to native scroll events by default.
+   lenis stays declared and null so the nav's in-page links keep their existing null-check path. */
 
 /* SMOOTH in-page nav -- works from ANY scroll position, UP or DOWN. Delegated on document so it
    always fires. Targeted by offsetTop (the section's stable natural offset), NOT

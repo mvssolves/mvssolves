@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "animejs": "^4.5.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.0"
   }
 }
