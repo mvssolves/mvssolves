@@ -1803,6 +1803,23 @@
     .fx-word,.fx-word *{
       opacity:1!important;visibility:visible!important;transform:none!important;}
 
+    /* ---- SCROLL COST ------------------------------------------------------------------------
+       Five sticky layers is already a lot for a phone compositor. Everything below is decoration
+       that costs a repaint on every frame of a scroll, and none of it survives being looked at on
+       a 390px screen anyway.
+       - the masked radial fields on Why-me, The-work and About: a mask forces the whole layer onto
+         its own surface and re-rasterises as it moves
+       - the page grain: a fixed full-screen overlay repainting under everything that scrolls
+       - will-change on the hero: it no longer animates here, so the hint only pins a
+         full-viewport layer in memory for nothing */
+    #why::before,#why::after,#services::before,.team-block::before,body::after{display:none!important;}
+    .hero-3d-placeholder{will-change:auto!important;}
+    .hero-3d-placeholder canvas{will-change:auto!important;}
+    /* About's paper fill STAYS. It was removed here as a perf measure and that was wrong: the
+       expensive shadows are the blurred ones, and this is 0 100vh 0 0 with no blur at all. Without
+       it About is 200px shorter than its pin and the Work section shows through the gap beneath
+       it -- trading a hole in the page for an optimisation that was not buying anything. */
+
     /* ---- CHROME OFF -----------------------------------------------------------------------
        No nav CTA and no bottom bar on a phone. That leaves the hero's own two buttons as the only
        call to action above the fold, which is the point of them. */
@@ -1891,16 +1908,19 @@
        duplicate of whichever row is active anyway. On mobile the rows carry it alone, with room
        to breathe and a rule between them instead of a highlight. */
     #services .work-lead{display:none!important;}
-    #services .work{display:block!important;margin-top:10px;}
+    #services .work{display:block!important;margin-top:16px;}
     /* six rows plus a four-line lead did not fit the pin -- row 06 was under the next layer.
        Tighter rows and a shorter lead bring the whole list inside it. */
-    #services .work-item{padding:9px 2px;gap:13px;align-items:flex-start;border-radius:0;
-      box-shadow:inset 0 -1px 0 rgba(22,19,15,.08);}
+    /* Titles only. Six rows of number + heading + a line of description is six three-line blocks
+       stacked on a 390px screen, which is what reads as clustered however it is spaced. The lead
+       paragraph above already explains the machine; the list only has to name its parts. */
+    #services .work-item p{display:none!important;}
+    #services .work-item{padding:15px 2px;gap:14px;align-items:baseline;border-radius:0;
+      box-shadow:inset 0 -1px 0 rgba(22,19,15,.07);}
     #services .work-rest>.work-item:last-child{box-shadow:none;}
     #services .work-item.is-on{background:transparent;}
-    #services .work-item h4{font-size:15px;margin-bottom:2px;}
-    #services .work-item p{font-size:12.4px;line-height:1.35;}
-    #services .process-lead{font-size:12.8px!important;line-height:1.45!important;margin-bottom:8px;}
+    #services .work-item h4{font-size:18px;margin:0;letter-spacing:-.02em;}
+    #services .process-lead{font-size:13px!important;line-height:1.5!important;margin-bottom:6px;}
     #services .work-n{font-size:11px;padding-top:2px;}
 
     /* ---- ABOUT ---------------------------------------------------------------------------- */
@@ -2513,7 +2533,12 @@ let lenis=null;   /* hoisted so the nav's smooth-scroll can reach it */
    inspect a section -- particularly on mobile widths, where the layout most needs checking. Layout,
    sticky behaviour and every reveal are identical without it; only the easing goes. */
 const noSmooth=/[?&]nosmooth\b/.test(location.search);
-if(!reduce&&!noSmooth){
+/* NO SMOOTH SCROLL ON A PHONE. Lenis intercepts touch and re-drives the scroll position from a
+   rAF loop; on a handset that fights the OS's own momentum and the result is the stutter -- the
+   page is being animated to a position the finger has already left. Native scrolling on iOS and
+   Android is hardware-driven and cannot be beaten by a JS loop. Desktop keeps it. */
+const smallScreen=innerWidth<=760;
+if(!reduce&&!noSmooth&&!smallScreen){
   /* duration 1.2 meant every wheel tick took over a second to settle, which is what made the
      hero feel stuck and unresponsive -- the page kept gliding on its own schedule instead of the
      user's. 0.7 keeps the smoothing but lets a fast scroll actually be fast. touchMultiplier /
