@@ -2404,7 +2404,12 @@
 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 gsap.registerPlugin(ScrollTrigger);
 let lenis=null;   /* hoisted so the nav's smooth-scroll can reach it */
-if(!reduce){
+/* ?nosmooth turns smooth scrolling off. Purely a QA affordance: Lenis owns the scroll position and
+   overrides programmatic scrollTo, which makes it impossible to park the page at a given offset to
+   inspect a section -- particularly on mobile widths, where the layout most needs checking. Layout,
+   sticky behaviour and every reveal are identical without it; only the easing goes. */
+const noSmooth=/[?&]nosmooth\b/.test(location.search);
+if(!reduce&&!noSmooth){
   /* duration 1.2 meant every wheel tick took over a second to settle, which is what made the
      hero feel stuck and unresponsive -- the page kept gliding on its own schedule instead of the
      user's. 0.7 keeps the smoothing but lets a fast scroll actually be fast. touchMultiplier /
