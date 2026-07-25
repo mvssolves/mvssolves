@@ -1591,12 +1591,12 @@
      Two problems, one fix. A short About left Work visible in the gap beneath it; and because
      sticky cannot outlive its containing block, a short About made main end early, so Work
      UNPINNED and slid away while About was still arriving on screen.
-     Full height covers the layer and extends main, so Work stays put the whole way through. The
-     content is bottom-aligned rather than centred, so the CTA lands just above the section's own
-     bottom edge and the black still arrives directly beneath it -- the empty space ends up above
-     the copy, where it reads as air rather than as a hole. */
+     Full height covers the layer and extends main, so Work stays put the whole way through.
+     Content sits at the TOP -- eyebrow first, straight under the nav -- and the paper runs out
+     beneath the CTA. That lower band is not dead space: it is what the footer rises into, so the
+     black arrives as a slab climbing the page rather than as a colour change welded to the CTA. */
   .team-block{min-height:calc(100dvh - var(--nav-h))!important;
-    justify-content:flex-end!important;}
+    justify-content:flex-start!important;}
 
   /* About's paper fill. Both shadows in one declaration because the seamless block above sets
      box-shadow on this selector with !important: the first is that block's soft top edge, kept
