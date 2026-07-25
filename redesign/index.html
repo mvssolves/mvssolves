@@ -149,7 +149,7 @@
     transition:transform .45s cubic-bezier(.2,.8,.3,1);}
   .btn:hover::after{transform:scale(1.02);}
   .btn:hover{color:#fff;border-color:var(--accent);}
-  .btn:hover{box-shadow:0 10px 26px -12px rgba(102,80,168,.65);}
+  .btn:hover{box-shadow:0 10px 24px -14px rgba(34,28,20,.45);}
   .btn:active{transform:scale(.97);}
   /* keyboard focus was invisible everywhere: the only :focus rules were on the modal inputs. */
   a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
@@ -236,18 +236,18 @@
   .nav-links a:hover::after{background:#111;}
 
   /* buttons: lift + shadow, and the filled one warms slightly */
-  .btn{transition:transform .22s cubic-bezier(.34,1.4,.64,1),box-shadow .22s ease,
+  .btn{transition:transform .22s cubic-bezier(.22,1,.36,1),box-shadow .22s ease,
     background .22s ease,color .22s ease;}
   .btn:hover{transform:translateY(-2px);}
-  .btn.filled:hover{box-shadow:0 8px 22px -8px rgba(228,98,47,.55);}
+  .btn.filled:hover{box-shadow:0 8px 20px -10px rgba(34,28,20,.5);}
   .btn:not(.filled):hover{background:var(--ink);color:#fff;}
   .btn:active{transform:translateY(0);}
 
   /* cards lift and their border tightens */
-  .card{transition:transform .3s cubic-bezier(.34,1.2,.64,1),border-color .3s ease,
+  .card{transition:transform .3s cubic-bezier(.22,1,.36,1),border-color .3s ease,
     box-shadow .3s ease;}
   .card:hover{transform:translateY(-6px);border-color:var(--accent);
-    box-shadow:0 18px 40px -26px rgba(102,80,168,.55);}
+    box-shadow:0 18px 40px -26px rgba(34,28,20,.4);}
 
   /* feature rows: the index number colours up and the row nudges right */
   .feature-row{transition:background .25s ease;}
@@ -262,7 +262,8 @@
   .tab-row{position:relative;}
   .tab-pill{position:absolute;z-index:0;top:4px;bottom:4px;border-radius:999px;
     background:var(--accent);
-    transition:transform .45s cubic-bezier(.2,.8,.3,1),width .45s cubic-bezier(.2,.8,.3,1);}
+    width:100px;transform-origin:left center;
+    transition:transform .45s cubic-bezier(.2,.8,.3,1);}
   .tab{position:relative;z-index:1;}
   .tab:hover{color:var(--ink);}
   .tab.active:hover{transform:none;}
@@ -507,7 +508,7 @@
     box-shadow:0 2px 4px -2px rgba(34,28,20,.05),0 20px 44px -32px rgba(34,28,20,.4);
     transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease;}
   .card:hover{transform:translateY(-5px);border-color:var(--accent-lift);
-    box-shadow:0 3px 6px -2px rgba(34,28,20,.06),0 34px 60px -34px rgba(102,80,168,.55);}
+    box-shadow:0 3px 6px -2px rgba(34,28,20,.06),0 34px 60px -34px rgba(34,28,20,.42);}
   /* a hairline accent along the top edge, drawn in on hover -- the only decoration on the card */
   .card::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:var(--accent);
     transform:scaleX(0);transform-origin:left;transition:transform .4s cubic-bezier(.4,0,.2,1);}
@@ -610,7 +611,7 @@
   /* HOVER: lifts and lights, independent of the auto sync (which only tints the background, below,
      so the two never fight over the same property) */
   .stage:hover{transform:translateY(-4px);border-color:var(--accent);
-    box-shadow:0 20px 44px -22px rgba(102,80,168,.55);}
+    box-shadow:0 20px 44px -22px rgba(34,28,20,.4);}
   .stage-k{font-family:monospace;font-size:11px;color:#c0c0c8;letter-spacing:.1em;}
   .stage h3{font-size:clamp(18px,1.9vw,21px);letter-spacing:-.01em;margin:4px 0 4px;color:var(--ink);}
   .stage p{font-size:13.5px;color:#5a5760;line-height:1.45;}
@@ -700,7 +701,7 @@
     .iso-token,.ai-gem,.ai-glow,.ai-ring,.iso-slot,.gem-flash,.ai-burst,.ai-sparks{animation:none;}
     .gem-flash{opacity:0;}
     .iso-token{transform:translate(var(--x3),calc(var(--y3) - 26px));}
-    .s-a{border-color:var(--accent);box-shadow:0 16px 38px -20px rgba(102,80,168,.55);}
+    .s-a{border-color:var(--accent);box-shadow:0 16px 38px -20px rgba(34,28,20,.4);}
     .s-a::before{transform:scaleY(1);}
   }
   /* stack on narrow screens: machine on top, stages below */
@@ -750,9 +751,11 @@
   .me-timeline::before{content:'';position:absolute;left:6px;top:9px;bottom:16px;width:4px;
     border-radius:4px;background:linear-gradient(180deg,#b6a2ea 0%,#cfc7e4 55%,#e2e2e8 100%);
     box-shadow:inset 1px 0 0 rgba(255,255,255,.5),0 2px 6px -2px rgba(60,48,36,.4);}
-  /* a lime pulse travelling top->bottom down the rail, on a loop */
+  /* a pulse travelling top->bottom down the rail, on a loop. No halo: a zero-offset chromatic
+     glow is the default "cool" look of generated UI, and on warm paper it just reads as a smudge.
+     The dot carries itself on colour and motion. */
   .me-timeline::after{content:'';position:absolute;left:4px;width:8px;height:8px;border-radius:50%;
-    background:var(--accent-lift);box-shadow:0 0 12px 3px rgba(159,138,217,.55);
+    background:var(--accent);
     animation:railPulse 4.5s ease-in-out infinite;}
   @keyframes railPulse{0%{top:6px;opacity:0;}12%{opacity:1;}88%{opacity:1;}100%{top:calc(100% - 22px);opacity:0;}}
   .me-timeline li{position:relative;padding:0 0 22px;}
@@ -895,9 +898,9 @@
   .foot-glow{position:absolute;inset:-40% -12% -60%;z-index:0;pointer-events:none;
     filter:blur(72px);opacity:.6;animation-play-state:paused;
     background:
-      radial-gradient(38% 62% at 20% 46%,rgba(102,80,168,.9),transparent 70%),
-      radial-gradient(34% 56% at 58% 62%,rgba(90,200,250,.55),transparent 70%),
-      radial-gradient(30% 52% at 84% 40%,rgba(228,98,47,.3),transparent 70%);
+      radial-gradient(38% 62% at 20% 46%,rgba(102,80,168,.55),transparent 70%),
+      radial-gradient(34% 56% at 58% 62%,rgba(167,156,136,.34),transparent 70%),
+      radial-gradient(30% 52% at 84% 40%,rgba(228,98,47,.22),transparent 70%);
     animation:glowDrift 19s ease-in-out infinite alternate;}
   @keyframes glowDrift{
     from{transform:translate3d(-3%,1%,0) scale(1);}
@@ -1065,7 +1068,7 @@
 <section id="process" class="wrap">
   <div class="eyebrow">How it works</div>
   <h2 class="fx-rise">The systems</h2>
-  <p class="process-lead fx-rise">Three systems that turn a stranger into a booked, paying client — and keep running while you work.</p>
+  <p class="process-lead fx-rise">Three systems that turn a stranger into a booked, paying client, and keep running while you work.</p>
 
   <div class="sys">
     <!-- stages: light in sequence, synced to the token climbing the machine -->
@@ -1083,7 +1086,7 @@
       <div class="stage s-c">
         <div class="stage-k">03</div>
         <h3>AI receptionist</h3>
-        <p>Answers, books and follows up 24/7 — in your voice, while you work.</p>
+        <p>Answers, books and follows up 24/7, in your voice, while you work.</p>
       </div>
     </div>
 
@@ -1154,17 +1157,17 @@
   <h2 class="fx-rise">Straight from me</h2>
   <div class="me-layout">
     <div class="me-copy">
-      <p class="fx-rise">I'm Martin — self-taught, no agency pedigree, and better for it. In under two months I took six businesses to 10K a month each. That's not a pitch — it's the track record.</p>
+      <p class="fx-rise">I'm Martin. Self-taught, no agency pedigree, and better for it. In under two months I took six businesses to 10K a month each. That's not a pitch — it's the track record.</p>
       <p class="fx-rise">50+ businesses now run on systems I designed and built myself, end to end. No account managers, no hand-offs, no watered-down work passed down a chain — just the person who built it, answering for it.</p>
-      <p class="fx-rise">I don't stop at "launched." I'm done when your numbers are climbing — and I back myself to get them there.</p>
+      <p class="fx-rise">I don't stop at "launched." I'm done when your numbers are climbing, and I back myself to get them there.</p>
       <a class="btn filled" href="#" data-contact>Work with me</a>
     </div>
     <ol class="me-timeline fx-group">
-      <li><span class="tl-date fx-rise">2025</span><p>Cut my teeth in marketing and sales — the trade learned hands-on, not in a classroom.</p></li>
+      <li><span class="tl-date fx-rise">2025</span><p>Cut my teeth in marketing and sales. The trade learned hands-on, not in a classroom.</p></li>
       <li><span class="tl-date fx-rise">2026</span><p>Founded MVS Solves. Solo by design, so nothing stands between you and the person building it.</p></li>
       <li><span class="tl-date fx-rise">First 30 days</span><p>Onboarded <span class="tl-num">15</span> clients.</p></li>
       <li><span class="tl-date fx-rise">3 months in</span><p>Took <span class="tl-num">6</span> businesses to <span class="tl-num">10K a month</span>.</p></li>
-      <li><span class="tl-date fx-rise">Today</span><p>Every project still runs through me personally — and that won't change as this grows.</p></li>
+      <li><span class="tl-date fx-rise">Today</span><p>Every project still runs through me personally, and that won't change as this grows.</p></li>
     </ol>
   </div>
 </section>
@@ -1173,20 +1176,20 @@
 <section id="services" class="wrap">
   <div class="eyebrow">What I build</div>
   <h2 class="fx-rise">The work</h2>
-  <p class="process-lead fx-rise">Three parts, one machine — a site that sells, booking that runs itself, and an AI that works the leads while you work. Built for your business, not pulled off a shelf.</p>
+  <p class="process-lead fx-rise">Three parts, one machine: a site that sells, booking that runs itself, and an AI that works the leads while you work. Built for your business, not pulled off a shelf.</p>
   <div class="card-grid fx-group">
 
     <article class="card">
       <span class="svc-num">01</span>
       <h3>A site built to convert</h3>
-      <p>Fast, premium and built around one job — turning visitors into booked, paying clients. Not a brochure that sits there looking pretty.</p>
+      <p>Fast, premium and built around one job: turning visitors into booked, paying clients. Not a brochure that sits there looking pretty.</p>
       <ul class="svc-list"><li>Conversion-first copy &amp; layout</li><li>Mobile-first, Core Web Vitals</li><li>SEO foundations built in</li></ul>
     </article>
 
     <article class="card">
       <span class="svc-num">02</span>
       <h3>Booking that runs itself</h3>
-      <p>Always-open scheduling and enquiry capture that books the client while you're busy — no phone tag, no leads slipping through the cracks.</p>
+      <p>Always-open scheduling and enquiry capture that books the client while you're busy. No phone tag, no leads slipping through the cracks.</p>
       <ul class="svc-list"><li>Always-open online booking</li><li>Auto reminders &amp; confirmations</li><li>Enquiry capture that never sleeps</li></ul>
     </article>
 
@@ -2124,7 +2127,7 @@ function odometer(el, value, opts){
       const r=card.getBoundingClientRect();
       const px=(e.clientX-r.left)/r.width-0.5, py=(e.clientY-r.top)/r.height-0.5;
       card.style.transform='translateY(-6px) rotateX('+(-py*6).toFixed(2)+'deg) rotateY('+(px*7).toFixed(2)+'deg)';
-      card.style.boxShadow='0 34px 60px -30px rgba(102,80,168,.6)';
+      card.style.boxShadow='0 34px 60px -30px rgba(34,28,20,.45)';
       card.style.borderColor='var(--accent-lift)';
     });
     card.addEventListener('pointerleave',()=>{card.style.transform='';card.style.boxShadow='';card.style.borderColor='';});
@@ -2175,8 +2178,9 @@ function odometer(el, value, opts){
   const move=()=>{
     const on=row.querySelector('.tab.active');
     if(!on)return;
-    pill.style.width=on.offsetWidth+'px';
-    pill.style.transform='translateX('+on.offsetLeft+'px)';
+    /* scaleX off a fixed 100px base rather than animating width: identical result, but it runs
+       on the compositor instead of laying out the row on every frame. */
+    pill.style.transform='translateX('+on.offsetLeft+'px) scaleX('+(on.offsetWidth/100)+')';
   };
   row.addEventListener('click',()=>requestAnimationFrame(move));
   addEventListener('resize',move,{passive:true});
