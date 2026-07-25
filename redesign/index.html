@@ -322,7 +322,7 @@
   /* WHITE hero -- inverted from the old dark treatment. Light section, dark copy, so it reads as
      one continuous white site rather than a dark slab up top. */
   .hero-block{position:relative;z-index:1;min-height:225vh;
-    background:linear-gradient(180deg,#FFFDFA 0%,var(--paper) 55%,#F2EEE5 100%);}
+    background:var(--paper);}
   .hero-copy{color:var(--ink);}
   .hero-copy h1{color:var(--ink);}
   .hero-sub{color:var(--text-muted);}
@@ -674,13 +674,17 @@
   .iso-token{transform-box:fill-box;transform:translate(var(--x1),var(--y1));
     animation:isoClimb 10.5s cubic-bezier(.45,0,.5,1) infinite;}
   @keyframes isoClimb{
-    0%,20%  {transform:translate(var(--x1),calc(var(--y1) - 26px));}
-    26%     {transform:translate(calc((var(--x1) + var(--x2))/2),calc((var(--y1) + var(--y2))/2 - 72px));}
-    33%,53% {transform:translate(var(--x2),calc(var(--y2) - 26px));}
-    60%     {transform:translate(calc((var(--x2) + var(--x3))/2),calc((var(--y2) + var(--y3))/2 - 72px));}
-    66%,90% {transform:translate(var(--x3),calc(var(--y3) - 26px));}
-    97%     {transform:translate(calc((var(--x1) + var(--x3))/2),calc((var(--y1) + var(--y3))/2 - 120px));}
-    100%    {transform:translate(var(--x1),calc(var(--y1) - 26px));}
+    0%,20%  {transform:translate(var(--x1),calc(var(--y1) - 26px));opacity:1;}
+    26%     {transform:translate(calc((var(--x1) + var(--x2))/2),calc((var(--y1) + var(--y2))/2 - 72px));opacity:1;}
+    33%,53% {transform:translate(var(--x2),calc(var(--y2) - 26px));opacity:1;}
+    60%     {transform:translate(calc((var(--x2) + var(--x3))/2),calc((var(--y2) + var(--y3))/2 - 72px));opacity:1;}
+    /* lands on the third block and is CONSUMED. It used to sit parked on top of the gem for the
+       whole burst, so the completion animation played behind a token that was still there. */
+    65%     {transform:translate(var(--x3),calc(var(--y3) - 26px)) scale(1);opacity:1;}
+    69%     {transform:translate(var(--x3),calc(var(--y3) - 30px)) scale(.2);opacity:0;}
+    /* stays gone while the burst plays, then simply exists again at block one */
+    69.01%,99% {transform:translate(var(--x1),calc(var(--y1) - 26px)) scale(1);opacity:0;}
+    100%    {transform:translate(var(--x1),calc(var(--y1) - 26px)) scale(1);opacity:1;}
   }
   /* AI core: the gem floats, the glow breathes, the ring flattens and opens like an orbit seen
      edge-on */
@@ -729,7 +733,7 @@
      wash read as low-tier because it was ONLY a gradient; this keeps the pieces that made the dark
      version feel built -- fine grain, an off-centre bloom, a masked hairline grid and the cropped
      ghost stat -- inverted onto white. Structure, not just a tint. */
-  #why{background:linear-gradient(180deg,#FFFDFA 0%,var(--paper) 55%,#F2EEE5 100%);overflow:hidden;}
+  #why{background:var(--paper);overflow:hidden;}   /* flat, same as every other layer */
   /* bloom + hairline grid, masked to a soft oval so the edges dissolve instead of ending on a line */
   #why::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;border-radius:inherit;
     background:
@@ -747,8 +751,8 @@
   #why > *{position:relative;z-index:1;}
   /* cropped ghost stat -- violet outline on white, faded at the top so it never crowds the copy */
   #why > .me-ghost{position:absolute;z-index:0;right:1.5%;bottom:-15%;pointer-events:none;user-select:none;
-    font-size:clamp(190px,25vw,370px);font-weight:800;letter-spacing:-.05em;line-height:.8;
-    color:transparent;-webkit-text-stroke:2px rgba(120,116,136,.20);
+    font-size:clamp(230px,31vw,460px);font-weight:900;letter-spacing:-.055em;line-height:.74;
+    color:transparent;-webkit-text-stroke:2.6px rgba(102,80,168,.30);
     -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 42%,#000 100%);
             mask-image:linear-gradient(180deg,transparent 0,#000 42%,#000 100%);}
   /* heading + body use the site's default ink; eyebrow keeps brand violet */
@@ -769,8 +773,20 @@
      The dot carries itself on colour and motion. */
   .me-timeline::after{content:'';position:absolute;left:4px;width:8px;height:8px;border-radius:50%;
     background:var(--accent);
-    animation:railPulse 4.5s ease-in-out infinite;}
-  @keyframes railPulse{0%{top:6px;opacity:0;}12%{opacity:1;}88%{opacity:1;}100%{top:calc(100% - 22px);opacity:0;}}
+    animation:railPulse 6.4s cubic-bezier(.4,0,.5,1) infinite;}
+  /* travels down, ARRIVES on the flare 'Today' node, pulses there, then lifts back to 2025 --
+     it used to simply fade out at the bottom, which read as the animation giving up. */
+  @keyframes railPulse{
+    0%    {top:6px;opacity:0;transform:scale(.6);}
+    8%    {opacity:1;transform:scale(1);}
+    52%   {top:calc(100% - 22px);opacity:1;transform:scale(1);}
+    58%   {transform:scale(1.9);background:var(--flare);
+           box-shadow:0 0 16px 6px rgba(228,98,47,.55);}
+    64%   {transform:scale(1);background:var(--flare);}
+    72%   {top:calc(100% - 22px);opacity:1;}
+    92%   {top:6px;opacity:.35;transform:scale(.8);}
+    100%  {top:6px;opacity:0;transform:scale(.6);}
+  }
   .me-timeline li{position:relative;padding:0 0 22px;}
   .me-timeline li:last-child{padding-bottom:0;}
   /* beaded node: radial highlight (top-left light) + cast shadow = a small sphere sitting proud */
@@ -1148,19 +1164,6 @@
      before the fold does. Everything sits in the bottom-anchored copy block, so the particle
      field above it is untouched.
      ========================================================================================= */
-  .hero-status{display:inline-flex;align-items:center;gap:9px;
-    font-family:monospace;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
-    color:var(--text-muted);background:rgba(255,255,255,.72);
-    border:1px solid var(--line);border-radius:999px;padding:7px 15px 7px 12px;
-    margin-bottom:18px;backdrop-filter:blur(6px);}
-  .hero-status i{width:7px;height:7px;border-radius:50%;background:var(--flare);flex:none;
-    box-shadow:0 0 0 0 rgba(228,98,47,.55);animation:heroPing 2.6s ease-out infinite;}
-  @keyframes heroPing{
-    0%{box-shadow:0 0 0 0 rgba(228,98,47,.5);}
-    70%{box-shadow:0 0 0 8px rgba(228,98,47,0);}
-    100%{box-shadow:0 0 0 0 rgba(228,98,47,0);}}
-  @media(prefers-reduced-motion:reduce){.hero-status i{animation:none;}}
-
   /* display scale: bigger, tighter, and the emphasis carries the brand rather than a whole
      coloured heading */
   .hero-copy h1{font-size:clamp(38px,7.2vw,92px);line-height:.95;letter-spacing:-.045em;
@@ -1207,7 +1210,6 @@
     /* ---- HERO: stacked, left-aligned, and the figures become a 3-up strip ---------------- */
     .hero-copy h1{font-size:clamp(34px,10.4vw,46px);line-height:.98;letter-spacing:-.04em;
       max-width:none;}
-    .hero-status{font-size:10px;letter-spacing:.11em;padding:6px 12px 6px 10px;margin-bottom:14px;}
     .hero-sub{font-size:15px;line-height:1.5;max-width:34ch;}
     /* both CTAs go full width and stack: on a phone the primary action should be unmissable and
        thumb-reachable, not a small pill floating in a row */
@@ -1297,6 +1299,58 @@
     .tab{font-size:12.5px;padding:10px 4px;}
   }
 
+
+  /* ---- footer CTA column: replaces the email capture ----------------------------------------
+     The capture duplicated the modal it opened, and a bare input in a footer reads as a
+     newsletter box on a site with no newsletter. A direct line plus one button says the same
+     thing with less furniture. */
+  .foot-col-cta{max-width:34ch;}
+  .foot-pitch{font-size:13.5px;line-height:1.55;color:#A29A8C;margin:0 0 16px;}
+  .foot-start{border-color:var(--accent);}
+
+  /* (7) ABOUT stops, then the black comes up under the CTA -------------------------------------
+     The About layer no longer reserves a screen of paper below its content: it is sized to the
+     stack plus a short tail, so the footer's top edge arrives just beneath "Work with me"
+     instead of a viewport later. */
+  .team-block{min-height:auto!important;padding-bottom:clamp(40px,5vh,64px)!important;}
+  footer{margin-top:clamp(20px,3vh,40px)!important;}
+
+
+  /* (5c) WHY ME depth: a second, deeper plane behind the ghost numeral so the section has real
+     front-to-back separation instead of one flat wash. Radial vignette + a wide soft bloom set
+     low, so the timeline reads as sitting in front of something. */
+  #why::before{
+    background:
+      radial-gradient(46% 40% at 74% 22%, rgba(102,80,168,.10), transparent 70%),
+      radial-gradient(70% 55% at 18% 88%, rgba(228,98,47,.055), transparent 72%),
+      repeating-linear-gradient(90deg, rgba(11,11,12,.028) 0 1px, transparent 1px 132px),
+      repeating-linear-gradient(0deg,  rgba(11,11,12,.02)  0 1px, transparent 1px 132px)!important;
+  }
+
+  /* (6) WHAT I BUILD: the section had a flat ground and three cards floating on nothing.
+     A single soft plinth under the row plus hairline verticals between the columns gives the
+     cards something to stand on and reads as depth rather than decoration. */
+  #services{position:relative;overflow:hidden;}
+  #services::before{
+    content:'';position:absolute;left:0;right:0;bottom:0;height:62%;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(58% 78% at 50% 100%, rgba(102,80,168,.09), transparent 72%),
+      linear-gradient(180deg, transparent, rgba(239,233,223,.85));
+  }
+  #services > *{position:relative;z-index:1;}
+  /* hairline verticals aligned to the card gutters -- structure, not a grid overlay */
+  .card-grid{position:relative;}
+  .card-grid::before{
+    content:'';position:absolute;top:-26px;bottom:-26px;left:0;right:0;z-index:-1;pointer-events:none;
+    background:linear-gradient(90deg,transparent calc(33.333% - 1px),var(--line) calc(33.333% - 1px),
+      var(--line) 33.333%,transparent 33.333%,transparent calc(66.666% - 1px),
+      var(--line) calc(66.666% - 1px),var(--line) 66.666%,transparent 66.666%);
+    -webkit-mask-image:linear-gradient(180deg,transparent,#000 22%,#000 78%,transparent);
+            mask-image:linear-gradient(180deg,transparent,#000 22%,#000 78%,transparent);
+    opacity:.7;
+  }
+  @media(max-width:860px){.card-grid::before{display:none;}}
+
 </style>
 </head>
 <body>
@@ -1345,7 +1399,6 @@
       <div class="hero-grid">
         <div class="hero-left">
           <!-- live status, not a decorative label: it says the operator is real and reachable -->
-          <div class="hero-status"><i aria-hidden="true"></i>Taking on two projects this month</div>
           <h1 data-em="only">Systems that only win.</h1>
         </div>
         <div class="hero-right">
@@ -1602,12 +1655,10 @@
       <a href="mailto:martin@mvssolves.com">martin@mvssolves.com</a>
       <span class="foot-plain">Remote</span>
     </div>
-    <div class="foot-col">
-      <h3>Still have questions?</h3>
-      <div class="foot-cta">
-        <input class="foot-email" type="email" placeholder="Enter your email">
-        <a class="btn filled lime" href="#" data-contact>Send</a>
-      </div>
+    <div class="foot-col foot-col-cta">
+      <h3>Start a project</h3>
+      <p class="foot-pitch">Tell me what's broken. I read every enquiry myself and reply within a day, usually the same one.</p>
+      <a class="btn filled foot-start" href="#" data-contact>Let's talk</a>
     </div>
   </div>
   <div class="foot-legal">
@@ -1877,10 +1928,10 @@ document.addEventListener('click',e=>{
      next to the headline's per-character rise than a second sliding element would. */
   /* status pill, sub, both CTAs and the figure row all fade up on the headline's clock. Selector
      updated: the old .eyebrow in the hero was replaced by .hero-status. */
-  const bits=[document.querySelector('.hero-status'),
-              document.querySelector('.hero-sub'),
+  /* the figure row is deliberately NOT in this load-time batch: it now plays on scroll with the
+     same per-character rise every other number on the site uses. See the fxRise wiring below. */
+  const bits=[document.querySelector('.hero-sub'),
               document.querySelector('.hero-ctas'),
-              document.querySelector('.hero-figures'),
               document.querySelector('.hero-cue')].filter(Boolean);
   gsap.fromTo(bits,{opacity:0,y:10},
     {opacity:1,y:0,duration:1,stagger:.11,ease:'power2.out',delay:.4});
@@ -2168,6 +2219,27 @@ function fxGroup(el){
 document.querySelectorAll('.fx-type').forEach(fxType);
 document.querySelectorAll('.fx-alt').forEach(fxAlt);
 document.querySelectorAll('.fx-rise').forEach(fxRise);
+/* hero figures: the numerals get the house char-rise and the labels follow, both gated on real
+   visibility rather than firing at page load. */
+(function(){
+  const row=document.querySelector('.hero-figures');
+  if(!row||reduce)return;
+  const dts=[...row.querySelectorAll('dt')], dds=[...row.querySelectorAll('dd')];
+  const chars=dts.flatMap(dt=>splitChars(dt));
+  gsap.set(row,{perspective:600});
+  gsap.set(chars,{opacity:0,y:30,rotateX:-70,transformOrigin:'50% 100%'});
+  gsap.set(dds,{opacity:0,y:8});
+  let armed=true;
+  const play=()=>{
+    gsap.fromTo(chars,{opacity:0,y:30,rotateX:-70,transformOrigin:'50% 100%'},
+      {opacity:1,y:0,rotateX:0,duration:.55,stagger:.02,ease:'back.out(1.7)',overwrite:true});
+    gsap.fromTo(dds,{opacity:0,y:8},{opacity:1,y:0,duration:.5,stagger:.06,delay:.22,ease:'power2.out',overwrite:true});
+  };
+  new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting&&e.intersectionRatio>=0.6){ if(armed){armed=false;play();} }
+    else if(!e.isIntersecting){ armed=true; }
+  }),{threshold:[0,0.6]}).observe(row);
+})();
 document.querySelectorAll('.fx-mask').forEach(fxMask);
 document.querySelectorAll('.fx-scale').forEach(fxScale);
 document.querySelectorAll('.fx-words').forEach(fxWords);
