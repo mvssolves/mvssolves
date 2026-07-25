@@ -154,12 +154,17 @@ function boot() {
   const FILL = 0.82;                 // share of the frame height the sculpture occupies at load
 
   function place() {
-    rig.scale.setScalar((SPAN * FILL) / SCULPT_H);
+    /* size against the SHORTER axis of the frame. SPAN is the frame's world height, and on a
+       landscape screen that is the tighter of the two so it governs -- but a portrait phone is
+       only 0.46 as wide as it is tall, giving about 3.2 world units across against a sculpture
+       5.7 wide. Sizing to height alone pushed the whole object outside the frame sideways and left
+       the hero looking empty. */
+    const spanX = SPAN * (innerWidth / innerHeight);
+    rig.scale.setScalar((Math.min(SPAN, spanX) * FILL) / SCULPT_H);
     /* pushed right on wide screens so it shares the frame with the bottom-left headline. Centred
        below 1024, where there is no room to sit off-axis.
        camera.lookAt deliberately stays on x=0 -- aiming at the rig would re-centre it in view and
        silently undo this. */
-    const spanX = SPAN * (innerWidth / innerHeight);
     rig.position.set(innerWidth >= 1024 ? spanX * 0.17 : 0, 0, 0);
   }
 
