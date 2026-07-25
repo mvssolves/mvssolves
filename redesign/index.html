@@ -1522,10 +1522,21 @@
   #services .work-lead .work-n{color:var(--flare);margin-bottom:auto;}
 
   #services .work-rest{display:flex;flex-direction:column;justify-content:space-between;gap:2px;}
-  #services .work-item{display:flex;gap:clamp(12px,1.1vw,18px);align-items:baseline;
-    padding:clamp(9px,1.15vh,14px) clamp(10px,1vw,16px);border-radius:14px;
-    transition:background .28s ease;}
+  /* rows are real buttons so the rotation can be driven from the keyboard as well as the clock */
+  #services .work-item{appearance:none;border:0;background:transparent;font:inherit;color:inherit;
+    width:100%;text-align:left;cursor:pointer;
+    display:flex;gap:clamp(12px,1.1vw,18px);align-items:baseline;
+    padding:clamp(8px,1vh,13px) clamp(10px,1vw,16px);border-radius:14px;
+    transition:background .28s ease,opacity .28s ease;}
   #services .work-item:hover{background:rgba(22,19,15,.045);}
+  #services .work-item:focus-visible{outline:2px solid var(--flare);outline-offset:2px;}
+  /* the active row: the panel is showing it, so it is marked rather than merely hovered */
+  #services .work-item.is-on{background:rgba(22,19,15,.06);}
+  #services .work-item.is-on h4{color:var(--flare);}
+
+  /* the panel crossfades between items; geometry never moves, only the text swaps */
+  #services .work-lead>*{transition:opacity .32s ease;}
+  #services .work-lead.is-swapping>*{opacity:0;}
   #services .work-item h4{font-size:clamp(15px,1.25vw,18px);letter-spacing:-.02em;line-height:1.15;
     margin:0 0 3px;color:var(--ink);}
   #services .work-item p{font-size:clamp(12.5px,.95vw,14px);line-height:1.45;margin:0;
@@ -1564,6 +1575,28 @@
      the bottom one was drawn straight across the CTA. Removed for these two layers; every ground
      is already the same paper, so the boundaries blend without them. */
   .team-block .seam,footer .seam{display:none!important;}
+
+  /* ---- HOW IT WORKS, inverted -----------------------------------------------------------------
+     The section now starts on the right: the three stages sit right, the isometric scene left, and
+     the header block is right-aligned so the whole section reads right-first rather than being
+     half-flipped. The mobile column-reverse rule further up is untouched. */
+  @media(min-width:861px){
+    #process .sys{flex-direction:row-reverse;}
+    #process .eyebrow,#process h2,#process .process-lead{text-align:right;}
+    #process .process-lead{margin-left:auto;margin-right:0;}
+    #process .stages{text-align:right;}
+  }
+
+  /* ---- ABOUT: full layer, content at the bottom -----------------------------------------------
+     Two problems, one fix. A short About left Work visible in the gap beneath it; and because
+     sticky cannot outlive its containing block, a short About made main end early, so Work
+     UNPINNED and slid away while About was still arriving on screen.
+     Full height covers the layer and extends main, so Work stays put the whole way through. The
+     content is bottom-aligned rather than centred, so the CTA lands just above the section's own
+     bottom edge and the black still arrives directly beneath it -- the empty space ends up above
+     the copy, where it reads as air rather than as a hole. */
+  .team-block{min-height:calc(100dvh - var(--nav-h))!important;
+    justify-content:flex-end!important;}
 
   /* About's paper fill. Both shadows in one declaration because the seamless block above sets
      box-shadow on this selector with !important: the first is that block's soft top edge, kept
@@ -1811,35 +1844,43 @@
        strongest thing on offer the same weight as the smallest, so nothing landed. Named noun-first
        (the site, the calendar, the receptionist) so the six read as parts of one machine, which is
        what the lead paragraph promises. -->
-  <div class="work fx-group">
-    <article class="work-lead">
+  <!-- The lead panel is a DISPLAY SLOT, not a seventh item: it shows whichever of the six rows is
+       active, and the active row advances every 5s. The long copy for each lives on its own row in
+       data-lead, so the markup stays the single source of truth and the panel starts populated
+       even if the script never runs. -->
+  <div class="work fx-group" id="work">
+    <article class="work-lead" id="workLead" aria-live="polite">
       <span class="work-n">01</span>
       <h3>The site</h3>
       <p>Fast, premium, and built for one job: turning a visitor into a booked job. Not a brochure
         with your logo on it.</p>
     </article>
 
-    <div class="work-rest">
-      <article class="work-item">
+    <div class="work-rest" id="workRows">
+      <button class="work-item is-on" data-lead="Fast, premium, and built for one job: turning a visitor into a booked job. Not a brochure with your logo on it.">
+        <span class="work-n">01</span>
+        <div><h4>The site</h4><p>Built to turn a visitor into a booked job.</p></div>
+      </button>
+      <button class="work-item" data-lead="Booking that stays open at 11pm on a Sunday, so the slot gets filled while you are out on a job.">
         <span class="work-n">02</span>
         <div><h4>The calendar</h4><p>Booking that stays open at 11pm on a Sunday.</p></div>
-      </article>
-      <article class="work-item is-key">
+      </button>
+      <button class="work-item is-key" data-lead="Every enquiry answered in seconds, qualified, and put in your diary. Day or night, in your voice.">
         <span class="work-n">03</span>
         <div><h4>The receptionist</h4><p>Every enquiry answered in seconds, qualified, and in your diary.</p></div>
-      </article>
-      <article class="work-item">
+      </button>
+      <button class="work-item" data-lead="Every finished job asks while the client is happiest, so your rating climbs without you chasing it.">
         <span class="work-n">04</span>
         <div><h4>The reviews</h4><p>Every finished job asks while the client is happiest.</p></div>
-      </article>
-      <article class="work-item">
+      </button>
+      <button class="work-item" data-lead="The enquiries that go quiet get chased until they book or say no. Nothing is left to rot in an inbox.">
         <span class="work-n">05</span>
         <div><h4>The follow-up</h4><p>The ones who go quiet get chased until they book or say no.</p></div>
-      </article>
-      <article class="work-item">
+      </button>
+      <button class="work-item" data-lead="Enquiries, calls, jobs, revenue. One message a week, in plain English, with no dashboard to log into.">
         <span class="work-n">06</span>
         <div><h4>The numbers</h4><p>Enquiries, calls, jobs, revenue. One message a week.</p></div>
-      </article>
+      </button>
     </div>
   </div>
 </section>
@@ -2756,6 +2797,55 @@ function odometer(el, value, opts){
 /* KEY FEATURES has no bespoke behaviour: it's a plain sticky cover-layer identical to
    Technology / Products / Expertise, its rows entering with the shared .fx-group stagger. The
    scroll-pinned accordion that used to live here made it the odd one out. */
+
+/* THE WORK -- the lead panel cycles through the six rows on a 5s clock.
+   Only the text swaps; the panel's geometry is fixed, so nothing reflows and the section can't
+   grow past its pin mid-rotation. Stops when the section is off screen, while the pointer is over
+   the list, and entirely under reduced-motion -- an auto-advancing panel is exactly the kind of
+   motion that rule exists for. Clicking or tabbing to a row takes control and restarts the clock. */
+(function(){
+  const lead=document.getElementById('workLead'), wrap=document.getElementById('workRows');
+  if(!lead||!wrap)return;
+  const rows=[...wrap.querySelectorAll('.work-item')];
+  if(!rows.length)return;
+
+  const n=lead.querySelector('.work-n'), h=lead.querySelector('h3'), p=lead.querySelector('p');
+  const PERIOD=5000;
+  let i=0, timer=null, onScreen=false, held=false;
+
+  const show=(next,instant)=>{
+    if(next===i&&!instant)return;
+    i=next;
+    const row=rows[i];
+    rows.forEach((r,k)=>r.classList.toggle('is-on',k===i));
+    const paint=()=>{
+      n.textContent=row.querySelector('.work-n').textContent;
+      h.textContent=row.querySelector('h4').textContent;
+      p.textContent=row.dataset.lead||row.querySelector('p').textContent;
+      lead.classList.remove('is-swapping');
+    };
+    if(instant||reduce){paint();return;}
+    lead.classList.add('is-swapping');
+    setTimeout(paint,320);   /* matches the opacity transition on .work-lead>* */
+  };
+
+  const tick=()=>show((i+1)%rows.length);
+  const run=()=>{ if(timer||reduce||!onScreen||held)return; timer=setInterval(tick,PERIOD); };
+  const halt=()=>{ clearInterval(timer); timer=null; };
+
+  rows.forEach((r,k)=>{
+    r.addEventListener('click',()=>{ show(k); halt(); run(); });
+    r.addEventListener('focus',()=>{ show(k); });
+  });
+  wrap.addEventListener('pointerenter',()=>{ held=true; halt(); });
+  wrap.addEventListener('pointerleave',()=>{ held=false; run(); });
+
+  new IntersectionObserver(es=>es.forEach(e=>{
+    onScreen=e.isIntersecting; onScreen?run():halt();
+  }),{threshold:0.2}).observe(document.getElementById('services'));
+
+  show(0,true);
+})();
 
 /* team stats -- same odometer, driven by [data-count]. The Expertise stats are driven by their
    own tab logic instead, so this deliberately only claims elements with data-count. */

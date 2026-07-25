@@ -92,8 +92,13 @@ function boot() {
   const FILL = 0.82;                 // share of the frame height the sculpture occupies at load
 
   function place() {
-    rig.position.set(0, 0, 0);
     rig.scale.setScalar((SPAN * FILL) / SCULPT_H);
+    /* pushed right on wide screens so it shares the frame with the bottom-left headline. Centred
+       below 1024, where there is no room to sit off-axis.
+       camera.lookAt deliberately stays on x=0 -- aiming at the rig would re-centre it in view and
+       silently undo this. */
+    const spanX = SPAN * (innerWidth / innerHeight);
+    rig.position.set(innerWidth >= 1024 ? spanX * 0.17 : 0, 0, 0);
   }
 
   /* ---- sizing ----------------------------------------------------------------------------- */
