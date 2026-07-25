@@ -53,9 +53,13 @@ function init(host) {
   mesh.position.y = 1.5;
   scene.add(mesh);
 
-  const VIOLET = new THREE.Color('#9070DF');
-  const LIME   = new THREE.Color('#E6F536');
-  const BG     = new THREE.Color('#efecf7');    // the hero's own background, for the depth fade
+  /* Bone & Iris. The field is warm graphite DUST with iris as a minority -- violet is banned
+     from gradients, and a two-colour lerp across thousands of particles reads as exactly that.
+     So the base is dust, iris marks structure, and flare only appears on disturbance. */
+  const DUST   = new THREE.Color('#A79C88');    // ~85% of the field
+  const IRIS   = new THREE.Color('#6650A8');
+  const FLARE  = new THREE.Color('#E4622F');    // reaction only
+  const BG     = new THREE.Color('#F5F1E9');    // the hero's own paper, for the depth fade
 
   const home = new Float32Array(COUNT * 3);     // rest position
   const pos  = new Float32Array(COUNT * 3);     // live position
@@ -340,10 +344,13 @@ function init(host) {
       /* violet field; particles light lime as they're disturbed, so the REACTION is what you see
          rather than a decorative colour cycle */
       const speed = Math.min(1, (vel[i3] * vel[i3] + vel[i3 + 1] * vel[i3 + 1]) * 26);
+      /* a fixed minority of particles carry iris; the rest are dust. Assigning by index keeps it
+         stable frame to frame instead of shimmering. */
+      const isIris = (i % 7) === 0;
       /* lime rides both the disturbance AND a crest travelling across a gathered form, so the
          sculpture visibly "switches on" as it completes */
       const crest = mForm > 0.85 ? Math.pow(Math.max(0, Math.sin(x * 0.32 - t * 1.5)), 6) * mForm : 0;
-      col.copy(VIOLET).lerp(LIME, Math.max(speed, crest * 0.9));
+      col.copy(isIris ? IRIS : DUST).lerp(FLARE, Math.max(speed, crest * 0.9));
       const depth = Math.min(1, Math.abs(z) / 18);
       col.lerp(BG, depth * 0.42);
       mesh.setColorAt(i, col);
@@ -360,7 +367,7 @@ function init(host) {
       const dx = pos[a] - pos[b], dy = pos[a + 1] - pos[b + 1], dz = pos[a + 2] - pos[b + 2];
       const d = Math.sqrt(dx * dx + dy * dy + dz * dz);
       const k = Math.max(0, 1 - d / 5.5);          // 0 once the pair has drifted too far apart
-      col.copy(VIOLET).lerp(BG, 1 - k * 0.85);
+      col.copy(DUST).lerp(BG, 1 - k * 0.85);
       linkCol[o] = linkCol[o + 3] = col.r;
       linkCol[o + 1] = linkCol[o + 4] = col.g;
       linkCol[o + 2] = linkCol[o + 5] = col.b;
@@ -378,7 +385,7 @@ function init(host) {
       ribPos[o]     = Math.sin(u * a + t * 0.42) * 13.5;
       ribPos[o + 1] = Math.sin(u * b + t * 0.31) * 7.6;
       ribPos[o + 2] = Math.cos(u * 2.0 + t * 0.25) * 8.5;
-      col.copy(VIOLET).lerp(LIME, (Math.sin(u * 3 - t * 0.9) + 1) * 0.5 * 0.55);
+      col.copy(IRIS).lerp(FLARE, (Math.sin(u * 3 - t * 0.9) + 1) * 0.5 * 0.35);
       ribCol[o] = col.r; ribCol[o + 1] = col.g; ribCol[o + 2] = col.b;
     }
     ribGeo.attributes.position.needsUpdate = true;

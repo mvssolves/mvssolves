@@ -10,9 +10,9 @@
 
 :root{
   --nav-h:72px;
-  --accent:#9070DF;
-  --accent2:#E6F536;
-  --ink:#0B0B0C;
+  --accent:#6650A8;
+  --accent2:#E4622F;
+  --ink:#16130F;
   --text:#1c1a1f;
   --soft:#4a4753;
   --muted:#8a8694;
@@ -244,9 +244,9 @@ footer{background:var(--ink);color:#fff;padding:44px 40px 0;overflow:hidden;
 .foot-glow{position:absolute;inset:-40% -12% -60%;z-index:0;pointer-events:none;
   filter:blur(72px);opacity:.6;animation-play-state:paused;
   background:
-    radial-gradient(38% 62% at 20% 46%,rgba(144,112,223,.9),transparent 70%),
+    radial-gradient(38% 62% at 20% 46%,rgba(102,80,168,.9),transparent 70%),
     radial-gradient(34% 56% at 58% 62%,rgba(90,200,250,.55),transparent 70%),
-    radial-gradient(30% 52% at 84% 40%,rgba(230,245,54,.3),transparent 70%);
+    radial-gradient(30% 52% at 84% 40%,rgba(228,98,47,.3),transparent 70%);
   animation:glowDrift 19s ease-in-out infinite alternate;}
 .foot-bottom.live .foot-glow{animation-play-state:running;}
 
@@ -255,7 +255,7 @@ footer{background:var(--ink);color:#fff;padding:44px 40px 0;overflow:hidden;
 .btn.filled{background:var(--accent2);color:var(--ink);border-color:var(--accent2);}
 .btn{transition:transform .22s cubic-bezier(.34,1.4,.64,1),box-shadow .22s ease, background .22s ease,color .22s ease;}
 .btn:hover{transform:translateY(-2px);}
-.btn.filled:hover{box-shadow:0 8px 22px -8px rgba(230,245,54,.55);}
+.btn.filled:hover{box-shadow:0 8px 22px -8px rgba(228,98,47,.55);}
 .btn:not(.filled):hover{background:var(--ink);color:#fff;}
 .btn:active{transform:translateY(0);}
 .foot-col a{position:relative;display:inline-block;transition:color .2s ease;}

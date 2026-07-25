@@ -5,13 +5,13 @@
 <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
 <link rel="preload" as="style" href="https://api.fontshare.com/v2/css?f[]=satoshi@700,900,500,400,800,600&display=swap">
 <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@700,900,500,400,800,600&display=swap">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230B0B0C'/%3E%3Cpolyline points='14,49 14,15 32,41 50,15 50,49' fill='none' stroke='%239070DF' stroke-width='7' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2316130F'/%3E%3Cpolyline points='14,49 14,15 32,41 50,15 50,49' fill='none' stroke='%236650A8' stroke-width='7' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MVS Solves — Websites &amp; automations that book paying clients</title>
 <meta name="description" content="I build high-converting websites, booking systems and AI receptionists for service businesses. 50+ businesses run on systems I designed and built myself.">
 <meta name="author" content="Martin — MVS Solves">
-<meta name="theme-color" content="#9070DF">
+<meta name="theme-color" content="#6650A8">
 <link rel="canonical" href="https://mvssolves.com/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="MVS Solves">
@@ -76,13 +76,41 @@
      --accent  violet, used for eyebrow/label text and secondary marks
      --accent2 acid green, used for the primary CTA fill (black text on it)
      --ink     near-black for the dark sections (hero + footer), not pure #000 */
-  :root{--nav-h:72px;--accent:#9070DF;--accent2:#E6F536;--ink:#0B0B0C;}
+  /* ---- BONE & IRIS -------------------------------------------------------------------------
+     Every neutral is WARM -- there is no cool grey left in the palette, which is what stops the
+     page reading as generic AI purple. Two hard rules go with it:
+       1. violet appears in ZERO gradients, CSS or WebGL. No washes, no lavender cards, no glows.
+       2. --flare is the rare signal (send / booked / win). Max one per viewport, never a CTA. */
+  :root{
+    --nav-h:72px;
+
+    --paper:#F7F4EF;          /* default light surface. NOT #fff                     */
+    --paper-raised:#FFFFFF;   /* cards, expanded panels -- white is a RAISED state   */
+    --bone:#EFE9DF;           /* recessed bands + the ink for surface texture        */
+    --line:#DDD6C8;           /* hairlines, card borders, dividers                   */
+
+    --ink:#16130F;            /* warm near-black: footer, video panel, dark cards    */
+    --ink-raised:#221E18;     /* elevated surface inside a dark area                 */
+    --line-dark:#332D24;      /* hairlines and unlit dots on dark                    */
+
+    --text:#2E2A24;           /* 13.0:1 on paper                                     */
+    --text-muted:#6B655B;     /* 5.26:1 on paper -- lightest that still carries words*/
+    --text-invert:#EFEAE1;    /* 15.5:1 on ink                                       */
+
+    --accent:#6650A8;         /* iris. buttons, active states                        */
+    --accent-deep:#4C3D7D;    /* hover/pressed, and violet AS TEXT on light (8.4:1)  */
+    --accent-lift:#9F8AD9;    /* violet on DARK only                                 */
+
+    --flare:#E4622F;          /* send / win / booked. rare.                          */
+    /* retired: lime #E4622F. Every usage was retargeted individually -- active states to
+       iris, win states to flare, decoration to neutral. No alias remains. */
+  }
   *{box-sizing:border-box;margin:0;padding:0;}
   /* Satoshi, with the old system stack kept as the fallback so nothing reflows badly if the
      webfont fails. A real typeface is the single biggest lift here -- the system stack rendered
      as SF Pro on Mac and Segoe on Windows, so the page had no consistent voice. */
   body{font-family:'Satoshi',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-    color:#111;background:#fff;line-height:1.5;
+    color:var(--text);background:var(--paper);line-height:1.5;
     font-feature-settings:'ss01' 1;-webkit-font-smoothing:antialiased;}
   /* full viewport width, small edge gutter -- NOT a centered narrow column. Confirmed on the
      reference: nav/hero/cards run near edge-to-edge on a real desktop viewport, not capped to
@@ -111,7 +139,7 @@
   /* buttons stay PUT. They get hover and click reactions, but never translate -- a CTA that
      drifts around under the cursor is harder to hit and reads as a bug. */
   .btn{position:relative;display:inline-block;padding:12px 24px;border-radius:999px;
-    border:1px solid #111;font-size:14px;font-weight:600;text-decoration:none;color:#111;
+    border:1px solid #111;font-size:14px;font-weight:600;text-decoration:none;color:var(--text);
     cursor:pointer;background:none;overflow:hidden;isolation:isolate;
     transition:color .3s ease,border-color .3s ease,box-shadow .3s ease;}
   /* FILL WIPE -- a disc scales up from under the label on hover. Sits at -1 so the label rides
@@ -121,7 +149,7 @@
     transition:transform .45s cubic-bezier(.2,.8,.3,1);}
   .btn:hover::after{transform:scale(1.02);}
   .btn:hover{color:#fff;border-color:var(--accent);}
-  .btn:hover{box-shadow:0 10px 26px -12px rgba(144,112,223,.65);}
+  .btn:hover{box-shadow:0 10px 26px -12px rgba(102,80,168,.65);}
   .btn:active{transform:scale(.97);}
   /* keyboard focus was invisible everywhere: the only :focus rules were on the modal inputs. */
   a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
@@ -141,9 +169,10 @@
   .btn.filled::after{background:var(--ink);}
   .btn.filled:hover{color:#fff;border-color:var(--ink);}
   /* the lime button, reserved */
-  .btn.lime{background:var(--accent2);color:var(--ink);border-color:var(--accent2);}
+  /* the only flare-filled control on the site: the send buttons. Ink on flare = 5.4:1 */
+  .btn.lime{background:var(--flare);color:var(--ink);border-color:var(--flare);}
   .btn.lime::after{background:var(--ink);}
-  .btn.lime:hover{color:var(--accent2);border-color:var(--ink);}
+  .btn.lime:hover{color:var(--flare);border-color:var(--ink);}
   /* TEXT RE-THROW -- the label is duplicated; on hover the original slides up and out while the
      copy arrives from below. Same upward-rise language as every heading on the site. */
   .btn .btn-t{display:inline-block;position:relative;overflow:hidden;vertical-align:bottom;}
@@ -172,7 +201,7 @@
   /* FIXED, and it stays that way. The nav locks to the top from the moment the page
      loads and never moves. It only changes background: transparent over the dark hero,
      solid white once you're past it. */
-  nav{position:fixed;top:0;left:0;right:0;background:#fff;z-index:20;
+  nav{position:fixed;top:0;left:0;right:0;background:var(--paper);z-index:20;
     transition:background .3s ease;}
   /* transparent for the WHOLE hero section, and it does not fade back in until the hero is gone.
      Previously the nav faded from transparent to white across the hero's own scroll, which put a
@@ -185,7 +214,7 @@
      pushed to the far right on its own with margin-left:auto. */
   .nav-inner{display:flex;align-items:center;gap:40px;padding:18px 40px;}
   /* logo: the M mark alone, top-left. No wordmark -- the footer wordmark carries the name. */
-  .nav-logo{display:flex;align-items:center;color:#111;}
+  .nav-logo{display:flex;align-items:center;color:var(--text);}
   /* the M mark inherits currentColor, so it's white over the dark hero and dark on white
      sections automatically -- same reason it's inline SVG rather than a flat black-tile PNG */
   .logo-mark{width:30px;height:30px;flex:none;display:block;color:inherit;}
@@ -203,14 +232,14 @@
   .nav-links a:hover::after{transform:scaleX(1);}
   /* hover is INK in both nav states -- the links sit on white, where lime has almost no contrast
      and violet competed with the CTA. The underline draw is the tell, not a colour change. */
-  .nav-links a:hover,nav.nav-clear .nav-links a:hover{color:#111;}
+  .nav-links a:hover,nav.nav-clear .nav-links a:hover{color:var(--text);}
   .nav-links a:hover::after{background:#111;}
 
   /* buttons: lift + shadow, and the filled one warms slightly */
   .btn{transition:transform .22s cubic-bezier(.34,1.4,.64,1),box-shadow .22s ease,
     background .22s ease,color .22s ease;}
   .btn:hover{transform:translateY(-2px);}
-  .btn.filled:hover{box-shadow:0 8px 22px -8px rgba(230,245,54,.55);}
+  .btn.filled:hover{box-shadow:0 8px 22px -8px rgba(228,98,47,.55);}
   .btn:not(.filled):hover{background:var(--ink);color:#fff;}
   .btn:active{transform:translateY(0);}
 
@@ -218,7 +247,7 @@
   .card{transition:transform .3s cubic-bezier(.34,1.2,.64,1),border-color .3s ease,
     box-shadow .3s ease;}
   .card:hover{transform:translateY(-6px);border-color:var(--accent);
-    box-shadow:0 18px 40px -26px rgba(144,112,223,.55);}
+    box-shadow:0 18px 40px -26px rgba(102,80,168,.55);}
 
   /* feature rows: the index number colours up and the row nudges right */
   .feature-row{transition:background .25s ease;}
@@ -232,7 +261,7 @@
      switching on and off -- the movement is what makes the control feel physical. */
   .tab-row{position:relative;}
   .tab-pill{position:absolute;z-index:0;top:4px;bottom:4px;border-radius:999px;
-    background:var(--accent2);
+    background:var(--accent);
     transition:transform .45s cubic-bezier(.2,.8,.3,1),width .45s cubic-bezier(.2,.8,.3,1);}
   .tab{position:relative;z-index:1;}
   .tab:hover{color:var(--ink);}
@@ -241,12 +270,12 @@
   /* footer links get the same underline draw as the nav */
   .foot-col a{position:relative;display:inline-block;transition:color .2s ease;}
   .foot-col a::after{content:'';position:absolute;left:0;right:0;bottom:-2px;height:1px;
-    background:var(--accent2);transform:scaleX(0);transform-origin:left;
+    background:var(--accent);transform:scaleX(0);transform-origin:left;
     transition:transform .3s cubic-bezier(.4,0,.2,1);}
   .foot-col a:hover{color:#fff;}
   .foot-col a:hover::after{transform:scaleX(1);}
   .foot-email{transition:border-color .2s ease;}
-  .foot-email:focus{outline:none;border-color:var(--accent2);}
+  .foot-email:focus{outline:none;border-color:var(--accent-lift);}
 
   /* stat numbers pulse toward the accent on hover */
   .stat-num{transition:color .25s ease;}
@@ -269,9 +298,9 @@
      by keeping each section's content within a screen -- see the max-height comfort rules and the
      per-section tightening below, not by abandoning the sticky. */
   #why,#services,#proof,#process,.team-block{
-    position:sticky;top:var(--nav-h);background:#fff;min-height:calc(100dvh - var(--nav-h));
+    position:sticky;top:var(--nav-h);background:var(--paper);min-height:calc(100dvh - var(--nav-h));
     border-radius:32px 32px 0 0;
-    box-shadow:0 -18px 40px -20px rgba(30,16,70,.28),inset 0 1px 0 rgba(255,255,255,.75);
+    box-shadow:0 -18px 40px -20px rgba(40,32,22,.28),inset 0 1px 0 rgba(255,255,255,.75);
     display:flex;flex-direction:column;justify-content:flex-start;padding-top:96px;
   }
   /* hero is NOT a sticky cover-layer like the others -- it's a tall scroll RUNWAY containing an
@@ -292,12 +321,12 @@
   /* WHITE hero -- inverted from the old dark treatment. Light section, dark copy, so it reads as
      one continuous white site rather than a dark slab up top. */
   .hero-block{position:relative;z-index:1;min-height:225vh;
-    background:linear-gradient(180deg,#ffffff 0%,#f7f5fb 60%,#f2eff9 100%);}
+    background:linear-gradient(180deg,#FFFFFF 0%,#F9F6F1 60%,#F3EFE7 100%);}
   .hero-copy{color:var(--ink);}
   .hero-copy h1{color:var(--ink);}
-  .hero-sub{color:#4a4753;}
+  .hero-sub{color:var(--text-muted);}
   /* nav sits over the now-WHITE hero while transparent, so its text is dark to stay readable */
-  nav.nav-clear .nav-links a,nav.nav-clear .nav-logo{color:#111;}
+  nav.nav-clear .nav-links a,nav.nav-clear .nav-logo{color:var(--text);}
   /* (nav hover colour is owned by the lime rule in the hover layer above) */
   /* hero marquee on white: dark words, outline .ol ones knocked out to a dark stroke */
   .hero-block .marquee-track span{color:var(--ink);}
@@ -417,7 +446,7 @@
      covers this entirely. */
   .hero-3d-placeholder.has-scene{font-size:0;overflow:hidden;
     background:
-      radial-gradient(70% 60% at 50% 34%, rgba(144,112,223,.16), transparent 66%),
+      radial-gradient(70% 60% at 50% 34%, rgba(102,80,168,.16), transparent 66%),
       radial-gradient(90% 80% at 80% 90%, rgba(90,200,250,.10), transparent 70%),
       linear-gradient(180deg, #f4f1fb 0%, #eeeaf7 60%, #e9e4f4 100%);}
   /* per-form label -- shown as written (title case), gently spaced */
@@ -456,7 +485,7 @@
     margin-right:20px;text-transform:uppercase;letter-spacing:-.015em;color:var(--ink);}
   /* explicit classes, NOT nth-child: the tag set is duplicated at runtime, and any nth pattern
      whose period doesn't divide the span count drifts out of phase on every copy. */
-  .marquee-track .dot{font-size:clamp(11px,1vw,15px);color:var(--accent2);
+  .marquee-track .dot{font-size:clamp(11px,1vw,15px);color:var(--accent);
     transform:translateY(-.35em);}
   @keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
   @media(prefers-reduced-motion:reduce){.marquee-track{animation:none;}}
@@ -469,30 +498,30 @@
      type: a big index numeral, the promise, and exactly what's included. Nothing to render badly. */
   .card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:34px;}
   @media(max-width:860px){.card-grid{grid-template-columns:1fr;max-width:460px;}}
-  .card{position:relative;border:1px solid #e8e6ee;border-radius:18px;padding:30px 28px 32px;
+  .card{position:relative;border:1px solid var(--line);border-radius:18px;padding:30px 28px 32px;
     background:#fff;overflow:hidden;
-    box-shadow:0 2px 4px -2px rgba(20,12,50,.05),0 20px 44px -32px rgba(20,12,50,.4);
+    box-shadow:0 2px 4px -2px rgba(34,28,20,.05),0 20px 44px -32px rgba(34,28,20,.4);
     transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease;}
-  .card:hover{transform:translateY(-5px);border-color:#d9d0f2;
-    box-shadow:0 3px 6px -2px rgba(20,12,50,.06),0 34px 60px -34px rgba(144,112,223,.55);}
+  .card:hover{transform:translateY(-5px);border-color:var(--accent-lift);
+    box-shadow:0 3px 6px -2px rgba(34,28,20,.06),0 34px 60px -34px rgba(102,80,168,.55);}
   /* a hairline accent along the top edge, drawn in on hover -- the only decoration on the card */
   .card::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:var(--accent);
     transform:scaleX(0);transform-origin:left;transition:transform .4s cubic-bezier(.4,0,.2,1);}
   .card:hover::before{transform:scaleX(1);}
-  .card.feat::before{background:var(--accent2);transform:scaleX(1);}
+  .card.feat::before{background:var(--flare);transform:scaleX(1);}
   .svc-num{display:block;font-family:monospace;font-size:13px;letter-spacing:.18em;
     color:var(--accent);margin-bottom:20px;}
-  .card.feat .svc-num{color:#a3ae1f;}
+  .card.feat .svc-num{color:var(--flare);}
   .card h3{font-size:clamp(20px,2vw,24px);letter-spacing:-.02em;line-height:1.15;
     font-weight:800;margin:0 0 12px;}
-  .card p{font-size:14.5px;line-height:1.62;color:#57545f;margin:0;}
+  .card p{font-size:14.5px;line-height:1.62;color:var(--text-muted);margin:0;}
   .card p b{color:var(--accent);font-weight:700;}
-  .svc-list{list-style:none;margin:22px 0 0;padding:18px 0 0;border-top:1px solid #eeecf4;
+  .svc-list{list-style:none;margin:22px 0 0;padding:18px 0 0;border-top:1px solid var(--line);
     display:flex;flex-direction:column;gap:9px;}
-  .svc-list li{position:relative;padding-left:16px;font-size:13px;color:#77737f;line-height:1.45;}
+  .svc-list li{position:relative;padding-left:16px;font-size:13px;color:var(--text-muted);line-height:1.45;}
   .svc-list li::before{content:'';position:absolute;left:0;top:9px;width:7px;height:1.5px;
     background:var(--accent);opacity:.75;}
-  .card.feat .svc-list li::before{background:#b9c41d;}
+  .card.feat .svc-list li::before{background:var(--flare);}
   .mk-chat{width:100%;display:flex;flex-direction:column;gap:9px;}
   .chat{font-size:12px;line-height:1.35;padding:8px 12px;border-radius:13px;max-width:88%;}
   .chat.in{align-self:flex-start;background:#fff;color:#3a3745;border-bottom-left-radius:4px;}
@@ -504,7 +533,7 @@
   .tab-row{display:inline-flex;gap:4px;margin:0 0 20px;flex-wrap:wrap;align-self:flex-start;
     background:#f4f4f6;border:1px solid #ececf0;border-radius:999px;padding:6px;}
   .tab{border:1px solid transparent;border-radius:999px;padding:11px 22px;font-size:15px;
-    color:#6b6875;cursor:pointer;background:none;font-family:inherit;font-weight:500;}
+    color:var(--text-muted);cursor:pointer;background:none;font-family:inherit;font-weight:500;}
   .tab.active{color:var(--ink);font-weight:700;}
   /* Copy top-aligns so it starts directly under the tabs -- centring the whole row pushed it
      ~140px down and opened a hole beneath them. The film centres on its own instead, which
@@ -515,7 +544,7 @@
      painted on load and the animation then replayed over the top of already-visible text. */
   .has-js #pfCopy{visibility:hidden;}
   .expertise-copy{flex:1 1 440px;min-width:280px;max-width:560px;}
-  .expertise-copy p{font-size:clamp(16px,1.5vw,19px);line-height:1.62;color:#4a4753;
+  .expertise-copy p{font-size:clamp(16px,1.5vw,19px);line-height:1.62;color:var(--text-muted);
     margin-bottom:16px;}
   /* bleeds past the wrap's right padding to the viewport edge, like theirs -- that full-bleed
      is a big part of why their section reads as filled rather than as a boxed column. */
@@ -530,12 +559,12 @@
   .expertise-visual{flex:1 1 460px;min-width:300px;max-width:1000px;aspect-ratio:3/2;max-height:56vh;
     margin-left:auto;position:relative;contain:paint;
     border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.07);
-    /* FLAT, and matched to the film's own background (#090909, sampled from the poster). The panel
+    /* FLAT, and matched to the film's own background (var(--ink), sampled from the poster). The panel
        used to carry a violet inner glow and a white top rim on top of the video, so the letterbox
        area was lit differently from the footage and the edges read as a tinted blur. Depth now
        comes only from the outer drop shadow, which never touches the picture. */
-    background:#090909;
-    box-shadow:0 52px 92px -34px rgba(30,16,70,.6),0 16px 32px -12px rgba(30,16,70,.4);
+    background:var(--ink);
+    box-shadow:0 52px 92px -34px rgba(40,32,22,.6),0 16px 32px -12px rgba(40,32,22,.4);
     transform:perspective(1500px) rotateY(-5deg);
     transition:transform .55s cubic-bezier(.4,0,.2,1),box-shadow .55s ease;}
   .expertise-visual:hover{transform:perspective(1500px) rotateY(0deg);}
@@ -561,36 +590,36 @@
   .odo-d{display:inline-block;overflow:hidden;height:1em;line-height:1;}
   .odo-strip{display:block;will-change:transform;}
   .odo-strip>span{display:block;height:1em;line-height:1;}
-  .stat-label{color:#77737f;font-size:14px;max-width:20ch;margin-top:10px;line-height:1.35;}
+  .stat-label{color:var(--text-muted);font-size:14px;max-width:20ch;margin-top:10px;line-height:1.35;}
 
   /* THE SYSTEMS -- three stage cards on the left, an isometric machine on the right. The lime
      token climbs the three ascending blocks on a loop, and each stage card lights as the token
      reaches its block. All CSS: perspective + 3D transforms + one shared keyframe clock, so it
      can't jank and needs no JS. */
-  .process-lead{font-size:clamp(16px,1.6vw,20px);line-height:1.5;color:#4a4753;max-width:50ch;margin-top:12px;}
+  .process-lead{font-size:clamp(16px,1.6vw,20px);line-height:1.5;color:var(--text-muted);max-width:50ch;margin-top:12px;}
   .sys{display:flex;gap:30px;align-items:center;margin-top:20px;}
 
   .stages{flex:0 0 clamp(300px,33vw,372px);display:flex;flex-direction:column;gap:14px;}
-  .stage{border:1px solid #e6e6ea;border-radius:14px;padding:18px 44px 18px 22px;background:#fff;
+  .stage{border:1px solid var(--line);border-radius:14px;padding:18px 44px 18px 22px;background:#fff;
     position:relative;overflow:hidden;cursor:default;
     transition:transform .3s cubic-bezier(.2,.8,.2,1),border-color .3s ease,box-shadow .3s ease;}
   /* HOVER: lifts and lights, independent of the auto sync (which only tints the background, below,
      so the two never fight over the same property) */
   .stage:hover{transform:translateY(-4px);border-color:var(--accent);
-    box-shadow:0 20px 44px -22px rgba(144,112,223,.55);}
+    box-shadow:0 20px 44px -22px rgba(102,80,168,.55);}
   .stage-k{font-family:monospace;font-size:11px;color:#c0c0c8;letter-spacing:.1em;}
   .stage h3{font-size:clamp(18px,1.9vw,21px);letter-spacing:-.01em;margin:4px 0 4px;color:var(--ink);}
   .stage p{font-size:13.5px;color:#5a5760;line-height:1.45;}
   /* the lime edge bar -- scales in during this card's turn in the sync cycle */
-  .stage::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent2);
+  .stage::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);
     transform:scaleY(0);transform-origin:top;transition:transform .4s ease;z-index:2;}
   /* INDEPENDENT element: a live status dot, top-right, always pulsing regardless of hover/sync */
   .stage::after{content:'';position:absolute;top:16px;right:16px;width:8px;height:8px;border-radius:50%;
     background:var(--accent);animation:dotPulse 2.4s ease-in-out infinite;}
   .s-b::after{animation-delay:.5s;} .s-c::after{animation-delay:1s;}
   @keyframes dotPulse{
-    0%,100%{transform:scale(.85);opacity:.45;box-shadow:0 0 0 0 rgba(144,112,223,.45);}
-    50%{transform:scale(1.25);opacity:1;box-shadow:0 0 0 7px rgba(144,112,223,0);}
+    0%,100%{transform:scale(.85);opacity:.45;box-shadow:0 0 0 0 rgba(102,80,168,.45);}
+    50%{transform:scale(1.25);opacity:1;box-shadow:0 0 0 7px rgba(102,80,168,0);}
   }
   /* auto sync: each card tints faint violet during its third of the 10.5s cycle -- and its dot
      goes lime -- so the eye follows the token climbing the machine. Background only, so hover
@@ -611,7 +640,7 @@
   .iso-stage{flex:1;min-width:320px;display:flex;flex-direction:column;align-items:center;
     justify-content:center;gap:10px;position:relative;}
   .iso-stage::before{content:'';position:absolute;inset:-4% -2% 14%;z-index:0;pointer-events:none;
-    background-image:radial-gradient(rgba(144,112,223,.18) 1.4px,transparent 1.5px);
+    background-image:radial-gradient(rgba(102,80,168,.18) 1.4px,transparent 1.5px);
     background-size:21px 21px;
     -webkit-mask-image:radial-gradient(58% 52% at 54% 40%,#000 26%,transparent 74%);
             mask-image:radial-gradient(58% 52% at 54% 40%,#000 26%,transparent 74%);}
@@ -667,7 +696,7 @@
     .iso-token,.ai-gem,.ai-glow,.ai-ring,.iso-slot,.gem-flash,.ai-burst,.ai-sparks{animation:none;}
     .gem-flash{opacity:0;}
     .iso-token{transform:translate(var(--x3),calc(var(--y3) - 26px));}
-    .s-a{border-color:var(--accent);box-shadow:0 16px 38px -20px rgba(144,112,223,.55);}
+    .s-a{border-color:var(--accent);box-shadow:0 16px 38px -20px rgba(102,80,168,.55);}
     .s-a::before{transform:scaleY(1);}
   }
   /* stack on narrow screens: machine on top, stages below */
@@ -682,11 +711,11 @@
      wash read as low-tier because it was ONLY a gradient; this keeps the pieces that made the dark
      version feel built -- fine grain, an off-centre bloom, a masked hairline grid and the cropped
      ghost stat -- inverted onto white. Structure, not just a tint. */
-  #why{background:linear-gradient(180deg,#ffffff 0%,#fcfbfd 60%,#f8f7fa 100%);overflow:hidden;}
+  #why{background:linear-gradient(180deg,#FFFFFF 0%,#FAF7F2 60%,#F5F1E9 100%);overflow:hidden;}
   /* bloom + hairline grid, masked to a soft oval so the edges dissolve instead of ending on a line */
   #why::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;border-radius:inherit;
     background:
-      radial-gradient(56% 64% at 52% 40%, rgba(144,112,223,.06), transparent 72%),
+      radial-gradient(56% 64% at 52% 40%, rgba(102,80,168,.06), transparent 72%),
       repeating-linear-gradient(90deg, rgba(11,11,12,.038) 0 1px, transparent 1px 132px),
       repeating-linear-gradient(0deg,  rgba(11,11,12,.026) 0 1px, transparent 1px 132px);
     -webkit-mask-image:radial-gradient(80% 84% at 48% 42%, #000 22%, rgba(0,0,0,.4) 60%, transparent 92%);
@@ -708,7 +737,7 @@
   #why .eyebrow{color:var(--accent);}
   .me-layout{display:flex;gap:clamp(40px,6vw,72px);align-items:flex-start;margin-top:34px;}
   .me-copy{flex:1 1 400px;max-width:520px;}
-  .me-copy p{font-size:clamp(16px,1.6vw,19px);line-height:1.6;color:#4a4753;margin-bottom:16px;}
+  .me-copy p{font-size:clamp(16px,1.6vw,19px);line-height:1.6;color:var(--text-muted);margin-bottom:16px;}
   .me-copy .btn{margin-top:8px;}
   /* vertical timeline: a raised rail with 3D beaded nodes and a lime pulse that travels down it.
      Nodes are radial-shaded spheres with a soft cast shadow so they sit above the card, not on it. */
@@ -716,10 +745,10 @@
   /* the rail: a rounded violet->grey bar with a faint inner highlight so it reads as a raised tube */
   .me-timeline::before{content:'';position:absolute;left:6px;top:9px;bottom:16px;width:4px;
     border-radius:4px;background:linear-gradient(180deg,#b6a2ea 0%,#cfc7e4 55%,#e2e2e8 100%);
-    box-shadow:inset 1px 0 0 rgba(255,255,255,.5),0 2px 6px -2px rgba(90,60,150,.4);}
+    box-shadow:inset 1px 0 0 rgba(255,255,255,.5),0 2px 6px -2px rgba(60,48,36,.4);}
   /* a lime pulse travelling top->bottom down the rail, on a loop */
   .me-timeline::after{content:'';position:absolute;left:4px;width:8px;height:8px;border-radius:50%;
-    background:var(--accent2);box-shadow:0 0 12px 3px rgba(230,245,54,.7);
+    background:var(--accent-lift);box-shadow:0 0 12px 3px rgba(159,138,217,.55);
     animation:railPulse 4.5s ease-in-out infinite;}
   @keyframes railPulse{0%{top:6px;opacity:0;}12%{opacity:1;}88%{opacity:1;}100%{top:calc(100% - 22px);opacity:0;}}
   .me-timeline li{position:relative;padding:0 0 22px;}
@@ -727,11 +756,11 @@
   /* beaded node: radial highlight (top-left light) + cast shadow = a small sphere sitting proud */
   .me-timeline li::before{content:'';position:absolute;left:-34px;top:3px;width:15px;height:15px;
     border-radius:50%;background:radial-gradient(circle at 35% 30%,#d8ccf5,#9d8ad0);
-    box-shadow:0 0 0 4px #fff,0 4px 8px -2px rgba(90,60,150,.5);}
-  .me-timeline li:last-child::before{background:radial-gradient(circle at 35% 30%,#f6ffa0,#c9d92e);
-    box-shadow:0 0 0 4px #fff,0 4px 8px -2px rgba(120,120,20,.4),0 0 16px 3px rgba(230,245,54,.6);}
+    box-shadow:0 0 0 4px #fff,0 4px 8px -2px rgba(60,48,36,.5);}
+  .me-timeline li:last-child::before{background:radial-gradient(circle at 35% 30%,#F7B893,#C4531F);
+    box-shadow:0 0 0 4px #fff,0 4px 8px -2px rgba(120,120,20,.4),0 0 16px 3px rgba(228,98,47,.6);}
   .tl-date{font-family:monospace;font-size:12px;color:var(--accent);letter-spacing:.06em;text-transform:uppercase;font-weight:700;}
-  .me-timeline p{margin:4px 0 0;font-size:14.5px;color:#55525c;line-height:1.5;max-width:44ch;}
+  .me-timeline p{margin:4px 0 0;font-size:14.5px;color:var(--text-muted);line-height:1.5;max-width:44ch;}
   /* stat numbers inside the timeline copy, tinted violet */
   .tl-num{color:var(--accent);font-weight:700;}
   @media(prefers-reduced-motion:reduce){.me-timeline::after{animation:none;opacity:0;}}
@@ -747,7 +776,7 @@
      column heading, which just read as a gap the cover-transition had to scroll through.
      Also switched to --ink so it matches the hero exactly rather than being a slightly
      different black. */
-  footer{background:var(--ink);color:#fff;padding:20px 40px 0;overflow:hidden;}
+  footer{background:var(--ink);color:var(--text-invert);padding:20px 40px 0;overflow:hidden;}
   /* z-index above the wordmark: even if the wordmark's glyphs bleed past their box at some
      viewport, the columns and the Send CTA always paint on top and stay readable. */
   .foot-inner{position:relative;z-index:1;display:flex;gap:48px;flex-wrap:wrap;justify-content:space-between;padding-bottom:22px;border-bottom:1px solid #333;}
@@ -755,7 +784,7 @@
   .foot-col h3{font-size:13px;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;}
   .foot-col a{display:block;color:#ccc;text-decoration:none;font-size:14px;margin-bottom:8px;}
   .foot-cta{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
-  .foot-email{background:transparent;border:1px solid #444;border-radius:999px;padding:12px 18px;color:#fff;font-size:14px;min-width:220px;}
+  .foot-email{background:transparent;border:1px solid var(--line-dark);border-radius:999px;padding:12px 18px;color:#fff;font-size:14px;min-width:220px;}
   .foot-plain{display:block;color:#888;font-size:14px;margin-bottom:8px;}
   /* legal row runs inline and wraps -- it is a dense strip, not a column of links */
   .foot-legal{padding:14px 0 0;font-size:12px;color:#666;display:flex;flex-wrap:wrap;
@@ -826,7 +855,7 @@
     background-image:
       linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.95) 11%,rgba(255,255,255,0) 24%),
       linear-gradient(76deg,rgba(201,168,255,0) 0%,rgba(217,196,255,.85) 14%,rgba(201,168,255,0) 30%),
-      linear-gradient(180deg,#fff 0%,#dfe4ff 34%,#9aa4e6 70%,#6f74c0 100%);
+      linear-gradient(180deg,#FFFFFF 0%,#EFE7DA 34%,#B8A9D6 70%,#6650A8 100%);
     background-size:300% 100%,380% 100%,100% 100%;
     background-repeat:repeat-x;
     -webkit-background-clip:text;background-clip:text;
@@ -862,9 +891,9 @@
   .foot-glow{position:absolute;inset:-40% -12% -60%;z-index:0;pointer-events:none;
     filter:blur(72px);opacity:.6;animation-play-state:paused;
     background:
-      radial-gradient(38% 62% at 20% 46%,rgba(144,112,223,.9),transparent 70%),
+      radial-gradient(38% 62% at 20% 46%,rgba(102,80,168,.9),transparent 70%),
       radial-gradient(34% 56% at 58% 62%,rgba(90,200,250,.55),transparent 70%),
-      radial-gradient(30% 52% at 84% 40%,rgba(230,245,54,.3),transparent 70%);
+      radial-gradient(30% 52% at 84% 40%,rgba(228,98,47,.3),transparent 70%);
     animation:glowDrift 19s ease-in-out infinite alternate;}
   @keyframes glowDrift{
     from{transform:translate3d(-3%,1%,0) scale(1);}
@@ -882,8 +911,8 @@
   .modal-veil{position:absolute;inset:0;background:rgba(6,6,10,.74);
     -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);}
   .modal-card{position:relative;width:100%;max-width:560px;max-height:calc(100vh - 48px);
-    overflow:auto;background:#141320;border:1px solid rgba(255,255,255,.1);border-radius:24px;
-    padding:34px 32px 30px;color:#fff;transform:translateY(18px) scale(.985);
+    overflow:auto;background:var(--ink-raised);border:1px solid rgba(255,255,255,.1);border-radius:24px;
+    padding:34px 32px 30px;color:var(--text-invert);transform:translateY(18px) scale(.985);
     transition:transform .32s cubic-bezier(.2,.8,.2,1);}
   .modal.open .modal-card{transform:none;}
   .modal-card h2{font-size:clamp(24px,3vw,34px);line-height:1.1;margin-bottom:8px;color:#fff;}
@@ -904,7 +933,7 @@
   .field textarea{min-height:104px;resize:vertical;}
   .field input:focus,.field select:focus,.field textarea:focus{outline:none;
     border-color:var(--accent);background:rgba(255,255,255,.07);}
-  .field select option{background:#141320;color:#fff;}
+  .field select option{background:var(--ink-raised);color:#fff;}
   /* honeypot: bots fill every field they can see in the DOM; humans never see this one. */
   .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;}
   .modal-actions{display:flex;align-items:center;gap:16px;margin-top:20px;flex-wrap:wrap;}
@@ -912,7 +941,7 @@
   .modal-actions .btn[disabled]{opacity:.5;pointer-events:none;}
   .form-msg{margin-top:14px;font-size:14px;display:none;}
   .form-msg.show{display:block;}
-  .form-msg.ok{color:var(--accent2);}
+  .form-msg.ok{color:var(--flare);}
   .form-msg.err{color:#ff8fb0;}
   @media(max-width:520px){.field-row{flex-direction:column;gap:0;}}
 </style>
@@ -1062,9 +1091,9 @@
       <svg class="iso-svg" viewBox="0 0 600 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three connected systems, illustrated isometrically">
         <defs>
           <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter>
-          <radialGradient id="gem" cx="40%" cy="35%"><stop offset="0" stop-color="#fbffb0"/><stop offset="1" stop-color="#d9e636"/></radialGradient>
-          <radialGradient id="glow" cx="50%" cy="50%"><stop offset="0" stop-color="#E6F536" stop-opacity=".55"/><stop offset="1" stop-color="#E6F536" stop-opacity="0"/></radialGradient>
-          <radialGradient id="tok" cx="38%" cy="32%"><stop offset="0" stop-color="#fbffb0"/><stop offset="1" stop-color="#cfe02a"/></radialGradient>
+          <radialGradient id="gem" cx="40%" cy="35%"><stop offset="0" stop-color="#F9C7A8"/><stop offset="1" stop-color="#D2591F"/></radialGradient>
+          <radialGradient id="glow" cx="50%" cy="50%"><stop offset="0" stop-color="#E4622F" stop-opacity=".55"/><stop offset="1" stop-color="#E4622F" stop-opacity="0"/></radialGradient>
+          <radialGradient id="tok" cx="38%" cy="32%"><stop offset="0" stop-color="#F9C7A8"/><stop offset="1" stop-color="#C4531F"/></radialGradient>
           <linearGradient id="bT" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c9b6ff"/><stop offset="1" stop-color="#a88ef0"/></linearGradient>
           <linearGradient id="bL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8f79d6"/><stop offset="1" stop-color="#6f59b8"/></linearGradient>
           <linearGradient id="bR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6e58bc"/><stop offset="1" stop-color="#4e3c94"/></linearGradient>
@@ -1079,26 +1108,26 @@
         <polygon points="382,204 452,239 452,371 382,336" fill="url(#bL)"/><polygon points="452,239 522,204 522,336 452,371" fill="url(#bR)"/><polygon points="382,204 452,169 522,204 452,239" fill="url(#bT)"/>
         <line x1="382" y1="204" x2="452" y2="169" stroke="#e8ddff" stroke-width="1.5" opacity=".7"/><line x1="452" y1="169" x2="522" y2="204" stroke="#e8ddff" stroke-width="1.5" opacity=".55"/>
         <polygon points="134,320 170,302 206,320 170,338" fill="#b9a2ff" opacity=".85"/>
-        <line x1="145" y1="312" x2="170" y2="299" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".9"/><line x1="134" y1="324" x2="170" y2="306" stroke="#E6F536" stroke-width="2.4" stroke-linecap="round" opacity=".9"/>
+        <line x1="145" y1="312" x2="170" y2="299" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".9"/><line x1="134" y1="324" x2="170" y2="306" stroke="#E4622F" stroke-width="2.4" stroke-linecap="round" opacity=".9"/>
         <g class="iso-slot" style="--i:0"><polygon points="281,251 293,245 305,251 293,257" fill="#f4f0ff"/></g>
         <g class="iso-slot" style="--i:1"><polygon points="298,260 310,254 322,260 310,266" fill="#f4f0ff"/></g>
         <g class="iso-slot" style="--i:2"><polygon points="315,269 327,263 339,269 327,275" fill="#f4f0ff"/></g>
         <g class="ai-core">
           <circle class="ai-glow" cx="452" cy="154" r="44" fill="url(#glow)"/>
-          <ellipse class="ai-ring" cx="452" cy="154" rx="46" ry="18" fill="none" stroke="#E6F536" stroke-width="2.4" opacity=".7"/>
+          <ellipse class="ai-ring" cx="452" cy="154" rx="46" ry="18" fill="none" stroke="#E4622F" stroke-width="2.4" opacity=".7"/>
           <g class="ai-gem">
             <polygon points="452,128 473,154 452,180 431,154" fill="url(#gem)"/>
-            <polygon points="452,128 473,154 452,154" fill="#fbff9e" opacity=".85"/>
-            <polygon points="452,128 431,154 452,154" fill="#eaf25e" opacity=".9"/>
+            <polygon points="452,128 473,154 452,154" fill="#F7B893" opacity=".85"/>
+            <polygon points="452,128 431,154 452,154" fill="#EE7A4D" opacity=".9"/>
             <!-- flash overlay: fires white the instant the token completes the climb -->
             <polygon class="gem-flash" points="452,128 473,154 452,180 431,154" fill="#fff"/>
           </g>
           <!-- completion burst: expanding ring + radiating sparks when the climb lands -->
-          <circle class="ai-burst" cx="452" cy="154" r="18" fill="none" stroke="#E6F536" stroke-width="3"/>
+          <circle class="ai-burst" cx="452" cy="154" r="18" fill="none" stroke="#E4622F" stroke-width="3"/>
           <g class="ai-sparks">
-            <circle cx="452" cy="136" r="3.2" fill="#eaf25e"/><circle cx="468" cy="145" r="3.2" fill="#eaf25e"/>
-            <circle cx="468" cy="163" r="3.2" fill="#eaf25e"/><circle cx="452" cy="172" r="3.2" fill="#eaf25e"/>
-            <circle cx="436" cy="163" r="3.2" fill="#eaf25e"/><circle cx="436" cy="145" r="3.2" fill="#eaf25e"/>
+            <circle cx="452" cy="136" r="3.2" fill="#EE7A4D"/><circle cx="468" cy="145" r="3.2" fill="#EE7A4D"/>
+            <circle cx="468" cy="163" r="3.2" fill="#EE7A4D"/><circle cx="452" cy="172" r="3.2" fill="#EE7A4D"/>
+            <circle cx="436" cy="163" r="3.2" fill="#EE7A4D"/><circle cx="436" cy="145" r="3.2" fill="#EE7A4D"/>
           </g>
         </g>
         <g class="iso-token" style="--x1:170px;--y1:320px;--x2:310px;--y2:262px;--x3:452px;--y3:204px;">
@@ -2091,8 +2120,8 @@ function odometer(el, value, opts){
       const r=card.getBoundingClientRect();
       const px=(e.clientX-r.left)/r.width-0.5, py=(e.clientY-r.top)/r.height-0.5;
       card.style.transform='translateY(-6px) rotateX('+(-py*6).toFixed(2)+'deg) rotateY('+(px*7).toFixed(2)+'deg)';
-      card.style.boxShadow='0 34px 60px -30px rgba(144,112,223,.6)';
-      card.style.borderColor='#d6cdf2';
+      card.style.boxShadow='0 34px 60px -30px rgba(102,80,168,.6)';
+      card.style.borderColor='var(--accent-lift)';
     });
     card.addEventListener('pointerleave',()=>{card.style.transform='';card.style.boxShadow='';card.style.borderColor='';});
   });
