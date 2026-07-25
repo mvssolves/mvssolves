@@ -11,7 +11,9 @@
 <title>MVS Solves — Websites &amp; automations that book paying clients</title>
 <meta name="description" content="I build high-converting websites, booking systems and AI receptionists for service businesses. 50+ businesses run on systems I designed and built myself.">
 <meta name="author" content="Martin — MVS Solves">
-<meta name="theme-color" content="#E4622F">
+<!-- white, not the accent: this paints Safari's own chrome, and an orange bar above a white
+     hero is the colour that was peeping in at the top edge -->
+<meta name="theme-color" content="#FFFFFF">
 <link rel="canonical" href="https://mvssolves.com/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="MVS Solves">
@@ -108,6 +110,9 @@
   /* Satoshi, with the old system stack kept as the fallback so nothing reflows badly if the
      webfont fails. A real typeface is the single biggest lift here -- the system stack rendered
      as SF Pro on Mac and Segoe on Windows, so the page had no consistent voice. */
+  /* the overscroll strip above the page paints the ROOT background, so it has to be the hero's
+     white or a band of another colour shows on every rubber-band pull */
+  html{background:#FFFFFF;overscroll-behavior-y:none;}
   body{font-family:'Satoshi',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     color:var(--text);background:var(--paper);line-height:1.5;
     font-feature-settings:'ss01' 1;-webkit-font-smoothing:antialiased;}
@@ -1079,7 +1084,7 @@
        the bleed instead of letting it create a horizontal scrollbar. */
     .marquee{margin-left:calc(clamp(18px,5vw,28px) * -1)!important;
              margin-right:calc(clamp(18px,5vw,28px) * -1)!important;}
-    html{overflow-x:clip;}
+    html{overflow-x:clip;background:#FFFFFF;overscroll-behavior-y:none;}
     body{overflow-x:clip;}
     .marquee-track span{font-size:clamp(15px,4.4vw,19px);margin-right:14px;}
 
@@ -1570,6 +1575,7 @@
   }
 
   #services .work-rest{display:flex;flex-direction:column;justify-content:space-between;gap:2px;}
+  .work-dots{display:none;}   /* mobile only -- desktop shows all six rows at once */
   /* rows are real buttons so the rotation can be driven from the keyboard as well as the clock */
   #services .work-item{appearance:none;border:0;background:transparent;font:inherit;color:inherit;
     width:100%;text-align:left;cursor:pointer;
@@ -1592,6 +1598,7 @@
   /* the one automation that does the most work gets the flare -- a single marker, not six */
   #services .work-item.is-key .work-n{color:var(--flare);}
 
+  @keyframes workIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
   #services .work-n{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
     font-size:12px;letter-spacing:.18em;color:var(--text-muted);display:block;flex:0 0 auto;}
 
@@ -1937,15 +1944,30 @@
        duplicate of whichever row is active anyway. On mobile the rows carry it alone, with room
        to breathe and a rule between them instead of a highlight. */
     #services .work-lead{display:none!important;}
-    #services .work{display:block!important;margin-top:16px;}
+    #services .work{display:block!important;margin-top:clamp(18px,4vh,40px);}
     /* six rows plus a four-line lead did not fit the pin -- row 06 was under the next layer.
        Tighter rows and a shorter lead bring the whole list inside it. */
-    /* Titles only. Six rows of number + heading + a line of description is six three-line blocks
-       stacked on a 390px screen, which is what reads as clustered however it is spaced. The lead
-       paragraph above already explains the machine; the list only has to name its parts. */
-    #services .work-item p{display:none!important;}
-    #services .work-item{padding:15px 2px;gap:14px;align-items:baseline;border-radius:0;
-      box-shadow:inset 0 -1px 0 rgba(22,19,15,.07);}
+    /* ONE SYSTEM AT A TIME. Six rows on a 390px screen is six blocks competing for the same
+       glance, which is what reads as clustered however it is spaced. The list becomes a single
+       slot that cycles: each system holds for a beat, then the next takes its place. One thing to
+       read, and the six still all get shown. */
+    #services .work-item{display:none!important;}
+    #services .work-item.is-on{display:block!important;padding:0;box-shadow:none;
+      background:transparent;animation:workIn .5s cubic-bezier(.22,1,.36,1);}
+    #services .work-item.is-on p{display:block!important;font-size:14.5px;line-height:1.5;
+      color:var(--text-muted);margin-top:6px;max-width:30ch;}
+    #services .work-item.is-on h4{font-size:clamp(26px,7.4vw,32px);letter-spacing:-.03em;
+      margin:0;color:var(--ink);}
+    /* a fixed slot, so the section does not resize as the copy changes length. Sized generously:
+       with one system on screen instead of six the section had gone top-heavy, and the slot is
+       what should take up the room rather than empty paper underneath it. */
+    #services .work-rest{min-height:min(34vh,240px);display:flex;flex-direction:column;
+      justify-content:center;}
+    /* six ticks showing where you are in the cycle */
+    #services .work-dots{display:flex;gap:6px;margin-top:22px;}
+    #services .work-dots i{width:22px;height:2px;border-radius:2px;background:rgba(22,19,15,.14);
+      transition:background .35s ease;}
+    #services .work-dots i.on{background:var(--flare);}
     #services .work-rest>.work-item:last-child{box-shadow:none;}
     #services .work-item.is-on{background:transparent;}
     #services .work-item h4{font-size:18px;margin:0;letter-spacing:-.02em;}
@@ -1953,9 +1975,10 @@
     #services .work-n{font-size:11px;padding-top:2px;}
 
     /* ---- ABOUT ---------------------------------------------------------------------------- */
-    /* About ran a full screen with its content at the top, so most of it was empty paper before
-       the black arrived. Short by 200px, which is white cut without the content moving. */
-    .team-block{min-height:calc(100svh - var(--nav-h) - 200px)!important;
+    /* About holds its own full screen and STOPS there -- the black then climbs over it rather
+       than starting where About happens to end. The 200px that had been cut to reduce dead paper
+       goes back: with the footer riding up over it, that space is never seen. */
+    .team-block{min-height:calc(100svh - var(--nav-h))!important;
       justify-content:flex-start!important;}
     .team-stats{gap:12px;}
 
@@ -1966,7 +1989,9 @@
        duplicates the nav, so it goes. Legal stays -- privacy and terms are not optional links on a
        business site -- but as one small wrapped row rather than a six-item column. */
     .foot-inner{gap:18px;flex-direction:column;}
-    .foot-col:nth-child(2){display:none;}
+    /* Company duplicates the nav, and the Start-a-project block duplicates the CTA that is already
+       in About directly above it. Footer is legal + how to reach a person, nothing else. */
+    .foot-col:nth-child(2),.foot-col-cta{display:none;}
     .foot-col:first-child{display:flex;flex-wrap:wrap;gap:2px 14px;align-items:baseline;}
     .foot-col:first-child h3{flex:1 0 100%;margin-bottom:4px;}
     .foot-col:first-child a{font-size:11.5px;line-height:1.5;color:#8A8072;}
@@ -2439,6 +2464,9 @@
         <span class="work-n">06</span>
         <div><h4>The numbers</h4><p>Enquiries, calls, jobs, revenue. One message a week.</p></div>
       </button>
+      <div class="work-dots" id="workDots" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i><i></i>
+      </div>
     </div>
   </div>
 </section>
@@ -3435,7 +3463,10 @@ function odometer(el, value, opts){
 
   const n=lead.querySelector('.work-n'), h=lead.querySelector('h3'), p=lead.querySelector('p');
   const art=[...(document.getElementById('workArt')||{querySelectorAll:()=>[]}).querySelectorAll('svg')];
-  const PERIOD=5000;
+  /* a phone shows one system at a time, so it has to move on quickly; desktop shows the whole
+     list and the panel is a highlight rather than the only thing on screen. */
+  const PERIOD=innerWidth<=760?2200:5000;
+  const dots=[...(document.getElementById("workDots")||{querySelectorAll:()=>[]}).querySelectorAll("i")];
   let i=0, timer=null, onScreen=false, held=false;
 
   const show=(next,instant)=>{
@@ -3443,6 +3474,7 @@ function odometer(el, value, opts){
     i=next;
     const row=rows[i];
     rows.forEach((r,k)=>r.classList.toggle('is-on',k===i));
+    dots.forEach((d,k)=>d.classList.toggle('on',k===i));
     /* the glyph crossfades on its own timer rather than waiting for the copy's swap-out, so the
        art leads the text change by a beat instead of the panel going blank all at once */
     art.forEach((s,k)=>s.classList.toggle('on',k===i));
