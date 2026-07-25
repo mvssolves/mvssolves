@@ -805,6 +805,7 @@
   .me-copy .btn{margin-top:8px;}
   /* vertical timeline: a raised rail with 3D beaded nodes and a lime pulse that travels down it.
      Nodes are radial-shaded spheres with a soft cast shadow so they sit above the card, not on it. */
+  .me-figs{display:none;}
   .me-timeline{flex:1 1 380px;list-style:none;position:relative;padding-left:34px;margin-top:2px;}
   /* THE RAIL IS GONE. Softening it from 4px violet to 2px warm was not enough -- any continuous
      vertical stroke down this column reads as a stray rule between the copy and the timeline,
@@ -1775,6 +1776,33 @@
        is the one piece of 3D that is actually the point of the page. */
     .expertise-visual{display:none!important;}
 
+    /* ---- THE HERO DOES NOT MOVE ------------------------------------------------------------
+       No recede, no shrink, no runway. The scene simply fills the screen and the page scrolls
+       past it. The 190vh runway only existed to give the scrub something to scrub across, and
+       the scrub itself is skipped in JS at this width. */
+    .hero-block{min-height:100svh!important;}
+    .hero-sticky{position:static!important;height:100svh!important;}
+    #hero3d{clip-path:none!important;}
+
+    /* ---- SECTION TEXT IS ALWAYS ON SCREEN ---------------------------------------------------
+       The reveal harness keeps failing to release copy inside the sticky stack at this width --
+       Why-me repeatedly rendered as a headline-shaped smudge with its paragraphs absent. The
+       observer-based safety net helped but did not make it reliable.
+       This matches CONTAINERS ONLY, never a descendant wildcard. That distinction is the whole
+       point: an earlier blanket "* { transform:none }" froze every odometer digit strip at its
+       first digit and stopped the counters dead. Nothing here matches .odo-strip or the work
+       panel's crossfading glyphs, so both keep working. */
+    #proof .eyebrow,#process .eyebrow,#why .eyebrow,#services .eyebrow,.team-block .eyebrow,
+    #proof h2,#process h2,#why h2,#services h2,.team-block h2,
+    #proof p,#process p,#why p,#services p,.team-block p,
+    .tab-row,.stats-row,.team-stats,.me-figs,.stage,.work-item,.work-rest,
+    .me-copy .btn,.team-cta,
+    /* splitChars puts the gate on the WORD SPANS, not the heading -- the container was visible
+       while every word inside it was still at zero. .fx-word is only ever produced by that split,
+       so this cannot touch .odo-strip. */
+    .fx-word,.fx-word *{
+      opacity:1!important;visibility:visible!important;transform:none!important;}
+
     /* ---- CHROME OFF -----------------------------------------------------------------------
        No nav CTA and no bottom bar on a phone. That leaves the hero's own two buttons as the only
        call to action above the fold, which is the point of them. */
@@ -1848,22 +1876,32 @@
     /* ---- WHY ME: three paragraphs plus a five-step timeline will not both fit ------------- */
     .me-ghost{display:none!important;}
     .me-copy p{font-size:13.5px;line-height:1.52;margin:0 0 10px;}
-    .me-timeline{padding-left:26px;}
-    .me-timeline li{padding-bottom:11px;}
-    .me-timeline li p{font-size:12.6px;line-height:1.4;margin:2px 0 0;}
-    .tl-date{font-size:11px;}
-    .me-timeline li::before{width:11px;height:11px;left:-26px;top:4px;}
+    /* the five-entry timeline with its bead rail is too much column for a phone. Four figures
+       carrying the same facts, in a 2x2 that fills the space instead of running past it. */
+    .me-timeline{display:none!important;}
+    .me-figs{display:grid!important;grid-template-columns:1fr 1fr;gap:16px 14px;margin-top:20px;}
+    .me-figs div{display:flex;flex-direction:column;gap:3px;}
+    .me-figs b{font-size:clamp(24px,7vw,30px);font-weight:800;letter-spacing:-.03em;
+      color:var(--accent);line-height:1;font-variant-numeric:tabular-nums;}
+    .me-figs span{font-size:12px;line-height:1.35;color:var(--text-muted);}
     .me-copy .btn{margin-top:2px;}
 
     /* ---- THE WORK: panel over rows, both tightened ---------------------------------------- */
-    #services .work{gap:12px;margin-top:14px;}
-    #services .work-lead{padding:16px!important;border-radius:18px;}
-    #services .work-lead h3{font-size:21px!important;margin-bottom:6px;}
-    #services .work-lead p{font-size:13px;line-height:1.45;max-width:none;}
-    #services .work-art{width:76px;top:12px;right:12px;border-radius:12px;}
-    #services .work-item{padding:6px 8px;gap:10px;}
-    #services .work-item h4{font-size:14px;margin-bottom:1px;}
-    #services .work-item p{font-size:12.2px;line-height:1.35;}
+    /* The panel and the six rows together read as one dense block on a phone, and the panel is a
+       duplicate of whichever row is active anyway. On mobile the rows carry it alone, with room
+       to breathe and a rule between them instead of a highlight. */
+    #services .work-lead{display:none!important;}
+    #services .work{display:block!important;margin-top:10px;}
+    /* six rows plus a four-line lead did not fit the pin -- row 06 was under the next layer.
+       Tighter rows and a shorter lead bring the whole list inside it. */
+    #services .work-item{padding:9px 2px;gap:13px;align-items:flex-start;border-radius:0;
+      box-shadow:inset 0 -1px 0 rgba(22,19,15,.08);}
+    #services .work-rest>.work-item:last-child{box-shadow:none;}
+    #services .work-item.is-on{background:transparent;}
+    #services .work-item h4{font-size:15px;margin-bottom:2px;}
+    #services .work-item p{font-size:12.4px;line-height:1.35;}
+    #services .process-lead{font-size:12.8px!important;line-height:1.45!important;margin-bottom:8px;}
+    #services .work-n{font-size:11px;padding-top:2px;}
 
     /* ---- ABOUT ---------------------------------------------------------------------------- */
     /* About ran a full screen with its content at the top, so most of it was empty paper before
@@ -1875,9 +1913,16 @@
 
     /* ---- FOOTER: 793px is most of a screen ------------------------------------------------ */
     footer{padding-bottom:96px;}
-    .foot-inner{gap:22px;}
+    /* two stacked link columns plus contact plus a CTA is more footer than a phone needs. Company
+       duplicates the nav, so it goes. Legal stays -- privacy and terms are not optional links on a
+       business site -- but as one small wrapped row rather than a six-item column. */
+    .foot-inner{gap:18px;flex-direction:column;}
+    .foot-col:nth-child(2){display:none;}
+    .foot-col:first-child{display:flex;flex-wrap:wrap;gap:2px 14px;align-items:baseline;}
+    .foot-col:first-child h3{flex:1 0 100%;margin-bottom:4px;}
+    .foot-col:first-child a{font-size:11.5px;line-height:1.5;color:#8A8072;}
     .foot-col h3{margin-bottom:8px;}
-    .foot-col a,.foot-plain{font-size:13px;line-height:1.9;}
+    .foot-col a,.foot-plain{font-size:13.5px;line-height:1.85;}
     /* The wordmark is a per-letter 3D extrusion with sway and bob, built for a wide viewport. At
        phone width it overflowed both edges, the extrusion read as coloured ghosting behind
        overlapping glyphs, and the letter splitter drops the space -- "MVSSolves". None of that is
@@ -2199,6 +2244,14 @@
       <li><span class="tl-date fx-rise">3 months in</span><p>Took <span class="tl-num">6</span> businesses to <span class="tl-num">10K a month</span>.</p></li>
       <li><span class="tl-date fx-rise">Today</span><p>Every project still runs through me personally, and that won't change as this grows.</p></li>
     </ol>
+    <!-- Mobile replaces the timeline with this. Same facts, four figures instead of five dated
+         entries and a bead rail, which is a lot of vertical for a phone. display:none above 760. -->
+    <div class="me-figs" aria-hidden="false">
+      <div><b>15</b><span>clients onboarded in the first 30 days</span></div>
+      <div><b>6</b><span>businesses taken to 10K a month</span></div>
+      <div><b>50+</b><span>businesses running on systems I built</span></div>
+      <div><b>1</b><span>person on every project, start to finish</span></div>
+    </div>
   </div>
 </section>
 
@@ -2731,7 +2784,12 @@ document.addEventListener('click',e=>{
      recedes is a reveal. On a phone the fold IS the pitch -- the offer and its two buttons have to
      be on screen the moment it loads, not after a scroll -- so only the marquee starts hidden. */
   const mob=innerWidth<=760;
-  gsap.set((mob?[marq]:[eyebrow,right,marq,figs]).filter(Boolean),{opacity:0,y:16});
+  /* NO SCRUB ON A PHONE. The scene stays where it is and the page scrolls past it -- the recede
+     needs a 190vh runway to happen across, and that runway is exactly what made the hero feel
+     like it was moving away from you on a small screen. Nothing is hidden either: the fold is the
+     pitch here, so the copy is on screen from the first frame. */
+  if(mob)return;
+  gsap.set([eyebrow,right,marq,figs].filter(Boolean),{opacity:0,y:16});
 
   /* the settled card is expressed as INSETS from the full-bleed box, not as a height. The bottom
      inset is measured off the copy block so the card's lower edge always lands exactly GAP above
