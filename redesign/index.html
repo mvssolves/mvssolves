@@ -482,11 +482,14 @@
   /* scene card, now LIGHT to match the white hero -- a soft lavender wash with faint brand glows,
      so it reads as a bright panel the dark headline sits cleanly over. Drop a video back in and it
      covers this entirely. */
+  /* warm ground, not the old lavender wash: the sculpture is lit by a flare key and the headline
+     sits over this in near-black, so the surface has to stay in the Bone & Iris family. The two
+     glows are flare-tinted rather than violet -- no violet gradients anywhere. */
   .hero-3d-placeholder.has-scene{font-size:0;overflow:hidden;
     background:
-      radial-gradient(70% 60% at 50% 34%, rgba(102,80,168,.16), transparent 66%),
-      radial-gradient(90% 80% at 80% 90%, rgba(90,200,250,.10), transparent 70%),
-      linear-gradient(180deg, #f4f1fb 0%, #eeeaf7 60%, #e9e4f4 100%);}
+      radial-gradient(72% 62% at 50% 32%, rgba(228,98,47,.10), transparent 68%),
+      radial-gradient(90% 80% at 82% 88%, rgba(228,98,47,.05), transparent 72%),
+      linear-gradient(180deg, #FBF9F5 0%, #F4F0E8 58%, #EFE9DF 100%);}
   /* per-form label -- shown as written (title case), gently spaced */
   /* absolutely anchored to the BOTTOM of the sticky viewport, not a flex child. As a flex child
      it was flex:1 in a column whose first item (the scene) already fills the whole 100vh, so its
@@ -2884,8 +2887,17 @@ function odometer(el, value, opts){
      by default, so #hero3d exists by the time it runs. Kept in its own file so iterating on the
      scene never touches this one. -->
 
-<!-- the original six-form WebGL scene, restored and recoloured onto Bone & Iris -->
-<script type="module" src="./hero-scene.js?v=5"></script>
+<!-- FORGED: the machined orbital sculpture. Chosen from hero-lab/ over Prism and Drift.
+     hero-scene.js (the six-form point cloud) and hero-order.js are kept on disk but not loaded. -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="./hero-forged.js?v=1"></script>
 
 </body>
 </html>
