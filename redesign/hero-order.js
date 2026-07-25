@@ -350,7 +350,11 @@ function init(host) {
 
       /* violet field; particles light lime as they're disturbed, so the REACTION is what you see
          rather than a decorative colour cycle */
-      const speed = Math.min(1, (vel[i3] * vel[i3] + vel[i3 + 1] * vel[i3 + 1]) * 26);
+      /* flare is meant to be RARE -- at *26 a large share of the field was permanently orange
+         from ambient flow alone, which read as a third brand colour rather than a reaction.
+         Raised threshold plus a hard ceiling: only genuinely fast particles light up. */
+      const v2 = vel[i3] * vel[i3] + vel[i3 + 1] * vel[i3 + 1];
+      const speed = Math.min(0.85, Math.max(0, (v2 - 0.02)) * 55);
       /* a fixed minority of particles carry iris; the rest are dust. Assigning by index keeps it
          stable frame to frame instead of shimmering. */
       const isIris = (i % 7) === 0;

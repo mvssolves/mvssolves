@@ -1104,8 +1104,8 @@
   footer{box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 -20px 44px -26px rgba(40,32,22,.4);}
 
   /* ---- NAV: a real material once it leaves the hero ---------------------------------------- */
-  nav{backdrop-filter:saturate(1.15) blur(8px);border-bottom:1px solid transparent;}
-  nav:not(.nav-clear){border-bottom-color:var(--line);background:rgba(247,244,239,.86);}
+  nav{backdrop-filter:saturate(1.15) blur(8px);}
+  nav:not(.nav-clear){background:rgba(247,244,239,.88);}
 
   /* ---- selection + caret + scrollbar: brand details most sites forget --------------------- */
   ::selection{background:var(--accent);color:#fff;}
@@ -1134,6 +1134,58 @@
   @media (prefers-reduced-motion:reduce){
     .marquee-track,.me-timeline::after,.iso-token,.ai-gem,.ai-ring,.slot{animation:none!important;}
   }
+
+
+  /* =========================================================================================
+     HERO DISPLAY
+     The hero was an eyebrow, a headline and one button floating over a particle field. It's now
+     a display section: status, a display-scale headline with one emphasised word, a real
+     sub-paragraph, two CTAs at different weights, and the numbers inline so the argument lands
+     before the fold does. Everything sits in the bottom-anchored copy block, so the particle
+     field above it is untouched.
+     ========================================================================================= */
+  .hero-status{display:inline-flex;align-items:center;gap:9px;
+    font-family:monospace;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--text-muted);background:rgba(255,255,255,.72);
+    border:1px solid var(--line);border-radius:999px;padding:7px 15px 7px 12px;
+    margin-bottom:18px;backdrop-filter:blur(6px);}
+  .hero-status i{width:7px;height:7px;border-radius:50%;background:var(--flare);flex:none;
+    box-shadow:0 0 0 0 rgba(228,98,47,.55);animation:heroPing 2.6s ease-out infinite;}
+  @keyframes heroPing{
+    0%{box-shadow:0 0 0 0 rgba(228,98,47,.5);}
+    70%{box-shadow:0 0 0 8px rgba(228,98,47,0);}
+    100%{box-shadow:0 0 0 0 rgba(228,98,47,0);}}
+  @media(prefers-reduced-motion:reduce){.hero-status i{animation:none;}}
+
+  /* display scale: bigger, tighter, and the emphasis carries the brand rather than a whole
+     coloured heading */
+  .hero-copy h1{font-size:clamp(38px,7.2vw,92px);line-height:.95;letter-spacing:-.045em;
+    max-width:20ch;}
+  .hero-copy h1 em,.hero-copy h1 .is-em{font-style:normal;color:var(--accent);}
+
+  .hero-ctas{gap:12px;flex-wrap:wrap;}
+  .hero-ghost{border-color:var(--line);color:var(--text);}
+  .hero-ghost::after{background:var(--ink);}
+  .hero-ghost:hover{color:#fff;border-color:var(--ink);}
+
+  /* the figure row: hairline-separated, tabular, quiet enough not to fight the headline */
+  .hero-figures{display:flex;gap:clamp(22px,4vw,56px);margin:26px 0 0;padding-top:20px;
+    border-top:1px solid var(--line);flex-wrap:wrap;}
+  .hero-figures dt{font-size:clamp(24px,2.6vw,36px);font-weight:800;letter-spacing:-.03em;
+    line-height:1;color:var(--text);font-variant-numeric:tabular-nums;}
+  .hero-figures dt span{color:var(--accent);}
+  .hero-figures dd{margin:5px 0 0;font-size:12px;letter-spacing:.02em;color:var(--text-muted);}
+
+  /* scroll cue, bottom-right of the hero: a hairline that draws down and resets */
+  .hero-cue{position:absolute;right:clamp(18px,4vw,40px);bottom:26px;z-index:3;
+    display:flex;flex-direction:column;align-items:center;gap:9px;pointer-events:none;
+    font-family:monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--text-muted);writing-mode:vertical-rl;}
+  .hero-cue::after{content:'';width:1px;height:52px;background:linear-gradient(180deg,var(--line),transparent);
+    transform-origin:top;animation:cueDraw 2.4s ease-in-out infinite;}
+  @keyframes cueDraw{0%{transform:scaleY(0);opacity:0;}30%{opacity:1;}100%{transform:scaleY(1);opacity:0;}}
+  @media(prefers-reduced-motion:reduce){.hero-cue::after{animation:none;}}
+  @media(max-width:760px){.hero-cue{display:none;}}
 
 </style>
 </head>
@@ -1182,16 +1234,25 @@
            RIGHT aligned to the headline's lower edge -- not a single stacked column. -->
       <div class="hero-grid">
         <div class="hero-left">
-          <div class="eyebrow">MVS Solves</div>
-          <h1>My proven systems that only win.</h1>
+          <!-- live status, not a decorative label: it says the operator is real and reachable -->
+          <div class="hero-status"><i aria-hidden="true"></i>Taking on two projects this month</div>
+          <h1 data-em="only">Systems that only win.</h1>
         </div>
         <div class="hero-right">
-          <p class="hero-sub">High-converting websites and reliable automations for businesses that want it done right the first time.</p>
+          <p class="hero-sub">Websites that convert and automations that run themselves — built end to end by one person, for businesses that want it done properly the first time.</p>
           <div class="hero-ctas">
             <a class="btn filled" href="#" data-contact>Start a project</a>
+            <a class="btn hero-ghost" href="#proof">See the proof</a>
           </div>
         </div>
       </div>
+      <!-- the numbers, inline in the hero: the argument arrives before the fold does -->
+      <dl class="hero-figures">
+        <div><dt>50<span>+</span></dt><dd>businesses on systems</dd></div>
+        <div><dt>10K</dt><dd>a month, top six</dd></div>
+        <div><dt>10,000<span>+</span></dt><dd>automations monthly</dd></div>
+      </dl>
+      <div class="hero-cue" aria-hidden="true">Scroll</div>
       <div class="marquee" id="heroMarquee" aria-hidden="true" style="margin:24px -40px 0;">
         <div class="marquee-track" id="marqueeTrack">
           <span>100+ websites built</span><span class="dot">·</span><span class="ol">10,000+ automations a month</span><span class="dot">·</span>
@@ -1687,15 +1748,25 @@ document.addEventListener('click',e=>{
      load timer rather than the IntersectionObserver -- it's already on screen at frame one, so
      waiting for an intersection would mean it never plays. */
   const chars=splitChars(h1);
+  /* re-apply the emphasis: splitChars rebuilds from textContent, so an inline <em> would be
+     thrown away. The word wrappers it emits are matched by data-em instead. */
+  const emWord=(h1.dataset.em||'').trim();
+  if(emWord)h1.querySelectorAll('.fx-word').forEach(w=>{
+    if(w.textContent===emWord)w.classList.add('is-em');});
   gsap.set(h1,{perspective:600});
   gsap.fromTo(chars,{opacity:0,y:34,rotateX:-75,transformOrigin:'50% 100%'},
     {opacity:1,y:0,rotateX:0,duration:.6,stagger:.022,ease:'back.out(1.7)',delay:.15});
   /* eyebrow, subhead and CTA simply FADE up into place -- a pure opacity settle reads calmer
      next to the headline's per-character rise than a second sliding element would. */
-  const eyebrow=document.querySelector('.hero-copy .eyebrow');
-  const sub=document.querySelector('.hero-sub'), ctas=document.querySelector('.hero-ctas');
-  gsap.fromTo([eyebrow,sub,ctas].filter(Boolean),{opacity:0},
-    {opacity:1,duration:1.1,stagger:.14,ease:'power2.out',delay:.45});
+  /* status pill, sub, both CTAs and the figure row all fade up on the headline's clock. Selector
+     updated: the old .eyebrow in the hero was replaced by .hero-status. */
+  const bits=[document.querySelector('.hero-status'),
+              document.querySelector('.hero-sub'),
+              document.querySelector('.hero-ctas'),
+              document.querySelector('.hero-figures'),
+              document.querySelector('.hero-cue')].filter(Boolean);
+  gsap.fromTo(bits,{opacity:0,y:10},
+    {opacity:1,y:0,duration:1,stagger:.11,ease:'power2.out',delay:.4});
 })();
 
 /* HERO SEQUENCE -- deliberately split into TWO mechanisms, not one scrubbed timeline:
