@@ -23,10 +23,14 @@ function boot() {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-  /* 1.6, not 2. At devicePixelRatio 2 on a full-screen canvas this allocates a 2880x1800 MSAA
-     buffer; the edges of a polished tube do not visibly improve past ~1.6 and the fill cost drops
-     by roughly a third. */
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.6));
+  /* ADAPTIVE RESOLUTION. Start at the quality ceiling and only give it up if the machine cannot
+     hold the frame -- a fixed cap either wastes a fast GPU or stutters on a slow one. The ladder
+     is measured, not guessed: frame times are averaged over a second and the ratio steps down a
+     rung whenever the average is worse than ~18ms (roughly 55fps). It never steps back up, so it
+     cannot oscillate between two rungs and pulse. */
+  const DPR_LADDER = [Math.min(devicePixelRatio, 2), 1.6, 1.3, 1.0];
+  let dprStep = 0;
+  renderer.setPixelRatio(DPR_LADDER[dprStep]);
   renderer.setClearColor(0x000000, 0);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
@@ -168,7 +172,7 @@ function boot() {
        silently undo this. */
     /* on a phone the sculpture is lifted into the upper part of the frame: the copy sits low on
        the screen there, so centring the object put it behind the headline. */
-    const lift = innerWidth <= 760 ? SPAN * 0.17 : 0;
+    const lift = innerWidth <= 760 ? SPAN * 0.26 : 0;
     rig.position.set(innerWidth >= 1024 ? spanX * 0.17 : 0, lift, 0);
   }
 
@@ -199,10 +203,25 @@ function boot() {
   /* ---- loop ------------------------------------------------------------------------------- */
   const clock = new THREE.Clock();
   let running = true, raf = null;
+  let fpsAcc = 0, fpsFrames = 0, fpsWindow = 0;
 
   function frame() {
     raf = requestAnimationFrame(frame);
     const t = clock.getElapsedTime();
+
+    /* measure, then decide once a second */
+    const now = performance.now();
+    if (fpsWindow === 0) fpsWindow = now;
+    fpsFrames++;
+    if (now - fpsWindow >= 1000) {
+      const avgMs = (now - fpsWindow) / fpsFrames;
+      if (avgMs > 18 && dprStep < DPR_LADDER.length - 1) {
+        dprStep++;
+        renderer.setPixelRatio(DPR_LADDER[dprStep]);
+        resize();
+      }
+      fpsWindow = now; fpsFrames = 0;
+    }
 
     px += (tx - px) * 0.05;
     py += (ty - py) * 0.05;

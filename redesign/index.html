@@ -1664,12 +1664,39 @@
   #preloader.done{transform:translateY(-101%);border-radius:0 0 48px 48px;}
   body.is-loading{overflow:hidden;}
   .pl-inner{position:relative;width:min(86vw,965px);}
-  .pl-word{
+  /* the type sits in real space: it starts tilted back and rises to flat as the load completes,
+     so the screen is assembling rather than waiting */
+  .pl-stage{perspective:1000px;perspective-origin:50% 42%;}
+  .pl-word{position:relative;display:block;
     font-weight:900;letter-spacing:-.045em;line-height:.86;white-space:nowrap;
     font-size:min(13.4vw,150px);
-    background-image:linear-gradient(90deg,#FFF 0 0%,rgba(255,255,255,.22) 0% 100%);
+    transform:rotateX(var(--rx,15deg)) scale(var(--sc,.965));
+    transform-origin:50% 100%;
+    transition:transform .18s linear;
+    background-image:linear-gradient(100deg,#FFF 0 0%,rgba(255,255,255,.46) 0% 100%);
     -webkit-background-clip:text;background-clip:text;color:transparent;
     -webkit-text-fill-color:transparent;}
+  /* the extruded body: the same glyphs repeated back along a diagonal in darkening steps, drawn
+     behind the face. Steps are in em so the depth scales with the type rather than thinning out. */
+  .pl-word::before{content:attr(data-word);position:absolute;left:0;top:0;z-index:-1;
+    /* The glyph itself is TRANSPARENT and only its shadow steps are drawn. The face above is a
+       semi-transparent white (it has to be, to show progress), so a filled body directly behind it
+       showed straight through and the whole wordmark read brown instead of lit type with depth.
+       Transparent body, black behind the face, extrusion still there. */
+    -webkit-text-fill-color:transparent;color:transparent;
+    text-shadow:
+      .012em .014em 0 #4E2512,.024em .028em 0 #43200F,.036em .042em 0 #391B0D,
+      .048em .056em 0 #2F160B,.060em .070em 0 #261209,.072em .084em 0 #1E0E07,
+      .084em .098em 0 #170B05,.096em .112em 0 #110804,.108em .126em 0 #0C0603,
+      .120em .140em .06em rgba(0,0,0,.6);}
+  /* a warm floor glow so the object reads as sitting on something */
+  .pl-stage::after{content:'';position:absolute;left:8%;right:8%;top:78%;height:38%;
+    background:radial-gradient(60% 100% at 50% 0%, rgba(228,98,47,.20), transparent 70%);
+    filter:blur(14px);pointer-events:none;}
+  @media(prefers-reduced-motion:reduce){
+    .pl-word{transform:none;transition:none;}
+    .pl-word::before{display:none;}
+  }
   .pl-num{position:absolute;right:0;top:100%;margin-top:10px;
     font-size:12px;font-weight:500;letter-spacing:.12em;color:rgba(255,255,255,.6);
     font-variant-numeric:tabular-nums;}
@@ -1856,6 +1883,10 @@
     #proof h2,#process h2,#why h2,#services h2{margin-bottom:8px!important;}
     .process-lead{margin-bottom:18px!important;}
 
+    /* one CTA on a phone. Two full-width buttons stacked is the fold spent on chrome, and the
+       proof section is one scroll away regardless. Desktop keeps both. */
+    .hero-ghost{display:none!important;}
+
     /* ---- CHROME OFF -----------------------------------------------------------------------
        No nav CTA and no bottom bar on a phone. That leaves the hero's own two buttons as the only
        call to action above the fold, which is the point of them. */
@@ -2026,7 +2057,11 @@
      itself with background-clip, which needs no canvas and stays crisp at any size. -->
 <div id="preloader" aria-hidden="true">
   <div class="pl-inner">
-    <div class="pl-word" id="plWord">MVS SOLVES</div>
+    <div class="pl-stage">
+      <!-- data-word feeds the extruded body drawn behind the face; the face itself carries the
+           progress fill, so the two stay in register with no second copy to keep in sync -->
+      <div class="pl-word" id="plWord" data-word="MVS SOLVES">MVS SOLVES</div>
+    </div>
     <div class="pl-num">loading&hellip; <span id="plNum">0</span>%</div>
   </div>
 </div>
@@ -2041,9 +2076,18 @@
   var done=false;
   function render(v){
     var n=Math.round(v);
-    /* the fill is a hard stop in a gradient clipped to the glyphs -- the wordmark reads as filling
-       up rather than as a bar next to it */
-    word.style.backgroundImage='linear-gradient(90deg,#FFF 0 '+v+'%,rgba(255,255,255,.22) '+v+'% 100%)';
+    /* three things move on the same value, so the whole object reads as one process rather than a
+       bar with a number beside it:
+       - the lit face sweeps across the glyphs, with a short soft edge so it looks like light
+         travelling over a surface rather than a hard wipe
+       - the type rises out of its tilt toward flat
+       - and settles up to full size as it lands */
+    var lead=Math.min(100,v+7);
+    word.style.backgroundImage=
+      'linear-gradient(100deg,#FFF 0 '+v+'%,rgba(255,255,255,.62) '+v+'%,'+
+      'rgba(255,255,255,.46) '+lead+'% 100%)';
+    word.style.setProperty('--rx',(15-15*(v/100)).toFixed(2)+'deg');
+    word.style.setProperty('--sc',(0.965+0.035*(v/100)).toFixed(4));
     num.textContent=n;
   }
   function finish(instant){
@@ -2146,6 +2190,7 @@
           <p class="hero-sub fx-rise" data-short="One person builds the whole machine: the site that sells, the booking that answers, the follow-up that closes.">One person builds the whole machine: the site that sells, the booking that answers, the follow-up that closes. No agency layers.</p>
           <div class="hero-ctas">
             <a class="btn filled" href="/redesign/contact/">Start a project</a>
+            <a class="btn hero-ghost" href="#proof">See the proof</a>
           </div>
         </div>
       </div>
@@ -2308,13 +2353,13 @@
       <!-- data-hl, not <span>: splitChars rebuilds these from textContent for the rise effect and
            would throw inline markup away. applyHl re-applies the colour to the word wrappers after
            the split, so the figures survive it. -->
-      <p class="fx-rise" data-hl="six,10K" data-short="I'm Martin. Self-taught, no agency pedigree, and better for it. In under two months I took six businesses to 10K a month each.">I'm Martin. Self-taught, no agency pedigree, and better for it. In under two months I took six businesses to 10K a month each. That's not a pitch — it's the track record.</p>
-      <p class="fx-rise" data-hl="50+" data-short="50+ businesses now run on systems I designed and built myself, end to end. No hand-offs — the person who built it answers for it.">50+ businesses now run on systems I designed and built myself, end to end. No account managers, no hand-offs, no watered-down work passed down a chain — just the person who built it, answering for it.</p>
-      <p class="fx-rise">I don't stop at "launched." I'm done when your numbers are climbing, and I back myself to get them there.</p>
+      <p class="fx-rise" data-hl="six,10K" data-short="I'm Martin. Self-taught, no agency pedigree, and better for it.">I'm Martin. Self-taught, no agency pedigree, and better for it. In under two months I took six businesses to 10K a month each. That's not a pitch — it's the track record.</p>
+      <p class="fx-rise" data-hl="50+" data-short="No account managers, no hand-offs. The person who built it answers for it.">50+ businesses now run on systems I designed and built myself, end to end. No account managers, no hand-offs, no watered-down work passed down a chain — just the person who built it, answering for it.</p>
+      <p class="fx-rise">Launching isn't the finish line. I'm done when your numbers are going up.</p>
       <a class="btn filled" href="/redesign/contact/">Work with me</a>
     </div>
     <ol class="me-timeline fx-group">
-      <li><span class="tl-date fx-rise">2025</span><p>Cut my teeth in marketing and sales. The trade learned hands-on, not in a classroom.</p></li>
+      <li><span class="tl-date fx-rise">2025</span><p>Started in marketing and sales. Everything I know came from doing the work.</p></li>
       <li><span class="tl-date fx-rise">2026</span><p>Founded MVS Solves. Solo by design, so nothing stands between you and the person building it.</p></li>
       <li><span class="tl-date fx-rise">First 30 days</span><p>Onboarded <span class="tl-num">15</span> clients.</p></li>
       <li><span class="tl-date fx-rise">3 months in</span><p>Took <span class="tl-num">6</span> businesses to <span class="tl-num">10K a month</span>.</p></li>
