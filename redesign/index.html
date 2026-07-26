@@ -1664,38 +1664,15 @@
   #preloader.done{transform:translateY(-101%);border-radius:0 0 48px 48px;}
   body.is-loading{overflow:hidden;}
   .pl-inner{position:relative;width:min(86vw,965px);}
-  /* the type sits in real space: it starts tilted back and rises to flat as the load completes,
-     so the screen is assembling rather than waiting */
-  .pl-stage{perspective:1000px;perspective-origin:50% 42%;}
-  .pl-word{position:relative;display:block;
-    font-weight:900;letter-spacing:-.045em;line-height:.86;white-space:nowrap;
-    font-size:min(13.4vw,150px);
-    transform:rotateX(var(--rx,15deg)) scale(var(--sc,.965));
-    transform-origin:50% 100%;
-    transition:transform .18s linear;
-    background-image:linear-gradient(100deg,#FFF 0 0%,rgba(255,255,255,.46) 0% 100%);
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-    -webkit-text-fill-color:transparent;}
-  /* the extruded body: the same glyphs repeated back along a diagonal in darkening steps, drawn
-     behind the face. Steps are in em so the depth scales with the type rather than thinning out. */
-  .pl-word::before{content:attr(data-word);position:absolute;left:0;top:0;z-index:-1;
-    /* The glyph itself is TRANSPARENT and only its shadow steps are drawn. The face above is a
-       semi-transparent white (it has to be, to show progress), so a filled body directly behind it
-       showed straight through and the whole wordmark read brown instead of lit type with depth.
-       Transparent body, black behind the face, extrusion still there. */
-    -webkit-text-fill-color:transparent;color:transparent;
-    text-shadow:
-      .012em .014em 0 #4E2512,.024em .028em 0 #43200F,.036em .042em 0 #391B0D,
-      .048em .056em 0 #2F160B,.060em .070em 0 #261209,.072em .084em 0 #1E0E07,
-      .084em .098em 0 #170B05,.096em .112em 0 #110804,.108em .126em 0 #0C0603,
-      .120em .140em .06em rgba(0,0,0,.6);}
-  /* a warm floor glow so the object reads as sitting on something */
-  .pl-stage::after{content:'';position:absolute;left:8%;right:8%;top:78%;height:38%;
-    background:radial-gradient(60% 100% at 50% 0%, rgba(228,98,47,.20), transparent 70%);
-    filter:blur(14px);pointer-events:none;}
-  @media(prefers-reduced-motion:reduce){
-    .pl-word{transform:none;transition:none;}
-    .pl-word::before{display:none;}
+  .pl-stage{position:relative;width:100%;aspect-ratio:962/192;}
+  .pl-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
+  .pl-num{position:absolute;right:0;top:100%;margin-top:10px;
+    font-size:12px;font-weight:500;letter-spacing:.12em;color:rgba(255,255,255,.6);
+    font-variant-numeric:tabular-nums;}
+  @media(max-width:760px){
+    .pl-inner{width:88vw;}
+    .pl-num{font-size:10px;letter-spacing:.1em;margin-top:8px;}
+  }
   }
   .pl-num{position:absolute;right:0;top:100%;margin-top:10px;
     font-size:12px;font-weight:500;letter-spacing:.12em;color:rgba(255,255,255,.6);
@@ -1818,41 +1795,14 @@
     .hero-sticky{position:static!important;height:100svh!important;}
     #hero3d{clip-path:none!important;}
 
-    /* ---- SECTION TEXT IS ALWAYS ON SCREEN ---------------------------------------------------
-       The reveal harness keeps failing to release copy inside the sticky stack at this width --
-       Why-me repeatedly rendered as a headline-shaped smudge with its paragraphs absent. The
-       observer-based safety net helped but did not make it reliable.
-       This matches CONTAINERS ONLY, never a descendant wildcard. That distinction is the whole
-       point: an earlier blanket "* { transform:none }" froze every odometer digit strip at its
-       first digit and stopped the counters dead. Nothing here matches .odo-strip or the work
-       panel's crossfading glyphs, so both keep working. */
-    #proof .eyebrow,#process .eyebrow,#why .eyebrow,#services .eyebrow,.team-block .eyebrow,
-    #proof h2,#process h2,#why h2,#services h2,.team-block h2,
-    #proof p,#process p,#why p,#services p,.team-block p,
-    .tab-row,.stats-row,.team-stats,.me-figs,.stage,.work-item,.work-rest,
-    .me-copy .btn,.team-cta,
-    /* splitChars puts the gate on the WORD SPANS, not the heading -- the container was visible
-       while every word inside it was still at zero. .fx-word is only ever produced by that split,
-       so this cannot touch .odo-strip. */
-    .fx-word,.fx-word *{
-      opacity:1!important;visibility:visible!important;transform:none!important;}
-
-    /* ---- SCROLL COST ------------------------------------------------------------------------
-       Five sticky layers is already a lot for a phone compositor. Everything below is decoration
-       that costs a repaint on every frame of a scroll, and none of it survives being looked at on
-       a 390px screen anyway.
-       - the masked radial fields on Why-me, The-work and About: a mask forces the whole layer onto
-         its own surface and re-rasterises as it moves
-       - the page grain: a fixed full-screen overlay repainting under everything that scrolls
-       - will-change on the hero: it no longer animates here, so the hint only pins a
-         full-viewport layer in memory for nothing */
-    #why::before,#why::after,#services::before,.team-block::before,body::after{display:none!important;}
-    .hero-3d-placeholder{will-change:auto!important;}
-    .hero-3d-placeholder canvas{will-change:auto!important;}
-    /* About's paper fill STAYS. It was removed here as a perf measure and that was wrong: the
-       expensive shadows are the blurred ones, and this is 0 100vh 0 0 with no blur at all. Without
-       it About is 200px shorter than its pin and the Work section shows through the gap beneath
-       it -- trading a hole in the page for an optimisation that was not buying anything. */
+    /* The section reveals RUN on mobile, same as desktop -- the text-appear is part of the site's
+       voice and it looked inconsistent stopping at 760px. They were pinned visible here for several
+       rounds because the harness I was testing with jumped scroll position, which is exactly the
+       case an IntersectionObserver reveal handles worst, so sections looked permanently blank. On a
+       real WebKit device scrolling normally they fire correctly, and the safety net further down
+       releases anything that somehow does not.
+       Only the HERO copy stays pinned: its scrub is skipped at this width, and the scrub is what
+       would otherwise reveal the subhead and the buttons. */
 
     /* ---- DECLUTTER --------------------------------------------------------------------------
        Two things were doing most of the crowding, and both are named anti-patterns rather than
@@ -2058,9 +2008,11 @@
 <div id="preloader" aria-hidden="true">
   <div class="pl-inner">
     <div class="pl-stage">
-      <!-- data-word feeds the extruded body drawn behind the face; the face itself carries the
-           progress fill, so the two stay in register with no second copy to keep in sync -->
-      <div class="pl-word" id="plWord" data-word="MVS SOLVES">MVS SOLVES</div>
+      <!-- NeoLeaf's technique: the wordmark is a SHAPE and the fill lives inside it. Theirs masks a
+           canvas with an SVG of their logo; this draws the type into the canvas and clips with
+           source-in, which does the same thing and keeps the real webfont instead of shipping an
+           SVG that would have to be regenerated whenever the wordmark changes. -->
+      <canvas id="plCanvas" class="pl-canvas"></canvas>
     </div>
     <div class="pl-num">loading&hellip; <span id="plNum">0</span>%</div>
   </div>
@@ -2072,27 +2024,75 @@
   window.__heroGo=false;
   document.body.classList.add('is-loading');
 
-  var word=document.getElementById('plWord'), num=document.getElementById('plNum');
+  var cv=document.getElementById('plCanvas'), num=document.getElementById('plNum');
+  var ctx=cv.getContext('2d'), W=0, H=0, FS=0;
+  var DPR=Math.min(devicePixelRatio||1,2);
+  var WORD='MVS SOLVES';
   var done=false;
-  function render(v){
-    var n=Math.round(v);
-    /* three things move on the same value, so the whole object reads as one process rather than a
-       bar with a number beside it:
-       - the lit face sweeps across the glyphs, with a short soft edge so it looks like light
-         travelling over a surface rather than a hard wipe
-       - the type rises out of its tilt toward flat
-       - and settles up to full size as it lands */
-    var lead=Math.min(100,v+7);
-    word.style.backgroundImage=
-      'linear-gradient(100deg,#FFF 0 '+v+'%,rgba(255,255,255,.62) '+v+'%,'+
-      'rgba(255,255,255,.46) '+lead+'% 100%)';
-    word.style.setProperty('--rx',(15-15*(v/100)).toFixed(2)+'deg');
-    word.style.setProperty('--sc',(0.965+0.035*(v/100)).toFixed(4));
-    num.textContent=n;
+
+  function sizeCanvas(){
+    var r=cv.getBoundingClientRect();
+    W=Math.round(r.width); H=Math.round(r.height);
+    cv.width=Math.round(W*DPR); cv.height=Math.round(H*DPR);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    /* fit the wordmark to the box once, then reuse -- measureText every frame is wasted work */
+    FS=H*0.92;
+    ctx.font='900 '+FS+'px Satoshi, -apple-system, sans-serif';
+    if(ctx.letterSpacing!==undefined) ctx.letterSpacing='-0.045em';
+    var w=ctx.measureText(WORD).width;
+    if(w>0) FS=FS*(W/w)*0.99;
   }
+  addEventListener('resize',sizeCanvas);
+
+  /* The water. Everything painted after the composite switch lands INSIDE the letterforms, so the
+     level and its surface are clipped to the wordmark exactly the way a mask would clip them. */
+  function render(v,t){
+    if(!W) sizeCanvas();
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    ctx.clearRect(0,0,W,H);
+    ctx.globalCompositeOperation='source-over';
+
+    ctx.font='900 '+FS+'px Satoshi, -apple-system, sans-serif';
+    if(ctx.letterSpacing!==undefined) ctx.letterSpacing='-0.045em';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+
+    /* 1. the water itself, at full strength, drawn across the whole box.
+       The level rises with progress; two sine waves at different frequencies and speeds keep the
+       surface from reading as one repeating ripple. */
+    var level=H+10-((H+20)*(v/100));
+    ctx.fillStyle='#FFFFFF';
+    ctx.beginPath();
+    ctx.moveTo(0,H+4);
+    ctx.lineTo(0,level);
+    for(var x=0;x<=W;x+=3){
+      var y=level
+        + Math.sin((x/W)*Math.PI*3.2 + t*2.0)*(H*0.045)
+        + Math.sin((x/W)*Math.PI*6.7 + t*1.35)*(H*0.022);
+      ctx.lineTo(x,y);
+    }
+    ctx.lineTo(W,H+4);
+    ctx.closePath();
+    ctx.fill();
+
+    /* 2. keep only the part of that water lying inside the letterforms */
+    ctx.globalCompositeOperation='destination-in';
+    ctx.fillText(WORD,W/2,H/2);
+
+    /* 3. the unfilled wordmark, painted BEHIND what survived.
+       destination-over is the whole trick: compositing the dim layer first and the water second
+       made the water inherit the dim layer's alpha, which is why the fill came out grey instead
+       of white. */
+    ctx.globalCompositeOperation='destination-over';
+    ctx.fillStyle='rgba(255,255,255,0.24)';
+    ctx.fillText(WORD,W/2,H/2);
+
+    ctx.globalCompositeOperation='source-over';
+    num.textContent=Math.round(v);
+  }
+
   function finish(instant){
     if(done)return; done=true;
-    render(100);
+    render(100,0);
     window.__heroGo=true;
     document.body.classList.remove('is-loading');
     if(instant){el.remove();return;}
@@ -2107,31 +2107,37 @@
   /* Every exit decision is a TIMER, never the animation loop. requestAnimationFrame is throttled
      hard in a background tab and can stall outright; a preloader is the one component that must
      never trap anyone behind it. The loop only paints. */
-  var CAP=setTimeout(function(){finish(false);},4500);
+  /* MIN_MS is a floor, not a delay for its own sake: on a warm cache everything reports ready
+     inside a few hundred milliseconds and the screen was gone before the water had risen far
+     enough to read as anything. The sequence always plays out. */
+  var MIN_MS=3400;
+  var CAP=setTimeout(function(){finish(false);},MIN_MS+3000);
+  function ready(){return heroReady&&fontsReady&&winLoaded;}
   function signal(k){
     if(k==='hero')heroReady=true;
     if(k==='fonts')fontsReady=true;
     if(k==='load')winLoaded=true;
-    if(heroReady&&fontsReady&&winLoaded){
-      clearTimeout(CAP);
-      setTimeout(function(){finish(false);},480);
-    }
   }
   addEventListener('hero:ready',function(){signal('hero');});
   addEventListener('load',function(){signal('load');});
   (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve())
-    .then(function(){signal('fonts');});
+    .then(function(){sizeCanvas();signal('fonts');});
   if(heroReady)signal('hero');
   if(winLoaded)signal('load');
 
   var p=0,t0=Date.now();
-  render(0);
+  sizeCanvas(); render(0,0);
   function tick(){
     if(done)return;
     var elapsed=Date.now()-t0;
-    var target=(heroReady&&fontsReady&&winLoaded)?100:Math.min(88,6+elapsed/18);
-    p+=(target-p)*0.13;
-    render(p>99.4?100:p);
+    /* the fill is paced by TIME, so the water rises at a readable speed whatever the network did.
+       Readiness only decides whether it is allowed past 88 into the last stretch. */
+    var byTime=(elapsed/MIN_MS)*100;
+    var target=ready()?Math.min(100,byTime):Math.min(88,byTime);
+    p+=(target-p)*0.16;
+    var shown=(ready()&&elapsed>=MIN_MS&&p>99)?100:p;
+    render(shown, elapsed/1000);
+    if(shown>=100){clearTimeout(CAP);setTimeout(function(){finish(false);},420);return;}
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
