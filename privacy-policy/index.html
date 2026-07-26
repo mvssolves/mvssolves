@@ -2,33 +2,36 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="theme-color" content="#F7F4EF">
+<meta name="theme-color" content="#141210">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Privacy Policy — MVS Solves</title>
 <meta name="description" content="How MVS Solves collects, uses, and protects your information.">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+<link rel="icon" href="/favicon-96.png?v=3" sizes="96x96" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="mask-icon" href="/mask-icon.svg?v=3" color="#141210">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;1,300&family=Schibsted+Grotesk:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/subpage.css">
 </head>
 <body>
 
 <nav>
   <div class="nav-inner">
-    <div class="nav-logo" role="img" aria-label="MVS Solves">
-      <svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true">
-        <polyline points="14,49 14,15 32,41 50,15 50,49" fill="none"
-          stroke="currentColor" stroke-width="10" stroke-linejoin="miter" stroke-linecap="butt"/>
-      </svg>
-    </div>
-    <a class="nav-back" href="/">&larr; Back to site</a>
+    <span class="mark">MVS</span>
+    <a class="back" href="/">← Back</a>
   </div>
 </nav>
 
-<header class="hero">
-  <div class="wrap">
-    <div class="eyebrow rise">Legal</div>
-    <h1 class="rise">Privacy Policy</h1>
-    <p class="meta rise">Last updated: July 22, 2026</p>
+<header class="page">
+  <div class="bed"><video data-bed="/media/bed-method.mp4" muted loop playsinline
+        preload="none" poster="/media/bed-method.jpg" aria-hidden="true"></video></div>
+  <div class="head-in wrap">
+    <span class="label">Legal</span>
+    <h1>Privacy Policy</h1>
+    <div class="updated">Last updated 26 July 2026</div>
   </div>
 </header>
 
@@ -124,39 +127,37 @@
 </main>
 
 <footer>
-  <div class="foot-inner">
-    <div class="foot-col">
-      <h3>Legal</h3>
-      <a href="/privacy-policy">Privacy Policy</a>
-      <a href="/terms-of-service">Terms of Service</a>
-    </div>
-    <div class="foot-col">
-      <h3>Company</h3>
-      <a href="/#about">About</a>
-      <a href="/contact">Contact</a>
-    </div>
-    <div class="foot-col">
-      <h3>Contact</h3>
-      <a href="mailto:martin@mvssolves.com">martin@mvssolves.com</a>
-      <span class="foot-plain">Remote</span>
-    </div>
-    <div class="foot-col">
-      <h3>Still have questions?</h3>
-      <div class="foot-cta">
-        <input class="foot-email" type="email" placeholder="Enter your email">
-        <!-- subpages have no modal, so this goes to the contact page rather than nowhere -->
-        <a class="btn filled" href="/contact">Send</a>
-      </div>
-    </div>
-  </div>
-  <div class="foot-legal"><span class="foot-copy">&copy; 2026 MVS Solves</span></div>
-  <div class="foot-bottom">
-    <div class="foot-glow" aria-hidden="true"></div>
-    <div class="foot-wordmark" aria-hidden="true">MVS Solves</div>
+  <div class="foot-in">
+    <span class="label">© 2026 MVS Solves</span>
+    <span class="foot-links">
+      <a href="/">Home</a>
+      <a href="/contact/">Contact</a>
+      <a href="/privacy-policy/">Privacy</a>
+      <a href="/terms-of-service/">Terms</a>
+    </span>
   </div>
 </footer>
 
 <script src="/subpage.js" defer></script>
 
+<script>
+(function(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var v=document.querySelector('video[data-bed]');
+  if(!v || !('IntersectionObserver' in window)) return;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){
+        if(!v.dataset.loaded){
+          var s=document.createElement('source');
+          s.src=v.dataset.bed; s.type='video/mp4';
+          v.appendChild(s); v.load(); v.dataset.loaded='1';
+        }
+        v.play().catch(function(){});
+      } else { try{ v.pause(); }catch(err){} }
+    });
+  },{rootMargin:'150px 0px'}).observe(v);
+})();
+</script>
 </body>
 </html>
