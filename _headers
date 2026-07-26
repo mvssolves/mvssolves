@@ -10,17 +10,22 @@
 /index.html
   Cache-Control: no-store
 
-/*.svg
+/media/*
   Cache-Control: public, max-age=31536000, immutable
 
-/*.png
-  Cache-Control: public, max-age=31536000, immutable
+# Icons: short cache + revalidate. "immutable" here means a favicon change can
+# never reach a returning visitor, which is exactly what happened.
+/favicon.svg
+  Cache-Control: public, max-age=3600, must-revalidate
 
-/favicon-16.png
-  Cache-Control: public, max-age=31536000, immutable
+/favicon-96.png
+  Cache-Control: public, max-age=3600, must-revalidate
 
-/favicon-32.png
-  Cache-Control: public, max-age=31536000, immutable
+/mask-icon.svg
+  Cache-Control: public, max-age=3600, must-revalidate
 
 /apple-touch-icon.png
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: public, max-age=86400, must-revalidate
+
+/og-image.png
+  Cache-Control: public, max-age=86400, must-revalidate
