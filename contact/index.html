@@ -1,150 +1,323 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="theme-color" content="#F7F4EF">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script>document.documentElement.className+=' js';</script>
 <title>Contact — MVS Solves</title>
-<meta name="description" content="Tell me what you need. Direct to Martin, reply within a day.">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
-<link rel="stylesheet" href="/subpage.css">
+<meta name="description" content="Tell me what's leaking. Same-day response.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Schibsted+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:    oklch(0.145 0.008 70);
+  --ground-2:  oklch(0.185 0.008 70);
+  --ink:       oklch(0.935 0.008 80);
+  --ink-2:     oklch(0.745 0.007 78);
+  --ink-3:     oklch(0.640 0.006 74);
+  --hair:      oklch(0.935 0.008 80 / .16);
+  --hair-soft: oklch(0.935 0.008 80 / .085);
+  --serif:'Spectral',Georgia,'Times New Roman',serif;
+  --sans:'Schibsted Grotesk',system-ui,-apple-system,sans-serif;
+  --pad: clamp(1.35rem, 5vw, 5.5rem);
+  --ease: cubic-bezier(.22,1,.28,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; background:var(--ground)}
+body{margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--serif); font-weight:300;
+  font-size:clamp(1rem,.95rem + .25vw,1.12rem); line-height:1.72;
+  -webkit-font-smoothing:antialiased; min-height:100svh; display:flex; flex-direction:column}
+a{color:inherit}
+p{margin:0; text-wrap:pretty}
+h1{margin:0; font-weight:300; line-height:1.06; letter-spacing:-.014em;
+  font-size:clamp(2.1rem,1.4rem + 3.2vw,4rem); text-wrap:balance}
+h1 em{font-style:italic; color:var(--ink-2)}
+::selection{background:var(--ink); color:var(--ground)}
+:focus-visible{outline:1px solid var(--ink); outline-offset:3px}
+
+.wrap{max-width:1360px; margin-inline:auto; padding-inline:var(--pad); width:100%}
+.label{font-family:var(--sans); font-size:.685rem; letter-spacing:.22em; text-transform:uppercase; color:var(--ink-3)}
+.lede{font-size:clamp(1.04rem,1rem + .5vw,1.28rem); line-height:1.68; color:var(--ink-2); max-width:46ch}
+
+nav{position:relative; z-index:3}
+.nav-in{display:flex; align-items:center; gap:2rem; height:74px}
+.mark{font-family:var(--serif); font-weight:400; font-size:1.05rem; letter-spacing:.24em;
+  text-decoration:none; text-transform:uppercase; color:var(--ink)}
+.back{margin-left:auto; font-family:var(--sans); font-size:.72rem; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ink-3); text-decoration:none; transition:color .5s var(--ease)}
+.back:hover{color:var(--ink)}
+
+/* footage bed for the whole page */
+.bg{position:fixed; inset:0; z-index:0; overflow:hidden}
+.bg video,.bg img{width:100%; height:100%; object-fit:cover;
+  filter:grayscale(1) sepia(.12) brightness(.4) contrast(1.14)}
+.bg::after{content:''; position:absolute; inset:0;
+  background:linear-gradient(180deg, oklch(0.145 0.008 70 / .72) 0%, oklch(0.145 0.008 70 / .58) 45%, oklch(0.145 0.008 70 / .88) 100%)}
+
+main{position:relative; z-index:2; flex:1; display:flex; align-items:center;
+  padding-block:clamp(2.5rem,7vh,5rem)}
+.grid{display:grid; grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);
+  gap:clamp(2rem,6vw,6rem); align-items:start; width:100%}
+@media(max-width:880px){.grid{grid-template-columns:1fr; gap:2.5rem}}
+
+.aside .lede{margin-top:1.6rem}
+.aside dl{margin:clamp(2rem,5vh,3rem) 0 0; border-top:1px solid var(--hair-soft)}
+.aside .row{display:flex; justify-content:space-between; gap:1.5rem; align-items:baseline;
+  padding-block:.95rem; border-bottom:1px solid var(--hair-soft)}
+.aside dt{font-family:var(--sans); font-size:.66rem; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3)}
+.aside dd{margin:0; font-size:.98rem; color:var(--ink-2); text-align:right}
+
+/* form — hairlines only, no boxes */
+form{display:grid; gap:clamp(1.1rem,2.6vh,1.6rem)}
+.two{display:grid; grid-template-columns:1fr 1fr; gap:inherit}
+@media(max-width:560px){.two{grid-template-columns:1fr}}
+.field{display:flex; flex-direction:column; gap:.5rem}
+.field label{font-family:var(--sans); font-size:.66rem; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-3)}
+.field input,.field textarea,.field select{
+  font-family:var(--serif); font-weight:300; font-size:1.02rem; color:var(--ink);
+  background:transparent; border:0; border-bottom:1px solid var(--hair);
+  padding:.55rem 0; transition:border-color .5s var(--ease)}
+.field textarea{resize:vertical; min-height:5.5rem; line-height:1.6}
+.field select{appearance:none; cursor:pointer}
+.field select option{background:var(--ground-2); color:var(--ink)}
+.field input:focus,.field textarea:focus,.field select:focus{outline:0; border-bottom-color:var(--ink)}
+.field input::placeholder,.field textarea::placeholder{color:var(--ink-3); opacity:.65}
+
+button{justify-self:start; margin-top:.6rem; display:inline-flex; align-items:center; gap:.85rem;
+  font-family:var(--sans); font-size:.73rem; letter-spacing:.19em; text-transform:uppercase;
+  color:var(--ink); background:transparent; border:0; padding:0 0 .55rem; cursor:pointer; position:relative}
+button::before{content:''; position:absolute; inset-inline:0; bottom:0; height:1px; background:var(--hair)}
+button::after{content:''; position:absolute; inset-inline:0; bottom:0; height:1px; background:var(--ink);
+  transform:scaleX(0); transform-origin:left; transition:transform .8s var(--ease)}
+button:hover::after,button:focus-visible::after{transform:scaleX(1)}
+button span{transition:transform .8s var(--ease)}
+button:hover span{transform:translateX(5px)}
+button[disabled]{opacity:.5; cursor:default}
+
+.note{font-family:var(--sans); font-size:.66rem; letter-spacing:.1em; color:var(--ink-3); line-height:1.7}
+.hp{position:absolute!important; left:-9999px; width:1px; height:1px; opacity:0}
+#status{min-height:1.2rem; font-family:var(--sans); font-size:.7rem; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink-2)}
+
+footer{position:relative; z-index:2; border-top:1px solid var(--hair-soft); padding-block:1.6rem}
+.foot-in{display:flex; flex-wrap:wrap; gap:1rem; justify-content:space-between}
+
+#fade{position:fixed; inset:0; background:var(--ground); z-index:70; pointer-events:none;
+  opacity:1; transition:opacity .42s var(--ease)}
+#fade.off{opacity:0}
+html:not(.js) #fade{display:none}
+
+@media (prefers-reduced-motion: reduce){*{transition-duration:.01ms !important; animation-duration:.01ms !important}}
+</style>
 </head>
 <body>
 
-<nav>
-  <div class="nav-inner">
-    <div class="nav-logo" role="img" aria-label="MVS Solves">
-      <svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true">
-        <polyline points="14,49 14,15 32,41 50,15 50,49" fill="none"
-          stroke="currentColor" stroke-width="10" stroke-linejoin="miter" stroke-linecap="butt"/>
-      </svg>
-    </div>
-    <a class="nav-back" href="/">&larr; Back to site</a>
-  </div>
+<div id="fade" aria-hidden="true"></div>
+
+<div class="bg">
+  <video id="bgvid" muted loop playsinline preload="metadata" poster="../media/bed-contact.jpg"
+         aria-label="Bare trees in slow-moving mist."></video>
+</div>
+
+<nav class="wrap nav-in">
+  <span class="mark">MVS</span>
+  <a class="back" href="../">← Back</a>
 </nav>
 
-<header class="hero">
-  <div class="wrap">
-    <div class="eyebrow rise">Contact</div>
-    <h1 class="rise">Let's talk.</h1>
-    <p class="sub-lead rise">Tell me what you need. I read every one of these myself and reply within a day, usually the same one.</p>
-
-  </div>
-</header>
-
 <main>
-  <div class="wrap">
-    <form class="contact-form" id="contactForm" novalidate>
-      <div class="field-row">
+  <div class="wrap grid">
+
+    <div class="aside">
+      <span class="label" data-scramble>Contact</span>
+      <h1 style="margin-top:1.3rem" data-scramble>Let's find out<br><em>what's leaking.</em></h1>
+      <p class="lede">Same-day response. Let's bring you more revenue.</p>
+      <dl>
+        <div class="row"><dt>Response</dt><dd>Same day, usually within hours</dd></div>
+        <div class="row"><dt>First step</dt><dd>A call, not a questionnaire</dd></div>
+        <div class="row"><dt>Who replies</dt><dd>Martin — the person who builds it</dd></div>
+        <div class="row"><dt>Direct</dt><dd><a href="mailto:martin@mvssolves.com">martin@mvssolves.com</a></dd></div>
+      </dl>
+    </div>
+
+    <form id="contact" method="post" action="/api/contact" novalidate>
+      <div class="two">
         <div class="field">
-          <label for="cName">Name</label>
-          <input id="cName" name="name" type="text" autocomplete="name" required>
+          <label for="name" data-scramble>Your name</label>
+          <input id="name" name="name" type="text" autocomplete="name" required placeholder="Martin">
         </div>
         <div class="field">
-          <label for="cEmail">Email</label>
-          <input id="cEmail" name="email" type="email" autocomplete="email" required>
+          <label for="company" data-scramble>Business</label>
+          <input id="company" name="company" type="text" autocomplete="organization" placeholder="What you run">
         </div>
       </div>
-      <div class="field-row">
+      <div class="two">
         <div class="field">
-          <label for="cCompany">Business (optional)</label>
-          <input id="cCompany" name="company" type="text" autocomplete="organization">
+          <label for="email" data-scramble>Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@business.com">
         </div>
         <div class="field">
-          <label for="cNeed">What do you need?</label>
-          <select id="cNeed" name="need">
-            <option>A website</option>
-            <option>Automations / AI</option>
-            <option>Both</option>
-            <option>Not sure yet</option>
-          </select>
+          <label for="phone">Phone <span style="text-transform:none;letter-spacing:.02em">(optional)</span></label>
+          <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="So I can call instead">
         </div>
       </div>
       <div class="field">
-        <label for="cMsg">Message</label>
-        <textarea id="cMsg" name="message" required></textarea>
+        <label for="need" data-scramble>Where's it leaking?</label>
+        <select id="need" name="need">
+          <option value="">Pick the closest one</option>
+          <option>Enquiries come in and nobody answers fast enough</option>
+          <option>The site doesn't turn visitors into bookings</option>
+          <option>Follow-ups never get sent</option>
+          <option>No idea where the money is going</option>
+          <option>All of it — start from scratch</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="message" data-scramble>What's happening</label>
+        <textarea id="message" name="message" rows="3" required placeholder="What's happening now, and what you'd want instead."></textarea>
       </div>
       <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <div class="form-actions">
-        <button class="btn filled" type="submit" id="contactSend">Send it</button>
-        <span class="form-note">Or email <a href="mailto:martin@mvssolves.com">martin@mvssolves.com</a></span>
-      </div>
-      <div class="form-msg" id="contactMsg" role="status"></div>
+      <button type="submit">Send it <span>→</span></button>
+      <p id="status" role="status" aria-live="polite"></p>
     </form>
+
   </div>
 </main>
 
 <footer>
-  <div class="foot-inner">
-    <div class="foot-col">
-      <h3>Legal</h3>
-      <a href="/privacy-policy">Privacy Policy</a>
-      <a href="/terms-of-service">Terms of Service</a>
-      <a href="/acceptable-use-policy">Acceptable Use</a>
-      <a href="/data-processing-agreement">Data Processing</a>
-      <a href="/security">Security</a>
-      <a href="/accessibility-statement">Accessibility</a>
-    </div>
-    <div class="foot-col">
-      <h3>Company</h3>
-      <a href="/#about">About</a>
-      <a href="/contact">Contact</a>
-      <a href="/faq">FAQ</a>
-      <a href="/join-the-team">Careers</a>
-    </div>
-    <div class="foot-col">
-      <h3>Contact</h3>
-      <a href="mailto:martin@mvssolves.com">martin@mvssolves.com</a>
-      <span class="foot-plain">Remote</span>
-    </div>
-    <div class="foot-col">
-      <h3>Still have questions?</h3>
-      <div class="foot-cta">
-        <input class="foot-email" type="email" placeholder="Enter your email">
-        <!-- subpages have no modal, so this goes to the contact page rather than nowhere -->
-        <a class="btn filled" href="/contact">Send</a>
-      </div>
-    </div>
-  </div>
-  <div class="foot-legal"><span class="foot-copy">&copy; 2026 MVS Solves</span></div>
-  <div class="foot-bottom">
-    <div class="foot-glow" aria-hidden="true"></div>
-    <div class="foot-wordmark" aria-hidden="true">MVS Solves</div>
+  <div class="wrap foot-in">
+    <span class="label">© 2026 MVS Solves</span>
   </div>
 </footer>
 
-<script src="/subpage.js" defer></script>
-
 <script>
-/* Same contract as the home page's modal: POST JSON to /api/contact, honeypot dropped silently. */
 (function(){
-  const form=document.getElementById('contactForm');
-  const msg=document.getElementById('contactMsg');
-  const send=document.getElementById('contactSend');
-  function show(text,ok){msg.textContent=text;msg.className='form-msg show '+(ok?'ok':'err');}
-  form.addEventListener('submit',async e=>{
+  'use strict';
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* arrive on a fade, and leave on one — the loader never runs on this page */
+  var fade=document.getElementById('fade');
+  try{ sessionStorage.setItem('mvs-seen','1'); }catch(e){}
+  if(fade){
+    if(reduce){ fade.style.display='none'; }
+    else {
+      requestAnimationFrame(function(){ fade.classList.add('off'); });
+      setTimeout(function(){ fade.classList.add('off'); }, 700);   // failsafe: never stay covered
+      addEventListener('pageshow', function(){ fade.classList.add('off'); });
+      document.addEventListener('click', function(e){
+        var a=e.target.closest && e.target.closest('a[href]');
+        if(!a) return;
+        var href=a.getAttribute('href');
+        if(!href || a.target==='_blank' || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+        if(/^(mailto:|tel:|https?:|#)/i.test(href)) return;
+        e.preventDefault();
+        fade.classList.remove('off');
+        setTimeout(function(){ location.href=href; }, 430);
+      });
+    }
+  }
+
+
+  /* same decode as the home page — katakana settling into the real text */
+  var GLYPHS='ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ';
+  /* shuffle once, then walk it with a coprime stride: no two characters
+     scrambling at the same moment ever show the same glyph */
+  var POOL=GLYPHS.split('');
+  for(var _i=POOL.length-1;_i>0;_i--){ var _j=Math.floor(Math.random()*(_i+1)); var _t=POOL[_i]; POOL[_i]=POOL[_j]; POOL[_j]=_t; }
+  var STRIDE=17;   /* coprime with 45 */
+  function nodesOf(el){
+    if(el._nodes) return el._nodes;
+    var out=[], w=document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), n;
+    while((n=w.nextNode())){ if(n.nodeValue.trim()) out.push({node:n,text:n.nodeValue}); }
+    el._nodes=out; return out;
+  }
+  function decode(el){
+    var nodes=nodesOf(el);
+    if(!nodes.length || el._running) return;
+    el._running=true;
+    function restore(){ for(var i=0;i<nodes.length;i++) nodes[i].node.nodeValue=nodes[i].text; el._running=false; }
+    var total=nodes.reduce(function(a,b){return a+b.text.length;},0);
+    var DUR=Math.min(2600, 1200+total*34), start=null, raf=0;
+    function frame(ts){
+      if(start===null) start=ts;
+      var p=Math.min(1,(ts-start)/DUR), settled=p*total, seen=0;
+      for(var i=0;i<nodes.length;i++){
+        var t=nodes[i].text, o='';
+        for(var c=0;c<t.length;c++){
+          var idx=seen+c;
+          o += (idx<settled || t[c]===' ') ? t[c] : POOL[(idx*STRIDE + ((ts/70)|0)) % POOL.length];
+        }
+        nodes[i].node.nodeValue=o; seen+=t.length;
+      }
+      if(p<1) raf=requestAnimationFrame(frame); else restore();
+    }
+    raf=requestAnimationFrame(frame);
+    setTimeout(function(){ cancelAnimationFrame(raf); restore(); }, DUR+900);
+  }
+  if(!reduce && 'IntersectionObserver' in window && document.createTreeWalker){
+    var dio=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting) decode(e.target); });
+    },{threshold:.4});
+    [].slice.call(document.querySelectorAll('[data-scramble]')).forEach(function(t){ dio.observe(t); });
+  }
+
+  var v=document.getElementById('bgvid');
+  if(v && !reduce){
+    var s=document.createElement('source');
+    s.src='../media/bed-contact.mp4'; s.type='video/mp4';
+    v.appendChild(s); v.load();
+    v.play().catch(function(){});     /* refused autoplay leaves the poster frame */
+  }
+
+  /* Posts JSON to the same Cloudflare Function the old site used.
+     Phone isn't a field the endpoint knows, so it rides along inside the message. */
+  var f=document.getElementById('contact'), st=document.getElementById('status');
+  if(!f) return;
+  var btn=f.querySelector('button[type="submit"]');
+  f.addEventListener('submit', function(e){
     e.preventDefault();
-    const data=Object.fromEntries(new FormData(form).entries());
-    if(data.website)return;
-    if(!data.name||!data.email||!data.message){
-      show('Name, email and a message, please.',false);return;
-    }
-    send.disabled=true;send.textContent='Sending\u2026';
-    try{
-      const r=await fetch('/api/contact',{method:'POST',
-        headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
-      if(!r.ok)throw new Error(await r.text());
-      form.reset();
-      show("Got it. I'll come back to you within a day.",true);
-    }catch(err){
-      show('That did not send. Email martin@mvssolves.com and I will pick it up there.',false);
-    }finally{
-      send.disabled=false;send.textContent='Send it';
-    }
+    var get=function(id){ var el=f.querySelector('#'+id); return el ? el.value.trim() : ''; };
+    var name=get('name'), email=get('email'), message=get('message');
+    var okEmail=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+
+    if(!name){ st.textContent='Add your name'; f.querySelector('#name').focus(); return; }
+    if(!okEmail){ st.textContent='That email doesn\u2019t look right'; f.querySelector('#email').focus(); return; }
+    if(!message){ st.textContent='Tell me what\u2019s happening'; f.querySelector('#message').focus(); return; }
+
+    var phone=get('phone');
+    var payload={
+      name: name,
+      email: email,
+      company: get('company'),
+      need: get('need'),
+      message: phone ? (message + '\n\nPhone: ' + phone) : message,
+      website: (f.querySelector('[name="website"]')||{}).value || ''
+    };
+
+    btn.disabled=true; st.textContent='Sending\u2026';
+    fetch('/api/contact', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    }).then(function(r){
+      return r.json().catch(function(){ return {}; }).then(function(b){ return {ok:r.ok, body:b}; });
+    }).then(function(res){
+      if(res.ok && res.body.ok){
+        f.querySelectorAll('input,textarea,select').forEach(function(el){ el.value=''; });
+        st.textContent='Sent \u2014 I\u2019ll reply today';
+      } else {
+        btn.disabled=false;
+        st.textContent = res.body.error==='Mail not configured'
+          ? 'Mail not configured yet \u2014 email martin@mvssolves.com'
+          : 'Didn\u2019t send \u2014 email martin@mvssolves.com';
+      }
+    }).catch(function(){
+      btn.disabled=false;
+      st.textContent='Network error \u2014 email martin@mvssolves.com';
+    });
   });
 })();
 </script>
-
 </body>
 </html>
