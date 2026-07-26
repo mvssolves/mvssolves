@@ -1285,7 +1285,12 @@
     .thumb-bar{position:fixed;left:0;right:0;bottom:0;z-index:30;
       display:flex;gap:10px;align-items:center;
       padding:12px clamp(16px,4vw,22px) calc(12px + env(safe-area-inset-bottom));
-      background:rgba(247,244,239,.94);backdrop-filter:blur(12px) saturate(1.2);
+      /* solid, not blurred: this bar is on-screen for nearly the whole scroll (fixed, shown right
+         after the hero, hidden only at the footer). backdrop-filter re-samples and re-blurs
+         everything behind it on EVERY scroll frame -- same cost the nav rule above rejected for
+         the same reason, just not caught here yet. Already 98% opaque, so dropping the blur reads
+         identically and removes a continuous per-frame GPU cost for the length of the page. */
+      background:rgba(247,244,239,.98);
       box-shadow:0 -1px 0 var(--line),0 -16px 34px -24px rgba(40,32,22,.5);
       transform:translateY(110%);transition:transform .42s cubic-bezier(.2,.8,.3,1);}
     .thumb-bar.show{transform:translateY(0);}

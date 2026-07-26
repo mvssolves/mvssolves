@@ -28,7 +28,12 @@ function boot() {
      is measured, not guessed: frame times are averaged over a second and the ratio steps down a
      rung whenever the average is worse than ~18ms (roughly 55fps). It never steps back up, so it
      cannot oscillate between two rungs and pulse. */
-  const DPR_LADDER = [Math.min(devicePixelRatio, 2), 1.6, 1.3, 1.0];
+  /* ceiling lowered from 2 to 1.5: on a 2x/3x display this scene is rendering every frame for the
+     entire scrub (nearly the whole first screen of scroll, on every device -- this is the one 3D
+     piece that stays on mobile too), so the DPR ceiling is a continuous fill-rate cost, not a
+     one-time one. 1.5 still reads sharp; it's ~44% fewer pixels than 2x from the very first frame,
+     rather than waiting a full second of bad frames for the ladder below to step down. */
+  const DPR_LADDER = [Math.min(devicePixelRatio, 1.5), 1.3, 1.1, 1.0];
   let dprStep = 0;
   renderer.setPixelRatio(DPR_LADDER[dprStep]);
   renderer.setClearColor(0x000000, 0);
