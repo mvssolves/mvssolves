@@ -29,3 +29,6 @@
 
 /og-image.png
   Cache-Control: public, max-age=86400, must-revalidate
+
+/subpage.css
+  Cache-Control: public, max-age=3600, must-revalidate
