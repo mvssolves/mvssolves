@@ -2019,14 +2019,21 @@
   var el=document.getElementById('preloader');
   if(!el)return;
 
-  /* SITE LOAD-UP ONLY. This screen is a first-impression moment, not a page-transition spinner --
-     it should never fire again once someone has already seen it this session, e.g. bouncing from
-     the /contact/ page back to /. sessionStorage survives full navigations within the same tab
-     but not a new tab/window, which is exactly "have they already been on the site just now". */
+  /* SITE LOAD-UP ONLY -- but a RELOAD always counts as one. This screen is a first-impression
+     moment, not a page-transition spinner: bouncing from /contact/ back to / shouldn't replay it.
+     But hitting reload/refresh on any page is a deliberate "start over" action, and skipping the
+     loader there reads as broken, not fast. sessionStorage tells us "seen it this session";
+     the Navigation Timing entry's `type` tells reload apart from a normal link/URL navigation --
+     only a plain navigate with the seen-flag set gets skipped. */
   var SEEN_KEY='mvsPreloaderSeen';
   var seen=false;
   try{seen=sessionStorage.getItem(SEEN_KEY)==='1';}catch(e){}
-  if(seen){
+  var isReload=false;
+  try{
+    var navEntry=performance.getEntriesByType('navigation')[0];
+    isReload=navEntry?navEntry.type==='reload':(performance.navigation&&performance.navigation.type===1);
+  }catch(e){}
+  if(seen&&!isReload){
     el.remove();
     window.__heroGo=true;
     return;
