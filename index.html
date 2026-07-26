@@ -2018,6 +2018,20 @@
 (function(){
   var el=document.getElementById('preloader');
   if(!el)return;
+
+  /* SITE LOAD-UP ONLY. This screen is a first-impression moment, not a page-transition spinner --
+     it should never fire again once someone has already seen it this session, e.g. bouncing from
+     the /contact/ page back to /. sessionStorage survives full navigations within the same tab
+     but not a new tab/window, which is exactly "have they already been on the site just now". */
+  var SEEN_KEY='mvsPreloaderSeen';
+  var seen=false;
+  try{seen=sessionStorage.getItem(SEEN_KEY)==='1';}catch(e){}
+  if(seen){
+    el.remove();
+    window.__heroGo=true;
+    return;
+  }
+
   window.__heroGo=false;
   document.body.classList.add('is-loading');
 
@@ -2092,6 +2106,7 @@
     render(100,0);
     window.__heroGo=true;
     document.body.classList.remove('is-loading');
+    try{sessionStorage.setItem(SEEN_KEY,'1');}catch(e){}
     if(instant){el.remove();return;}
     el.classList.add('done');
     setTimeout(function(){el.remove();},1100);
