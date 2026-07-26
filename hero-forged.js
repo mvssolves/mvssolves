@@ -22,7 +22,11 @@ function boot() {
   const FLARE = 0xE4622F;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+  /* antialias off: MSAA is a flat multiple of every fragment this scene draws, for the whole time
+     it's on screen -- not a one-time cost like the geometry or environment map below. The edges
+     it was smoothing are thin chrome rings, softened further by the metal shading itself; the
+     DPR ladder above already buys back more sharpness than the 4x sampling was worth. */
+  const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, powerPreference: 'high-performance' });
   /* ADAPTIVE RESOLUTION. Start at the quality ceiling and only give it up if the machine cannot
      hold the frame -- a fixed cap either wastes a fast GPU or stutters on a slow one. The ladder
      is measured, not guessed: frame times are averaged over a second and the ratio steps down a

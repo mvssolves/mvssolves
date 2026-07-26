@@ -1675,14 +1675,6 @@
     font-size:12px;font-weight:500;letter-spacing:.12em;color:rgba(255,255,255,.6);
     font-variant-numeric:tabular-nums;}
   @media(max-width:760px){
-    .pl-inner{width:88vw;}
-    .pl-num{font-size:10px;letter-spacing:.1em;margin-top:8px;}
-  }
-  }
-  .pl-num{position:absolute;right:0;top:100%;margin-top:10px;
-    font-size:12px;font-weight:500;letter-spacing:.12em;color:rgba(255,255,255,.6);
-    font-variant-numeric:tabular-nums;}
-  @media(max-width:760px){
     /* the wordmark is ten characters on a 390px screen: 15.5vw ran it past the edge and pushed the
        percentage out with it. Sized so the whole lockup fits with margin either side. */
     .pl-inner{width:86vw;}
@@ -2130,16 +2122,26 @@
   if(heroReady)signal('hero');
   if(winLoaded)signal('load');
 
-  var p=0,t0=Date.now();
+  var p=0,t0=Date.now(),lastT=t0;
   sizeCanvas(); render(0,0);
   function tick(){
     if(done)return;
-    var elapsed=Date.now()-t0;
+    var now=Date.now(), elapsed=now-t0;
     /* the fill is paced by TIME, so the water rises at a readable speed whatever the network did.
        Readiness only decides whether it is allowed past 88 into the last stretch. */
     var byTime=(elapsed/MIN_MS)*100;
     var target=ready()?Math.min(100,byTime):Math.min(88,byTime);
-    p+=(target-p)*0.16;
+    /* the catch-up is paced by TIME too, not frame count. A per-frame lerp (p+=(target-p)*0.16)
+       converges in wall-clock time only at a steady 60fps -- exactly the assumption that breaks
+       here, since this screen is on top of the heaviest part of the page's own boot (CDN parse,
+       WebGL shader compile, the Cloudflare challenge script). When THAT throttles rAF, this was
+       the one thing whose job is to get out of the way fastest, and it slowed down instead: the
+       gap it needs to close per real second shrinks along with the frame rate, so a rough load
+       could leave the black screen up for several extra seconds. dt-scaled, 0.16 is still exactly
+       what a steady 60fps produces, so nothing changes on a smooth run -- only a rough one heals. */
+    var dt=(now-lastT)/1000; lastT=now;
+    var k=1-Math.pow(0.84,dt*60);
+    p+=(target-p)*k;
     var shown=(ready()&&elapsed>=MIN_MS&&p>99)?100:p;
     render(shown, elapsed/1000);
     if(shown>=100){clearTimeout(CAP);setTimeout(function(){finish(false);},420);return;}
