@@ -2,267 +2,83 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="theme-color" content="#F7F4EF">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Join the team — MVS Solves</title>
+<title>Careers — MVS Solves</title>
+<meta name="description" content="Closer roles at MVS Solves.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/mask-icon.svg" color="#0a0a0a">
-<meta name="theme-color" content="#0a0a0a">
-<meta name="description" content="MVS Solves is looking for a closer — find your own leads, close them, keep the commission for life. Commission-based, work from anywhere.">
-<meta name="author" content="Martin · MVS Solves">
-<meta name="robots" content="index,follow">
-<link rel="canonical" href="https://mvssolves.com/join-the-team">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="MVS Solves">
-<meta property="og:title" content="Join the team — MVS Solves">
-<meta property="og:description" content="MVS Solves is looking for a closer — find your own leads, close them, keep the commission for life. Commission-based, work from anywhere.">
-<meta property="og:url" content="https://mvssolves.com/join-the-team">
-<meta property="og:image" content="https://mvssolves.com/og-image.png">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Join the team — MVS Solves">
-<meta name="twitter:description" content="MVS Solves is looking for a closer — find your own leads, close them, keep the commission for life.">
-<meta name="twitter:image" content="https://mvssolves.com/og-image.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-<noscript>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap">
-</noscript>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "ProfessionalService",
-      "@id": "https://mvssolves.com/#business",
-      "name": "MVS Solves",
-      "url": "https://mvssolves.com/",
-      "email": "martin@mvssolves.com",
-      "priceRange": "USD"
-    },
-    {
-      "@type": "WebSite",
-      "@id": "https://mvssolves.com/#website",
-      "url": "https://mvssolves.com/",
-      "name": "MVS Solves",
-      "publisher": { "@id": "https://mvssolves.com/#business" }
-    },
-    {
-      "@type": "WebPage",
-      "@id": "https://mvssolves.com/join-the-team#webpage",
-      "url": "https://mvssolves.com/join-the-team",
-      "name": "Join the team — MVS Solves",
-      "isPartOf": { "@id": "https://mvssolves.com/#website" },
-      "about": { "@id": "https://mvssolves.com/#business" }
-    }
-  ]
-}
-</script>
-<style>
-  :root{
-    /* light theme, matches homepage. Stark black & white kept -- still no brand accent on this
-       page, deliberate: reads as a hard bar, not a warm pitch. ink/accent/accent-ink swap roles
-       cleanly (old white-ink-on-black <-> new black-ink-on-white) so every card/button below
-       that referenced them inverts correctly without individual fixes. */
-    --bg:#ffffff; --bg-2:#f6f5f3; --surface:#efeee9;
-    --ink:#0a0a0a; --text:#1c1a17; --soft:#4c4944; --muted:#8a8680;
-    --line:rgba(10,10,10,0.10); --line-strong:rgba(10,10,10,0.18);
-    --accent:#0a0a0a; --accent-ink:#ffffff;
-    --maxw:900px;
-
-    /* motion + icon scale (full-site-rework) -- same tokens as index.html, see that file for the
-       rationale comment. */
-    --dur-instant:120ms; --dur-fast:200ms; --dur-normal:300ms; --dur-slow:500ms; --dur-slower:900ms;
-    --ease-default:cubic-bezier(.4,0,.2,1); --ease-out:cubic-bezier(0,0,.2,1);
-    --ease-spring:cubic-bezier(.34,1.56,.64,1); --ease-glide:cubic-bezier(.16,1,.3,1);
-    --icon-xs:22px; --icon-sm:30px; --icon-md:44px; --icon-lg:56px; --icon-xl:96px;
-    --icon-stroke:2.4;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  /* Nohemi — freeware (personal+commercial use), self-hosted via the Tamagui project's npm
-     package on jsDelivr since it's not on Google Fonts/Fontshare */
-  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Regular.ttf') format('truetype');font-weight:400;font-display:swap;}
-  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Medium.ttf') format('truetype');font-weight:500;font-display:swap;}
-  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-SemiBold.ttf') format('truetype');font-weight:600;font-display:swap;}
-  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-Bold.ttf') format('truetype');font-weight:700;font-display:swap;}
-  @font-face{font-family:'Nohemi';src:url('https://cdn.jsdelivr.net/npm/@tamagui/font-nohemi@2.4.1/fonts/Nohemi-ExtraBold.ttf') format('truetype');font-weight:800;font-display:swap;}
-  body{background:var(--bg);color:var(--text);font-family:'Roboto',-apple-system,"Helvetica Neue",sans-serif;
-    font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;
-    animation:pageFadeIn var(--dur-normal) var(--ease-default);}
-  @keyframes pageFadeIn{from{opacity:0}to{opacity:1}}
-  @media(prefers-reduced-motion:reduce){body{animation:none;}}
-  /* one global background canvas for the whole page -- same drifting sparkle field as the
-     homepage, ported so sections read as one continuous flow instead of stacked panels. */
-  #bgfx{position:fixed;inset:0;width:100%;height:100%;z-index:-2;pointer-events:none;display:block;background:var(--bg);}
-  a{color:inherit;text-decoration:none;}
-  ::selection{background:#00eeff;color:#0a0a0a;}
-  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:inherit;}
-  .mono{font-family:'Roboto',monospace;}
-  .serif{font-family:'Nohemi',sans-serif;font-style:normal;font-weight:400;}
-  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 36px;width:100%;}
-  h1{font-family:'Nohemi',sans-serif;letter-spacing:-.02em;color:var(--ink);}
-  h2{font-family:'Nohemi',sans-serif;letter-spacing:-.02em;color:var(--ink);}
-  nav{position:sticky;top:0;left:0;right:0;z-index:60;padding:20px 36px;display:flex;align-items:center;
-    justify-content:space-between;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);}
-  /* sticky nav's backdrop-filter resamples scrolling content behind it every frame once stuck —
-     real GPU cost on mobile. Solid-ish background reads the same without it. */
-  @media(max-width:768px){nav{background:rgba(255,255,255,.96);backdrop-filter:none;-webkit-backdrop-filter:none;}}
-  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px;letter-spacing:-.02em;}
-  /* explicit inverted chip regardless of theme token, same as homepage's logo-mark */
-  .logo .mk{width:28px;height:28px;border-radius:8px;background:#0a0a0a;color:#fff;display:flex;align-items:center;
-    justify-content:center;font-weight:800;font-family:'Roboto',monospace;font-size:13px;}
-  nav .back{font-size:13.5px;color:var(--muted);font-weight:600;}
-  nav .back:hover{color:var(--ink);}
-  .lab{font-family:'Roboto',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
-    color:var(--ink);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
-  .lab::before{content:'';width:24px;height:2px;background:var(--accent);}
-  .hero{position:relative;overflow:hidden;padding:80px 0 40px;text-align:center;}
-  .hero .wrap{position:relative;z-index:2;}
-  .hero .lab{justify-content:center;}
-  .hero h1{font-size:clamp(34px,6vw,58px);line-height:1.05;margin-bottom:18px;}
-  .hero .sub{font-size:18px;color:var(--soft);max-width:60ch;margin-left:auto;margin-right:auto;}
-  /* line-reveal — mirrors home hero's .line>span mask, driven by CSS since this page loads no GSAP */
-  .hero h1 .line{display:block;overflow:hidden;}
-  .hero h1 .line>span{display:inline-block;transform:translateY(110%);opacity:0;
-    animation:lineUp .8s cubic-bezier(.2,1,.3,1) forwards;}
-  .hero h1 .line:nth-child(1)>span{animation-delay:.05s;}
-  .hero h1 .line:nth-child(2)>span{animation-delay:.2s;}
-  @keyframes lineUp{to{transform:translateY(0);opacity:1;}}
-  @media(prefers-reduced-motion:reduce){.hero h1 .line>span{animation:none;transform:none;opacity:1;}}
-  section{padding:52px 0;}
-  section h2{font-size:26px;margin-bottom:16px;}
-  section p{color:var(--soft);max-width:64ch;margin-bottom:12px;}
-  ul.list{list-style:none;margin:14px 0;}
-  ul.list li{padding:8px 0 8px 22px;position:relative;color:var(--text);}
-  ul.list li::before{content:'—';position:absolute;left:0;color:var(--muted);}
-  .note{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:18px 20px;font-size:14.5px;
-    color:var(--soft);margin-top:8px;}
-  /* sharp-edged, not a pill — hard bar, not a warm pitch */
-  .btn{position:relative;display:inline-flex;align-items:center;gap:10px;padding:16px 60px 16px 28px;
-    border-radius:2px;font-weight:700;font-size:15.5px;background:var(--accent);color:var(--accent-ink);
-    overflow:hidden;transition:padding .5s cubic-bezier(.4,0,.2,1),opacity .2s ease;text-transform:uppercase;letter-spacing:.04em;}
-  .btn:hover{opacity:.92;padding-left:60px;padding-right:28px;}
-  .btn .swap-icon{position:absolute;top:4px;right:4px;width:40px;height:40px;border-radius:0;
-    background:var(--accent-ink);color:var(--accent);display:flex;align-items:center;justify-content:center;
-    transition:right .5s cubic-bezier(.4,0,.2,1),transform .5s cubic-bezier(.4,0,.2,1);pointer-events:none;}
-  .btn .swap-icon svg{width:16px;height:16px;}
-  .btn:hover .swap-icon{right:calc(100% - 44px);transform:rotate(45deg);}
-  .apply{padding:60px 0 90px;}
-  /* .box is a black card floating on the white page (--ink flipped to black, this used to be a
-     white card on the old dark page). Its child text below still had leftover dark-on-dark
-     values from that old theme -- rgba(10,10,10,.72) paragraph text and inherited-black .lab
-     text, both invisible on the now-black card. Explicit white-family overrides instead. */
-  .apply .box{background:var(--ink);color:var(--accent-ink);border-radius:4px;padding:40px 36px;border:1px solid var(--ink);}
-  .apply .box .lab{color:var(--accent-ink);}
-  .apply .box .lab::before{background:var(--accent-ink);}
-  .apply .box h2{color:var(--accent-ink);}
-  .apply .box p{color:rgba(255,255,255,.72);}
-  .apply .btn{background:var(--accent-ink);color:var(--accent);margin-top:18px;}
-  .apply .btn .swap-icon{background:var(--accent);color:var(--accent-ink);}
-  /* scroll-reveal (full-site-rework) -- shared.js drives .in via IntersectionObserver, no GSAP needed here */
-  .reveal{opacity:0;transform:translateY(24px);transition:opacity var(--dur-slower) var(--ease-out),transform var(--dur-slower) var(--ease-out);}
-  .reveal.in{opacity:1;transform:none;}
-  @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none;}}
-  footer{padding:30px 0 50px;text-align:center;color:var(--muted);font-size:13px;}
-  /* kinetic-type loading veil -- one shared implementation (shared.js), same as the homepage.
-     Visible by default (not JS-gated) so there's no flash of unstyled page if shared.js is slow. */
-  .kt-veil{position:fixed;inset:0;z-index:99998;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .5s var(--ease-default),visibility .5s;}
-  .kt-veil.kt-out{opacity:0;visibility:hidden;pointer-events:none;}
-  .kt-word{display:flex;gap:.05em;font-family:'Nohemi',sans-serif;font-weight:600;font-size:clamp(40px,9vw,96px);letter-spacing:-.02em;color:var(--ink);}
-  .kt-word span{display:inline-block;opacity:0;filter:blur(6px);
-    transform:translate(var(--kx),var(--ky)) rotate(var(--kr)) scale(1.4);
-    transition:opacity .5s var(--ease-out),filter .5s var(--ease-out),transform .6s var(--ease-spring);}
-  .kt-word span:nth-child(1){transition-delay:0ms;}
-  .kt-word span:nth-child(2){transition-delay:90ms;}
-  .kt-word span:nth-child(3){transition-delay:180ms;}
-  .kt-veil.kt-in .kt-word span{opacity:1;filter:blur(0);transform:translate(0,0) rotate(0) scale(1);}
-  @media(prefers-reduced-motion:reduce){.kt-veil{display:none!important;}}
-  @media(max-width:640px){
-    nav{padding:16px 20px;}
-    .wrap{padding:0 20px;}
-    .hero{padding:56px 0 32px;}
-    .apply .box{padding:30px 24px;}
-  }
-  /* document column — centered declarations, left-aligned reading column beneath.
-     Sections read as a formal brief, not a pricing grid. */
-  .center-block{text-align:center;}
-  .center-block .lab{justify-content:center;}
-  .center-block p{margin-left:auto;margin-right:auto;}
-  .col{max-width:640px;margin:24px auto 0;text-align:left;}
-  .col ul.list{margin:0;}
-  .fine{font-size:12.5px;color:var(--muted);margin-top:16px;line-height:1.6;max-width:640px;}
-  .tracks{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px auto 0;max-width:640px;text-align:left;}
-  @media(max-width:640px){.tracks{grid-template-columns:1fr;}}
-  .tracks .track{border:1px solid var(--line-strong);padding:20px;}
-  .tracks .track .tlab{font-family:'Roboto',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
-  .tracks .track .trate{font-family:'Nohemi',sans-serif;font-size:28px;font-weight:700;color:var(--ink);letter-spacing:-.02em;}
-  .tracks .track .trate small{font-size:14px;color:var(--soft);font-weight:500;}
-  .tracks .track p{font-size:13px;color:var(--soft);margin-top:10px;max-width:none;}
-  .milestone{max-width:480px;margin:28px auto 0;border:2px solid var(--ink);padding:32px;text-align:center;}
-  .milestone .mnum{font-family:'Nohemi',sans-serif;font-size:44px;font-weight:800;letter-spacing:-.02em;color:var(--ink);}
-  .milestone .mnum small{font-size:14px;font-weight:600;color:var(--soft);text-transform:uppercase;letter-spacing:.08em;display:block;margin-top:6px;}
-  .milestone p{margin-top:14px;max-width:none;}
-  /* milestone bonus row — same swipe-carousel pattern as .pkg/.tracks, three across on desktop */
-  .bonus-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px;}
-  @media(max-width:900px){
-    .bonus-row{display:flex;grid-template-columns:none;overflow-x:auto;scroll-snap-type:x mandatory;
-      gap:14px;margin-left:-20px;margin-right:-20px;padding:0 20px 10px;
-      -webkit-overflow-scrolling:touch;scrollbar-width:none;}
-    .bonus-row::-webkit-scrollbar{display:none;}
-    .bonus-row .bcard{flex:0 0 84%;scroll-snap-align:center;}
-  }
-  .bcard{border:2px solid var(--ink);padding:24px;text-align:center;}
-  .bcard .blab{font-family:'Roboto',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
-  .bcard .mnum{font-family:'Nohemi',sans-serif;font-size:23px;font-weight:800;color:var(--ink);letter-spacing:-.02em;line-height:1.15;}
-  .bcard .mnum small{font-size:11.5px;color:var(--soft);font-weight:500;display:block;margin-top:4px;}
-  .bcard p{font-size:12px;color:var(--soft);margin-top:10px;max-width:none;}
-  /* back-to-top button -- shared across every page (shared.js) */
-  .to-top{position:fixed;right:22px;bottom:22px;z-index:70;width:44px;height:44px;display:flex;
-    align-items:center;justify-content:center;border-radius:999px;cursor:pointer;color:#fff;
-    background:rgba(10,10,10,.92);border:1px solid var(--line-strong);opacity:0;pointer-events:none;transform:translateY(12px);
-    transition:opacity .3s ease,transform .3s ease,background .25s ease;}
-  .to-top svg{width:20px;height:20px;}
-  .to-top.show{opacity:1;pointer-events:auto;transform:translateY(0);}
-  .to-top:hover{background:rgba(10,10,10,.75);}
-  @media(max-width:900px){.to-top{right:14px;bottom:14px;width:40px;height:40px;}}
-</style>
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link rel="stylesheet" href="/subpage.css">
 </head>
-<body data-bg-mono>
-
-<canvas id="bgfx" aria-hidden="true"></canvas>
-<div class="kt-veil" id="ktVeil" aria-hidden="true">
-  <div class="kt-word"><span style="--kx:-18px;--ky:14px;--kr:-8deg">M</span><span style="--kx:10px;--ky:-10px;--kr:6deg">V</span><span style="--kx:-6px;--ky:18px;--kr:-11deg">S</span></div>
-</div>
+<body>
 
 <nav>
-  <a class="logo" href="/"><span class="mk">M</span> MVS Solves</a>
-  <a class="back" href="/">← Back to site</a>
+  <div class="nav-inner">
+    <div class="nav-logo" role="img" aria-label="MVS Solves">
+      <svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true">
+        <polyline points="14,49 14,15 32,41 50,15 50,49" fill="none"
+          stroke="currentColor" stroke-width="10" stroke-linejoin="miter" stroke-linecap="butt"/>
+      </svg>
+    </div>
+    <a class="nav-back" href="/">&larr; Back to site</a>
+  </div>
 </nav>
 
-<button id="toTop" class="to-top" aria-label="Back to top">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
-</button>
-
-<header class="hero" style="min-height:64vh;display:flex;align-items:center;padding:80px 0;">
+<header class="hero">
   <div class="wrap">
-    <div class="lab">Careers — Closer</div>
-    <h1>
-      <span class="line"><span>Not hiring right now.</span></span>
-    </h1>
-    <p class="sub">No open closer roles at the moment — check back later, or reach out if the timing lines up down the line.</p>
-    <a class="btn" href="/" style="margin-top:28px;">
-      Back to site
-      <span class="swap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
-    </a>
+    <div class="eyebrow rise">Careers &mdash; Closer</div>
+    <h1 class="rise">Not hiring right now.</h1>
+    <p class="sub-lead rise">No open closer roles at the moment &mdash; check back later, or reach out if the timing lines up down the line.</p>
+    <a class="btn rise" href="/contact">Get in touch</a>
   </div>
 </header>
 
-<footer>MVS Solves — martin@mvssolves.com<br><a href="/privacy-policy" style="color:inherit">Privacy Policy</a> · <a href="/terms-of-service" style="color:inherit">Terms of Service</a> · <button type="button" data-cookie-settings style="background:none;border:none;padding:0;font:inherit;color:inherit;cursor:pointer;text-decoration:underline;">Cookie Preferences</button></footer>
+<main>
+  <div class="wrap">
+    <p>When a closer seat opens it gets posted here first. If you sell for a living and want to be on the list, send a note through the <a href="/contact">contact form</a> and I will keep it on file.</p>
+  </div>
+</main>
 
-<script src="/shared.js" defer></script>
+<footer>
+  <div class="foot-inner">
+    <div class="foot-col">
+      <h3>Legal</h3>
+      <a href="/privacy-policy">Privacy Policy</a>
+      <a href="/terms-of-service">Terms of Service</a>
+      <a href="/acceptable-use-policy">Acceptable Use</a>
+      <a href="/data-processing-agreement">Data Processing</a>
+      <a href="/security">Security</a>
+      <a href="/accessibility-statement">Accessibility</a>
+    </div>
+    <div class="foot-col">
+      <h3>Company</h3>
+      <a href="/#about">About</a>
+      <a href="/contact">Contact</a>
+      <a href="/faq">FAQ</a>
+      <a href="/join-the-team">Careers</a>
+    </div>
+    <div class="foot-col">
+      <h3>Contact</h3>
+      <a href="mailto:martin@mvssolves.com">martin@mvssolves.com</a>
+      <span class="foot-plain">Remote</span>
+    </div>
+    <div class="foot-col">
+      <h3>Still have questions?</h3>
+      <div class="foot-cta">
+        <input class="foot-email" type="email" placeholder="Enter your email">
+        <!-- subpages have no modal, so this goes to the contact page rather than nowhere -->
+        <a class="btn filled" href="/contact">Send</a>
+      </div>
+    </div>
+  </div>
+  <div class="foot-legal"><span class="foot-copy">&copy; 2026 MVS Solves</span></div>
+  <div class="foot-bottom">
+    <div class="foot-glow" aria-hidden="true"></div>
+    <div class="foot-wordmark" aria-hidden="true">MVS Solves</div>
+  </div>
+</footer>
+
+<script src="/subpage.js" defer></script>
 
 </body>
 </html>

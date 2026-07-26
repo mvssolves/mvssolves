@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="theme-color" content="#F7F4EF">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — MVS Solves</title>
+<meta name="description" content="Tell me what you need. Direct to Martin, reply within a day.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link rel="stylesheet" href="/subpage.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo" role="img" aria-label="MVS Solves">
+      <svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true">
+        <polyline points="14,49 14,15 32,41 50,15 50,49" fill="none"
+          stroke="currentColor" stroke-width="10" stroke-linejoin="miter" stroke-linecap="butt"/>
+      </svg>
+    </div>
+    <a class="nav-back" href="/">&larr; Back to site</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow rise">Contact</div>
+    <h1 class="rise">Let's talk.</h1>
+    <p class="sub-lead rise">Tell me what you need. I read every one of these myself and reply within a day, usually the same one.</p>
+
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <form class="contact-form" id="contactForm" novalidate>
+      <div class="field-row">
+        <div class="field">
+          <label for="cName">Name</label>
+          <input id="cName" name="name" type="text" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="cEmail">Email</label>
+          <input id="cEmail" name="email" type="email" autocomplete="email" required>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="cCompany">Business (optional)</label>
+          <input id="cCompany" name="company" type="text" autocomplete="organization">
+        </div>
+        <div class="field">
+          <label for="cNeed">What do you need?</label>
+          <select id="cNeed" name="need">
+            <option>A website</option>
+            <option>Automations / AI</option>
+            <option>Both</option>
+            <option>Not sure yet</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="cMsg">Message</label>
+        <textarea id="cMsg" name="message" required></textarea>
+      </div>
+      <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="form-actions">
+        <button class="btn filled" type="submit" id="contactSend">Send it</button>
+        <span class="form-note">Or email <a href="mailto:martin@mvssolves.com">martin@mvssolves.com</a></span>
+      </div>
+      <div class="form-msg" id="contactMsg" role="status"></div>
+    </form>
+  </div>
+</main>
+
+<footer>
+  <div class="foot-inner">
+    <div class="foot-col">
+      <h3>Legal</h3>
+      <a href="/privacy-policy">Privacy Policy</a>
+      <a href="/terms-of-service">Terms of Service</a>
+      <a href="/acceptable-use-policy">Acceptable Use</a>
+      <a href="/data-processing-agreement">Data Processing</a>
+      <a href="/security">Security</a>
+      <a href="/accessibility-statement">Accessibility</a>
+    </div>
+    <div class="foot-col">
+      <h3>Company</h3>
+      <a href="/#about">About</a>
+      <a href="/contact">Contact</a>
+      <a href="/faq">FAQ</a>
+      <a href="/join-the-team">Careers</a>
+    </div>
+    <div class="foot-col">
+      <h3>Contact</h3>
+      <a href="mailto:martin@mvssolves.com">martin@mvssolves.com</a>
+      <span class="foot-plain">Remote</span>
+    </div>
+    <div class="foot-col">
+      <h3>Still have questions?</h3>
+      <div class="foot-cta">
+        <input class="foot-email" type="email" placeholder="Enter your email">
+        <!-- subpages have no modal, so this goes to the contact page rather than nowhere -->
+        <a class="btn filled" href="/contact">Send</a>
+      </div>
+    </div>
+  </div>
+  <div class="foot-legal"><span class="foot-copy">&copy; 2026 MVS Solves</span></div>
+  <div class="foot-bottom">
+    <div class="foot-glow" aria-hidden="true"></div>
+    <div class="foot-wordmark" aria-hidden="true">MVS Solves</div>
+  </div>
+</footer>
+
+<script src="/subpage.js" defer></script>
+
+<script>
+/* Same contract as the home page's modal: POST JSON to /api/contact, honeypot dropped silently. */
+(function(){
+  const form=document.getElementById('contactForm');
+  const msg=document.getElementById('contactMsg');
+  const send=document.getElementById('contactSend');
+  function show(text,ok){msg.textContent=text;msg.className='form-msg show '+(ok?'ok':'err');}
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const data=Object.fromEntries(new FormData(form).entries());
+    if(data.website)return;
+    if(!data.name||!data.email||!data.message){
+      show('Name, email and a message, please.',false);return;
+    }
+    send.disabled=true;send.textContent='Sending\u2026';
+    try{
+      const r=await fetch('/api/contact',{method:'POST',
+        headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+      if(!r.ok)throw new Error(await r.text());
+      form.reset();
+      show("Got it. I'll come back to you within a day.",true);
+    }catch(err){
+      show('That did not send. Email martin@mvssolves.com and I will pick it up there.',false);
+    }finally{
+      send.disabled=false;send.textContent='Send it';
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
