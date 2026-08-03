@@ -138,12 +138,27 @@ dl,dd{margin:0}
 body.locked{overflow:hidden}
 
 /* ═══════════════════════════ the board ═══════════════════════════ */
+/* The board now sits over footage. Kept far back and heavily knocked
+   down: this page's argument is the numbers, and the moment the video
+   competes with them the build has lost its point. */
 .board{
+  position:relative;isolation:isolate;overflow:hidden;
   background:var(--util-d);
   padding:var(--s5) var(--pad) var(--s4);
   border-bottom:2px solid var(--hiviz);
 }
-.board-h,.live,.board-act,.board-n{max-width:var(--wide);margin-inline:auto}
+.board-media{position:absolute;inset:0;z-index:-1;overflow:hidden}
+.board-media img,.board-media video{
+  width:100%;height:100%;object-fit:cover;
+  filter:grayscale(1) brightness(.30) contrast(1.25);
+}
+.board-media::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to bottom,
+    color-mix(in oklab,var(--util-d) 74%,transparent),
+    color-mix(in oklab,var(--util-d) 92%,transparent));
+}
+.board-h,.live,.board-act,.board-n{position:relative;max-width:var(--wide);margin-inline:auto}
 .board-k{
   display:block;font-family:var(--mono);font-size:0.68rem;font-weight:400;
   color:var(--hiviz);letter-spacing:0;text-transform:none;margin-bottom:var(--s2);

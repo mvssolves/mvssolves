@@ -176,6 +176,7 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
     }, 4000);
   }
 
+  FX.video(document.querySelector('.board-media'));
   var img = document.querySelector('.area-f img');
   if (img) { FX.gl(img, { grain: 0.02 }); FX.run(); }
 

@@ -41,3 +41,17 @@ picture{display:contents}
   .fx-host.fx-on > img{visibility:visible}
   .fx-line{overflow:visible}
 }
+
+/* ── video hero ──────────────────────────────────────────────────
+   The poster image stays the LCP and the video fades in over it only
+   once it is genuinely playing, so a blocked or slow clip degrades to
+   the photograph rather than to a black rectangle. */
+.hero-vid{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;display:block;pointer-events:none;
+  opacity:0;transition:opacity 1.1s ease;z-index:0;
+}
+.fx-playing .hero-vid{opacity:1}
+/* once GL is sampling the video, the DOM video is just the texture source */
+.fx-host.fx-on .hero-vid{opacity:0}
+@media (prefers-reduced-motion: reduce){ .hero-vid{display:none} }

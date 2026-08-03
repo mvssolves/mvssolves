@@ -147,6 +147,7 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
   /* The nacre shader above already owns this hero — it is the brand mark.
      Stacking a second canvas on it would be two effects fighting, so the
      WebGL image layer goes on the treatment plate and the room instead. */
+  FX.video(document.querySelector('.hero-media'));
   var plate = document.getElementById('rowimg');
   var layer = plate && FX.gl(plate, { grain: 0.04 });
   FX.run();

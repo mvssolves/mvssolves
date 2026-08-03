@@ -184,9 +184,19 @@ body.locked{overflow:hidden}
 }
 .sheen{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen;opacity:0}
 .sheen.on{opacity:.92;transition:opacity 1.4s var(--ease)}
+/* The veil has to hold a floor under the type. With the ink footage and
+   the nacre shader both running, peaks behind the headline reach near
+   white — measured 1.85:1 against white text, well under the 3:1 that
+   display type needs. This is graded to keep the words readable at the
+   brightest frame, not the average one. */
 .hero-veil{
   position:absolute;inset:0;
-  background:linear-gradient(to top, var(--abyss) 4%, color-mix(in oklab,var(--abyss) 30%,transparent) 52%, color-mix(in oklab,var(--abyss) 62%,transparent));
+  background:
+    linear-gradient(to top,
+      var(--abyss) 6%,
+      color-mix(in oklab,var(--abyss) 78%,transparent) 34%,
+      color-mix(in oklab,var(--abyss) 58%,transparent) 62%,
+      color-mix(in oklab,var(--abyss) 46%,transparent));
 }
 /* wide enough that the headline keeps the two lines its <br> asks for */
 .hero-body{max-width:min(58rem,100%)}

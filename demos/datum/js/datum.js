@@ -103,8 +103,10 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
      gently, hovers cut. A machine setting out a site, not a dissolve. */
   var STEP = 'steps(6)', SNAP = 0.42;
 
-  var hero = document.querySelector('.hero-media img');
-  if (hero) { FX.gl(hero, { grain: 0.02 }); FX.run(); }
+  var heroHost = document.querySelector('.hero-media');
+  var heroVid = FX.video(heroHost);
+  var hero = heroHost && heroHost.querySelector('img');
+  if (hero) { FX.gl(hero, { grain: 0.02, video: heroVid }); FX.run(); }
 
   if (!soft) {
     var h1 = FX.split(document.querySelector('.hero-h'));

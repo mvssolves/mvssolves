@@ -190,8 +190,10 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
      A measuring instrument, not a showreel. */
   var EASE = 'power2.out', D = 0.62;
 
-  var hero = document.querySelector('.hero-media img');
-  if (hero) { FX.gl(hero, { grain: 0.03 }); FX.run(); }
+  var heroHost = document.querySelector('.hero-media');
+  var heroVid = FX.video(heroHost);
+  var hero = heroHost && heroHost.querySelector('img');
+  if (hero) { FX.gl(hero, { grain: 0.03, video: heroVid }); FX.run(); }
 
   if (!soft) {
     var h1 = FX.split(document.querySelector('.hero-h'));

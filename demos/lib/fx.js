@@ -127,6 +127,12 @@ window.FX = (function () {
     opts = opts || {};
     if (REDUCE || !img) return null;
 
+    /* A <video> can stand in for the still. When it does the texture is
+       re-uploaded every frame, so the shader warps live footage rather
+       than a frozen poster — which is the whole reason to spend the
+       bytes on video at all. */
+    var vid = opts.video || null;
+
     var host = img.parentElement;
     if (!host) return null;
 
@@ -177,13 +183,22 @@ window.FX = (function () {
                   rev: opts.reveal === true ? 0 : REV_DONE };
     var ready = false, alive = true, visible = false;
 
+    function src() {
+      // only treat the video as the source once it actually has pixels
+      if (vid && vid.readyState >= 2 && vid.videoWidth) return vid;
+      return img.naturalWidth ? img : null;
+    }
+
     function upload() {
-      if (!img.naturalWidth) return;
+      var from = src();
+      if (!from) return;
+      var w = from.videoWidth || from.naturalWidth;
+      var h = from.videoHeight || from.naturalHeight;
       gl.bindTexture(gl.TEXTURE_2D, tex);
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-      try { gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }
+      try { gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, from); }
       catch (e) { alive = false; return; }
-      gl.uniform2f(U.img, img.naturalWidth, img.naturalHeight);
+      gl.uniform2f(U.img, w, h);
       gl.uniform1i(U.tex, 0);
       ready = true;
 
@@ -210,6 +225,8 @@ window.FX = (function () {
 
     function draw() {
       if (!alive || !ready || !visible) return;
+      // a moving source needs a fresh upload every frame; a still does not
+      if (vid && vid.readyState >= 2 && !vid.paused) upload();
       size();
       state.ptr[0] += (state.tptr[0] - state.ptr[0]) * 0.09;
       state.ptr[1] += (state.tptr[1] - state.ptr[1]) * 0.09;
@@ -270,6 +287,57 @@ window.FX = (function () {
       }
       (api._layers || []).forEach(function (l) { l.velocity = v; l.draw(); });
     });
+  };
+
+  /* ══════════════════════════ the video hero ══════════════════════
+     The poster image is the LCP and always renders. The clip is only
+     fetched after first paint, only if the visitor has not asked to
+     save data or reduce motion, and only while it is on screen. If any
+     of that fails you keep the photograph, which was always there. */
+  api.video = function (host, opts) {
+    opts = opts || {};
+    if (!host) return null;
+    var v = host.querySelector('video');
+    if (!v) return null;
+
+    var conn = navigator.connection || {};
+    var thrifty = conn.saveData === true ||
+                  /2g/.test(conn.effectiveType || '');
+    if (REDUCE || thrifty) { v.remove(); return null; }
+
+    v.muted = true; v.loop = true; v.playsInline = true;
+    v.setAttribute('muted', ''); v.setAttribute('playsinline', '');
+
+    var started = false;
+    function begin() {
+      if (started) return;
+      started = true;
+      var s = v.querySelector('source');
+      if (s && !s.src) s.src = s.dataset.src || '';
+      v.load();
+      var p = v.play();
+      if (p && p.catch) p.catch(function () { /* blocked: poster stands */ });
+      v.addEventListener('playing', function () {
+        host.classList.add('fx-playing');
+      }, { once: true });
+    }
+
+    // wait for first paint before spending a byte on the clip
+    if ('requestIdleCallback' in window) requestIdleCallback(begin, { timeout: 1800 });
+    else setTimeout(begin, 900);
+
+    // never decode a video nobody is looking at
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) {
+        if (!started) return;
+        es[0].isIntersecting ? v.play().catch(function () {}) : v.pause();
+      }, { threshold: 0.01 }).observe(host);
+    }
+    addEventListener('visibilitychange', function () {
+      if (!started) return;
+      document.hidden ? v.pause() : v.play().catch(function () {});
+    });
+    return v;
   };
 
   /* ─────────────────────────────────────────────── split headings */

@@ -76,8 +76,10 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
      building agree about where you are. */
   var EASE = 'power2.inOut';
 
-  var hero = document.querySelector('.hero-media img');
-  var layer = hero && FX.gl(hero, { grain: 0.03 });
+  var heroHost = document.querySelector('.hero-media');
+  var heroVid = FX.video(heroHost);
+  var hero = heroHost && heroHost.querySelector('img');
+  var layer = hero && FX.gl(hero, { grain: 0.03, video: heroVid });
   FX.run();
   if (layer) layer.reveal(2.0);
 

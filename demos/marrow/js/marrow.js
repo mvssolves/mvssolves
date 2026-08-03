@@ -221,8 +221,10 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
   /* MARROW is cinema: violent contrast, long holds, then a burst. */
   var EASE = 'expo.out';
 
-  var hero = document.querySelector('.hero-media img');
-  var layer = hero && FX.gl(hero, { grain: 0.07 });
+  var heroHost = document.querySelector('.hero-media');
+  var heroVid = FX.video(heroHost);
+  var hero = heroHost && heroHost.querySelector('img');
+  var layer = hero && FX.gl(hero, { grain: 0.07, video: heroVid });
   FX.run();
   if (layer) layer.reveal(2.4);
 
