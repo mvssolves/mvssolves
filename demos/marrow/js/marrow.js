@@ -16,48 +16,6 @@
 document.documentElement.classList.add('js');
 var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ─────────────────────────────────────────────── scramble reveal */
-(function () {
-  'use strict';
-  if (REDUCE || !('IntersectionObserver' in window)) return;
-  var GLYPH = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&*+=/\\';
-
-  function scramble(el) {
-    var html = el.innerHTML;
-    // work per text line so a <br> survives the animation intact
-    var lines = html.split(/<br\s*\/?>/i).map(function (s) { return s.trim(); });
-    var target = lines.join('\n');
-    var frame = 0, total = target.length + 22;
-
-    function step() {
-      var out = '';
-      for (var i = 0; i < target.length; i++) {
-        var c = target[i];
-        if (c === '\n' || c === ' ') { out += c; continue; }
-        if (i < frame - 14) out += c;
-        else if (i < frame) out += GLYPH[(Math.floor(frame * 7 + i * 13)) % GLYPH.length];
-        else out += ' ';
-      }
-      el.textContent = out;
-      frame += 1.6;
-      if (frame < total) requestAnimationFrame(step);
-      else { el.innerHTML = html; }
-    }
-    el.classList.add('scr');
-    step();
-  }
-
-  var io = new IntersectionObserver(function (es) {
-    es.forEach(function (e) {
-      if (!e.isIntersecting) return;
-      io.unobserve(e.target);
-      scramble(e.target);
-    });
-  }, { rootMargin: '0px 0px -18% 0px' });
-
-  [].forEach.call(document.querySelectorAll('[data-scramble]'), function (el) { io.observe(el); });
-})();
-
 /* ────────────────────────────────────────────────── ember drift */
 (function () {
   'use strict';
@@ -268,19 +226,60 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
   FX.run();
   if (layer) layer.reveal(2.4);
 
-  if (!soft) {
-    var h1 = FX.split(document.querySelector('.hero-h'));
-    if (h1) g.from(h1.lines, { yPercent: 120, duration: 1.6, ease: EASE, stagger: 0.13, delay: 0.2 });
-    g.from('.hero-p, .hero .btn, .hero-f', { opacity: 0, y: 30, duration: 1.2, ease: EASE, stagger: 0.12, delay: 0.7 });
+  /* ── the scramble, rebuilt on top of SplitText ──────────────────
+     The original version rewrote innerHTML on the same headings GSAP had
+     already wrapped in line masks, so it ended up scrambling SplitText's
+     own markup and printing it on the page. This drives the glyphs from
+     inside the split instead, so the two cooperate.
+
+     Each character's box is measured and locked before any swapping
+     starts — otherwise substituting a W for an I reflows the whole line
+     and the heading jitters for the length of the effect. */
+  var GLYPH = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=/\\';
+
+  function burn(el, opts) {
+    opts = opts || {};
+    var sp = new SplitText(el, { type: 'chars,lines', mask: 'lines', linesClass: 'fx-line' });
+    var chars = sp.chars;
+    var finals = chars.map(function (c) { return c.textContent; });
+
+    chars.forEach(function (c) {
+      var w = c.getBoundingClientRect().width;
+      if (w > 0) { c.style.display = 'inline-block'; c.style.width = w + 'px'; }
+    });
+
+    var o = { i: 0 };
+    var tl = g.timeline(opts.st ? { scrollTrigger: opts.st } : { delay: opts.delay || 0 });
+    tl.from(sp.lines, { yPercent: 120, duration: 1.5, ease: EASE, stagger: 0.13 }, 0);
+    tl.to(o, {
+      i: chars.length, duration: 1.15, ease: 'none',
+      onUpdate: function () {
+        var f = o.i | 0;
+        for (var k = 0; k < chars.length; k++) {
+          if (finals[k] === ' ') continue;
+          chars[k].textContent = k < f ? finals[k] : GLYPH[(k * 7 + f * 5) % GLYPH.length];
+        }
+      },
+      // never leave a glyph substituted, whatever happens to the tween
+      onComplete: function () { chars.forEach(function (c, k) { c.textContent = finals[k]; }); }
+    }, 0.15);
+    return tl;
   }
 
-  /* the quiet screen holds, then releases — the pacing is the design */
-  var q = document.querySelector('.quiet p:first-child');
-  if (q) {
-    var qs = FX.split(q);
-    if (qs) g.from(qs.lines, { yPercent: 120, duration: 1.5, ease: EASE, stagger: 0.12,
-      scrollTrigger: { trigger: q, start: 'top 76%' } });
-  }
+  /* measured widths are meaningless until the webfont has actually landed */
+  var ready = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+  ready.then(function () {
+    var hero = document.querySelector('.hero-h');
+    if (hero) burn(hero, { delay: 0.2 });
+
+    /* the quiet screen holds, then releases — the pacing is the design */
+    var q = document.querySelector('.quiet p:first-child');
+    if (q) burn(q, { st: { trigger: q, start: 'top 76%' } });
+
+    ST.refresh();
+  });
+
+  g.from('.hero-p, .hero .btn, .hero-f', { opacity: 0, y: 30, duration: 1.2, ease: EASE, stagger: 0.12, delay: 0.7 });
 
   g.utils.toArray('.sec-h').forEach(function (h) {
     var s = FX.split(h);
