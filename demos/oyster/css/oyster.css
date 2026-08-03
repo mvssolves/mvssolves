@@ -1,0 +1,433 @@
+/* ═══════════════════════════════════════════════════════════════════
+   OYSTER — skin studio, Newport Beach
+
+   Drenched abyssal teal-black. The only colour on this page is
+   iridescence, and it is produced by the shader rather than declared
+   as a token — nacre over dark water.
+
+   No serif anywhere. Every med-spa on earth uses one, which is the
+   reason this doesn't. No monospace either: the brand isn't technical,
+   and mono on a non-technical brand reads as costume.
+
+   Density: airy to the point of near-empty. One idea per screen.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root{
+  /* ── ground: drenched, not neutral-with-an-accent ───────────────── */
+  --abyss:    oklch(0.185 0.042 205);
+  --abyss-2:  oklch(0.232 0.046 205);
+  --abyss-3:  oklch(0.288 0.045 203);
+  --hair:     oklch(0.345 0.040 203);
+
+  /* ── ink ramp, contrast-checked against --abyss ─────────────────── */
+  --ink:      oklch(0.965 0.010 200);   /* 16.9:1 */
+  --ink-2:    oklch(0.845 0.018 200);   /* 11.4:1 — body copy */
+  --ink-3:    oklch(0.700 0.022 200);   /*  6.2:1 — meta, still body-safe */
+
+  /* ── nacre: used sparingly, and never as a flat fill ────────────── */
+  --nacre:    oklch(0.815 0.135 190);
+  --nacre-2:  oklch(0.760 0.150 318);
+  --nacre-3:  oklch(0.870 0.115 104);
+
+  --display: 'Anybody', system-ui, sans-serif;
+  --text: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+
+  /* ── spacing: 8px baseline, ~1.6 ratio. Nothing hand-picked. ────── */
+  --s0: 0.5rem;    /*   8 */
+  --s1: 1rem;      /*  16 */
+  --s2: 1.5rem;    /*  24 */
+  --s3: 2.5rem;    /*  40 */
+  --s4: 4rem;      /*  64 */
+  --s5: 6.5rem;    /* 104 */
+  --s6: 10.5rem;   /* 168 */
+
+  --pad: clamp(1.25rem, 5vw, 5rem);
+  --wide: 1560px;
+  --read: 62ch;
+
+  --ease: cubic-bezier(.16,1,.3,1);          /* ease-out-expo */
+  --ease-q: cubic-bezier(.22,1,.36,1);
+
+  --z-nav: 100;
+  --z-burger: 120;
+  --z-panel: 110;
+  --z-bar: 130;
+  --z-strip: 140;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--abyss);
+  color:var(--ink-2);
+  font-family:var(--text);
+  font-size:clamp(1rem,0.96rem + 0.2vw,1.125rem);
+  /* light type on dark reads lighter; it needs the extra leading */
+  line-height:1.72;
+  font-weight:350;
+  -webkit-font-smoothing:antialiased;
+  padding-top:30px;                   /* clears the fixed demo strip */
+  overflow-x:hidden;
+}
+img{max-width:100%;height:auto;display:block}
+a{color:inherit}
+h1,h2,h3{
+  font-family:var(--display);
+  font-weight:600;
+  font-variation-settings:'wdth' 100;
+  line-height:1.02;
+  letter-spacing:-0.035em;             /* floor is -0.04em */
+  text-wrap:balance;
+  margin:0;
+  color:var(--ink);
+}
+p{margin:0;text-wrap:pretty}
+ol,ul{margin:0;padding:0;list-style:none}
+:focus-visible{outline:2px solid var(--nacre);outline-offset:3px;border-radius:2px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.skip{position:absolute;left:-999px;top:0;z-index:200;background:var(--ink);color:var(--abyss);padding:var(--s1)}
+.skip:focus{left:var(--s1);top:calc(30px + var(--s0))}
+
+/* ─────────────────────────────────────────────────── demo strip */
+.mvsbar{
+  position:fixed;inset:0 0 auto 0;height:30px;z-index:var(--z-strip);
+  display:flex;align-items:center;gap:var(--s1);
+  padding:0 var(--pad);
+  background:oklch(0.135 0.035 205);
+  border-bottom:1px solid var(--abyss-3);
+  font-size:0.72rem;letter-spacing:0.01em;color:var(--ink-3);
+}
+.mvsbar-t{color:var(--nacre);font-weight:600}
+.mvsbar-d{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mvsbar-a{color:var(--ink-2);text-decoration:none;white-space:nowrap}
+.mvsbar-a:hover{color:var(--nacre)}
+@media(max-width:700px){.mvsbar-d{display:none}}
+
+/* ────────────────────────────────────────────────────────── nav */
+.nav{
+  position:sticky;top:30px;z-index:var(--z-nav);
+  display:flex;align-items:center;justify-content:space-between;gap:var(--s2);
+  padding:var(--s2) var(--pad);
+  background:color-mix(in oklab, var(--abyss) 82%, transparent);
+  backdrop-filter:blur(14px);
+  transition:transform .55s var(--ease);
+}
+.nav-up .nav{transform:translateY(calc(-100% - 30px))}
+.mark{display:flex;align-items:center;gap:var(--s0);text-decoration:none;min-height:44px}
+.mark-o{
+  width:15px;height:15px;border-radius:50%;flex:none;
+  background:
+    radial-gradient(circle at 32% 28%, var(--nacre-3), transparent 55%),
+    radial-gradient(circle at 70% 68%, var(--nacre-2), transparent 58%),
+    var(--nacre);
+}
+.mark-w{
+  font-family:var(--display);font-size:1.02rem;font-weight:700;
+  font-variation-settings:'wdth' 118;
+  letter-spacing:0.16em;text-transform:uppercase;color:var(--ink);
+}
+.nav-links{display:flex;align-items:center;gap:var(--s2)}
+.nav-links a{text-decoration:none;color:var(--ink-2);font-size:0.92rem}
+.nav-links a:hover{color:var(--ink)}
+.nav-links a.cta{
+  color:var(--abyss);background:var(--ink);
+  padding:0.6rem var(--s2);border-radius:999px;font-weight:600;
+  transition:background .3s var(--ease), color .3s var(--ease);
+}
+.nav-links a.cta:hover{background:var(--nacre);color:var(--abyss)}
+@media(max-width:880px){.nav-links{display:none}}
+
+/* ─────────────────────────────────────────────────── mobile nav */
+.burger{
+  position:fixed;top:calc(30px + 1.35rem);right:var(--pad);z-index:var(--z-burger);
+  width:48px;height:48px;display:none;place-items:center;gap:5px;
+  background:none;border:0;cursor:pointer;flex-direction:column;
+}
+.burger span{display:block;width:24px;height:1.5px;background:var(--ink);transition:transform .4s var(--ease), opacity .3s}
+.burger[aria-expanded="true"] span:first-child{transform:translateY(3.25px) rotate(45deg)}
+.burger[aria-expanded="true"] span:last-child{transform:translateY(-3.25px) rotate(-45deg)}
+@media(max-width:880px){.burger{display:flex}}
+
+.mnav{
+  position:fixed;inset:30px 0 0 0;z-index:var(--z-panel);
+  background:var(--abyss);
+  display:flex;flex-direction:column;justify-content:center;gap:var(--s4);
+  padding:var(--s4) var(--pad);
+  opacity:0;visibility:hidden;transition:opacity .4s var(--ease), visibility .4s;
+}
+.mnav.open{opacity:1;visibility:visible}
+.m-links{display:flex;flex-direction:column;gap:var(--s1)}
+.m-links a{
+  font-family:var(--display);font-size:clamp(2rem,10vw,3rem);font-weight:600;
+  letter-spacing:-0.03em;color:var(--ink);text-decoration:none;
+  opacity:0;transform:translateY(18px);transition:opacity .5s var(--ease), transform .5s var(--ease);
+}
+.mnav.open .m-links a{opacity:1;transform:none}
+.m-foot{color:var(--ink-3);font-size:0.92rem}
+body.locked{overflow:hidden}
+
+/* ───────────────────────────────────────────────────────── hero */
+.hero{
+  position:relative;min-height:min(92svh,900px);
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:var(--s5) var(--pad) var(--s3);
+  isolation:isolate;
+}
+.hero-media{position:absolute;inset:0;z-index:-2;overflow:hidden}
+.hero-media img{
+  width:100%;height:100%;object-fit:cover;
+  /* The source is genuinely iridescent, so it keeps its own colour — greying it
+     out and then re-adding iridescence in the shader would be self-defeating.
+     Darkened far enough that the abyss still owns the page. */
+  filter:brightness(.33) contrast(1.24) saturate(.92);
+}
+.sheen{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen;opacity:0}
+.sheen.on{opacity:.92;transition:opacity 1.4s var(--ease)}
+.hero-veil{
+  position:absolute;inset:0;
+  background:linear-gradient(to top, var(--abyss) 4%, color-mix(in oklab,var(--abyss) 30%,transparent) 52%, color-mix(in oklab,var(--abyss) 62%,transparent));
+}
+/* wide enough that the headline keeps the two lines its <br> asks for */
+.hero-body{max-width:min(58rem,100%)}
+.hero-h{font-size:clamp(2.5rem,6.4vw,5rem);font-variation-settings:'wdth' 96}
+.hero-p{margin-top:var(--s2);max-width:38ch;color:var(--ink-2);font-size:1.06em}
+.hero-act{display:flex;flex-wrap:wrap;gap:var(--s1);margin-top:var(--s3)}
+.hero-meta{
+  display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s4);
+  color:var(--ink-3);font-size:0.86rem;
+}
+.hero-meta span+span{padding-left:var(--s2);border-left:1px solid var(--hair)}
+
+/* ───────────────────────────────────────────────────────── buttons */
+.btn{
+  display:inline-block;text-decoration:none;cursor:pointer;
+  background:var(--ink);color:var(--abyss);
+  padding:0.95rem var(--s3);border-radius:999px;border:0;
+  font-family:var(--text);font-size:0.95rem;font-weight:600;
+  min-height:44px;
+  transition:background .35s var(--ease), color .35s var(--ease), transform .35s var(--ease);
+}
+.btn:hover{background:var(--nacre);transform:translateY(-2px)}
+.btn-w{width:100%}
+.btn-q{
+  display:inline-flex;align-items:center;min-height:44px;
+  padding:0.95rem 0;text-decoration:none;color:var(--ink-2);
+  border-bottom:1px solid var(--hair);
+  transition:color .3s var(--ease), border-color .3s var(--ease);
+}
+.btn-q:hover{color:var(--nacre);border-color:var(--nacre)}
+
+/* ───────────────────────────────────────────────────── statement */
+.say{padding:var(--s6) var(--pad);max-width:var(--wide);margin-inline:auto}
+.say-p{
+  font-family:var(--display);font-weight:400;
+  font-variation-settings:'wdth' 92;
+  font-size:clamp(1.5rem,3.4vw,2.6rem);line-height:1.24;
+  letter-spacing:-0.02em;max-width:26ch;color:var(--ink);
+  text-wrap:balance;
+}
+
+/* ──────────────────────────────────────────────── section heading */
+.sec-h{font-size:clamp(2rem,4.6vw,3.4rem)}
+
+/* ─────────────────────────────────────────────────── treatments */
+.work{
+  max-width:var(--wide);margin-inline:auto;padding:var(--s5) var(--pad) var(--s6);
+  display:grid;gap:var(--s4) var(--s5);
+  grid-template-columns:minmax(0,1fr);
+}
+.rows{display:flex;flex-direction:column}
+.row{
+  display:grid;gap:var(--s0) var(--s2);
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:baseline;
+  padding:var(--s3) 0;
+  border-top:1px solid var(--hair);
+  transition:opacity .5s var(--ease);
+}
+.rows:hover .row{opacity:.42}
+.rows:hover .row:hover,.row.act{opacity:1}
+.row:last-child{border-bottom:1px solid var(--hair)}
+.row-n{
+  font-family:var(--display);font-size:0.82rem;font-weight:600;
+  font-variation-settings:'wdth' 118;
+  color:var(--ink-3);letter-spacing:0.1em;
+}
+.row-b h3{font-size:clamp(1.35rem,2.3vw,1.85rem);letter-spacing:-0.025em}
+.row-b p{margin-top:var(--s0);max-width:46ch;color:var(--ink-2)}
+.row-m{
+  grid-column:3;grid-row:1;display:flex;flex-direction:column;
+  align-items:flex-end;gap:2px;color:var(--ink-3);font-size:0.86rem;
+  white-space:nowrap;
+}
+.row-m span:last-child{color:var(--ink);font-weight:600;font-size:1rem}
+.rows-fig{margin:0;display:none}
+
+@media(min-width:1000px){
+  .work{grid-template-columns:minmax(0,1.35fr) minmax(0,0.65fr)}
+  .sec-h{grid-column:1/-1}
+  .rows-fig{
+    display:block;position:sticky;top:calc(30px + 6rem);
+    align-self:start;aspect-ratio:4/5;overflow:hidden;border-radius:2px;
+  }
+  .rows-fig img{
+    width:100%;height:100%;object-fit:cover;
+    filter:grayscale(1) brightness(.72) contrast(1.1);
+    transition:opacity .55s var(--ease);
+  }
+  .rows-fig img.fade{opacity:0}
+}
+
+/* ───────────────────────────────────────────────────────── room */
+.room{
+  display:grid;gap:var(--s4);align-items:center;
+  max-width:var(--wide);margin-inline:auto;padding:var(--s5) var(--pad);
+}
+.room-media{overflow:hidden;aspect-ratio:4/3}
+.room-media img{
+  width:100%;height:100%;object-fit:cover;
+  filter:grayscale(1) brightness(.55) contrast(1.16);
+  transform:scale(1.04) translateY(var(--py,0));
+  transition:transform .6s var(--ease);
+}
+.room-b p{margin-top:var(--s2);max-width:var(--read)}
+@media(min-width:900px){.room{grid-template-columns:1.1fr 0.9fr;gap:var(--s5)}}
+
+/* ─────────────────────────────────────────────────── clinicians */
+.who{max-width:var(--wide);margin-inline:auto;padding:var(--s5) var(--pad)}
+.who-g{display:grid;gap:var(--s4);margin-top:var(--s4)}
+@media(min-width:820px){.who-g{grid-template-columns:1fr 1fr;gap:var(--s5)}}
+.per h3{font-size:1.3rem;margin-top:var(--s2);letter-spacing:-0.02em}
+.per-r{color:var(--nacre);font-size:0.88rem;margin-top:2px}
+.per p:last-child{margin-top:var(--s1);max-width:46ch}
+
+/* A drawn mark, not a borrowed face. A stock portrait captioned with a
+   real clinician's name is a lie the page does not need to tell. */
+.pfp{
+  position:relative;display:grid;place-items:center;
+  aspect-ratio:1;max-width:180px;border-radius:50%;
+  background:
+    radial-gradient(circle at 30% 26%, color-mix(in oklab,var(--nacre-3) 45%,transparent), transparent 52%),
+    radial-gradient(circle at 72% 70%, color-mix(in oklab,var(--nacre-2) 48%,transparent), transparent 55%),
+    var(--abyss-2);
+  border:1px solid var(--hair);
+}
+.pfp-i{
+  font-family:var(--display);font-size:2.6rem;font-weight:600;
+  font-variation-settings:'wdth' 112;
+  letter-spacing:0.02em;color:var(--ink);
+}
+.pfp-n{position:absolute;bottom:14%;font-size:0.62rem;color:var(--ink-3)}
+
+/* ──────────────────────────────────────────────────────── price */
+.price{max-width:var(--wide);margin-inline:auto;padding:var(--s5) var(--pad)}
+.price-s{margin-top:var(--s2);max-width:var(--read)}
+.calc{
+  display:grid;gap:var(--s3);margin-top:var(--s4);
+  grid-template-columns:minmax(0,1fr);
+}
+.calc fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column}
+.opt{
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;gap:var(--s1);
+  padding:var(--s2) 0;border-top:1px solid var(--hair);
+  cursor:pointer;min-height:44px;
+  transition:color .3s var(--ease);
+}
+.opt:last-child{border-bottom:1px solid var(--hair)}
+.opt:hover{color:var(--ink)}
+.opt input{
+  appearance:none;width:20px;height:20px;flex:none;margin:0;
+  border:1px solid var(--hair);border-radius:50%;cursor:pointer;
+  transition:background .25s var(--ease), border-color .25s var(--ease);
+}
+.opt input:checked{background:var(--nacre);border-color:var(--nacre)}
+.opt-l{min-width:0}
+.opt-p{color:var(--ink-3);font-size:0.9rem;white-space:nowrap}
+.tot{
+  align-self:start;padding:var(--s3);
+  background:var(--abyss-2);border:1px solid var(--hair);border-radius:2px;
+  display:flex;flex-direction:column;gap:var(--s0);
+}
+.tot-u{
+  font-family:var(--display);font-size:clamp(2.2rem,5vw,3.2rem);font-weight:600;
+  font-variation-settings:'wdth' 104;letter-spacing:-0.03em;
+  line-height:1;color:var(--ink);
+}
+.tot-m{color:var(--ink-3);font-size:0.9rem}
+.price-n{margin-top:var(--s2);color:var(--ink-3);font-size:0.9rem}
+@media(min-width:900px){.calc{grid-template-columns:minmax(0,1fr) 22rem;gap:var(--s5)}}
+
+/* ───────────────────────────────────────────────────────── book */
+.book{
+  display:grid;gap:var(--s4);
+  max-width:var(--wide);margin-inline:auto;padding:var(--s5) var(--pad) var(--s6);
+}
+.book-b p{margin-top:var(--s2);max-width:46ch}
+.book-c{color:var(--ink-3);line-height:1.9}
+.book-c a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--hair)}
+.form{display:flex;flex-direction:column;gap:var(--s2)}
+.f{display:flex;flex-direction:column;gap:var(--s0)}
+.f label{font-size:0.86rem;color:var(--ink-3)}
+.f input,.f textarea{
+  font:inherit;font-size:1rem;color:var(--ink);
+  background:var(--abyss-2);border:1px solid var(--hair);border-radius:2px;
+  padding:0.85rem var(--s1);min-height:48px;width:100%;
+  transition:border-color .3s var(--ease);
+}
+.f textarea{resize:vertical;line-height:1.6}
+.f input:focus,.f textarea:focus{border-color:var(--nacre);outline:none}
+/* placeholders are held to body contrast, not the usual washed-out grey */
+.f input::placeholder,.f textarea::placeholder{color:var(--ink-3);opacity:1}
+.state{min-height:1.4em;font-size:0.9rem;color:var(--nacre)}
+@media(min-width:900px){.book{grid-template-columns:1fr 1fr;gap:var(--s5)}}
+
+/* ───────────────────────────────────────────────────────── foot */
+.foot{
+  border-top:1px solid var(--hair);
+  max-width:var(--wide);margin-inline:auto;padding:var(--s4) var(--pad) var(--s5);
+}
+.foot-m{
+  font-family:var(--display);font-size:clamp(3rem,13vw,7rem);font-weight:700;
+  font-variation-settings:'wdth' 122;
+  letter-spacing:-0.04em;line-height:0.9;color:var(--hair);
+  text-transform:uppercase;
+}
+.foot-c{display:grid;gap:var(--s2);margin-top:var(--s4);color:var(--ink-3);font-size:0.92rem;line-height:1.8}
+.foot-c a{color:var(--ink-2);text-decoration:none}
+.foot-c a:hover{color:var(--nacre)}
+@media(min-width:700px){.foot-c{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.foot-s{margin-top:var(--s4);color:var(--ink-3);font-size:0.84rem}
+.foot-s a{color:var(--nacre)}
+
+/* ────────────────────────────────────────────────── mobile action */
+.actionbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:var(--z-bar);
+  display:none;align-items:center;justify-content:space-between;gap:var(--s1);
+  padding:var(--s1) var(--pad);
+  background:var(--abyss-2);border-top:1px solid var(--hair);
+  font-size:0.88rem;color:var(--ink-2);
+  transform:translateY(115%);transition:transform .5s var(--ease);
+}
+.actionbar.up{transform:none}
+.actionbar .btn{padding:0.7rem var(--s2)}
+@media(max-width:880px){.actionbar{display:flex}body{padding-bottom:4.75rem}}
+
+/* ─────────────────────────────────────────────────────── reveals
+   Below-fold only. Nothing already on screen is ever pre-hidden, so
+   nothing can flash, and with JS off no class is ever added. */
+@media (prefers-reduced-motion: no-preference){
+  .js .rv{transition:opacity .9s var(--ease), transform .9s var(--ease)}
+  .js .rv.pre{opacity:0;transform:translateY(20px)}
+  .js [data-stagger]>*{transition:opacity .8s var(--ease), transform .8s var(--ease)}
+  .js [data-stagger].pre>*{opacity:0;transform:translateY(14px)}
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .sheen{display:none}
+  .room-media img{transform:none}
+}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}

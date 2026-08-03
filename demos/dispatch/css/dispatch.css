@@ -1,0 +1,317 @@
+/* ═══════════════════════════════════════════════════════════════════
+   DISPATCH — heating, air & electrical
+
+   The hardest brief in the library, because the honest answer is that
+   nobody wants a premium experience from an electrician. They want a
+   status and a phone number, in that order, usually at 6am with no
+   heat.
+
+   So this refuses to be a marketing page. The board is the hero: no
+   photograph of a smiling technician, no headline about trust, no
+   hero image at all above the fold. Every rate is published, which no
+   competitor in the trade does, and that is the actual positioning.
+
+   Utility green with safety orange — the palette of the van, not of a
+   brand deck. Density: dense and board-like.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root{
+  --util:    oklch(0.345 0.080 158);
+  --util-d:  oklch(0.248 0.062 158);
+  --util-dd: oklch(0.185 0.048 158);
+  --util-l:  oklch(0.455 0.085 158);
+  --hair:    oklch(0.520 0.070 158);
+
+  --hiviz:   oklch(0.760 0.185 58);
+  --hiviz-d: oklch(0.640 0.170 52);
+
+  --w:       oklch(0.985 0.003 150);   /* on util, 7.7:1 */
+  --w-2:     oklch(0.905 0.010 150);   /* on util, 6.2:1 */
+  --w-3:     oklch(0.800 0.016 150);   /* on util, 4.6:1 — body floor */
+
+  --display:'Saira', system-ui, sans-serif;
+  --mono:'Sometype Mono', ui-monospace, monospace;
+
+  /* dense scale: this is a board, not a brochure */
+  --s0:0.375rem; --s1:0.75rem; --s2:1.15rem; --s3:1.85rem;
+  --s4:3rem; --s5:4.75rem; --s6:7.5rem;
+
+  --pad:clamp(1rem,3.5vw,3.25rem);
+  --wide:1500px;
+  --ease:cubic-bezier(.2,1,.3,1);
+
+  --z-nav:100;--z-panel:110;--z-burger:120;--z-bar:130;--z-strip:140;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--util);color:var(--w-2);
+  font-family:var(--display);
+  font-size:clamp(0.95rem,0.92rem + 0.16vw,1.05rem);
+  font-variation-settings:'wdth' 100;
+  line-height:1.6;font-weight:400;
+  -webkit-font-smoothing:antialiased;
+  padding-top:30px;overflow-x:hidden;
+}
+img{max-width:100%;height:auto;display:block}
+a{color:inherit}
+h1,h2,h3{
+  font-family:var(--display);font-weight:800;
+  font-variation-settings:'wdth' 72;
+  line-height:0.96;letter-spacing:-0.025em;
+  text-wrap:balance;margin:0;color:var(--w);
+}
+p{margin:0;text-wrap:pretty}
+ol,ul{margin:0;padding:0;list-style:none}
+dl,dd{margin:0}
+:focus-visible{outline:3px solid var(--hiviz);outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.skip{position:absolute;left:-999px;z-index:200;background:var(--hiviz);color:var(--util-dd);padding:var(--s1)}
+.skip:focus{left:var(--s1);top:calc(30px + var(--s0))}
+
+/* ────────────────────────────────────────────────────── demo strip */
+.mvsbar{
+  position:fixed;inset:0 0 auto 0;height:30px;z-index:var(--z-strip);
+  display:flex;align-items:center;gap:var(--s1);padding:0 var(--pad);
+  background:var(--util-dd);color:var(--w-3);
+  font-family:var(--mono);font-size:0.64rem;
+}
+.mvsbar-t{color:var(--hiviz);font-weight:700}
+.mvsbar-d{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mvsbar-a{text-decoration:none;white-space:nowrap;color:var(--w-2)}
+.mvsbar-a:hover{color:var(--hiviz)}
+@media(max-width:760px){.mvsbar-d{display:none}}
+
+/* ─────────────────────────────────────────────────────────── nav */
+.nav{
+  position:sticky;top:30px;z-index:var(--z-nav);
+  display:flex;align-items:center;justify-content:space-between;gap:var(--s2);
+  padding:var(--s2) var(--pad);
+  background:var(--util-d);border-bottom:2px solid var(--hiviz);
+  transition:transform .4s var(--ease);
+}
+.nav-up .nav{transform:translateY(calc(-100% - 30px))}
+.mark{display:flex;align-items:center;gap:var(--s1);text-decoration:none;min-height:44px}
+.bolt{width:20px;height:20px;flex:none;fill:var(--hiviz)}
+.mark-w{
+  font-weight:800;font-variation-settings:'wdth' 72;
+  font-size:1.15rem;letter-spacing:0.01em;text-transform:uppercase;color:var(--w);
+}
+.nav-links{display:flex;align-items:center;gap:var(--s3)}
+.nav-links a{text-decoration:none;color:var(--w-2);font-size:0.9rem;font-weight:600}
+.nav-links a:hover{color:var(--hiviz)}
+.nav-links a.cta{
+  background:var(--hiviz);color:var(--util-dd);font-family:var(--mono);font-weight:700;
+  padding:0.6rem var(--s2);min-height:44px;display:grid;place-items:center;
+  transition:background .25s var(--ease)}
+.nav-links a.cta:hover{background:var(--w)}
+@media(max-width:900px){.nav-links{display:none}}
+
+/* ───────────────────────────────────────────────────── mobile nav */
+.burger{
+  position:fixed;top:calc(30px + 1rem);right:var(--pad);z-index:var(--z-burger);
+  width:48px;height:48px;display:none;flex-direction:column;place-items:center;gap:6px;
+  background:var(--util-dd);border:0;cursor:pointer;
+}
+.burger span{display:block;width:22px;height:2px;background:var(--hiviz);transition:transform .3s var(--ease)}
+.burger[aria-expanded="true"] span:first-child{transform:translateY(4px) rotate(45deg)}
+.burger[aria-expanded="true"] span:last-child{transform:translateY(-4px) rotate(-45deg)}
+@media(max-width:900px){.burger{display:flex}}
+
+.mnav{
+  position:fixed;inset:30px 0 0 0;z-index:var(--z-panel);
+  background:var(--util-dd);
+  display:flex;flex-direction:column;justify-content:center;gap:var(--s4);
+  padding:var(--s4) var(--pad);
+  opacity:0;visibility:hidden;transition:opacity .3s var(--ease),visibility .3s;
+}
+.mnav.open{opacity:1;visibility:visible}
+.m-links{display:flex;flex-direction:column}
+.m-links a{
+  font-weight:800;font-variation-settings:'wdth' 74;
+  font-size:clamp(1.7rem,8vw,2.6rem);text-transform:uppercase;letter-spacing:-0.02em;
+  color:var(--w);text-decoration:none;padding:var(--s1) 0;min-height:44px;
+  border-bottom:1px solid var(--hair);
+}
+.m-foot{font-family:var(--mono);font-size:0.7rem;color:var(--w-3);line-height:1.9}
+body.locked{overflow:hidden}
+
+/* ═══════════════════════════ the board ═══════════════════════════ */
+.board{
+  background:var(--util-d);
+  padding:var(--s5) var(--pad) var(--s4);
+  border-bottom:2px solid var(--hiviz);
+}
+.board-h,.live,.board-act,.board-n{max-width:var(--wide);margin-inline:auto}
+.board-k{
+  display:block;font-family:var(--mono);font-size:0.68rem;font-weight:400;
+  color:var(--hiviz);letter-spacing:0;text-transform:none;margin-bottom:var(--s2);
+}
+.board-h{
+  font-size:clamp(2.6rem,9vw,5.6rem);text-transform:uppercase;
+  font-variation-settings:'wdth' 68;letter-spacing:-0.03em;
+}
+.live{
+  margin-top:var(--s4);display:grid;gap:2px;
+  background:var(--hair);border:2px solid var(--hair);
+  grid-template-columns:repeat(auto-fit,minmax(165px,1fr));
+}
+.live-r{background:var(--util-d);padding:var(--s2)}
+.live-hero{background:var(--hiviz);color:var(--util-dd)}
+.live-l{font-family:var(--mono);font-size:0.62rem;color:var(--w-3);text-transform:uppercase}
+.live-hero .live-l{color:var(--util-dd);opacity:.75}
+.live-v{
+  font-weight:800;font-variation-settings:'wdth' 72;
+  font-size:clamp(1.9rem,4.4vw,2.9rem);line-height:1;letter-spacing:-0.03em;
+  color:var(--w);margin-top:var(--s0);
+}
+.live-hero .live-v{color:var(--util-dd)}
+.live-s{font-family:var(--mono);font-size:0.64rem;color:var(--w-3);margin-top:var(--s0)}
+.live-hero .live-s{color:var(--util-dd);opacity:.8}
+.board-act{display:flex;flex-wrap:wrap;gap:var(--s1);margin-top:var(--s3)}
+.board-n{margin-top:var(--s3);font-family:var(--mono);font-size:0.66rem;color:var(--w-3)}
+
+/* ──────────────────────────────────────────────────────── buttons */
+.btn{
+  display:inline-grid;place-items:center;text-decoration:none;cursor:pointer;
+  background:var(--hiviz);color:var(--util-dd);border:0;
+  padding:0.85rem var(--s3);min-height:48px;
+  font-family:var(--display);font-weight:700;font-size:0.98rem;
+  transition:background .25s var(--ease);
+}
+.btn:hover{background:var(--w)}
+.btn-w{width:100%}
+.btn-big{
+  font-family:var(--mono);font-weight:700;
+  font-size:clamp(1.05rem,2.4vw,1.35rem);padding:1.05rem var(--s4);min-height:56px;
+}
+.btn-o{
+  display:inline-grid;place-items:center;text-decoration:none;
+  padding:0.85rem var(--s3);min-height:48px;
+  border:2px solid var(--hair);color:var(--w-2);font-weight:600;
+  transition:border-color .25s var(--ease),color .25s var(--ease);
+}
+.btn-o:hover{border-color:var(--hiviz);color:var(--hiviz)}
+
+.sec-h{font-size:clamp(1.8rem,4.4vw,3.1rem);text-transform:uppercase}
+.rates-h p,.area-b p,.call-b p{margin-top:var(--s2);max-width:50ch}
+
+/* ────────────────────────────────────────────────── what we handle */
+.does{max-width:var(--wide);margin-inline:auto;padding:var(--s5) var(--pad)}
+.rows{margin-top:var(--s3);display:grid;gap:2px;background:var(--hair);border:2px solid var(--hair)}
+.row{
+  background:var(--util);padding:var(--s2) var(--s3);
+  display:grid;gap:var(--s0) var(--s3);align-items:baseline;
+  transition:background .2s var(--ease);
+}
+.row:hover{background:var(--util-l)}
+.row-t{
+  font-weight:800;font-variation-settings:'wdth' 74;text-transform:uppercase;
+  font-size:1.15rem;color:var(--w);
+}
+.row p{color:var(--w-2);font-size:0.96rem;max-width:58ch}
+.row-m{font-family:var(--mono);font-size:0.64rem;color:var(--hiviz)}
+.row-x{background:var(--util-dd)}
+.row-x:hover{background:var(--util-dd)}
+.row-x .row-m{color:var(--w-3)}
+@media(min-width:840px){
+  .row{grid-template-columns:9rem minmax(0,1fr) 11rem}
+  .row-m{text-align:right}
+}
+
+/* ───────────────────────────────────────────────────────── rates */
+.rates{background:var(--util-dd);padding:var(--s5) var(--pad)}
+.rates-h,.tbl,.rates-n{max-width:var(--wide);margin-inline:auto}
+.tbl{width:100%;border-collapse:collapse;margin-top:var(--s3);font-family:var(--mono);font-size:0.78rem}
+.tbl th,.tbl td{text-align:left;padding:0.7rem var(--s1);border-bottom:1px solid var(--util-l)}
+.tbl thead th{color:var(--hiviz);font-size:0.62rem;text-transform:uppercase;border-bottom:2px solid var(--hiviz)}
+.tbl td{color:var(--w-2)}
+.tbl td:nth-child(2){color:var(--w);font-weight:700}
+.tbl tbody tr:hover{background:var(--util-d)}
+.rates-n{margin-top:var(--s3);font-size:0.92rem;color:var(--w-3);max-width:62ch}
+
+/* ────────────────────────────────────────────────── area, response */
+.area{
+  max-width:var(--wide);margin-inline:auto;padding:var(--s5) var(--pad);
+  display:grid;gap:var(--s4);align-items:start;
+}
+@media(min-width:940px){.area{grid-template-columns:1.05fr 0.95fr;gap:var(--s5)}}
+.area-d{margin-top:var(--s3);display:grid;gap:2px;background:var(--hair);border:2px solid var(--hair)}
+.area-d>div{background:var(--util);padding:var(--s2);display:flex;justify-content:space-between;gap:var(--s2);flex-wrap:wrap}
+.area-d dt{font-size:0.92rem;color:var(--w-2)}
+.area-d dd{font-family:var(--mono);font-size:0.82rem;color:var(--hiviz);font-weight:500}
+.area-f{margin:0}
+.area-f img{width:100%;filter:saturate(.55) contrast(1.08) brightness(.86)}
+.area-f figcaption{font-family:var(--mono);font-size:0.66rem;color:var(--w-3);padding-top:var(--s1)}
+
+/* ────────────────────────────────────────────────────────── call */
+.call{
+  background:var(--util-d);padding:var(--s5) var(--pad) var(--s6);
+}
+.call-b,.form{max-width:calc(var(--wide) / 2 - 2rem)}
+.call{display:grid;gap:var(--s4);justify-content:center}
+@media(min-width:940px){
+  .call{grid-template-columns:1fr 1fr;gap:var(--s5);
+    max-width:var(--wide);margin-inline:auto;padding-inline:var(--pad)}
+  .call-b,.form{max-width:none}
+}
+.call-c{font-family:var(--mono);font-size:0.8rem;line-height:2;color:var(--w-3)}
+.call-c a{color:var(--hiviz);text-decoration:none;font-weight:700}
+.form{display:flex;flex-direction:column;gap:var(--s2)}
+.f{display:flex;flex-direction:column;gap:var(--s0)}
+.f label{font-family:var(--mono);font-size:0.64rem;color:var(--w-3);text-transform:uppercase}
+.f input,.f select{
+  font:inherit;font-size:1rem;color:var(--w);
+  background:var(--util);border:2px solid var(--hair);border-radius:0;
+  padding:0.75rem var(--s1);min-height:48px;width:100%;
+  transition:border-color .2s var(--ease);
+}
+.f input:focus,.f select:focus{outline:none;border-color:var(--hiviz)}
+.f input::placeholder{color:var(--w-3);opacity:1}
+.sum{font-family:var(--mono);font-size:0.72rem;color:var(--hiviz);min-height:1.4em}
+.state{font-size:0.9rem;color:var(--w-2);min-height:1.4em}
+
+/* ───────────────────────────────────────────────────────── foot */
+.foot{background:var(--util-dd);padding:var(--s4) var(--pad) var(--s5)}
+.foot-m{
+  max-width:var(--wide);margin-inline:auto;
+  font-weight:800;font-variation-settings:'wdth' 66;text-transform:uppercase;
+  font-size:clamp(3rem,16vw,9rem);line-height:0.82;letter-spacing:-0.035em;
+  color:var(--util-l);
+}
+.foot-c{max-width:var(--wide);margin:var(--s4) auto 0;display:grid;gap:var(--s2);
+  font-family:var(--mono);font-size:0.68rem;line-height:1.95;color:var(--w-3)}
+@media(min-width:760px){.foot-c{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.foot-c a{color:var(--w-2);text-decoration:none}
+.foot-c a:hover{color:var(--hiviz)}
+.foot-s{max-width:var(--wide);margin:var(--s4) auto 0;font-family:var(--mono);font-size:0.64rem;color:var(--w-3)}
+.foot-s a{color:var(--hiviz)}
+
+/* ── the call bar. On this build it is not a nicety, it is the point,
+   so it never hides and it is a phone link rather than a scroll. ── */
+.callbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:var(--z-bar);
+  display:none;align-items:center;justify-content:space-between;gap:var(--s1);
+  padding:var(--s1) var(--pad);min-height:60px;
+  background:var(--hiviz);color:var(--util-dd);text-decoration:none;
+  border-top:2px solid var(--util-dd);
+}
+.callbar-l{font-family:var(--mono);font-size:0.72rem}
+.callbar-l b{font-weight:700}
+.callbar-b{
+  font-weight:800;font-variation-settings:'wdth' 74;text-transform:uppercase;
+  font-size:1.05rem;letter-spacing:0.01em;
+}
+@media(max-width:900px){.callbar{display:flex}body{padding-bottom:4.5rem}}
+
+/* ──────────────────────────────────────────────────────── reveals */
+@media (prefers-reduced-motion: no-preference){
+  .js .rv{transition:opacity .55s var(--ease),transform .55s var(--ease)}
+  .js .rv.pre{opacity:0;transform:translateY(10px)}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}

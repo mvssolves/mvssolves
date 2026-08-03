@@ -1,0 +1,350 @@
+/* ═══════════════════════════════════════════════════════════════════
+   ICEHOUSE — 28 lofts in a 1924 cold-storage plant
+
+   The ground is a genuine mid-tone. Every other build in this library
+   sits at one end or the other — near-black, near-white, or a fully
+   saturated hue. A cold slate that is neither is the one gap left, and
+   it happens to be the right temperature for a building that spent
+   sixty-three years just above freezing.
+
+   Brass is the only warm thing on the page, used exactly where the
+   building's own brass is: fittings, edges, the lift.
+
+   Density: cinematic. One floor per screen through the pinned journey.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root{
+  --slate:    oklch(0.380 0.030 238);
+  --slate-d:  oklch(0.285 0.028 238);
+  --slate-dd: oklch(0.215 0.024 238);
+  --slate-l:  oklch(0.500 0.030 238);
+  --hair:     oklch(0.560 0.028 238);
+
+  --brass:    oklch(0.780 0.115 78);
+  --brass-d:  oklch(0.650 0.105 78);
+
+  --ice:      oklch(0.975 0.004 240);   /* on slate, 6.9:1 */
+  --ice-2:    oklch(0.900 0.008 240);   /* on slate, 5.6:1 */
+  --ice-3:    oklch(0.815 0.012 240);   /* on slate, 4.5:1 — floor for body */
+
+  --display:'Young Serif', Georgia, serif;
+  --text:'Rethink Sans', system-ui, -apple-system, sans-serif;
+
+  /* cinematic scale — room to hold one idea per screen */
+  --s0:0.5rem; --s1:1rem; --s2:1.625rem; --s3:2.5rem;
+  --s4:4rem; --s5:6.75rem; --s6:11rem;
+
+  --pad:clamp(1.25rem,4.5vw,4.25rem);
+  --wide:1560px;
+  --ease:cubic-bezier(.18,1,.3,1);
+
+  --z-nav:100;--z-panel:110;--z-burger:120;--z-bar:130;--z-strip:140;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--slate);color:var(--ice-2);
+  font-family:var(--text);
+  font-size:clamp(1rem,0.96rem + 0.2vw,1.1rem);
+  line-height:1.7;font-weight:400;
+  -webkit-font-smoothing:antialiased;
+  padding-top:30px;overflow-x:hidden;
+}
+img{max-width:100%;height:auto;display:block}
+a{color:inherit}
+h1,h2,h3{
+  font-family:var(--display);font-weight:400;
+  line-height:1.06;letter-spacing:-0.022em;
+  text-wrap:balance;margin:0;color:var(--ice);
+}
+p{margin:0;text-wrap:pretty}
+ol,ul{margin:0;padding:0;list-style:none}
+dl,dd{margin:0}
+:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.skip{position:absolute;left:-999px;z-index:200;background:var(--brass);color:var(--slate-dd);padding:var(--s1)}
+.skip:focus{left:var(--s1);top:calc(30px + var(--s0))}
+
+/* ────────────────────────────────────────────────────── demo strip */
+.mvsbar{
+  position:fixed;inset:0 0 auto 0;height:30px;z-index:var(--z-strip);
+  display:flex;align-items:center;gap:var(--s1);padding:0 var(--pad);
+  background:var(--slate-dd);color:var(--ice-3);font-size:0.72rem;
+}
+.mvsbar-t{color:var(--brass);font-weight:600}
+.mvsbar-d{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mvsbar-a{text-decoration:none;white-space:nowrap;color:var(--ice-2)}
+.mvsbar-a:hover{color:var(--brass)}
+@media(max-width:780px){.mvsbar-d{display:none}}
+
+/* ─────────────────────────────────────────────────────────── nav */
+.nav{
+  position:sticky;top:30px;z-index:var(--z-nav);
+  display:flex;align-items:center;justify-content:space-between;gap:var(--s2);
+  padding:var(--s2) var(--pad);
+  background:color-mix(in oklab,var(--slate) 88%,transparent);
+  backdrop-filter:blur(12px);
+  transition:transform .5s var(--ease);
+}
+.nav-up .nav{transform:translateY(calc(-100% - 30px))}
+.mark{
+  font-family:var(--display);font-size:1.35rem;color:var(--ice);
+  text-decoration:none;display:grid;align-items:center;min-height:44px;
+}
+.nav-links{display:flex;align-items:center;gap:var(--s2)}
+.nav-links a{text-decoration:none;color:var(--ice-2);font-size:0.9rem}
+.nav-links a:hover{color:var(--brass)}
+.nav-links a.cta{
+  background:var(--brass);color:var(--slate-dd);font-weight:600;
+  padding:0.62rem var(--s2);min-height:44px;display:grid;place-items:center;
+  transition:background .3s var(--ease)}
+.nav-links a.cta:hover{background:var(--ice)}
+@media(max-width:940px){.nav-links{display:none}}
+
+/* ───────────────────────────────────────────────────── mobile nav */
+.burger{
+  position:fixed;top:calc(30px + 1.25rem);right:var(--pad);z-index:var(--z-burger);
+  width:48px;height:48px;display:none;flex-direction:column;place-items:center;gap:6px;
+  background:none;border:0;cursor:pointer;
+}
+.burger span{display:block;width:24px;height:1.5px;background:var(--ice);transition:transform .35s var(--ease)}
+.burger[aria-expanded="true"] span:first-child{transform:translateY(3.75px) rotate(45deg)}
+.burger[aria-expanded="true"] span:last-child{transform:translateY(-3.75px) rotate(-45deg)}
+@media(max-width:940px){.burger{display:flex}}
+
+.mnav{
+  position:fixed;inset:30px 0 0 0;z-index:var(--z-panel);
+  background:var(--slate-d);
+  display:flex;flex-direction:column;justify-content:center;gap:var(--s4);
+  padding:var(--s4) var(--pad);
+  opacity:0;visibility:hidden;transition:opacity .35s var(--ease),visibility .35s;
+}
+.mnav.open{opacity:1;visibility:visible}
+.m-links{display:flex;flex-direction:column;gap:var(--s0)}
+.m-links a{
+  font-family:var(--display);font-size:clamp(1.85rem,8vw,2.9rem);
+  color:var(--ice);text-decoration:none;padding:var(--s0) 0;min-height:44px;
+}
+.m-foot{color:var(--ice-3);font-size:0.9rem}
+body.locked{overflow:hidden}
+
+/* ───────────────────────────────────────────────────────── hero */
+.hero{
+  position:relative;min-height:min(90svh,900px);
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:var(--s5) var(--pad) var(--s3);isolation:isolate;
+}
+.hero-media{position:absolute;inset:0;z-index:-1;overflow:hidden;background:var(--slate-d)}
+.hero-media img{width:100%;height:100%;object-fit:cover;filter:brightness(.62) saturate(.42) contrast(1.05)}
+.hero-media::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to top,var(--slate) 4%,color-mix(in oklab,var(--slate) 46%,transparent) 56%,color-mix(in oklab,var(--slate) 30%,transparent));
+}
+.hero-k{font-size:0.82rem;color:var(--brass);margin-bottom:var(--s2)}
+.hero-body{max-width:min(52rem,100%)}
+.hero-h{font-size:clamp(2.2rem,5.6vw,4.3rem)}
+.hero-p{margin-top:var(--s2);max-width:46ch;color:var(--ice-2)}
+.hero .btn{margin-top:var(--s3)}
+.hero-d{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:1px;margin-top:var(--s4);
+  background:color-mix(in oklab,var(--ice) 20%,transparent);
+  border:1px solid color-mix(in oklab,var(--ice) 20%,transparent);
+}
+.hero-d>div{background:var(--slate);padding:var(--s2)}
+.hero-d dt{font-size:0.74rem;color:var(--ice-3)}
+.hero-d dd{font-family:var(--display);font-size:clamp(1.5rem,3vw,2.1rem);color:var(--ice);margin-top:2px;line-height:1}
+
+/* ──────────────────────────────────────────────────────── buttons */
+.btn{
+  display:inline-grid;place-items:center;text-decoration:none;cursor:pointer;
+  background:var(--brass);color:var(--slate-dd);border:0;
+  padding:0.9rem var(--s3);min-height:48px;
+  font-family:var(--text);font-size:0.95rem;font-weight:600;
+  transition:background .3s var(--ease),transform .3s var(--ease);
+}
+.btn:hover{background:var(--ice);transform:translateY(-2px)}
+.btn-w{width:100%}
+
+.sec-h{font-size:clamp(1.9rem,4.2vw,3.1rem)}
+
+/* ═══════════════════════════ the floor journey ═══════════════════
+   Scroll-driven, not scroll-hijacked. The page never takes the wheel
+   away — a tall section is pinned and its own scroll distance drives
+   which floor you are on, so a fast flick still gets you past it and
+   the browser's own scrollbar never lies about where you are.
+   Below 1000px it degrades to a plain stacked list. */
+.lift{background:var(--slate-d);position:relative}
+.lift-stick{padding:var(--s5) var(--pad)}
+.lift-in{max-width:var(--wide);margin-inline:auto;display:grid;gap:var(--s3)}
+
+.shaft{display:none}
+.plans{display:none}
+
+.cards{display:flex;flex-direction:column;gap:var(--s3)}
+.fl{
+  border-top:1px solid var(--hair);padding-top:var(--s2);
+}
+.fl-n{font-size:0.78rem;color:var(--brass);letter-spacing:0.02em}
+.fl h3{font-size:clamp(1.6rem,3.4vw,2.4rem);margin-top:var(--s0)}
+.fl>p:not(.fl-n){margin-top:var(--s1);max-width:44ch;color:var(--ice-2)}
+.fl dl{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
+  gap:var(--s2);margin-top:var(--s2);
+}
+.fl dt{font-size:0.72rem;color:var(--ice-3)}
+.fl dd{font-family:var(--display);font-size:1.3rem;color:var(--ice);margin-top:2px;line-height:1.1}
+
+/* Every rule below is gated on .js. Without script nothing ever gets the
+   .on class, so an absolutely-positioned stack would leave five of the six
+   floors permanently invisible. No script means the plain stacked list. */
+@media (min-width:1000px) and (prefers-reduced-motion: no-preference){
+  .js .lift{height:520vh}                   /* the scroll distance the ride needs */
+  .js .lift-stick{position:sticky;top:0;height:100svh;display:grid;align-items:center;padding-block:0}
+  .js .lift-in{
+    grid-template-columns:auto minmax(0,1fr) minmax(0,1fr);
+    gap:var(--s5);align-items:center;width:100%;
+  }
+
+  /* the shaft is a genuine position indicator: the car moves with you */
+  .js .shaft{display:block;position:relative;padding-left:var(--s2)}
+  .js .shaft ol{display:flex;flex-direction:column;gap:var(--s2)}
+  .js .shaft button{
+    background:none;border:0;cursor:pointer;padding:0 0 0 var(--s2);
+    color:var(--ice-3);font-family:var(--text);font-size:0.8rem;
+    min-height:44px;display:flex;align-items:center;
+    transition:color .35s var(--ease);
+  }
+  .js .shaft button:hover{color:var(--ice)}
+  .js .shaft button[aria-current="true"]{color:var(--brass)}
+  .js .shaft::before{
+    content:'';position:absolute;left:var(--s2);top:22px;bottom:22px;
+    width:1px;background:var(--hair);
+  }
+  .js .shaft-car{
+    position:absolute;left:calc(var(--s2) - 3px);top:0;
+    width:7px;height:7px;border-radius:50%;background:var(--brass);
+    transition:transform .55s var(--ease);
+  }
+
+  .js .plans{display:block;position:relative;aspect-ratio:4/3}
+  .js .plan{
+    position:absolute;inset:0;width:100%;height:100%;
+    opacity:0;transition:opacity .5s var(--ease);
+  }
+  .js .plan.on{opacity:1}
+  .pl rect,.pl line,.pl circle{fill:none;stroke:var(--ice-3);stroke-width:2}
+  .pl rect:first-child{stroke:var(--ice);stroke-width:3}
+  .pl circle{fill:color-mix(in oklab,var(--brass) 30%,transparent);stroke:var(--brass)}
+  .pl .ter{stroke:var(--brass);stroke-dasharray:6 5;fill:none}
+
+  .js .cards{display:block;position:relative;min-height:23rem}
+  .js .fl{
+    position:absolute;inset:0;border-top:0;padding-top:0;
+    opacity:0;transform:translateY(24px);pointer-events:none;
+    transition:opacity .5s var(--ease),transform .5s var(--ease);
+  }
+  .js .fl.on{opacity:1;transform:none;pointer-events:auto}
+}
+
+/* ─────────────────────────────────────────────────── what it was */
+.was{
+  max-width:var(--wide);margin-inline:auto;padding:var(--s5) var(--pad);
+  display:grid;gap:var(--s4);align-items:start;
+}
+@media(min-width:940px){.was{grid-template-columns:0.8fr 1.2fr;gap:var(--s5)}}
+.was-f{margin:0;overflow:hidden}
+.was-f img{width:100%;filter:brightness(.72) saturate(.38) contrast(1.08);
+  transform:scale(1.04) translateY(var(--py,0));transition:transform .6s var(--ease)}
+.was-b p{margin-top:var(--s2);max-width:52ch}
+.tl{margin-top:var(--s3);display:flex;flex-direction:column}
+.tl li{
+  display:grid;grid-template-columns:4.5rem minmax(0,1fr);gap:var(--s2);
+  padding:var(--s1) 0;border-top:1px solid var(--hair);
+  font-size:0.95rem;color:var(--ice-2);
+}
+.tl li:last-child{border-bottom:1px solid var(--hair)}
+.tl span{font-family:var(--display);color:var(--brass)}
+
+/* ────────────────────────────────────────────────── specification */
+.spec{background:var(--slate-dd);padding:var(--s5) var(--pad)}
+.spec .sec-h,.spec-g{max-width:var(--wide);margin-inline:auto}
+.spec-g{
+  margin-top:var(--s4);display:grid;gap:var(--s4);
+  grid-template-columns:repeat(auto-fit,minmax(255px,1fr));
+}
+.spec-g article{border-top:2px solid var(--brass);padding-top:var(--s2)}
+.spec-g h3{font-size:1.3rem}
+.spec-g p{margin-top:var(--s1);color:var(--ice-2);font-size:0.97rem}
+
+/* ──────────────────────────────────────────────────────── register */
+.reg{
+  max-width:var(--wide);margin-inline:auto;padding:var(--s5) var(--pad) var(--s6);
+  display:grid;gap:var(--s4);
+}
+@media(min-width:940px){.reg{grid-template-columns:1fr 1fr;gap:var(--s5)}}
+.reg-b p{margin-top:var(--s2);max-width:44ch}
+.reg-c{color:var(--ice-3);line-height:1.95;font-size:0.94rem}
+.reg-c a{color:var(--ice);text-decoration:none;border-bottom:1px solid var(--hair)}
+.form{display:flex;flex-direction:column;gap:var(--s2)}
+.f{display:flex;flex-direction:column;gap:var(--s0)}
+.f label{font-size:0.8rem;color:var(--ice-3)}
+.f input,.f select{
+  font:inherit;font-size:1rem;color:var(--ice);
+  background:var(--slate-d);border:1px solid var(--hair);border-radius:0;
+  padding:0.8rem var(--s1);min-height:48px;width:100%;
+  transition:border-color .3s var(--ease);
+}
+.f input:focus,.f select:focus{outline:none;border-color:var(--brass)}
+.f input::placeholder{color:var(--ice-3);opacity:1}
+.sum{color:var(--brass);font-size:0.92rem;min-height:1.4em}
+.state{color:var(--ice-2);font-size:0.9rem;min-height:1.4em}
+
+/* ───────────────────────────────────────────────────────── foot */
+.foot{border-top:1px solid var(--hair);max-width:var(--wide);
+  margin-inline:auto;padding:var(--s4) var(--pad) var(--s5)}
+.foot-m{font-family:var(--display);font-size:clamp(2.8rem,12vw,7rem);
+  line-height:0.9;letter-spacing:-0.03em;color:var(--slate-l)}
+.foot-c{display:grid;gap:var(--s2);margin-top:var(--s4);color:var(--ice-3);
+  font-size:0.9rem;line-height:1.9}
+@media(min-width:760px){.foot-c{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.foot-c a{color:var(--ice-2);text-decoration:none}
+.foot-c a:hover{color:var(--brass)}
+.foot-s{margin-top:var(--s4);color:var(--ice-3);font-size:0.84rem}
+.foot-s a{color:var(--brass)}
+
+/* ──────────────────────────────────────────────────── mobile bar */
+.actionbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:var(--z-bar);
+  display:none;align-items:center;justify-content:space-between;gap:var(--s1);
+  padding:var(--s1) var(--pad);
+  background:var(--slate-d);border-top:1px solid var(--brass);
+  color:var(--ice-2);font-size:0.86rem;
+  transform:translateY(115%);transition:transform .45s var(--ease);
+}
+.actionbar.up{transform:none}
+.actionbar .btn{padding:0.6rem var(--s2);min-height:44px}
+@media(max-width:940px){.actionbar{display:flex}body{padding-bottom:4.5rem}}
+
+/* ──────────────────────────────────────────────────────── reveals */
+@media (prefers-reduced-motion: no-preference){
+  .js .rv{transition:opacity .9s var(--ease),transform .9s var(--ease)}
+  .js .rv.pre{opacity:0;transform:translateY(18px)}
+  .js [data-stagger]>*{transition:opacity .8s var(--ease),transform .8s var(--ease)}
+  .js [data-stagger].pre>*{opacity:0;transform:translateY(14px)}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .was-f img{transform:none}
+  /* the ride becomes a list; nothing is pinned and nothing is hidden */
+  .lift{height:auto}
+  .lift-stick{position:relative;height:auto;padding-block:var(--s5)}
+  .lift-in{grid-template-columns:minmax(0,1fr)}
+  .shaft,.plans{display:none}
+  .cards{display:flex;min-height:0}
+  .fl{position:relative;inset:auto;opacity:1;transform:none;pointer-events:auto;
+    border-top:1px solid var(--hair);padding-top:var(--s2)}
+}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}

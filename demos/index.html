@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script>document.documentElement.className+=' js';</script>
+<title>Demo library — MVS Solves</title>
+<meta name="description" content="Working demo builds by MVS Solves. Each one is a complete site with its own design system — open any card to walk through it.">
+<meta name="theme-color" content="#100F0E">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Demo library — MVS Solves">
+<meta property="og:description" content="Working demo builds. Each one a complete site with its own design system.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chivo+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   The library is deliberately quiet and set in a single mono.
+   The previews carry all the personality — chrome that asserted
+   its own voice would compete with the work it is showing.
+   ============================================================ */
+:root{
+  --ink:#100F0E; --ink-2:#171614;
+  --bone:#E8E4DC; --bone-2:#9A948A; --bone-3:#6F6960;
+  --hair:rgba(232,228,220,.14); --hair-2:rgba(232,228,220,.07);
+  --mono:'Chivo Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --pad:clamp(1.15rem,4vw,4rem);
+  --ease:cubic-bezier(.22,.9,.28,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--ink); scroll-behavior:smooth; -webkit-text-size-adjust:100%}
+body{margin:0; background:var(--ink); color:var(--bone); font-family:var(--mono);
+  font-weight:300; font-size:.84rem; line-height:1.85; -webkit-font-smoothing:antialiased;
+  overflow-x:hidden}
+img{max-width:100%; display:block; height:auto}
+a{color:inherit}
+p{margin:0; text-wrap:pretty}
+h1,h2{margin:0; font-weight:300; letter-spacing:-.01em; text-wrap:balance}
+::selection{background:var(--bone); color:var(--ink)}
+:focus-visible{outline:2px solid var(--bone); outline-offset:4px}
+
+.wrap{width:100%; max-width:1320px; margin-inline:auto; padding-inline:var(--pad)}
+.k{display:block; font-size:.62rem; letter-spacing:.26em; text-transform:uppercase; color:var(--bone-3)}
+
+.skip{position:fixed; top:.5rem; left:.5rem; z-index:200; transform:translateY(-160%);
+  padding:.7rem 1rem; background:var(--bone); color:var(--ink); text-decoration:none;
+  transition:transform .25s ease}
+.skip:focus,.skip:focus-visible{transform:none}
+
+/* ---------- masthead ---------- */
+header{padding-block:clamp(2.5rem,9vh,5.5rem) clamp(2rem,6vh,3.5rem);
+  border-bottom:1px solid var(--hair)}
+h1{font-size:clamp(1.9rem,5.2vw,3.4rem); line-height:1.1; margin-top:1.2rem; max-width:18ch}
+header p{margin-top:1.4rem; color:var(--bone-2); max-width:58ch}
+.meta{display:flex; flex-wrap:wrap; gap:.4rem 2.5rem; margin-top:2.2rem;
+  padding-top:1rem; border-top:1px solid var(--hair-2)}
+
+/* ---------- filters ---------- */
+.filters{display:flex; flex-wrap:wrap; gap:.45rem; align-items:center;
+  padding-block:clamp(1.5rem,4vh,2.25rem)}
+.chip{font-family:var(--mono); font-size:.62rem; letter-spacing:.18em; text-transform:uppercase;
+  background:none; color:var(--bone-2); border:1px solid var(--hair);
+  padding:.6rem 1rem; cursor:pointer; min-height:44px; display:inline-flex; align-items:center;
+  transition:background-color .3s var(--ease), color .3s var(--ease), border-color .3s var(--ease)}
+.chip:hover{color:var(--bone); border-color:var(--bone-3)}
+.chip[aria-pressed="true"]{background:var(--bone); border-color:var(--bone); color:var(--ink)}
+.count{margin-left:auto; color:var(--bone-3); font-size:.62rem; letter-spacing:.18em;
+  text-transform:uppercase}
+@media(max-width:640px){.count{margin-left:0; width:100%}}
+
+/* ---------- the library ---------- */
+.grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:clamp(1.75rem,3.5vw,3rem); padding-bottom:clamp(3rem,9vh,6rem)}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+
+.card{display:block; text-decoration:none; position:relative}
+.card[hidden]{display:none}
+.shot{position:relative; display:block; overflow:hidden; background:var(--ink-2);
+  aspect-ratio:16/10; border:1px solid var(--hair-2)}
+.shot img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+  transition:transform 1.1s var(--ease)}
+.card:hover .shot img,.card:focus-visible .shot img{transform:scale(1.028)}
+
+.open{position:absolute; right:0; bottom:0; z-index:2; background:var(--bone); color:var(--ink);
+  font-size:.6rem; letter-spacing:.24em; text-transform:uppercase; padding:.85rem 1.1rem;
+  transform:translateY(100%); transition:transform .45s var(--ease)}
+.card:hover .open,.card:focus-visible .open{transform:none}
+
+.card-in{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:.4rem 1.5rem;
+  align-items:baseline; padding-top:1.1rem; border-top:1px solid var(--hair);
+  margin-top:1.1rem; position:relative}
+.card-in::after{content:''; position:absolute; left:0; top:-1px; height:1px; width:100%;
+  background:var(--bone); transform:scaleX(0); transform-origin:left;
+  transition:transform .6s var(--ease)}
+.card:hover .card-in::after{transform:scaleX(1)}
+.card h2{font-size:1.15rem; letter-spacing:0}
+.card .trade{grid-column:2; text-align:right; white-space:nowrap; color:var(--bone-3);
+  font-size:.62rem; letter-spacing:.2em; text-transform:uppercase}
+.card p{grid-column:1/-1; color:var(--bone-2); font-size:.78rem; max-width:52ch; margin-top:.35rem}
+.card .sys{grid-column:1/-1; margin-top:.75rem; color:var(--bone-3); font-size:.66rem;
+  display:flex; flex-wrap:wrap; gap:.3rem .9rem}
+.swatch{display:inline-flex; align-items:center; gap:.4rem}
+.swatch i{width:9px; height:9px; display:inline-block; border:1px solid var(--hair)}
+@media(max-width:520px){
+  .card-in{grid-template-columns:1fr}
+  .card .trade{grid-column:1; text-align:left}
+}
+
+/* ---------- footer ---------- */
+footer{border-top:1px solid var(--hair); padding-block:2.5rem}
+.foot{display:flex; flex-wrap:wrap; gap:.75rem 2.5rem; align-items:baseline}
+.foot .k:first-child{margin-right:auto}
+.foot a{min-height:44px; display:inline-flex; align-items:center; text-decoration:none}
+
+/* ---------- reveal ---------- */
+@media (prefers-reduced-motion: no-preference){
+  .js .rv{transition:opacity .8s var(--ease), transform .8s var(--ease)}
+  .js .rv.pre{opacity:0; transform:translateY(16px)}
+}
+@media (prefers-reduced-motion: reduce){*{transition-duration:.01ms !important}}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#library">Skip to the library</a>
+
+<header>
+  <div class="wrap">
+    <span class="k">MVS Solves — demo library</span>
+    <h1>Pick a build and walk through it.</h1>
+    <p>Each card opens a complete, working site — not a screenshot or a template preview. Every one is built on its own design system: its own palette, type pairing, motion language and layout logic. Nothing is shared between them, which is the point.</p>
+    <div class="meta">
+      <span class="k">Static builds</span>
+      <span class="k">No framework</span>
+      <span class="k">Works with JavaScript off</span>
+      <span class="k">Built for phones first</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="filters" role="group" aria-label="Filter by sector">
+    <button class="chip" type="button" data-f="all" aria-pressed="true">All</button>
+    <button class="chip" type="button" data-f="health" aria-pressed="false">Health</button>
+    <button class="chip" type="button" data-f="trades" aria-pressed="false">Home &amp; trades</button>
+    <button class="chip" type="button" data-f="auto" aria-pressed="false">Auto</button>
+    <button class="chip" type="button" data-f="property" aria-pressed="false">Property</button>
+    <button class="chip" type="button" data-f="food" aria-pressed="false">Food</button>
+    <button class="chip" type="button" data-f="sport" aria-pressed="false">Sport</button>
+    <button class="chip" type="button" data-f="professional" aria-pressed="false">Professional</button>
+    <span class="count" id="count" aria-live="polite">9 builds</span>
+  </div>
+</div>
+
+<main class="wrap" id="library">
+  <div class="grid">
+
+    <a class="card rv" href="micron/" data-sector="auto">
+      <span class="shot">
+        <img src="micron/preview.jpg" width="1920" height="1200" loading="eager"
+             alt="Micron landing page: a dark macro car panel headed 'Your clear coat is about 45 microns. You get one shot.'">
+        <span class="open">Open build →</span>
+      </span>
+      <span class="card-in">
+        <h2>Micron</h2>
+        <span class="trade">Paint correction</span>
+        <p>No black-and-red tuner clichés — it reads like a conservation lab, because irreversible material removal is what the work actually is. Switch on the inspection light and 326 generated defect marks appear over the hero: swirls, deep scratches, etching and somebody else's buffer trails, each filterable.</p>
+        <span class="sys">
+          <span class="swatch"><i style="background:#14171B"></i>Graphite</span>
+          <span class="swatch"><i style="background:#AFE955"></i>Acid lime</span>
+          <span class="swatch">Familjen Grotesk / Spline Sans Mono</span>
+        </span>
+      </span>
+    </a>
+
+    <a class="card rv" href="icehouse/" data-sector="property">
+      <span class="shot">
+        <img src="icehouse/preview.jpg" width="1920" height="1200" loading="eager"
+             alt="Icehouse landing page: sun crossing a brick industrial hall, headed 'Twenty-eight lofts in a building that used to make ice.'">
+        <span class="open">Open build →</span>
+      </span>
+      <span class="card-in">
+        <h2>Icehouse</h2>
+        <span class="trade">28 lofts, a 1924 cold-storage plant</span>
+        <p>The only mid-tone ground in the library — every other build sits at one end or the other. Scroll rides the building floor by floor, six drawn plans and a lift car that climbs the shaft with you. Scroll-driven, never scroll-hijacked: the scrollbar always tells the truth and a fast flick still gets you past.</p>
+        <span class="sys">
+          <span class="swatch"><i style="background:#334551"></i>Cold slate</span>
+          <span class="swatch"><i style="background:#E0AE5D"></i>Brass</span>
+          <span class="swatch">Young Serif / Rethink Sans</span>
+        </span>
+      </span>
+    </a>
+
+    <a class="card rv" href="dispatch/" data-sector="trades">
+      <span class="shot">
+        <img src="dispatch/preview.jpg" width="1920" height="1200" loading="eager"
+             alt="Dispatch landing page: a green status board showing next available slot, trucks out, the time and the call-out fee.">
+        <span class="open">Open build →</span>
+      </span>
+      <span class="card-in">
+        <h2>Dispatch</h2>
+        <span class="trade">Heating, air &amp; electrical</span>
+        <p>Nobody wants a premium experience from an electrician at 6am with no heat — so this refuses to be a marketing page. The board is the hero: no photo, no trust headline. It reads your clock for the real next slot, trucks out and whether the after-hours rate applies. Every rate published, which the trade never does.</p>
+        <span class="sys">
+          <span class="swatch"><i style="background:#014529"></i>Utility green</span>
+          <span class="swatch"><i style="background:#FF8D00"></i>Hi-vis</span>
+          <span class="swatch">Saira / Sometype Mono</span>
+        </span>
+      </span>
+    </a>
+
+    <a class="card rv" href="oyster/" data-sector="health">
+      <span class="shot">
+        <img src="oyster/preview.jpg" width="1920" height="1200" loading="lazy"
+             alt="Oyster landing page: iridescent film over near-black, headed 'Skin is an organ. We treat it like one.'">
+        <span class="open">Open build →</span>
+      </span>
+      <span class="card-in">
+        <h2>Oyster</h2>
+        <span class="trade">Skin studio</span>
+        <p>A WebGL thin-film shader runs over the hero photograph and tracks the cursor — iridescence is the only colour on the page. No serif anywhere, because every med-spa on earth uses one. Picking treatments totals the price and the visits it really takes.</p>
+        <span class="sys">
+          <span class="swatch"><i style="background:#00181B"></i>Abyss</span>
+          <span class="swatch"><i style="background:#27DED6"></i>Nacre</span>
+          <span class="swatch">Anybody / Hanken Grotesk</span>
+        </span>
+      </span>
+    </a>
+
+    <a class="card rv" href="datum/" data-sector="trades">
+      <span class="shot">
+        <img src="datum/preview.jpg" width="1920" height="1200" loading="eager"
+             alt="Datum landing page: a rebar cage duotoned into ultramarine, headed 'Quantities on the bid. Not after it.'">
+        <span class="open">Open build →</span>
+      </span>
+      <span class="card-in">
+        <h2>Datum</h2>
+        <span class="trade">Excavation &amp; site work</span>
+        <p>Premium design on a trade that never gets it. Chalk-line blue rather than safety orange, setting-out lines that snap in on load, and an estimator that turns length, width and depth into loose yards and truck loads.</p>
+        <span class="sys">
+          <span class="swatch"><i style="background:#1735BF"></i>Chalk line</span>
+          <span class="swatch"><i style="background:#D3D6DA"></i>Concrete</span>
+          <span class="swatch">Bricolage Grotesque / Martian Mono</span>
+        </span>
+      </span>
+    </a>
+
+    <a class="card rv" href="marrow/" data-sector="food">
+      <span class="shot">
+        <img src="marrow/preview.jpg" width="1920" height="1200" loading="eager"
+             alt="Marrow landing page: flame and smoke bleeding into ember red, headed 'Everything here has been on fire.'">
+        <span class="open">Open build →</span>
+      </span>
+      <span class="card-in">
+        <h2>Marrow</h2>
+        <span class="trade">Live-fire restaurant</span>
+        <p>Drenched ember, not the charcoal-and-amber every steakhouse already has. Headlines scramble into place, embers drift on canvas, and the hearth you can switch on is synthesised in Web Audio rather than loaded as a file.</p>
+        <span class="sys">
+          <span class="swatch"><i style="background:#A01B00"></i>Ember</span>
+          <span class="swatch"><i style="background:#FF9B24"></i>Flame</span>
+          <span class="swatch">Big Shoulders / Manrope</span>
+        </span>
+      </span>
+    </a>
+
+    <a class="card rv" href="clinic/" data-sector="health">
+      <span class="shot">
+        <img src="clinic/preview.jpg" width="1600" height="1000" loading="lazy"
+             alt="Wren Street landing page: a violet micrograph above the line 'Bloods before opinions.'">
+        <span class="open">Open build →</span>
+      </span>
+      <span class="card-in">
+        <h2>Wren Street</h2>
+        <span class="trade">Private clinic</span>
+        <p>Women's health and longevity practice. The capsule is the recurring container shape, and abstract micrographs stand in for stock medical photography. Booking writes back a live summary of what you have chosen.</p>
+        <span class="sys">
+          <span class="swatch"><i style="background:#F6F4F0"></i>Paper</span>
+          <span class="swatch"><i style="background:#4B3A6B"></i>Iodine violet</span>
+          <span class="swatch">Instrument Serif / Karla</span>
+        </span>
+      </span>
+    </a>
+
+    <a class="card rv" href="forge/" data-sector="sport">
+      <span class="shot">
+        <img src="forge/preview.jpg" width="1600" height="1000" loading="eager"
+             alt="Blacksmith Row landing page: a lifter over a barbell above the line 'Heavy things, done properly.'">
+        <span class="open">Open build →</span>
+      </span>
+      <span class="card-in">
+        <h2>Blacksmith Row</h2>
+        <span class="trade">Barbell gym</span>
+        <p>Peak-action photography doing the work motion usually does. One sulphur accent that only ever marks a number or something you can press, and an eighteen-session timetable that filters by day.</p>
+        <span class="sys">
+          <span class="swatch"><i style="background:#0E0E0D"></i>Ink</span>
+          <span class="swatch"><i style="background:#D6DE49"></i>Sulphur</span>
+          <span class="swatch">Archivo Black / DM Mono</span>
+        </span>
+      </span>
+    </a>
+
+    <a class="card rv" href="chambers/" data-sector="professional">
+      <span class="shot">
+        <img src="chambers/preview.jpg" width="1600" height="1000" loading="lazy"
+             alt="Ridley &amp; Vaux landing page: a stone staircase above a line about cases not worth running.">
+        <span class="open">Open build →</span>
+      </span>
+      <span class="card-in">
+        <h2>Ridley &amp; Vaux</h2>
+        <span class="trade">Barristers' chambers</span>
+        <p>No photographs of people anywhere — credibility comes from the practice index, the published record and a list of members by year of call, which filters to silks or juniors.</p>
+        <span class="sys">
+          <span class="swatch"><i style="background:#F2F0EB"></i>Shell</span>
+          <span class="swatch"><i style="background:#6B2230"></i>Oxblood</span>
+          <span class="swatch">Petrona / IBM Plex Mono</span>
+        </span>
+      </span>
+    </a>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span class="k">MVS Solves — demo library</span>
+    <span class="k">Photography: Unsplash, free licence</span>
+    <a class="k" href="https://mvssolves.com">mvssolves.com ↗</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* filter by sector — scales as builds are added */
+  var chips = [].slice.call(document.querySelectorAll('.chip'));
+  var cards = [].slice.call(document.querySelectorAll('.card'));
+  var count = document.getElementById('count');
+  function apply(f){
+    var shown = 0;
+    cards.forEach(function(c){
+      var hit = f === 'all' || c.dataset.sector === f;
+      c.hidden = !hit;
+      if (hit) shown++;
+    });
+    count.textContent = shown + (shown === 1 ? ' build' : ' builds');
+  }
+  chips.forEach(function(b){
+    b.addEventListener('click', function(){
+      chips.forEach(function(o){ o.setAttribute('aria-pressed', String(o === b)); });
+      apply(b.dataset.f);
+    });
+  });
+
+  /* reveals — pre-hide only what is below the fold */
+  if (reduce || !('IntersectionObserver' in window)) return;
+  var vh = innerHeight;
+  var rv = [].slice.call(document.querySelectorAll('.rv'));
+  rv.forEach(function(el){
+    if (el.getBoundingClientRect().top > vh * 0.92) el.classList.add('pre');
+  });
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if (!e.isIntersecting) return;
+      var i = rv.indexOf(e.target);
+      setTimeout(function(){ e.target.classList.remove('pre'); }, (i % 2) * 90);
+      io.unobserve(e.target);
+    });
+  }, { rootMargin: '0px 0px -8% 0px' });
+  rv.forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>

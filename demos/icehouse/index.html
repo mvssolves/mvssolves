@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ICEHOUSE — 28 lofts in a former cold-storage plant, DTLA</title>
+<meta name="description" content="Twenty-eight lofts across six floors of a 1924 cold-storage plant on the eastern edge of downtown Los Angeles. Ride the building floor by floor.">
+<meta property="og:title" content="ICEHOUSE — 28 lofts, Downtown Los Angeles">
+<meta property="og:description" content="A 1924 cold-storage plant. Six floors, twenty-eight lofts, eleven-foot ceilings.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%234a5a68'/><path d='M8 26V8h16v18' stroke='%23d9a441' stroke-width='2.5' fill='none'/><path d='M8 20h16M8 14h16' stroke='%23d9a441' stroke-width='1.5'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Rethink+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/icehouse.css?v=1">
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="mvsbar">
+  <span class="mvsbar-t">Demo build</span>
+  <span class="mvsbar-d">ICEHOUSE is a fictional development, built to show the work.</span>
+  <a class="mvsbar-a" href="https://mvssolves.com">MVS Solves &rarr;</a>
+</div>
+
+<header class="nav" id="nav">
+  <a class="mark" href="#top">Icehouse</a>
+  <nav class="nav-links" aria-label="Primary">
+    <a href="#floors">The floors</a>
+    <a href="#was">What it was</a>
+    <a href="#spec">Specification</a>
+    <a href="#reg" class="cta">Register</a>
+  </nav>
+</header>
+
+<button class="burger" id="burger" aria-expanded="false" aria-controls="mnav" aria-label="Menu">
+  <span aria-hidden="true"></span><span aria-hidden="true"></span>
+</button>
+
+<div class="mnav" id="mnav">
+  <div class="m-links">
+    <a href="#floors">The floors</a>
+    <a href="#was">What it was</a>
+    <a href="#spec">Specification</a>
+    <a href="#reg">Register interest</a>
+  </div>
+  <p class="m-foot">744 S Mateo St<br>Los Angeles, CA 90021</p>
+</div>
+
+<main id="main">
+
+<!-- ────────────────────────────────────────────────────────── hero -->
+<section class="hero" id="top">
+  <div class="hero-media">
+    <img src="img/hero.jpg" alt="Late sun crossing the empty floor of a brick industrial hall" width="2000" height="1250" fetchpriority="high">
+  </div>
+  <div class="hero-body">
+    <p class="hero-k">744 S Mateo St &nbsp;·&nbsp; Arts District, Los Angeles</p>
+    <h1 class="hero-h">Twenty-eight lofts<br>in a building that<br>used to make ice.</h1>
+    <p class="hero-p">Six floors of a 1924 cold-storage plant. Eleven-foot ceilings, the
+      original steel, and windows that were cut for machinery rather than for views.</p>
+    <a class="btn" href="#floors">Ride the building &darr;</a>
+  </div>
+  <dl class="hero-d">
+    <div><dt>Lofts</dt><dd>28</dd></div>
+    <div><dt>Floors</dt><dd>6</dd></div>
+    <div><dt>Ceilings</dt><dd>11 ft</dd></div>
+    <div><dt>From</dt><dd>$865k</dd></div>
+  </dl>
+</section>
+
+<!-- ────────────────────────────────── the floor journey (pinned) -->
+<section class="lift" id="floors" aria-labelledby="lift-h">
+  <h2 id="lift-h" class="vh">The floors</h2>
+
+  <div class="lift-stick">
+    <div class="lift-in">
+
+      <!-- the shaft: a real position indicator, not decoration -->
+      <nav class="shaft" aria-label="Jump to floor">
+        <ol id="shaftList">
+          <li><button type="button" data-go="5" aria-current="false"><span>L7</span></button></li>
+          <li><button type="button" data-go="4" aria-current="false"><span>L6</span></button></li>
+          <li><button type="button" data-go="3" aria-current="false"><span>L5</span></button></li>
+          <li><button type="button" data-go="2" aria-current="false"><span>L4</span></button></li>
+          <li><button type="button" data-go="1" aria-current="false"><span>L3</span></button></li>
+          <li><button type="button" data-go="0" aria-current="true"><span>L2</span></button></li>
+        </ol>
+        <span class="shaft-car" id="car" aria-hidden="true"></span>
+      </nav>
+
+      <!-- plans are drawn, not photographed: generated imagery, no stock plan -->
+      <div class="plans" aria-hidden="true">
+        <svg viewBox="0 0 400 300" class="plan on" data-p="0"><g class="pl"><rect x="20" y="20" width="360" height="260"/><line x1="200" y1="20" x2="200" y2="280"/><line x1="20" y1="150" x2="380" y2="150"/><circle cx="110" cy="85" r="8"/><circle cx="290" cy="85" r="8"/><circle cx="110" cy="215" r="8"/><circle cx="290" cy="215" r="8"/></g></svg>
+        <svg viewBox="0 0 400 300" class="plan" data-p="1"><g class="pl"><rect x="20" y="20" width="360" height="260"/><line x1="164" y1="20" x2="164" y2="280"/><line x1="272" y1="20" x2="272" y2="280"/><line x1="20" y1="150" x2="164" y2="150"/><circle cx="92" cy="85" r="8"/><circle cx="92" cy="215" r="8"/><circle cx="218" cy="150" r="8"/><circle cx="326" cy="90" r="8"/><circle cx="326" cy="212" r="8"/></g></svg>
+        <svg viewBox="0 0 400 300" class="plan" data-p="2"><g class="pl"><rect x="20" y="20" width="360" height="260"/><line x1="140" y1="20" x2="140" y2="280"/><line x1="260" y1="20" x2="260" y2="280"/><line x1="260" y1="150" x2="380" y2="150"/><circle cx="80" cy="150" r="8"/><circle cx="200" cy="90" r="8"/><circle cx="200" cy="212" r="8"/><circle cx="320" cy="85" r="8"/><circle cx="320" cy="215" r="8"/></g></svg>
+        <svg viewBox="0 0 400 300" class="plan" data-p="3"><g class="pl"><rect x="20" y="20" width="360" height="260"/><line x1="130" y1="20" x2="130" y2="280"/><line x1="250" y1="20" x2="250" y2="280"/><line x1="20" y1="150" x2="130" y2="150"/><circle cx="75" cy="85" r="8"/><circle cx="75" cy="215" r="8"/><circle cx="190" cy="150" r="8"/><circle cx="315" cy="90" r="8"/><circle cx="315" cy="212" r="8"/></g></svg>
+        <svg viewBox="0 0 400 300" class="plan" data-p="4"><g class="pl"><rect x="20" y="20" width="360" height="260"/><line x1="175" y1="20" x2="175" y2="280"/><line x1="175" y1="150" x2="380" y2="150"/><circle cx="97" cy="90" r="8"/><circle cx="97" cy="212" r="8"/><circle cx="277" cy="85" r="8"/><circle cx="277" cy="215" r="8"/><rect x="300" y="40" width="60" height="40" class="ter"/></g></svg>
+        <svg viewBox="0 0 400 300" class="plan" data-p="5"><g class="pl"><rect x="20" y="20" width="360" height="260"/><line x1="200" y1="20" x2="200" y2="280"/><circle cx="110" cy="150" r="8"/><circle cx="290" cy="150" r="8"/><rect x="40" y="40" width="140" height="70" class="ter"/><rect x="220" y="190" width="140" height="70" class="ter"/></g></svg>
+      </div>
+
+      <div class="cards">
+        <article class="fl on" data-p="0">
+          <p class="fl-n">Level 2</p>
+          <h3>The loading floor</h3>
+          <p>Still has the rail the ice carts ran on, set into the slab. Lowest ceilings
+            in the building at ten feet six, and the only floor with direct street doors.</p>
+          <dl><div><dt>Lofts</dt><dd>4</dd></div><div><dt>From</dt><dd>$865k</dd></div>
+            <div><dt>Size</dt><dd>1,240&ndash;1,610 sq ft</dd></div><div><dt>Left</dt><dd>1</dd></div></dl>
+        </article>
+        <article class="fl" data-p="1">
+          <p class="fl-n">Level 3</p>
+          <h3>First of the cold floors</h3>
+          <p>Cork insulation came out of these walls by hand, which is why the brick
+            is scarred. We left the scarring.</p>
+          <dl><div><dt>Lofts</dt><dd>5</dd></div><div><dt>From</dt><dd>$910k</dd></div>
+            <div><dt>Size</dt><dd>1,180&ndash;1,540 sq ft</dd></div><div><dt>Left</dt><dd>2</dd></div></dl>
+        </article>
+        <article class="fl" data-p="2">
+          <p class="fl-n">Level 4</p>
+          <h3>Where the pipes ran</h3>
+          <p>Ammonia lines crossed this ceiling in a grid. The brackets are still up
+            there, cleaned and left exactly where they were.</p>
+          <dl><div><dt>Lofts</dt><dd>5</dd></div><div><dt>From</dt><dd>$955k</dd></div>
+            <div><dt>Size</dt><dd>1,180&ndash;1,600 sq ft</dd></div><div><dt>Left</dt><dd>3</dd></div></dl>
+        </article>
+        <article class="fl" data-p="3">
+          <p class="fl-n">Level 5</p>
+          <h3>The first floor with a view</h3>
+          <p>High enough to clear the produce sheds to the west. Afternoon sun comes
+            straight down the length of the plan.</p>
+          <dl><div><dt>Lofts</dt><dd>5</dd></div><div><dt>From</dt><dd>$1.02m</dd></div>
+            <div><dt>Size</dt><dd>1,210&ndash;1,640 sq ft</dd></div><div><dt>Left</dt><dd>2</dd></div></dl>
+        </article>
+        <article class="fl" data-p="4">
+          <p class="fl-n">Level 6</p>
+          <h3>Terraces begin</h3>
+          <p>The building steps back here, which was a structural decision in 1924 and
+            is a private outdoor room now.</p>
+          <dl><div><dt>Lofts</dt><dd>5</dd></div><div><dt>From</dt><dd>$1.19m</dd></div>
+            <div><dt>Size</dt><dd>1,350&ndash;1,780 sq ft</dd></div><div><dt>Left</dt><dd>3</dd></div></dl>
+        </article>
+        <article class="fl" data-p="5">
+          <p class="fl-n">Level 7</p>
+          <h3>Under the water tank</h3>
+          <p>Four lofts, fourteen-foot ceilings, and the original tank still standing
+            on the roof above them. It is not going anywhere.</p>
+          <dl><div><dt>Lofts</dt><dd>4</dd></div><div><dt>From</dt><dd>$1.64m</dd></div>
+            <div><dt>Size</dt><dd>1,620&ndash;2,240 sq ft</dd></div><div><dt>Left</dt><dd>2</dd></div></dl>
+        </article>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────── what it was -->
+<section class="was" id="was" aria-labelledby="was-h">
+  <figure class="was-f">
+    <img src="img/pillars.jpg" alt="Sunlight falling across a row of brick columns inside the building" width="1400" height="1750" loading="lazy">
+  </figure>
+  <div class="was-b">
+    <h2 id="was-h" class="sec-h">Union Ice &amp; Cold Storage,<br>1924&ndash;1987</h2>
+    <p>Built to hold produce coming off the rail before it went to the market four
+      blocks west. Six floors of cork-lined rooms held a little above freezing by a
+      plant in the basement that ran continuously for sixty-three years.</p>
+    <p>It has been empty since 1987, which is the only reason the steel, the brick and
+      the windows are all still original. Nobody was here to improve them.</p>
+    <ol class="tl">
+      <li><span>1924</span> Built for Union Ice, six floors, one elevator</li>
+      <li><span>1941</span> Requisitioned; held rations for the Port of LA</li>
+      <li><span>1987</span> Plant shut down, building sealed</li>
+      <li><span>2024</span> Bought, surveyed, structure found sound</li>
+      <li><span>2026</span> Twenty-eight lofts, first completions in the autumn</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────────────── specification -->
+<section class="spec" id="spec" aria-labelledby="spec-h">
+  <h2 id="spec-h" class="sec-h">Specification</h2>
+  <div class="spec-g" data-stagger>
+    <article><h3>Kept</h3><p>Steel columns and beams, exposed and fireproofed to code.
+      Brick as found, repointed only where it was failing. Original crittall windows,
+      restored and double-glazed in the existing frames.</p></article>
+    <article><h3>Added</h3><p>Radiant slab heating, a new stair and lift core in the
+      old chute shaft, and a roof deck around the water tank. Nothing added touches
+      the street elevation.</p></article>
+    <article><h3>Not added</h3><p>No gym, no lounge, no co-working room, no concierge.
+      They would raise the monthly charge by about $340 and be empty by year two.</p></article>
+    <article><h3>Monthly</h3><p>$0.41 per square foot, covering structure, insurance,
+      the lift and the roof. Published in full before you sign, not after.</p></article>
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────────────────── register -->
+<section class="reg" id="reg" aria-labelledby="reg-h">
+  <div class="reg-b">
+    <h2 id="reg-h" class="sec-h">Register interest</h2>
+    <p>Fifteen of twenty-eight are gone. Registering gets you the floor plans and the
+      full monthly schedule, and nothing else — we do not run a mailing list.</p>
+    <p class="reg-c">744 S Mateo St, Los Angeles, CA 90021<br>
+      <a href="tel:+12135550144">(213) 555-0144</a><br>
+      Viewings Thursday and Saturday</p>
+  </div>
+  <form class="form" id="regform" novalidate>
+    <div class="f"><label for="nm">Name</label><input id="nm" type="text" autocomplete="name" required></div>
+    <div class="f"><label for="em">Email</label><input id="em" type="email" autocomplete="email" required></div>
+    <div class="f"><label for="lv">Floor you are interested in</label>
+      <select id="lv">
+        <option value="">No preference</option>
+        <option>Level 2 — the loading floor</option>
+        <option>Level 3</option><option>Level 4</option><option>Level 5</option>
+        <option>Level 6 — terraces</option><option>Level 7 — under the tank</option>
+      </select></div>
+    <p class="sum" id="sum"></p>
+    <button class="btn btn-w" type="submit">Send it</button>
+    <p class="state" id="state" role="status"></p>
+  </form>
+</section>
+
+</main>
+
+<footer class="foot">
+  <p class="foot-m">Icehouse</p>
+  <div class="foot-c">
+    <p>744 S Mateo St<br>Los Angeles, CA 90021</p>
+    <p><a href="tel:+12135550144">(213) 555-0144</a><br><a href="mailto:sales@icehouse.example">sales@icehouse.example</a></p>
+    <p>Viewings Thu &amp; Sat<br>By appointment</p>
+  </div>
+  <p class="foot-s">Fictional development. Demo build by <a href="https://mvssolves.com">MVS Solves</a>.</p>
+</footer>
+
+<div class="actionbar" id="actionbar">
+  <span>13 of 28 remaining</span>
+  <a class="btn" href="#reg">Register</a>
+</div>
+
+<script src="js/icehouse.js?v=1"></script>
+</body>
+</html>

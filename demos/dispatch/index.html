@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DISPATCH — heating, air &amp; electrical, Riverside</title>
+<meta name="description" content="Flat rates published. Live board showing trucks out and the next available slot. Riverside and western San Bernardino counties, seven days.">
+<meta property="og:title" content="DISPATCH — heating, air &amp; electrical">
+<meta property="og:description" content="Every price published. A live board instead of a sales page.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%231d4034'/><path d='M18 3 8 18h7l-2 11 11-16h-7z' fill='%23f08a30'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira:wdth,wght@62..100,400..800&family=Sometype+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/dispatch.css?v=1">
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="mvsbar">
+  <span class="mvsbar-t">Demo build</span>
+  <span class="mvsbar-d">DISPATCH is a fictional company, built to show the work.</span>
+  <a class="mvsbar-a" href="https://mvssolves.com">MVS Solves &rarr;</a>
+</div>
+
+<header class="nav" id="nav">
+  <a class="mark" href="#top" aria-label="Dispatch, home">
+    <svg class="bolt" viewBox="0 0 32 32" aria-hidden="true"><path d="M18 3 8 18h7l-2 11 11-16h-7z"/></svg>
+    <span class="mark-w">Dispatch</span>
+  </a>
+  <nav class="nav-links" aria-label="Primary">
+    <a href="#rates">Rates</a>
+    <a href="#area">Area</a>
+    <a href="#call" class="cta">(951) 555-0110</a>
+  </nav>
+</header>
+
+<button class="burger" id="burger" aria-expanded="false" aria-controls="mnav" aria-label="Menu">
+  <span aria-hidden="true"></span><span aria-hidden="true"></span>
+</button>
+
+<div class="mnav" id="mnav">
+  <div class="m-links">
+    <a href="#board">The board</a>
+    <a href="#does">What we handle</a>
+    <a href="#rates">Rates</a>
+    <a href="#area">Area &amp; response</a>
+    <a href="#call">Book a truck</a>
+  </div>
+  <p class="m-foot">C-20 &amp; C-10 licensed<br>CSLB #1071883</p>
+</div>
+
+<main id="main">
+
+<!-- ══════════════════════ the board IS the hero ══════════════════
+     No stock photograph of a smiling technician, no headline about
+     trust. The thing a person wants at 6am with no heat is a status
+     and a phone number, in that order. -->
+<section class="board" id="board" aria-labelledby="board-h">
+  <h1 id="board-h" class="board-h">
+    <span class="board-k">Riverside &amp; western San Bernardino</span>
+    Heating, air<br>&amp; electrical.
+  </h1>
+
+  <div class="live" id="live">
+    <div class="live-r live-hero">
+      <p class="live-l">Next available</p>
+      <p class="live-v" id="vNext">—</p>
+      <p class="live-s" id="sNext">checking the board</p>
+    </div>
+    <div class="live-r">
+      <p class="live-l">Trucks out</p>
+      <p class="live-v" id="vTrucks">—</p>
+      <p class="live-s" id="sTrucks">of 6</p>
+    </div>
+    <div class="live-r">
+      <p class="live-l">Right now</p>
+      <p class="live-v" id="vClock">—</p>
+      <p class="live-s" id="sClock">Pacific</p>
+    </div>
+    <div class="live-r">
+      <p class="live-l">Call-out fee</p>
+      <p class="live-v" id="vFee">$0</p>
+      <p class="live-s" id="sFee">waived if you book the work</p>
+    </div>
+  </div>
+
+  <div class="board-act">
+    <a class="btn btn-big" href="tel:+19515550110">Call (951) 555-0110</a>
+    <a class="btn-o" href="#call">Book online instead</a>
+  </div>
+
+  <p class="board-n" id="boardNote">The board updates from the clock on your device. Nothing here is a stock photo of a van.</p>
+</section>
+
+<!-- ─────────────────────────────────────────────── what we handle -->
+<section class="does" id="does" aria-labelledby="does-h">
+  <h2 id="does-h" class="sec-h">What we handle</h2>
+  <div class="rows">
+    <div class="row"><span class="row-t">HVAC</span>
+      <p>No heat, no cool, short cycling, iced coils, thermostat and control faults,
+        condensate overflow, full changeouts.</p>
+      <span class="row-m">Same day, 7 days</span></div>
+    <div class="row"><span class="row-t">Electrical</span>
+      <p>Dead circuits, tripping breakers, panel upgrades, aluminium branch repair,
+        EV charger installs, sub-panels.</p>
+      <span class="row-m">Same day, 7 days</span></div>
+    <div class="row"><span class="row-t">Diagnostics</span>
+      <p>Something intermittent that two other companies could not find. This is a
+        flat two hours and we write down what we ruled out.</p>
+      <span class="row-m">Booked, not emergency</span></div>
+    <div class="row row-x"><span class="row-t">Not us</span>
+      <p>Plumbing, roofing, solar, appliance repair, ductwork design. We will give
+        you a name for each and we take nothing for it.</p>
+      <span class="row-m">Ask anyway</span></div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────────────────────── rates -->
+<section class="rates" id="rates" aria-labelledby="rates-h">
+  <div class="rates-h">
+    <h2 id="rates-h" class="sec-h">Every rate, published</h2>
+    <p>Most companies in this trade will not put a number on a website. These are the
+      actual numbers, and the technician cannot change them at your door.</p>
+  </div>
+  <table class="tbl">
+    <caption class="vh">Published flat rates</caption>
+    <thead><tr><th scope="col">Job</th><th scope="col">Flat rate</th><th scope="col">Typical time</th></tr></thead>
+    <tbody>
+      <tr><td>Diagnostic visit, business hours</td><td>$89</td><td>60 min</td></tr>
+      <tr><td>Diagnostic visit, after 6pm or weekend</td><td>$149</td><td>60 min</td></tr>
+      <tr><td>Capacitor or contactor replacement</td><td>$210</td><td>45 min</td></tr>
+      <tr><td>Condensate line clear</td><td>$180</td><td>45 min</td></tr>
+      <tr><td>Thermostat replacement, smart</td><td>$340</td><td>60 min</td></tr>
+      <tr><td>Breaker replacement, standard</td><td>$195</td><td>45 min</td></tr>
+      <tr><td>Dedicated 20A circuit, single storey</td><td>$690</td><td>3&ndash;4 hrs</td></tr>
+      <tr><td>EV charger install, panel within 25 ft</td><td>$1,150</td><td>4&ndash;5 hrs</td></tr>
+      <tr><td>200A panel upgrade, permit included</td><td>$3,400</td><td>1 day</td></tr>
+      <tr><td>System changeout, 3 ton, 14 SEER2</td><td>$8,900</td><td>1&ndash;2 days</td></tr>
+    </tbody>
+  </table>
+  <p class="rates-n">Parts at cost plus 15%, shown on the invoice as two lines. If a job
+    runs past its typical time because of something we missed, the extra hours are ours.</p>
+</section>
+
+<!-- ────────────────────────────────────────────── area & response -->
+<section class="area" id="area" aria-labelledby="area-h">
+  <div class="area-b">
+    <h2 id="area-h" class="sec-h">Where we go,<br>and how fast</h2>
+    <p>Six trucks, all within about forty minutes of each other. We do not quote a
+      response time we have not hit ninety percent of the time in the last year.</p>
+    <dl class="area-d">
+      <div><dt>Riverside, Moreno Valley</dt><dd>Under 90 min</dd></div>
+      <div><dt>Corona, Norco, Eastvale</dt><dd>Under 2 hrs</dd></div>
+      <div><dt>Ontario, Rancho, Fontana</dt><dd>Under 2 hrs</dd></div>
+      <div><dt>Temecula, Murrieta</dt><dd>Same day, not timed</dd></div>
+      <div><dt>Anything past Banning</dt><dd>Next day, honestly</dd></div>
+      <div><dt>2025 on-time rate</dt><dd>93.4%</dd></div>
+    </dl>
+  </div>
+  <figure class="area-f">
+    <img src="img/work.jpg" alt="A technician working inside an open electrical panel" width="1400" height="933" loading="lazy">
+    <figcaption>Panel upgrade, Corona. The permit is in the file with the invoice.</figcaption>
+  </figure>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────── call -->
+<section class="call" id="call" aria-labelledby="call-h">
+  <div class="call-b">
+    <h2 id="call-h" class="sec-h">Book a truck</h2>
+    <p>If it is an emergency, call — this form goes to the same board but a phone
+      gets you a person immediately.</p>
+    <p class="call-c"><a href="tel:+19515550110">(951) 555-0110</a><br>
+      CSLB #1071883 · C-20 &amp; C-10<br>
+      Seven days, 7am&ndash;9pm</p>
+  </div>
+  <form class="form" id="bookform" novalidate>
+    <div class="f"><label for="nm">Name</label><input id="nm" type="text" autocomplete="name" required></div>
+    <div class="f"><label for="ph">Phone</label><input id="ph" type="tel" autocomplete="tel" required placeholder="(951) 555-0110"></div>
+    <div class="f"><label for="zp">ZIP</label><input id="zp" type="text" inputmode="numeric" placeholder="92501"></div>
+    <div class="f"><label for="ty">What is wrong</label>
+      <select id="ty">
+        <option value="hvac-none">No heat or no cool at all</option>
+        <option value="hvac-part">Running but not right</option>
+        <option value="elec-dead">Dead circuit or tripping breaker</option>
+        <option value="elec-new">New circuit, panel or EV charger</option>
+        <option value="diag">Something intermittent nobody has found</option>
+      </select></div>
+    <p class="sum" id="sum"></p>
+    <button class="btn btn-w" type="submit">Put me on the board</button>
+    <p class="state" id="state" role="status"></p>
+  </form>
+</section>
+
+</main>
+
+<footer class="foot">
+  <p class="foot-m">Dispatch</p>
+  <div class="foot-c">
+    <p>2210 Iowa Ave, Unit C<br>Riverside, CA 92507</p>
+    <p><a href="tel:+19515550110">(951) 555-0110</a><br><a href="mailto:board@dispatch.example">board@dispatch.example</a></p>
+    <p>CSLB #1071883<br>C-20 &amp; C-10, bonded</p>
+    <p>Seven days<br>7am&ndash;9pm</p>
+  </div>
+  <p class="foot-s">Fictional company. Demo build by <a href="https://mvssolves.com">MVS Solves</a>.</p>
+</footer>
+
+<a class="callbar" href="tel:+19515550110" id="callbar">
+  <span class="callbar-l">Next slot <b id="barNext">—</b></span>
+  <span class="callbar-b">Call now</span>
+</a>
+
+<script src="js/dispatch.js?v=1"></script>
+</body>
+</html>
