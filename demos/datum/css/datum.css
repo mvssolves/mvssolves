@@ -432,3 +432,36 @@ body.locked{overflow:hidden}
   *,*::before,*::after{animation:none!important;transition:none!important}
   .snap line{stroke-dashoffset:0}
 }
+
+/* ═════════════════════ phone: its own composition ═══════════════
+   Setting-out lines are noise at this width, so they go. The stat band
+   becomes a real 2x2, the scope grid stops pretending to be a grid, and
+   the fleet table is rebuilt as labelled rows — a spec table squeezed
+   onto a phone is unreadable, and shrinking the type is not a fix. */
+@media (max-width: 640px){
+  .snap{display:none}
+  .hero{padding-block:var(--s4) var(--s3)}
+  .hero-h{font-size:clamp(2.6rem,13vw,3.6rem);font-variation-settings:'wdth' 76}
+  .hero-act{flex-direction:column;align-items:stretch}
+  .hero-act .btn,.hero-act .btn-o{width:100%}
+  .hero-d{grid-template-columns:1fr 1fr;margin-top:var(--s3)}
+  .hero-d dd{font-size:1.5rem}
+
+  .grid{grid-template-columns:1fr}
+  .cell{padding:var(--s2)}
+  .steps{grid-template-columns:1fr}
+
+  /* the table becomes rows of labelled lines */
+  .tbl,.tbl tbody,.tbl tr,.tbl td{display:block;width:100%}
+  .tbl thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  .tbl tr{border:1px solid var(--ink);margin-bottom:-1px;padding:var(--s1) var(--s2)}
+  .tbl td{border:0;padding:2px 0;display:flex;justify-content:space-between;gap:var(--s1)}
+  .tbl td::before{content:attr(data-l);color:var(--ink-2);font-size:.62rem;text-transform:uppercase}
+  .tbl td:first-child{font-size:.9rem;padding-bottom:var(--s0)}
+
+  .calc-f{grid-template-columns:1fr 1fr}
+  .cf-row:last-child{grid-column:1/-1}
+  .calc-o dl{grid-template-columns:1fr 1fr}
+  .job-d{grid-template-columns:1fr 1fr}
+  .foot-c{grid-template-columns:1fr 1fr}
+}

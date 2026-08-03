@@ -386,3 +386,39 @@ body.locked{overflow:hidden}
 }
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+
+/* ═════════════════════ phone: its own composition ═══════════════
+   The pinned ride does not survive a phone, so the four fire images
+   become a swipeable strip instead of being stacked or dropped. The
+   menu keeps its burst — it is the one place this build gets dense —
+   and the headline gets bigger here, not smaller. */
+@media (max-width: 640px){
+  .hero{min-height:100svh;padding-block:var(--s4) var(--s2)}
+  .hero-h{font-size:clamp(3rem,14vw,4.2rem)}
+  .hero-f{margin-top:var(--s3);font-size:.78rem}
+  .quiet{min-height:auto;padding-block:var(--s5)}
+  .quiet p:first-child{font-size:clamp(2.6rem,13vw,3.6rem)}
+
+  .fire{padding-inline:0}
+  .fire-text{padding-inline:var(--pad)}
+  .fire-stick{order:-1}
+  .fire-stack{
+    aspect-ratio:auto;display:flex;overflow-x:auto;gap:var(--s0);
+    scroll-snap-type:x mandatory;padding-inline:var(--pad);
+    scrollbar-width:none;
+  }
+  .fire-stack::-webkit-scrollbar{display:none}
+  .fire-stack img{
+    position:relative;inset:auto;opacity:1;
+    flex:0 0 72%;aspect-ratio:3/4;scroll-snap-align:start;
+  }
+  .beats li{grid-template-columns:1fr;gap:var(--s0)}
+  .beat-t{grid-row:auto}
+
+  .courses{grid-template-columns:1fr}
+  .courses li{grid-template-columns:1.75rem 1fr;padding:var(--s1) 0}
+  .pair{grid-template-columns:1fr;gap:var(--s2)}
+  .room-d{grid-template-columns:1fr 1fr}
+  .f2{grid-template-columns:1fr 1fr}
+  .snd-l{display:none}
+}

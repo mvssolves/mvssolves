@@ -348,3 +348,45 @@ body.locked{overflow:hidden}
 }
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+
+/* ═════════════════════ phone: its own composition ═══════════════
+   You cannot ride a building with one thumb. The six floors become a
+   swipeable deck, each carrying its own plan above the copy, and the
+   shaft indicator turns into a horizontal run of dots under it. That
+   is a different idea from the desktop ride, not a broken version. */
+@media (max-width: 640px){
+  .hero{min-height:100svh;padding-block:var(--s4) var(--s2)}
+  .hero-h{font-size:clamp(2.2rem,9.5vw,3rem)}
+  .hero-d{grid-template-columns:1fr 1fr;margin-top:var(--s3)}
+
+  .lift-stick{padding-inline:0}
+  .lift-in{gap:var(--s2)}
+  .cards{
+    flex-direction:row;overflow-x:auto;scroll-snap-type:x mandatory;
+    gap:var(--s2);padding:0 var(--pad) var(--s1);scrollbar-width:none;
+  }
+  .cards::-webkit-scrollbar{display:none}
+  .fl{
+    flex:0 0 82%;scroll-snap-align:start;border-top:0;
+    border:1px solid var(--hair);padding:var(--s2);background:var(--slate)
+  }
+  /* every card carries its own plan, drawn, above the copy */
+  .fl::before{
+    content:'';display:block;aspect-ratio:4/3;margin-bottom:var(--s1);
+    background:var(--slate-d) center/70% no-repeat;
+    border:1px solid var(--hair);
+  }
+  .fl dl{grid-template-columns:1fr 1fr;gap:var(--s1)}
+  .plans{display:none}
+  .shaft{display:block;padding:0 var(--pad)}
+  .shaft ol{display:flex;flex-direction:row-reverse;justify-content:flex-end;gap:var(--s0)}
+  .shaft button{
+    background:none;border:1px solid var(--hair);color:var(--ice-3);
+    min-width:44px;min-height:44px;font-family:var(--text);font-size:.72rem;cursor:pointer;
+  }
+  .shaft button[aria-current="true"]{border-color:var(--brass);color:var(--brass)}
+  .shaft-car{display:none}
+
+  .tl li{grid-template-columns:3.5rem 1fr;gap:var(--s1);font-size:.88rem}
+  .spec-g{grid-template-columns:1fr;gap:var(--s3)}
+}

@@ -117,38 +117,6 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
   size(); seed(); requestAnimationFrame(frame);
 })();
 
-/* ──────────────────────────────────── the fire sequence (pinned) */
-(function () {
-  'use strict';
-  var sec = document.querySelector('.fire');
-  var stick = document.querySelector('.fire-stick');
-  var imgs = [].slice.call(document.querySelectorAll('.fire-stack img'));
-  if (!sec || !stick || imgs.length < 2) return;
-
-  function guard() {
-    // give up pinning if the sticky column cannot fit the viewport
-    var fits = stick.scrollHeight < innerHeight - 120;
-    stick.classList.toggle('tall', !fits);
-  }
-
-  var t = false;
-  function run() {
-    var r = sec.getBoundingClientRect();
-    var span = r.height - innerHeight;
-    if (span <= 0) return;
-    var p = Math.max(0, Math.min(0.999, -r.top / span));
-    var i = Math.floor(p * imgs.length);
-    imgs.forEach(function (im, n) { im.classList.toggle('on', n === i); });
-  }
-
-  addEventListener('scroll', function () {
-    if (t) return; t = true;
-    requestAnimationFrame(function () { t = false; run(); });
-  }, { passive: true });
-  addEventListener('resize', function () { guard(); run(); }, { passive: true });
-  guard(); run();
-})();
-
 /* ────────────────────────────────────────── the hearth, synthesised */
 (function () {
   'use strict';
@@ -270,37 +238,111 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
   });
 })();
 
-/* ─────────────────────────────────────────────────────── reveals */
+/* ══════════════════════════ motion ══════════════════════════════
+   GSAP + ScrollTrigger + Lenis, with this build's own choreography.
+   The engine is shared (../lib/fx.js); none of the timing, easing or
+   sequencing below is. That is the whole point of the library.
+
+   If GSAP fails to load, nothing is left hidden — the guard at the
+   bottom of this block hands the page back as plain markup.
+   ═══════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
-  if (REDUCE || !('IntersectionObserver' in window)) return;
-  var vh = innerHeight;
-  var sels = ['.sec-h', '.beats li', '.courses li', '.pair>div', '.room-f',
-              '.room-b p', '.room-d', '.table-b p', '.f', '.menu-h p', '.quiet-s'];
-  var items = [];
-  sels.forEach(function (s) {
-    [].forEach.call(document.querySelectorAll(s), function (el) {
-      el.classList.add('rv'); items.push(el);
-    });
-  });
-  items.forEach(function (el) {
-    if (el.getBoundingClientRect().top > vh * 0.92) el.classList.add('pre');
-  });
-  var io = new IntersectionObserver(function (es) {
-    es.forEach(function (e) {
-      if (!e.isIntersecting) return;
-      e.target.classList.remove('pre'); io.unobserve(e.target);
-    });
-  }, { rootMargin: '0px 0px -8% 0px' });
-  items.forEach(function (el) { io.observe(el); });
+  var g = window.gsap, ST = window.ScrollTrigger;
+  if (!g || !ST || !window.FX) { return; }
+  FX.boot({ anchorOffset: -96 });
+  var soft = FX.reduce;
 
-  // courses arrive as a burst, which is the point of the pacing
-  [].forEach.call(document.querySelectorAll('.courses li'), function (el, i) {
-    el.style.transitionDelay = (i * 0.045) + 's';
+  /* Reduced motion is not "gentler motion" — it is none. Every reveal
+     below is scroll-linked, and a scroll-linked tween that has not been
+     triggered yet is just content held at opacity zero. So the whole
+     choreography is skipped and the page renders as plain markup.
+     FX.boot has already run, so in-page anchors still work. */
+  if (soft) return;
+
+  /* MARROW is cinema: violent contrast, long holds, then a burst. */
+  var EASE = 'expo.out';
+
+  var hero = document.querySelector('.hero-media img');
+  var layer = hero && FX.gl(hero, { grain: 0.07 });
+  FX.run();
+  if (layer) layer.reveal(2.4);
+
+  if (!soft) {
+    var h1 = FX.split(document.querySelector('.hero-h'));
+    if (h1) g.from(h1.lines, { yPercent: 120, duration: 1.6, ease: EASE, stagger: 0.13, delay: 0.2 });
+    g.from('.hero-p, .hero .btn, .hero-f', { opacity: 0, y: 30, duration: 1.2, ease: EASE, stagger: 0.12, delay: 0.7 });
+  }
+
+  /* the quiet screen holds, then releases — the pacing is the design */
+  var q = document.querySelector('.quiet p:first-child');
+  if (q) {
+    var qs = FX.split(q);
+    if (qs) g.from(qs.lines, { yPercent: 120, duration: 1.5, ease: EASE, stagger: 0.12,
+      scrollTrigger: { trigger: q, start: 'top 76%' } });
+  }
+
+  g.utils.toArray('.sec-h').forEach(function (h) {
+    var s = FX.split(h);
+    if (!s) return;
+    g.from(s.lines, { yPercent: 120, duration: 1.4, ease: EASE, stagger: 0.11,
+      scrollTrigger: { trigger: h, start: 'top 85%' } });
   });
+
+  /* the fire sequence, now pinned and scrubbed properly */
+  var fire = document.querySelector('.fire'), imgs = g.utils.toArray('.fire-stack img');
+  if (fire && imgs.length && matchMedia('(min-width:1000px)').matches && !soft) {
+    g.set(imgs, { autoAlpha: 0 }); g.set(imgs[0], { autoAlpha: 1 });
+    ST.create({
+      trigger: fire, start: 'top top', end: 'bottom bottom',
+      onUpdate: function (self) {
+        var i = Math.min(imgs.length - 1, Math.floor(self.progress * imgs.length));
+        imgs.forEach(function (im, n) { g.to(im, { autoAlpha: n === i ? 1 : 0, duration: 0.5, overwrite: true }); });
+      }
+    });
+    g.utils.toArray('.beats li').forEach(function (li) {
+      /* vertical, like everything else here — a horizontal from-state
+         briefly widens the document on a phone */
+      g.from(li, { opacity: 0, y: 24, duration: 1, ease: EASE,
+        scrollTrigger: { trigger: li, start: 'top 88%' } });
+    });
+  }
+
+  /* the menu is the burst: everything at once, fast */
+  ST.create({ trigger: '.courses', start: 'top 82%', once: true, onEnter: function () {
+    g.from('.courses li', { opacity: 0, y: 26, duration: 0.85, ease: EASE, stagger: 0.035 });
+  }});
+  g.utils.toArray('.pair > div').forEach(function (d, i) {
+    g.from(d, { opacity: 0, y: 24, duration: 1, ease: EASE, delay: i * 0.08,
+      scrollTrigger: { trigger: d, start: 'top 90%' } });
+  });
+
+  var roomImg = document.querySelector('.room-f img');
+  if (roomImg && !soft) {
+    FX.gl(roomImg, { grain: 0.05 });
+    g.fromTo(roomImg, { yPercent: -6 }, { yPercent: 6, ease: 'none',
+      scrollTrigger: { trigger: roomImg, start: 'top bottom', end: 'bottom top', scrub: 1 } });
+  }
+  ['.room-b p', '.room-d > div', '.table-b p', '.f'].forEach(function (sel) {
+    g.utils.toArray(sel).forEach(function (el, i) {
+      g.from(el, { opacity: 0, y: 22, duration: 1, ease: EASE, delay: (i % 4) * 0.07,
+        scrollTrigger: { trigger: el, start: 'top 92%' } });
+    });
+  });
+
 })();
 
-/* ──────────────────────────────────────────────────── mobile nav */
+/* If the engine never arrived, nothing may stay hidden. */
+setTimeout(function () {
+  if (!window.gsap) {
+    [].forEach.call(document.querySelectorAll('[data-fx]'), function (el) {
+      el.style.opacity = 1; el.style.transform = 'none'; el.style.clipPath = 'none';
+    });
+  }
+}, 2500);
+
+/* ───────────────────────────────────────────────────── mobile nav
+   Not motion — this has to work whether or not GSAP loaded. */
 (function () {
   'use strict';
   var burger = document.getElementById('burger'), mnav = document.getElementById('mnav');
@@ -312,46 +354,10 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
     burger.setAttribute('aria-expanded', String(open));
     mnav.classList.toggle('open', open);
     document.body.classList.toggle('locked', open);
-    links.forEach(function (a, i) { a.style.transitionDelay = open ? (0.14 + i * 0.055) + 's' : '0s'; });
+    if (window.FX && FX.lenis) { open ? FX.lenis.stop() : FX.lenis.start(); }
   }
   burger.addEventListener('click', function () { set(!open); });
   links.forEach(function (a) { a.addEventListener('click', function () { set(false); }); });
   addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) set(false); });
-  matchMedia('(min-width: 921px)').addEventListener('change', function (e) { if (e.matches && open) set(false); });
+  matchMedia('(min-width: 901px)').addEventListener('change', function (e) { if (e.matches && open) set(false); });
 })();
-
-/* ────────────────────────────────── nav retract, bar, parallax */
-(function () {
-  'use strict';
-  if (REDUCE) return;
-  var last = 0, t = false;
-  var bar = document.getElementById('actionbar');
-  var roomImg = document.querySelector('.room-f img');
-  addEventListener('scroll', function () {
-    if (t) return; t = true;
-    requestAnimationFrame(function () {
-      t = false;
-      var y = scrollY;
-      if (!document.body.classList.contains('locked')) {
-        document.body.classList.toggle('nav-up', y > innerHeight * 0.6 && y > last + 4);
-      }
-      last = y;
-      if (bar) {
-        var tb = document.getElementById('table');
-        var at = tb && tb.getBoundingClientRect().top < innerHeight * 0.92;
-        bar.classList.toggle('up', y > innerHeight * 0.75 && !at
-          && !document.body.classList.contains('locked'));
-      }
-      if (roomImg) {
-        var r = roomImg.getBoundingClientRect();
-        var p = 1 - (r.top + r.height / 2) / (innerHeight / 2 + r.height / 2);
-        roomImg.style.setProperty('--py', (p * -2.6).toFixed(2) + '%');
-      }
-    });
-  }, { passive: true });
-})();
-
-/* ──────────────────────────────────────────────────────── failsafe */
-setTimeout(function () {
-  [].forEach.call(document.querySelectorAll('.pre'), function (el) { el.classList.remove('pre'); });
-}, 3000);

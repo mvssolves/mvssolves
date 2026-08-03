@@ -336,3 +336,39 @@ body.locked{overflow:hidden}
 }
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+
+/* ═════════════════════ phone: its own composition ═══════════════
+   The defect map is the point of this build, so on a phone the hero
+   grows to fill the screen and the lamp becomes a full-width control
+   under it rather than a button sharing a row. The four readings pair
+   into a 2x2 and the three tiers become a deck. */
+@media (max-width: 640px){
+  .hero{min-height:100svh;padding-block:var(--s4) var(--s2)}
+  .hero-h{font-size:clamp(2.2rem,9.5vw,3rem)}
+  .hero-act{flex-direction:column;align-items:stretch;gap:var(--s1)}
+  .hero-act .btn,.hero-act .btn-t{width:100%}
+  .btn-t{font-size:.78rem}
+  .hero-n{margin-top:var(--s2);font-size:.66rem}
+
+  .see{padding-block:var(--s4)}
+  .toggles{
+    flex-wrap:nowrap;overflow-x:auto;padding-bottom:var(--s0);
+    margin-inline:calc(var(--pad) * -1);padding-inline:var(--pad);
+    scrollbar-width:none;
+  }
+  .toggles::-webkit-scrollbar{display:none}
+  .tog{flex:0 0 auto;white-space:nowrap}
+  .reads{grid-template-columns:1fr 1fr}
+  .reads dd{font-size:1.9rem}
+
+  .cost{padding-inline:0}
+  .cost-h{padding-inline:var(--pad)}
+  .tiers{
+    display:flex;overflow-x:auto;scroll-snap-type:x mandatory;
+    border:0;background:none;gap:var(--s1);padding:0 var(--pad);
+  }
+  .tiers::-webkit-scrollbar{display:none}
+  .tier{flex:0 0 80%;scroll-snap-align:start;border:1px solid var(--on-lime)}
+  .shop-d{grid-template-columns:1fr 1fr}
+  .stages li{padding-block:var(--s2)}
+}

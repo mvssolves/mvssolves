@@ -431,3 +431,51 @@ body.locked{overflow:hidden}
 }
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+
+/* ═════════════════════ phone: its own composition ═══════════════
+   Not the desktop narrowed. The hero takes the portrait crop and runs
+   full-bleed, the four treatments become a swipeable deck with their
+   own plate on each card, and the total follows you down the page
+   instead of sitting where you left it. */
+@media (max-width: 640px){
+  .hero{min-height:100svh;padding-block:var(--s4) var(--s3);justify-content:flex-end}
+  .hero-h{font-size:clamp(2.4rem,11vw,3.4rem);font-variation-settings:'wdth' 90}
+  .hero-meta{margin-top:var(--s2);gap:var(--s1);font-size:.78rem}
+  .hero-meta span+span{padding-left:var(--s1)}
+  .hero-act{flex-direction:column;align-items:stretch;gap:var(--s0)}
+  .hero-act .btn,.hero-act .btn-q{width:100%;text-align:center;justify-content:center}
+
+  /* the treatment list becomes a deck you swipe, with its own image */
+  .work{padding-inline:0;gap:var(--s2)}
+  .work .sec-h{padding-inline:var(--pad)}
+  .rows{
+    flex-direction:row;overflow-x:auto;scroll-snap-type:x mandatory;
+    gap:var(--s1);padding:0 var(--pad) var(--s1);
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  }
+  .rows::-webkit-scrollbar{display:none}
+  .rows:hover .row{opacity:1}
+  .row{
+    flex:0 0 78%;scroll-snap-align:start;
+    grid-template-columns:auto 1fr;grid-template-rows:auto auto auto;
+    border:1px solid var(--hair);border-radius:2px;padding:var(--s2);
+    background:var(--abyss-2);
+  }
+  .row:last-child{border-bottom:1px solid var(--hair)}
+  .row::before{
+    content:'';grid-column:1/-1;order:-1;display:block;
+    aspect-ratio:16/10;margin:calc(var(--s2) * -1) calc(var(--s2) * -1) var(--s1);
+    background:var(--abyss-3) center/cover;
+  }
+  .row[data-img="img/t1.jpg"]::before{background-image:url(../img/t1.jpg)}
+  .row[data-img="img/t2.jpg"]::before{background-image:url(../img/t2.jpg)}
+  .row[data-img="img/t3.jpg"]::before{background-image:url(../img/t3.jpg)}
+  .row[data-img="img/t4.jpg"]::before{background-image:url(../img/t4.jpg)}
+  .row-m{grid-column:1/-1;grid-row:auto;flex-direction:row;justify-content:space-between;align-items:baseline;margin-top:var(--s1)}
+
+  /* the total travels with you rather than staying put */
+  .tot{position:sticky;bottom:5.25rem;z-index:5;box-shadow:0 -12px 24px -12px #000}
+  .who-g{gap:var(--s3)}
+  .pfp{max-width:120px}
+  .say-p{font-size:clamp(1.5rem,7vw,2rem);max-width:none}
+}

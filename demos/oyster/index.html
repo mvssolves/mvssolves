@@ -14,7 +14,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@87..125,300..800&family=Hanken+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/oyster.css?v=1">
+<link rel="stylesheet" href="../lib/fx.css?v=3">
+<link rel="stylesheet" href="css/oyster.css?v=2">
+<link rel="canonical" href="https://mvssolves.com/demos/oyster/">
 </head>
 <body>
 
@@ -60,7 +62,11 @@
 <!-- ─────────────────────────────────────────────────────────── hero -->
 <section class="hero" id="top">
   <div class="hero-media">
-    <img src="img/hero.jpg" alt="Iridescent film folded into soft diagonal ridges, greens and violets surfacing out of near-black" width="2000" height="1250" fetchpriority="high">
+    <picture>
+      <source media="(max-width: 640px)" srcset="img/hero-p.jpg" width="900" height="1350">
+      <source media="(max-width: 1024px)" srcset="img/hero-sq.jpg" width="1200" height="1200">
+      <img src="img/hero.jpg" alt="Iridescent film folded into soft diagonal ridges, greens and violets surfacing out of near-black" width="2000" height="1250" fetchpriority="high">
+    </picture>
     <canvas class="sheen" id="sheen" aria-hidden="true"></canvas>
     <div class="hero-veil" aria-hidden="true"></div>
   </div>
@@ -247,6 +253,12 @@
   <a class="btn" href="#book">Book</a>
 </div>
 
-<script src="js/oyster.js?v=1"></script>
+<script src="../lib/gsap.min.js"></script>
+<script src="../lib/ScrollTrigger.min.js"></script>
+<script src="../lib/SplitText.min.js"></script>
+<script src="../lib/Flip.min.js"></script>
+<script src="../lib/lenis.min.js"></script>
+<script src="../lib/fx.js?v=5"></script>
+<script src="js/oyster.js?v=2"></script>
 </body>
 </html>

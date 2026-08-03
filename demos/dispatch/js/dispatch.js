@@ -121,28 +121,77 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
   });
 })();
 
-/* ──────────────────────────────────────────────────────── reveals */
+/* ══════════════════════════ motion ══════════════════════════════
+   GSAP + ScrollTrigger + Lenis, with this build's own choreography.
+   The engine is shared (../lib/fx.js); none of the timing, easing or
+   sequencing below is. That is the whole point of the library.
+
+   If GSAP fails to load, nothing is left hidden — the guard at the
+   bottom of this block hands the page back as plain markup.
+   ═══════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
-  if (REDUCE || !('IntersectionObserver' in window)) return;
-  var vh = innerHeight;
-  var sels = ['.sec-h', '.rates-h p', '.row', '.tbl', '.area-b p', '.area-d',
-              '.area-f', '.call-b p', '.f', '.rates-n'];
-  var items = [];
-  sels.forEach(function (s) {
-    [].forEach.call(document.querySelectorAll(s), function (el) { el.classList.add('rv'); items.push(el); });
-  });
-  items.forEach(function (el) { if (el.getBoundingClientRect().top > vh * 0.92) el.classList.add('pre'); });
-  var io = new IntersectionObserver(function (es) {
-    es.forEach(function (e) {
-      if (!e.isIntersecting) return;
-      e.target.classList.remove('pre'); io.unobserve(e.target);
+  var g = window.gsap, ST = window.ScrollTrigger;
+  if (!g || !ST || !window.FX) { return; }
+  FX.boot({ anchorOffset: -88 });
+  var soft = FX.reduce;
+
+  /* Reduced motion is not "gentler motion" — it is none. Every reveal
+     below is scroll-linked, and a scroll-linked tween that has not been
+     triggered yet is just content held at opacity zero. So the whole
+     choreography is skipped and the page renders as plain markup.
+     FX.boot has already run, so in-page anchors still work. */
+  if (soft) return;
+
+  /* DISPATCH barely moves, and that is the position. Somebody at 6am
+     with no heat is not here to be impressed. Everything is short,
+     flat and out of the way; the only thing that animates with any
+     weight is the board, because the board is the product. */
+  var D = 0.34, EASE = 'power1.out';
+
+  if (!soft) {
+    g.from('.board-k', { opacity: 0, duration: D, ease: EASE });
+    g.from('.board-h', { opacity: 0, y: 12, duration: 0.5, ease: EASE, delay: 0.05 });
+    g.from('.live-r', { opacity: 0, y: 10, duration: D, ease: EASE, stagger: 0.05, delay: 0.2 });
+    g.from('.board-act > *', { opacity: 0, duration: D, ease: EASE, stagger: 0.06, delay: 0.42 });
+  }
+
+  ['.sec-h', '.row', '.tbl tbody tr', '.area-d > div', '.area-f', '.f', '.rates-h p', '.area-b p'].forEach(function (sel) {
+    g.utils.toArray(sel).forEach(function (el, i) {
+      g.from(el, { opacity: 0, y: 8, duration: D, ease: EASE, delay: (i % 10) * 0.02,
+        scrollTrigger: { trigger: el, start: 'top 96%' } });
     });
-  }, { rootMargin: '0px 0px -6% 0px' });
-  items.forEach(function (el) { io.observe(el); });
+  });
+
+  /* the board is the one thing allowed to draw attention to itself:
+     when the next slot changes, the tile pulses once. */
+  var next = document.getElementById('vNext');
+  if (next && !soft) {
+    var last = next.textContent;
+    setInterval(function () {
+      if (next.textContent === last) return;
+      last = next.textContent;
+      g.fromTo(next.closest('.live-r'), { backgroundColor: 'rgba(255,255,255,0.22)' },
+        { backgroundColor: 'rgba(255,255,255,0)', duration: 1.1, ease: 'power2.out', clearProps: 'backgroundColor' });
+    }, 4000);
+  }
+
+  var img = document.querySelector('.area-f img');
+  if (img) { FX.gl(img, { grain: 0.02 }); FX.run(); }
+
 })();
 
-/* ───────────────────────────────────────────────────── mobile nav */
+/* If the engine never arrived, nothing may stay hidden. */
+setTimeout(function () {
+  if (!window.gsap) {
+    [].forEach.call(document.querySelectorAll('[data-fx]'), function (el) {
+      el.style.opacity = 1; el.style.transform = 'none'; el.style.clipPath = 'none';
+    });
+  }
+}, 2500);
+
+/* ───────────────────────────────────────────────────── mobile nav
+   Not motion — this has to work whether or not GSAP loaded. */
 (function () {
   'use strict';
   var burger = document.getElementById('burger'), mnav = document.getElementById('mnav');
@@ -154,34 +203,10 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
     burger.setAttribute('aria-expanded', String(open));
     mnav.classList.toggle('open', open);
     document.body.classList.toggle('locked', open);
+    if (window.FX && FX.lenis) { open ? FX.lenis.stop() : FX.lenis.start(); }
   }
   burger.addEventListener('click', function () { set(!open); });
   links.forEach(function (a) { a.addEventListener('click', function () { set(false); }); });
   addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) set(false); });
   matchMedia('(min-width: 901px)').addEventListener('change', function (e) { if (e.matches && open) set(false); });
 })();
-
-/* ─────────────────────────────────────────────── nav retract only
-   The call bar never retracts on this build. On every other site in
-   the library the action bar is a convenience; here it is the product. */
-(function () {
-  'use strict';
-  if (REDUCE) return;
-  var last = 0, t = false;
-  addEventListener('scroll', function () {
-    if (t) return; t = true;
-    requestAnimationFrame(function () {
-      t = false;
-      var y = scrollY;
-      if (!document.body.classList.contains('locked')) {
-        document.body.classList.toggle('nav-up', y > innerHeight * 0.6 && y > last + 4);
-      }
-      last = y;
-    });
-  }, { passive: true });
-})();
-
-/* ─────────────────────────────────────────────────────── failsafe */
-setTimeout(function () {
-  [].forEach.call(document.querySelectorAll('.pre'), function (el) { el.classList.remove('pre'); });
-}, 3000);

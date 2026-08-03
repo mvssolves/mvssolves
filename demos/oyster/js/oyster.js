@@ -119,198 +119,111 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
   requestAnimationFrame(frame);
 })();
 
-/* ───────────────────────────────────────────────────────── reveals */
+/* ══════════════════════════ motion ══════════════════════════════
+   GSAP + ScrollTrigger + Lenis, with this build's own choreography.
+   The engine is shared (../lib/fx.js); none of the timing, easing or
+   sequencing below is. That is the whole point of the library.
+
+   If GSAP fails to load, nothing is left hidden — the guard at the
+   bottom of this block hands the page back as plain markup.
+   ═══════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
-  if (REDUCE || !('IntersectionObserver' in window)) return;
-  var vh = innerHeight;
+  var g = window.gsap, ST = window.ScrollTrigger;
+  if (!g || !ST || !window.FX) { return; }
+  FX.boot({ anchorOffset: -96 });
+  var soft = FX.reduce;
 
-  // everything worth revealing, marked here rather than in the markup
-  var sels = ['.say-p', '.sec-h', '.row', '.room-media', '.room-b p', '.per',
-              '.opt', '.tot', '.book-b p', '.f', '.hero-meta'];
-  var items = [];
-  sels.forEach(function (s) {
-    [].forEach.call(document.querySelectorAll(s), function (el) {
-      el.classList.add('rv');
-      items.push(el);
+  /* Reduced motion is not "gentler motion" — it is none. Every reveal
+     below is scroll-linked, and a scroll-linked tween that has not been
+     triggered yet is just content held at opacity zero. So the whole
+     choreography is skipped and the page renders as plain markup.
+     FX.boot has already run, so in-page anchors still work. */
+  if (soft) return;
+
+  /* OYSTER moves like liquid: long, slow, nothing ever snaps. */
+  var EASE = 'power3.out', SLOW = 1.5;
+
+  /* The nacre shader above already owns this hero — it is the brand mark.
+     Stacking a second canvas on it would be two effects fighting, so the
+     WebGL image layer goes on the treatment plate and the room instead. */
+  var plate = document.getElementById('rowimg');
+  var layer = plate && FX.gl(plate, { grain: 0.04 });
+  FX.run();
+  if (layer) layer.reveal(1.6);
+
+  if (!soft) {
+    var h1 = FX.split(document.querySelector('.hero-h'));
+    if (h1) g.from(h1.lines, { yPercent: 118, duration: 1.5, ease: EASE, stagger: 0.11, delay: 0.15 });
+    g.from('.hero-p, .hero-act, .hero-meta', { opacity: 0, y: 26, duration: 1.2, ease: EASE, stagger: 0.1, delay: 0.6 });
+  }
+
+  g.utils.toArray('.sec-h').forEach(function (h) {
+    var s = FX.split(h);
+    if (!s) return;
+    g.from(s.lines, {
+      yPercent: 118, duration: SLOW, ease: EASE, stagger: 0.1,
+      scrollTrigger: { trigger: h, start: 'top 86%' }
     });
   });
 
-  // pre-hide only what is below the fold — nothing on screen may flash
-  items.forEach(function (el) {
-    if (el.getBoundingClientRect().top > vh * 0.92) el.classList.add('pre');
-  });
-
-  var io = new IntersectionObserver(function (es) {
-    es.forEach(function (e) {
-      if (!e.isIntersecting) return;
-      e.target.classList.remove('pre');
-      io.unobserve(e.target);
+  /* the statement is the one place the page slows to a stop */
+  var say = document.querySelector('.say-p');
+  if (say && !soft) {
+    var ss = FX.split(say, 'words');
+    g.from(ss.words, {
+      opacity: 0.12, duration: 1, ease: 'none', stagger: 0.045,
+      scrollTrigger: { trigger: say, start: 'top 78%', end: 'bottom 60%', scrub: 0.8 }
     });
-  }, { rootMargin: '0px 0px -8% 0px' });
-  items.forEach(function (el) { io.observe(el); });
-
-  // grouped children sequence rather than arriving together
-  [].forEach.call(document.querySelectorAll('[data-stagger]'), function (g) {
-    [].forEach.call(g.children, function (c, i) { c.style.transitionDelay = (i * 0.07) + 's'; });
-  });
-})();
-
-/* ─────────────────────────────────── treatment row → sticky image */
-(function () {
-  'use strict';
-  var img = document.getElementById('rowimg');
-  var rows = [].slice.call(document.querySelectorAll('.row'));
-  if (!img || !rows.length) return;
-  var current = img.getAttribute('src');
-
-  function show(src) {
-    if (src === current) return;
-    current = src;
-    img.classList.add('fade');
-    var next = new Image();
-    next.onload = function () { img.src = src; img.classList.remove('fade'); };
-    next.onerror = function () { img.classList.remove('fade'); };
-    next.src = src;
   }
 
-  rows.forEach(function (r) {
-    var src = r.getAttribute('data-img');
-    if (!src) return;
-    r.addEventListener('mouseenter', function () { show(src); });
-    // keyboard and touch users get the same thing without a hover
-    r.addEventListener('focusin', function () { show(src); });
+  g.utils.toArray('.row').forEach(function (r, i) {
+    g.from(r, { opacity: 0, y: 34, duration: 1.25, ease: EASE,
+      scrollTrigger: { trigger: r, start: 'top 90%' } });
   });
 
-  // on the way down the page, the row nearest the middle wins
-  if (!REDUCE && 'IntersectionObserver' in window && matchMedia('(min-width:1000px)').matches) {
-    var io = new IntersectionObserver(function (es) {
-      es.forEach(function (e) {
-        if (e.isIntersecting) {
-          rows.forEach(function (r) { r.classList.remove('act'); });
-          e.target.classList.add('act');
-          show(e.target.getAttribute('data-img'));
-        }
-      });
-    }, { rootMargin: '-45% 0px -45% 0px' });
-    rows.forEach(function (r) { io.observe(r); });
-  }
-})();
-
-/* ───────────────────────────────────────────────── price calculator */
-(function () {
-  'use strict';
-  var form = document.getElementById('calc');
-  if (!form) return;
-  var boxes = [].slice.call(form.querySelectorAll('input[type="checkbox"]'));
-  var usdEl = document.getElementById('totUsd');
-  var minEl = document.getElementById('totMin');
-  var note = document.getElementById('priceNote');
-
-  function run() {
-    var usd = 0, min = 0, n = 0;
-    boxes.forEach(function (b) {
-      if (!b.checked) return;
-      usd += +b.dataset.usd; min += +b.dataset.min; n++;
+  ['.per', '.opt', '.tot', '.f', '.room-b p', '.book-b p'].forEach(function (sel) {
+    g.utils.toArray(sel).forEach(function (el, i) {
+      g.from(el, { opacity: 0, y: 22, duration: 1.1, ease: EASE, delay: (i % 4) * 0.06,
+        scrollTrigger: { trigger: el, start: 'top 92%' } });
     });
-    usdEl.textContent = '$' + usd.toLocaleString('en-US');
-
-    if (!n) { minEl.textContent = 'Nothing selected'; note.textContent = 'Consults are $0 and always have been.'; return; }
-
-    // more than one treatment is more than one visit — say so rather than
-    // letting the number imply a single afternoon
-    var visits = n === 1 ? 'one visit'
-      : n + ' visits, spaced at least three weeks apart';
-    var h = Math.floor(min / 60), m = min % 60;
-    var dur = h ? (h + (h > 1 ? ' hours' : ' hour') + (m ? ' ' + m : '')) : (min + ' minutes');
-    minEl.textContent = dur + (h && m ? ' minutes' : '') + ', ' + visits;
-
-    note.textContent = n > 2
-      ? 'That is more than we would start you on. A consult would cut this list down.'
-      : 'Consults are $0 and always have been.';
-  }
-  boxes.forEach(function (b) { b.addEventListener('change', run); });
-  run();
-})();
-
-/* ──────────────────────────────────────────────── booking form */
-(function () {
-  'use strict';
-  var form = document.getElementById('booking');
-  if (!form) return;
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var state = document.getElementById('state');
-    var missing = [].slice.call(form.querySelectorAll('[required]'))
-                    .filter(function (f) { return !f.value.trim(); });
-    if (missing.length) { state.textContent = 'Add your name and email first.'; missing[0].focus(); return; }
-    var em = document.getElementById('em');
-    if (em.value.indexOf('@') < 1 || em.value.indexOf('.') < 0) {
-      state.textContent = 'That email does not look right.'; em.focus(); return;
-    }
-    state.textContent = 'Demo build — no endpoint wired. Nothing was sent.';
   });
+
+  var roomImg = document.querySelector('.room-media img');
+  if (roomImg && !soft) {
+    FX.gl(roomImg, { grain: 0.035, reveal: true });
+    g.fromTo(roomImg, { yPercent: -5 }, { yPercent: 5, ease: 'none',
+      scrollTrigger: { trigger: roomImg, start: 'top bottom', end: 'bottom top', scrub: 1 } });
+  }
+
 })();
 
-/* ──────────────────────────────────────────────────── mobile nav */
+/* If the engine never arrived, nothing may stay hidden. */
+setTimeout(function () {
+  if (!window.gsap) {
+    [].forEach.call(document.querySelectorAll('[data-fx]'), function (el) {
+      el.style.opacity = 1; el.style.transform = 'none'; el.style.clipPath = 'none';
+    });
+  }
+}, 2500);
+
+/* ───────────────────────────────────────────────────── mobile nav
+   Not motion — this has to work whether or not GSAP loaded. */
 (function () {
   'use strict';
   var burger = document.getElementById('burger'), mnav = document.getElementById('mnav');
   if (!burger || !mnav) return;
   var links = [].slice.call(mnav.querySelectorAll('a'));
   var open = false;
-
   function set(next) {
     open = next;
     burger.setAttribute('aria-expanded', String(open));
     mnav.classList.toggle('open', open);
     document.body.classList.toggle('locked', open);
-    links.forEach(function (a, i) { a.style.transitionDelay = open ? (0.14 + i * 0.05) + 's' : '0s'; });
+    if (window.FX && FX.lenis) { open ? FX.lenis.stop() : FX.lenis.start(); }
   }
   burger.addEventListener('click', function () { set(!open); });
   links.forEach(function (a) { a.addEventListener('click', function () { set(false); }); });
   addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) set(false); });
-  matchMedia('(min-width: 881px)').addEventListener('change', function (e) { if (e.matches && open) set(false); });
+  matchMedia('(min-width: 901px)').addEventListener('change', function (e) { if (e.matches && open) set(false); });
 })();
-
-/* ────────────────────────────────────── nav retract, action bar */
-(function () {
-  'use strict';
-  if (REDUCE) return;
-  var last = 0, t = false;
-  var bar = document.getElementById('actionbar');
-  var roomImg = document.querySelector('.room-media img');
-
-  addEventListener('scroll', function () {
-    if (t) return;
-    t = true;
-    requestAnimationFrame(function () {
-      t = false;
-      var y = scrollY;
-      if (!document.body.classList.contains('locked')) {
-        document.body.classList.toggle('nav-up', y > innerHeight * 0.6 && y > last + 4);
-      }
-      last = y;
-
-      if (bar) {
-        var book = document.getElementById('book');
-        var atBook = book && book.getBoundingClientRect().top < innerHeight * 0.92;
-        bar.classList.toggle('up', y > innerHeight * 0.75 && !atBook
-          && !document.body.classList.contains('locked'));
-      }
-
-      if (roomImg) {
-        var r = roomImg.getBoundingClientRect();
-        var p = 1 - (r.top + r.height / 2) / (innerHeight / 2 + r.height / 2);
-        roomImg.style.setProperty('--py', (p * -2.4).toFixed(2) + '%');
-      }
-    });
-  }, { passive: true });
-})();
-
-/* ─────────────────────────────────────────────────────── failsafe
-   If an observer never fires — a throttled background tab, an odd
-   embedded webview — nothing should stay hidden. */
-setTimeout(function () {
-  [].forEach.call(document.querySelectorAll('.pre'), function (el) { el.classList.remove('pre'); });
-}, 3000);

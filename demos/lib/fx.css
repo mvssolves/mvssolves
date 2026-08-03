@@ -1,0 +1,43 @@
+/* ═══════════════════════════════════════════════════════════════════
+   fx.css — the structural half of fx.js. Shared by all six builds.
+
+   Contains no colour, no type, no spacing and no easing curve. Those
+   are each build's own. This only does the plumbing that has to agree
+   with the JavaScript.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* the canvas sits exactly over its photograph and inherits its shape */
+.fx-host{position:relative;isolation:isolate}
+.fx-gl{
+  position:absolute;inset:0;width:100%;height:100%;
+  display:block;pointer-events:none;
+  /* z-index 0, not 1: each build paints a gradient veil over its hero with
+     ::after, and a canvas at z-index 1 would cover the veil and blow the
+     type contrast. At 0 the canvas sits above the photograph and below the
+     veil, which is where it belongs. */
+  z-index:0;
+}
+/* the <img> stays in the document for alt text, lazy loading and the
+   no-JS case; it is only hidden from paint once GL is genuinely drawing */
+.fx-host.fx-on > img{visibility:hidden}
+
+/* SplitText masks. GSAP writes the elements; these make the mask real. */
+.fx-line{overflow:hidden}
+.fx-line > div{will-change:transform}
+
+/* Lenis. Only applied when JS has booted, so a no-JS page scrolls normally. */
+.js html.lenis,.js .lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto !important}
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
+.lenis.lenis-stopped{overflow:hidden}
+
+/* Art-directed sources: the phone gets a portrait crop of the same
+   photograph, not the landscape one squeezed. <picture> handles the
+   swap natively, so there is no JS in the critical path for it. */
+picture{display:contents}
+
+@media (prefers-reduced-motion: reduce){
+  .fx-gl{display:none}
+  .fx-host.fx-on > img{visibility:visible}
+  .fx-line{overflow:visible}
+}

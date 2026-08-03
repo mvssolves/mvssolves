@@ -19,82 +19,6 @@
 document.documentElement.classList.add('js');
 var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ────────────────────────────────────────────── the floor journey */
-(function () {
-  'use strict';
-  var lift = document.querySelector('.lift');
-  var cards = [].slice.call(document.querySelectorAll('.fl'));
-  var plans = [].slice.call(document.querySelectorAll('.plan'));
-  var btns = [].slice.call(document.querySelectorAll('.shaft button'));
-  var car = document.getElementById('car');
-  if (!lift || cards.length < 2) return;
-
-  var N = cards.length;
-  var live = false, current = -1, ticking = false;
-
-  function setFloor(i) {
-    if (i === current) return;
-    current = i;
-    cards.forEach(function (c, n) { c.classList.toggle('on', n === i); });
-    plans.forEach(function (p, n) { p.classList.toggle('on', n === i); });
-    btns.forEach(function (b) {
-      b.setAttribute('aria-current', String(+b.dataset.go === i));
-    });
-    if (car && btns.length) {
-      // the shaft list runs top-down from the highest floor, so the car
-      // sits at the inverse index — it rises as you rise
-      var target = btns[N - 1 - i];
-      if (target) {
-        var top = target.offsetTop + target.offsetHeight / 2 - 3.5;
-        car.style.transform = 'translateY(' + top + 'px)';
-      }
-    }
-  }
-
-  function run() {
-    if (!live) return;
-    var r = lift.getBoundingClientRect();
-    var span = lift.offsetHeight - innerHeight;
-    if (span <= 0) return;
-    var p = Math.max(0, Math.min(0.9999, -r.top / span));
-    setFloor(Math.floor(p * N));
-  }
-
-  function measure() {
-    var wide = matchMedia('(min-width: 1000px)').matches;
-    live = wide && !matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!live) {
-      // hand every floor back, visible, in document order
-      cards.forEach(function (c) { c.classList.remove('on'); });
-      plans.forEach(function (p) { p.classList.remove('on'); });
-      current = -1;
-      return;
-    }
-    current = -1;
-    run();
-  }
-
-  addEventListener('scroll', function () {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(function () { ticking = false; run(); });
-  }, { passive: true });
-  addEventListener('resize', measure, { passive: true });
-
-  // jumping a floor scrolls the page to it, so history and the
-  // scrollbar stay honest rather than being bypassed
-  btns.forEach(function (b) {
-    b.addEventListener('click', function () {
-      var i = +b.dataset.go;
-      var span = lift.offsetHeight - innerHeight;
-      var y = lift.offsetTop + span * ((i + 0.5) / N);
-      scrollTo({ top: y, behavior: REDUCE ? 'auto' : 'smooth' });
-    });
-  });
-
-  measure();
-})();
-
 /* ───────────────────────────────────────────────── register form */
 (function () {
   'use strict';
@@ -125,32 +49,131 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
   });
 })();
 
-/* ──────────────────────────────────────────────────────── reveals */
+/* ══════════════════════════ motion ══════════════════════════════
+   GSAP + ScrollTrigger + Lenis, with this build's own choreography.
+   The engine is shared (../lib/fx.js); none of the timing, easing or
+   sequencing below is. That is the whole point of the library.
+
+   If GSAP fails to load, nothing is left hidden — the guard at the
+   bottom of this block hands the page back as plain markup.
+   ═══════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
-  if (REDUCE || !('IntersectionObserver' in window)) return;
-  var vh = innerHeight;
-  var sels = ['.sec-h', '.was-f', '.was-b p', '.tl li', '.spec-g article',
-              '.reg-b p', '.f', '.hero-d>div'];
-  var items = [];
-  sels.forEach(function (s) {
-    [].forEach.call(document.querySelectorAll(s), function (el) { el.classList.add('rv'); items.push(el); });
+  var g = window.gsap, ST = window.ScrollTrigger;
+  if (!g || !ST || !window.FX) { return; }
+  FX.boot({ anchorOffset: -92 });
+  var soft = FX.reduce;
+
+  /* Reduced motion is not "gentler motion" — it is none. Every reveal
+     below is scroll-linked, and a scroll-linked tween that has not been
+     triggered yet is just content held at opacity zero. So the whole
+     choreography is skipped and the page renders as plain markup.
+     FX.boot has already run, so in-page anchors still work. */
+  if (soft) return;
+
+  /* ICEHOUSE is architectural: measured, weighty, nothing hurried.
+     The ride is now a real pin with scrub, so the scrollbar and the
+     building agree about where you are. */
+  var EASE = 'power2.inOut';
+
+  var hero = document.querySelector('.hero-media img');
+  var layer = hero && FX.gl(hero, { grain: 0.03 });
+  FX.run();
+  if (layer) layer.reveal(2.0);
+
+  if (!soft) {
+    var h1 = FX.split(document.querySelector('.hero-h'));
+    if (h1) g.from(h1.lines, { yPercent: 115, duration: 1.3, ease: 'power3.out', stagger: 0.1, delay: 0.15 });
+    g.from('.hero-k, .hero-p, .hero .btn', { opacity: 0, y: 22, duration: 1, ease: 'power3.out', stagger: 0.09, delay: 0.5 });
+    g.from('.hero-d > div', { opacity: 0, y: 18, duration: 0.9, ease: 'power3.out', stagger: 0.07, delay: 0.85 });
+  }
+
+  g.utils.toArray('.sec-h').forEach(function (h) {
+    var s = FX.split(h);
+    if (!s) return;
+    g.from(s.lines, { yPercent: 115, duration: 1.2, ease: 'power3.out', stagger: 0.09,
+      scrollTrigger: { trigger: h, start: 'top 86%' } });
   });
-  [].forEach.call(document.querySelectorAll('[data-stagger]'), function (g) {
-    items.push(g);
-    [].forEach.call(g.children, function (c, i) { c.style.transitionDelay = (i * 0.07) + 's'; });
-  });
-  items.forEach(function (el) { if (el.getBoundingClientRect().top > vh * 0.92) el.classList.add('pre'); });
-  var io = new IntersectionObserver(function (es) {
-    es.forEach(function (e) {
-      if (!e.isIntersecting) return;
-      e.target.classList.remove('pre'); io.unobserve(e.target);
+
+  /* the lift: pin the stage, scrub the floors, tween the car */
+  var lift = document.querySelector('.lift'), stick = document.querySelector('.lift-stick');
+  var cards = g.utils.toArray('.fl'), plans = g.utils.toArray('.plan');
+  var btns = g.utils.toArray('.shaft button'), car = document.getElementById('car');
+
+  if (lift && stick && cards.length && matchMedia('(min-width:1000px)').matches) {
+    var N = cards.length, cur = 0;
+
+    /* GSAP owns visibility from here. The CSS .on class exists only to
+       keep the first floor visible between paint and boot; once this
+       runs, inline autoAlpha is the single source of truth and the class
+       is kept in step, so the two can never disagree about a floor. */
+    function show(i) {
+      if (i === cur) return;
+      cur = i;
+      cards.forEach(function (c, n) {
+        c.classList.toggle('on', n === i);
+        g.to(c, { autoAlpha: n === i ? 1 : 0, y: n === i ? 0 : 20,
+                  duration: 0.55, ease: EASE, overwrite: true });
+      });
+      plans.forEach(function (p, n) {
+        g.to(p, { autoAlpha: n === i ? 1 : 0, duration: 0.5, overwrite: true });
+      });
+      btns.forEach(function (b) { b.setAttribute('aria-current', String(+b.dataset.go === i)); });
+      var t = btns[N - 1 - i];
+      if (car && t) g.to(car, { y: t.offsetTop + t.offsetHeight / 2 - 3.5, duration: 0.6, ease: EASE });
+    }
+
+    g.set(cards, { autoAlpha: 0, y: 20 });
+    g.set(cards[0], { autoAlpha: 1, y: 0 });
+    g.set(plans.slice(1), { autoAlpha: 0 });
+
+    function at(self) { return Math.min(N - 1, Math.floor(self.progress * N)); }
+
+    ST.create({
+      trigger: lift, start: 'top top', end: 'bottom bottom', pin: stick, pinSpacing: false,
+      onUpdate: function (self) { show(at(self)); },
+      // leaving the ride in either direction parks it on a real floor, so
+      // scrolling back above it can never strand an invisible card
+      onLeaveBack: function () { show(0); },
+      onLeave: function () { show(N - 1); },
+      onRefresh: function (self) { show(at(self)); }
     });
-  }, { rootMargin: '0px 0px -8% 0px' });
-  items.forEach(function (el) { io.observe(el); });
+
+    btns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var i = +b.dataset.go, span = lift.offsetHeight - innerHeight;
+        var y = lift.offsetTop + span * ((i + 0.5) / N);
+        FX.lenis ? FX.lenis.scrollTo(y) : scrollTo({ top: y, behavior: 'smooth' });
+      });
+    });
+  }
+
+  var wasImg = document.querySelector('.was-f img');
+  if (wasImg && !soft) {
+    FX.gl(wasImg, { grain: 0.03 });
+    g.fromTo(wasImg, { yPercent: -6 }, { yPercent: 6, ease: 'none',
+      scrollTrigger: { trigger: wasImg, start: 'top bottom', end: 'bottom top', scrub: 1 } });
+  }
+  ['.was-b p', '.tl li', '.spec-g article', '.reg-b p', '.f'].forEach(function (sel) {
+    g.utils.toArray(sel).forEach(function (el, i) {
+      g.from(el, { opacity: 0, y: 20, duration: 1.05, ease: 'power3.out', delay: (i % 5) * 0.06,
+        scrollTrigger: { trigger: el, start: 'top 92%' } });
+    });
+  });
+
 })();
 
-/* ───────────────────────────────────────────────────── mobile nav */
+/* If the engine never arrived, nothing may stay hidden. */
+setTimeout(function () {
+  if (!window.gsap) {
+    [].forEach.call(document.querySelectorAll('[data-fx]'), function (el) {
+      el.style.opacity = 1; el.style.transform = 'none'; el.style.clipPath = 'none';
+    });
+  }
+}, 2500);
+
+/* ───────────────────────────────────────────────────── mobile nav
+   Not motion — this has to work whether or not GSAP loaded. */
 (function () {
   'use strict';
   var burger = document.getElementById('burger'), mnav = document.getElementById('mnav');
@@ -162,45 +185,10 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
     burger.setAttribute('aria-expanded', String(open));
     mnav.classList.toggle('open', open);
     document.body.classList.toggle('locked', open);
+    if (window.FX && FX.lenis) { open ? FX.lenis.stop() : FX.lenis.start(); }
   }
   burger.addEventListener('click', function () { set(!open); });
   links.forEach(function (a) { a.addEventListener('click', function () { set(false); }); });
   addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) set(false); });
-  matchMedia('(min-width: 941px)').addEventListener('change', function (e) { if (e.matches && open) set(false); });
+  matchMedia('(min-width: 901px)').addEventListener('change', function (e) { if (e.matches && open) set(false); });
 })();
-
-/* ─────────────────────────────── nav retract, bar, parallax */
-(function () {
-  'use strict';
-  if (REDUCE) return;
-  var last = 0, t = false;
-  var bar = document.getElementById('actionbar');
-  var img = document.querySelector('.was-f img');
-  addEventListener('scroll', function () {
-    if (t) return; t = true;
-    requestAnimationFrame(function () {
-      t = false;
-      var y = scrollY;
-      if (!document.body.classList.contains('locked')) {
-        document.body.classList.toggle('nav-up', y > innerHeight * 0.6 && y > last + 4);
-      }
-      last = y;
-      if (bar) {
-        var rg = document.getElementById('reg');
-        var at = rg && rg.getBoundingClientRect().top < innerHeight * 0.92;
-        bar.classList.toggle('up', y > innerHeight * 0.75 && !at
-          && !document.body.classList.contains('locked'));
-      }
-      if (img) {
-        var rr = img.getBoundingClientRect();
-        var p = 1 - (rr.top + rr.height / 2) / (innerHeight / 2 + rr.height / 2);
-        img.style.setProperty('--py', (p * -2.4).toFixed(2) + '%');
-      }
-    });
-  }, { passive: true });
-})();
-
-/* ─────────────────────────────────────────────────────── failsafe */
-setTimeout(function () {
-  [].forEach.call(document.querySelectorAll('.pre'), function (el) { el.classList.remove('pre'); });
-}, 3000);

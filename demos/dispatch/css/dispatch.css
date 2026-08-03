@@ -315,3 +315,37 @@ body.locked{overflow:hidden}
 }
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+
+/* ═════════════════════ phone: its own composition ═══════════════
+   This is the one that matters most — nobody opens an HVAC site on a
+   desktop at 6am. "Next available" goes full width at the top because
+   it is the only number that decides anything; the other three pair
+   underneath. The rate table becomes labelled rows. The call bar was
+   already the loudest thing on the page and stays that way. */
+@media (max-width: 640px){
+  .board{padding-block:var(--s4) var(--s3)}
+  .board-h{font-size:clamp(2.4rem,12vw,3.4rem);font-variation-settings:'wdth' 64}
+  .live{grid-template-columns:1fr 1fr;margin-top:var(--s3)}
+  .live-hero{grid-column:1/-1}
+  .live-hero .live-v{font-size:2.8rem}
+  .live-v{font-size:1.7rem}
+  .board-act{flex-direction:column;align-items:stretch}
+  .board-act .btn,.board-act .btn-o{width:100%}
+  .btn-big{font-size:1.15rem;min-height:60px}
+  .board-n{font-size:.62rem}
+
+  .row{grid-template-columns:1fr;gap:var(--s0);padding:var(--s2) var(--pad)}
+  .row-m{text-align:left}
+
+  /* rates: labelled rows, not a squeezed table */
+  .tbl,.tbl tbody,.tbl tr,.tbl td{display:block;width:100%}
+  .tbl thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  .tbl tr{border:1px solid var(--hair);margin-bottom:-1px;padding:var(--s1) var(--s2)}
+  .tbl td{border:0;padding:2px 0;display:flex;justify-content:space-between;gap:var(--s1)}
+  .tbl td::before{content:attr(data-l);color:var(--w-3);font-size:.6rem;text-transform:uppercase}
+  .tbl td:first-child{display:block;font-size:.9rem;color:var(--w);padding-bottom:var(--s0)}
+  .tbl td:first-child::before{display:none}
+
+  .area-d>div{flex-direction:column;gap:2px}
+  .foot-c{grid-template-columns:1fr 1fr}
+}

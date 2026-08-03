@@ -77,37 +77,97 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
   });
 })();
 
-/* ──────────────────────────────────────────────────────── reveals */
+/* ══════════════════════════ motion ══════════════════════════════
+   GSAP + ScrollTrigger + Lenis, with this build's own choreography.
+   The engine is shared (../lib/fx.js); none of the timing, easing or
+   sequencing below is. That is the whole point of the library.
+
+   If GSAP fails to load, nothing is left hidden — the guard at the
+   bottom of this block hands the page back as plain markup.
+   ═══════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
-  if (REDUCE || !('IntersectionObserver' in window)) return;
-  var vh = innerHeight;
-  var sels = ['.sec-h', '.sec-p', '.steps li', '.tbl', '.fleet-f', '.job-f',
-              '.job-b p', '.job-d', '.calc-f', '.calc-o', '.bid-b p', '.f'];
-  var items = [];
-  sels.forEach(function (s) {
-    [].forEach.call(document.querySelectorAll(s), function (el) {
-      el.classList.add('rv'); items.push(el);
+  var g = window.gsap, ST = window.ScrollTrigger;
+  if (!g || !ST || !window.FX) { return; }
+  FX.boot({ anchorOffset: -92 });
+  var soft = FX.reduce;
+
+  /* Reduced motion is not "gentler motion" — it is none. Every reveal
+     below is scroll-linked, and a scroll-linked tween that has not been
+     triggered yet is just content held at opacity zero. So the whole
+     choreography is skipped and the page renders as plain markup.
+     FX.boot has already run, so in-page anchors still work. */
+  if (soft) return;
+
+  /* DATUM is mechanical. Stepped easing everywhere, nothing decelerates
+     gently, hovers cut. A machine setting out a site, not a dissolve. */
+  var STEP = 'steps(6)', SNAP = 0.42;
+
+  var hero = document.querySelector('.hero-media img');
+  if (hero) { FX.gl(hero, { grain: 0.02 }); FX.run(); }
+
+  if (!soft) {
+    var h1 = FX.split(document.querySelector('.hero-h'));
+    if (h1) g.from(h1.lines, { yPercent: 105, duration: SNAP, ease: STEP, stagger: 0.07 });
+    g.from('.hero-k', { opacity: 0, duration: 0.3, ease: STEP });
+    g.from('.hero-d > div', { opacity: 0, duration: 0.35, ease: STEP, stagger: 0.05, delay: 0.4 });
+  }
+
+  /* the chalk lines snap, they do not draw */
+  g.utils.toArray('.snap line').forEach(function (l, i) {
+    var len = l.getTotalLength ? l.getTotalLength() : 1400;
+    g.set(l, { strokeDasharray: len, strokeDashoffset: len });
+    g.to(l, { strokeDashoffset: 0, duration: 0.55, ease: 'steps(8)', delay: 0.1 + i * 0.09 });
+  });
+
+  g.utils.toArray('.sec-h').forEach(function (h) {
+    var s = FX.split(h);
+    if (!s) return;
+    g.from(s.lines, { yPercent: 105, duration: SNAP, ease: STEP, stagger: 0.06,
+      scrollTrigger: { trigger: h, start: 'top 86%' } });
+  });
+
+  /* cells arrive as a wipe across the grid, left to right, in steps */
+  g.utils.toArray('.cell').forEach(function (c, i) {
+    g.from(c, { clipPath: 'inset(0 100% 0 0)', duration: 0.5, ease: STEP, delay: (i % 4) * 0.06,
+      scrollTrigger: { trigger: c, start: 'top 92%' } });
+  });
+  g.utils.toArray('.steps li').forEach(function (c, i) {
+    g.from(c, { clipPath: 'inset(0 0 100% 0)', duration: 0.45, ease: STEP, delay: (i % 5) * 0.05,
+      scrollTrigger: { trigger: c, start: 'top 92%' } });
+  });
+  ['.tbl tbody tr', '.calc-o dl > div', '.job-d > div', '.f', '.cf-row'].forEach(function (sel) {
+    g.utils.toArray(sel).forEach(function (el, i) {
+      g.from(el, { opacity: 0, duration: 0.3, ease: STEP, delay: (i % 8) * 0.035,
+        scrollTrigger: { trigger: el, start: 'top 95%' } });
     });
   });
-  [].forEach.call(document.querySelectorAll('[data-stagger]'), function (g) {
-    items.push(g);
-    [].forEach.call(g.children, function (c, i) { c.style.transitionDelay = (i * 0.055) + 's'; });
+
+  /* the estimator's numbers tick like a counter, not a tween */
+  g.utils.toArray('.calc-o dd').forEach(function (dd) {
+    ST.create({ trigger: dd, start: 'top 90%', once: true, onEnter: function () {
+      var txt = dd.textContent, num = parseFloat(txt.replace(/[^\d.]/g, ''));
+      if (!isFinite(num) || num < 4) return;
+      var o = { n: 0 };
+      g.to(o, { n: num, duration: 0.9, ease: 'steps(14)',
+        onUpdate: function () { dd.textContent = txt.replace(/[\d,]+/, Math.round(o.n).toLocaleString('en-US')); },
+        onComplete: function () { dd.textContent = txt; } });
+    }});
   });
-  items.forEach(function (el) {
-    if (el.getBoundingClientRect().top > vh * 0.92) el.classList.add('pre');
-  });
-  var io = new IntersectionObserver(function (es) {
-    es.forEach(function (e) {
-      if (!e.isIntersecting) return;
-      e.target.classList.remove('pre');
-      io.unobserve(e.target);
-    });
-  }, { rootMargin: '0px 0px -8% 0px' });
-  items.forEach(function (el) { io.observe(el); });
+
 })();
 
-/* ──────────────────────────────────────────────────── mobile nav */
+/* If the engine never arrived, nothing may stay hidden. */
+setTimeout(function () {
+  if (!window.gsap) {
+    [].forEach.call(document.querySelectorAll('[data-fx]'), function (el) {
+      el.style.opacity = 1; el.style.transform = 'none'; el.style.clipPath = 'none';
+    });
+  }
+}, 2500);
+
+/* ───────────────────────────────────────────────────── mobile nav
+   Not motion — this has to work whether or not GSAP loaded. */
 (function () {
   'use strict';
   var burger = document.getElementById('burger'), mnav = document.getElementById('mnav');
@@ -119,39 +179,10 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
     burger.setAttribute('aria-expanded', String(open));
     mnav.classList.toggle('open', open);
     document.body.classList.toggle('locked', open);
+    if (window.FX && FX.lenis) { open ? FX.lenis.stop() : FX.lenis.start(); }
   }
   burger.addEventListener('click', function () { set(!open); });
   links.forEach(function (a) { a.addEventListener('click', function () { set(false); }); });
   addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) set(false); });
   matchMedia('(min-width: 901px)').addEventListener('change', function (e) { if (e.matches && open) set(false); });
 })();
-
-/* ─────────────────────────────────────── nav retract, action bar */
-(function () {
-  'use strict';
-  if (REDUCE) return;
-  var last = 0, t = false;
-  var bar = document.getElementById('actionbar');
-  addEventListener('scroll', function () {
-    if (t) return; t = true;
-    requestAnimationFrame(function () {
-      t = false;
-      var y = scrollY;
-      if (!document.body.classList.contains('locked')) {
-        document.body.classList.toggle('nav-up', y > innerHeight * 0.6 && y > last + 4);
-      }
-      last = y;
-      if (bar) {
-        var bid = document.getElementById('bid');
-        var at = bid && bid.getBoundingClientRect().top < innerHeight * 0.92;
-        bar.classList.toggle('up', y > innerHeight * 0.75 && !at
-          && !document.body.classList.contains('locked'));
-      }
-    });
-  }, { passive: true });
-})();
-
-/* ──────────────────────────────────────────────────────── failsafe */
-setTimeout(function () {
-  [].forEach.call(document.querySelectorAll('.pre'), function (el) { el.classList.remove('pre'); });
-}, 3000);

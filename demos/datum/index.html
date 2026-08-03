@@ -14,7 +14,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=Martian+Mono:wght@300;400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/datum.css?v=1">
+<link rel="stylesheet" href="../lib/fx.css?v=3">
+<link rel="stylesheet" href="css/datum.css?v=2">
+<link rel="canonical" href="https://mvssolves.com/demos/datum/">
 </head>
 <body>
 
@@ -60,7 +62,11 @@
 <!-- ────────────────────────────────────────────────────────── hero -->
 <section class="hero" id="top">
   <div class="hero-media" aria-hidden="true">
-    <img src="img/hero.jpg" alt="" width="2000" height="1250" fetchpriority="high">
+    <picture>
+      <source media="(max-width: 640px)" srcset="img/hero-p.jpg" width="900" height="1350">
+      <source media="(max-width: 1024px)" srcset="img/hero-sq.jpg" width="1200" height="1200">
+      <img src="img/hero.jpg" alt="" width="2000" height="1250" fetchpriority="high">
+    </picture>
   </div>
 
   <!-- setting-out lines, snapped in on load the way a chalk line is -->
@@ -187,14 +193,14 @@
       <caption class="vh">Owned equipment</caption>
       <thead><tr><th scope="col">Unit</th><th scope="col">Class</th><th scope="col">Qty</th></tr></thead>
       <tbody>
-        <tr><td>Cat 336</td><td>Excavator, 36 t</td><td>3</td></tr>
-        <tr><td>Cat 320</td><td>Excavator, 21 t</td><td>4</td></tr>
-        <tr><td>Cat D6 XE</td><td>Dozer, GPS</td><td>2</td></tr>
-        <tr><td>Cat 623K</td><td>Scraper, 23 CY</td><td>2</td></tr>
-        <tr><td>Volvo A30G</td><td>Artic. hauler</td><td>5</td></tr>
-        <tr><td>Cat CS56B</td><td>Smooth drum</td><td>3</td></tr>
-        <tr><td>Cat 299D3</td><td>Track loader</td><td>6</td></tr>
-        <tr><td>Kenworth T880</td><td>End dump, 18 CY</td><td>8</td></tr>
+        <tr><td data-l="Unit">Cat 336</td><td data-l="Class">Excavator, 36 t</td><td data-l="Qty">3</td></tr>
+        <tr><td data-l="Unit">Cat 320</td><td data-l="Class">Excavator, 21 t</td><td data-l="Qty">4</td></tr>
+        <tr><td data-l="Unit">Cat D6 XE</td><td data-l="Class">Dozer, GPS</td><td data-l="Qty">2</td></tr>
+        <tr><td data-l="Unit">Cat 623K</td><td data-l="Class">Scraper, 23 CY</td><td data-l="Qty">2</td></tr>
+        <tr><td data-l="Unit">Volvo A30G</td><td data-l="Class">Artic. hauler</td><td data-l="Qty">5</td></tr>
+        <tr><td data-l="Unit">Cat CS56B</td><td data-l="Class">Smooth drum</td><td data-l="Qty">3</td></tr>
+        <tr><td data-l="Unit">Cat 299D3</td><td data-l="Class">Track loader</td><td data-l="Qty">6</td></tr>
+        <tr><td data-l="Unit">Kenworth T880</td><td data-l="Class">End dump, 18 CY</td><td data-l="Qty">8</td></tr>
       </tbody>
     </table>
   </div>
@@ -319,6 +325,12 @@
   <a class="btn" href="#bid">Get a bid</a>
 </div>
 
-<script src="js/datum.js?v=1"></script>
+<script src="../lib/gsap.min.js"></script>
+<script src="../lib/ScrollTrigger.min.js"></script>
+<script src="../lib/SplitText.min.js"></script>
+<script src="../lib/Flip.min.js"></script>
+<script src="../lib/lenis.min.js"></script>
+<script src="../lib/fx.js?v=5"></script>
+<script src="js/datum.js?v=2"></script>
 </body>
 </html>
