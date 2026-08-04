@@ -267,3 +267,52 @@ setTimeout(function () {
   addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) set(false); });
   matchMedia('(min-width: 901px)').addEventListener('change', function (e) { if (e.matches && open) set(false); });
 })();
+
+/* ══════════════════ the panel, in 3D ═══════════════════════════════
+   three.js is 2 MB raw. Nobody pays for it above the fold, and nobody
+   who never scrolls this far pays for it at all — the module is only
+   fetched once the section is close, and the section is a real
+   photograph with working controls until it arrives.
+   ═════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+  var stage = document.getElementById('p3stage');
+  var slider = document.getElementById('mic');
+  var out = document.getElementById('micOut');
+  var note = document.getElementById('micNote');
+  if (!stage || !slider) return;
+
+  /* The readout and the copy work with or without the render, so the
+     section is never dead weight while three.js is still in flight. */
+  function say(v) {
+    out.textContent = v + ' \u00b5m';
+    note.textContent =
+      v >= 42 ? 'Healthy. This is roughly what a well-kept car reads.'
+    : v >= 36 ? 'One correction has been done here, or the car has been washed badly for years.'
+    : v >= 30 ? 'Two corrections in. We would do a one-step at most from here.'
+    : v >= 25 ? 'Thin. A test spot decides it, and the answer is often no.'
+    : 'Under 25. There is nothing safe left to cut, and we would refuse the job.';
+  }
+  var handle = null;
+  slider.addEventListener('input', function () {
+    var v = +slider.value;
+    say(v);
+    if (handle) handle.microns = v;
+  });
+  say(+slider.value);
+
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return;
+  // dynamic import needs module support; older browsers keep the photograph
+  if (!('IntersectionObserver' in window)) return;
+
+  var asked = false;
+  new IntersectionObserver(function (es, io) {
+    if (!es[0].isIntersecting || asked) return;
+    asked = true; io.disconnect();
+    import('./panel.js')
+      .then(function (m) { return m.mountPanel(stage); })
+      .then(function (h) { if (h) { handle = h; handle.microns = +slider.value; } })
+      .catch(function () { /* the photograph is already there */ });
+  }, { rootMargin: '400px 0px' }).observe(stage);
+})();

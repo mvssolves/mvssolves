@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Spline+Sans+Mono:wght@300;400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../lib/fx.css?v=5">
-<link rel="stylesheet" href="css/micron.css?v=4">
+<link rel="stylesheet" href="css/micron.css?v=6">
 <link rel="canonical" href="https://mvssolves.com/demos/micron/">
 </head>
 <body>
@@ -35,6 +35,7 @@
   </a>
   <nav class="nav-links" aria-label="Primary">
     <a href="#see">What we see</a>
+    <a href="#panel">The panel</a>
     <a href="#work">Process</a>
     <a href="#cost">Cost</a>
     <a href="#book" class="cta">Book an inspection</a>
@@ -48,6 +49,7 @@
 <div class="mnav" id="mnav">
   <div class="m-links">
     <a href="#see">What we see</a>
+    <a href="#panel">The panel</a>
     <a href="#work">Process</a>
     <a href="#cost">Cost</a>
     <a href="#shop">The shop</a>
@@ -108,6 +110,33 @@
     <div><dt>Safe to remove</dt><dd>8 <span>µm</span></dd><dd class="sub">before we stop</dd></div>
     <div><dt>Removed on this car</dt><dd>4.5 <span>µm</span></dd><dd class="sub">measured, not estimated</dd></div>
   </dl>
+</section>
+
+
+<!-- ───────────────────────────────────────────── the panel, in 3D -->
+<section class="p3" id="panel" aria-labelledby="p3-h">
+  <div class="p3-b">
+    <h2 id="p3-h" class="sec-h">Forty-five microns,<br>and what taking them does</h2>
+    <p class="sec-p">Clear coat is a transparent layer sitting over the colour. It is
+      the only thing being cut when a panel is corrected, and it does not grow back.
+      Move the light across the panel, then take microns off it.</p>
+
+    <div class="p3-ctl">
+      <label for="mic">Clear coat remaining</label>
+      <input id="mic" type="range" min="18" max="45" step="1" value="45"
+             aria-describedby="micNote">
+      <output id="micOut" for="mic">45 &micro;m</output>
+    </div>
+    <p class="p3-note" id="micNote">Healthy. This is roughly what a well-kept car reads.</p>
+    <p class="p3-sub">Rendered with a real clear-coat model &mdash; a second specular
+      layer over the base coat, which is what automotive paint physically is.</p>
+  </div>
+
+  <div class="p3-stage" id="p3stage" aria-label="Interactive car panel. Drag to move the light across it.">
+    <img src="img/cap.jpg" alt="Close-up of aged paint and a fuel cap on a vintage car body" width="1200" height="1500" loading="lazy">
+    <canvas aria-hidden="true"></canvas>
+    <p class="p3-hint">Drag to move the light</p>
+  </div>
 </section>
 
 <!-- ───────────────────────────────────────────────────── process -->
@@ -174,7 +203,7 @@
 <!-- ──────────────────────────────────────────────────────── shop -->
 <section class="shop" id="shop" aria-labelledby="shop-h">
   <figure class="shop-f">
-    <img src="img/gloss.jpg" alt="A polished panel throwing a long soft reflection" width="1400" height="1050" loading="lazy">
+    <img src="img/cap.jpg" alt="Close-up of aged paint and a fuel cap on a vintage car body" width="1200" height="1500" loading="lazy">
   </figure>
   <div class="shop-b">
     <h2 id="shop-h" class="sec-h">One bay,<br>one car</h2>
@@ -245,6 +274,6 @@
 <script src="../lib/Flip.min.js"></script>
 <script src="../lib/lenis.min.js"></script>
 <script src="../lib/fx.js?v=7"></script>
-<script src="js/micron.js?v=4"></script>
+<script src="js/micron.js?v=7"></script>
 </body>
 </html>

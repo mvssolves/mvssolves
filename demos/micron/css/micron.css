@@ -379,3 +379,78 @@ html{scroll-behavior:smooth}
   .shop-d{grid-template-columns:1fr 1fr}
   .stages li{padding-block:var(--s2)}
 }
+
+
+/* ─────────────────────────────────────────── the panel, in 3D ────
+   The photograph underneath is a real fallback, not a placeholder: no
+   WebGL, no module support, or reduced motion and this section is a
+   picture with the same working controls beside it. */
+.p3{
+  max-width:var(--wide);margin-inline:auto;padding:var(--s5) var(--pad);
+  display:grid;gap:var(--s4);align-items:center;
+  grid-template-columns:minmax(0,1fr);
+}
+@media(min-width:1000px){.p3{grid-template-columns:minmax(0,0.9fr) minmax(0,1.1fr);gap:var(--s5)}}
+.p3-b .sec-p{margin-top:var(--s2)}
+.p3-ctl{
+  margin-top:var(--s3);display:grid;gap:var(--s0) var(--s2);
+  grid-template-columns:minmax(0,1fr) auto;align-items:center;
+}
+.p3-ctl label{
+  grid-column:1/-1;font-family:var(--mono);font-size:0.66rem;color:var(--ink-3);
+  text-transform:uppercase;letter-spacing:0.04em;
+}
+.p3-ctl input[type="range"]{
+  appearance:none;-webkit-appearance:none;width:100%;height:44px;
+  background:none;cursor:pointer;margin:0;
+}
+.p3-ctl input[type="range"]::-webkit-slider-runnable-track{height:2px;background:var(--graphite-3)}
+.p3-ctl input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:20px;height:20px;margin-top:-9px;
+  border-radius:50%;background:var(--lime);border:0;
+}
+.p3-ctl input[type="range"]::-moz-range-track{height:2px;background:var(--graphite-3)}
+.p3-ctl input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--lime);border:0}
+.p3-ctl output{
+  font-size:clamp(1.6rem,3vw,2.2rem);font-weight:700;letter-spacing:-0.03em;
+  color:var(--ink);line-height:1;min-width:5ch;text-align:right;
+}
+.p3-note{margin-top:var(--s1);font-size:0.95rem;color:var(--ink-2);min-height:3em;max-width:44ch}
+.p3-sub{margin-top:var(--s2);font-family:var(--mono);font-size:0.66rem;color:var(--ink-3);max-width:46ch}
+
+.p3-stage{
+  position:relative;aspect-ratio:4/3;overflow:hidden;
+  background:var(--graphite-2);border:1px solid var(--graphite-3);
+  touch-action:none;cursor:grab;
+}
+.p3-stage.is-held{cursor:grabbing}
+.p3-stage:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+.p3-stage img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:brightness(.62) saturate(.45) contrast(1.1);
+  transition:opacity .8s var(--ease);
+}
+.p3-stage canvas{
+  position:absolute;inset:0;width:100%;height:100%;display:block;
+  opacity:0;transition:opacity 1s var(--ease);
+}
+.p3-stage.is-live img{opacity:0}
+.p3-stage.is-live canvas{opacity:1}
+.p3-hint{
+  position:absolute;left:var(--s2);bottom:var(--s2);z-index:2;
+  font-family:var(--mono);font-size:0.64rem;color:var(--ink-3);
+  opacity:0;transition:opacity .6s var(--ease);
+}
+.p3-stage.is-live .p3-hint{opacity:1}
+.p3-stage.is-held .p3-hint{opacity:0}
+
+@media (prefers-reduced-motion: reduce){
+  .p3-stage canvas{display:none}
+  .p3-stage img{opacity:1}
+}
+@media (max-width:640px){
+  .p3{padding-block:var(--s4)}
+  .p3-ctl{grid-template-columns:minmax(0,1fr)}
+  .p3-ctl output{text-align:left}
+  .p3-stage{aspect-ratio:1}
+}
