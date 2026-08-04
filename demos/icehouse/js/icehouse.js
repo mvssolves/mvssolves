@@ -19,6 +19,63 @@
 document.documentElement.classList.add('js');
 var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+/* ═══════════════════ the plans, drawn from the data ══════════════
+   Not motion, so it runs whatever else fails. Every floor card gets
+   its own plan and the 3D stage gets the full set to cross-fade
+   through before — or instead of — the canvas.
+   ═══════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+  var B = window.ICEHOUSE;
+  if (!B) return;
+
+  var stage = document.getElementById('b3plans');
+  if (stage) {
+    stage.innerHTML = B.floors.map(function (f) { return B.plan(f); }).join('');
+    var first = stage.querySelector('.plan');
+    if (first) first.classList.add('on');
+  }
+
+  [].forEach.call(document.querySelectorAll('.fl'), function (card) {
+    var f = B.floors[+card.dataset.p];
+    if (!f) return;
+    var slot = document.createElement('div');
+    slot.className = 'fl-plan';
+    slot.setAttribute('aria-hidden', 'true');
+    slot.innerHTML = B.plan(f);
+    card.insertBefore(slot, card.firstChild);
+  });
+})();
+
+/* ═══════════════════════ the arrival ════════════════════════════
+   Deliberately NOT inside the motion block. That block returns early
+   when GSAP has not loaded, and the veil is a fixed, opaque, full
+   screen element — leaving it there behind a failed CDN would hide a
+   perfectly working page completely. This owns lifting it, and the
+   only dependency is fx.js itself.
+   ═══════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+  var veil = document.getElementById('enter');
+  if (!veil) return;
+  if (!window.FX) { veil.remove(); return; }
+
+  /* the indicator runs the lift down from the top floor to the street
+     while the doors are still shut */
+  var num = document.getElementById('eNum');
+  if (num && !REDUCE) {
+    var f = 7;
+    var t = setInterval(function () {
+      f--;
+      if (f < 2 || !num.isConnected) { clearInterval(t); return; }
+      num.textContent = f;
+    }, 190);
+  }
+
+  FX.enter({ hold: 1150 });
+  FX.links();
+})();
+
 /* ───────────────────────────────────────────────── register form */
 (function () {
   'use strict';
@@ -61,8 +118,8 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
   'use strict';
   var g = window.gsap, ST = window.ScrollTrigger;
   if (!g || !ST || !window.FX) { return; }
-  FX.enter();
-  FX.links();
+  /* the veil and the view-transition marking are handled above, so that
+     they still happen if this block never runs */
   FX.boot({ anchorOffset: -92 });
   var soft = FX.reduce;
 
@@ -101,8 +158,12 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* the lift: pin the stage, scrub the floors, tween the car */
   var lift = document.querySelector('.lift'), stick = document.querySelector('.lift-stick');
-  var cards = g.utils.toArray('.fl'), plans = g.utils.toArray('.plan');
+  var cards = g.utils.toArray('.fl');
+  /* scoped: every floor card now carries a .plan of its own, and those
+     must never be caught by the stage's cross-fade */
+  var plans = g.utils.toArray('#b3plans .plan');
   var btns = g.utils.toArray('.shaft button'), car = document.getElementById('car');
+  var b3 = null;   /* the 3D building, once it has loaded */
 
   if (lift && stick && cards.length && matchMedia('(min-width:1000px)').matches) {
     var N = cards.length, cur = 0;
@@ -133,14 +194,22 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     function at(self) { return Math.min(N - 1, Math.floor(self.progress * N)); }
 
+    /* The cards snap between floors; the building does not. Feeding the
+       model a fractional floor is what makes it read as a lift climbing
+       rather than six slides being swapped. */
+    function ride(self) {
+      show(at(self));
+      if (b3) b3.floor = g.utils.clamp(0, N - 1, self.progress * N - 0.5);
+    }
+
     ST.create({
       trigger: lift, start: 'top top', end: 'bottom bottom', pin: stick, pinSpacing: false,
-      onUpdate: function (self) { show(at(self)); },
+      onUpdate: ride,
       // leaving the ride in either direction parks it on a real floor, so
       // scrolling back above it can never strand an invisible card
-      onLeaveBack: function () { show(0); },
-      onLeave: function () { show(N - 1); },
-      onRefresh: function (self) { show(at(self)); }
+      onLeaveBack: function () { show(0); if (b3) b3.floor = 0; },
+      onLeave: function () { show(N - 1); if (b3) b3.floor = N - 1; },
+      onRefresh: ride
     });
 
     btns.forEach(function (b) {
@@ -151,6 +220,104 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
       });
     });
   }
+
+  /* ══════════════════ the phone deck ══════════════════════════════
+     You cannot ride a building with one thumb, so on a phone the six
+     floors are a swipe deck — and the model turns to whichever card is
+     under it. Same building, different instrument. The shaft buttons
+     drive the deck here rather than the page, which they previously did
+     not do at all below 1000px. */
+  var deck = document.querySelector('.cards');
+  if (deck && matchMedia('(max-width:640px)').matches) {
+    var deckAt = function () {
+      var i = Math.round(deck.scrollLeft / (deck.scrollWidth / cards.length));
+      return g.utils.clamp(0, cards.length - 1, i);
+    };
+    var syncDeck = function () {
+      var i = deckAt();
+      if (b3) b3.floor = g.utils.clamp(0, cards.length - 1,
+        deck.scrollLeft / (deck.scrollWidth / cards.length));
+      btns.forEach(function (b) { b.setAttribute('aria-current', String(+b.dataset.go === i)); });
+    };
+    deck.addEventListener('scroll', syncDeck, { passive: true });
+    btns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        deck.scrollTo({ left: (deck.scrollWidth / cards.length) * +b.dataset.go,
+                        behavior: 'smooth' });
+      });
+    });
+    syncDeck();
+  }
+
+  /* ══════════════════ mounting the building ═══════════════════════
+     three.js is 2 MB. Nobody pays for it above the fold and nobody who
+     never reaches the ride pays for it at all. Until it lands — or if
+     it never does — the stage is a real drawn plan, so the section is
+     never a hole in the page. */
+  (function () {
+    var stage = document.getElementById('b3');
+    if (!stage || !('IntersectionObserver' in window)) return;
+    if (!getComputedStyle(stage).display || getComputedStyle(stage).display === 'none') {
+      /* the composition in play does not use the stage; the cards carry
+         their own plans and nothing should be fetched */
+      return;
+    }
+    var asked = false;
+    new IntersectionObserver(function (es, io) {
+      if (!es[0].isIntersecting || asked) return;
+      asked = true; io.disconnect();
+      import('./building.js')
+        .then(function (m) { return m.mountBuilding(stage); })
+        .then(function (h) {
+          if (!h) return;
+          b3 = h;
+          ST.refresh();
+          var hint = document.getElementById('b3hint');
+          if (hint) { hint.hidden = false; g.from(hint, { opacity: 0, duration: .8 }); }
+        })
+        .catch(function () { /* the plan is already on screen */ });
+    }, { rootMargin: '500px 0px' }).observe(stage);
+  })();
+
+  /* ══════════════════ the numbers count ═══════════════════════════
+     Only in the hero, only once. A page where every figure spins is a
+     page nobody believes. */
+  g.utils.toArray('[data-count]').forEach(function (el) {
+    var to = +el.dataset.count;
+    var pre = el.dataset.prefix || '', suf = el.dataset.suffix || '';
+    var o = { v: 0 };
+    g.to(o, {
+      v: to, duration: 1.6, ease: 'power2.out', delay: 1.0,
+      onUpdate: function () { el.textContent = pre + Math.round(o.v) + suf; }
+    });
+  });
+
+  /* the timeline draws as you read it */
+  var tl = document.querySelector('.tl');
+  if (tl) g.to(tl, {
+    '--rail': 1, ease: 'none',
+    scrollTrigger: { trigger: tl, start: 'top 82%', end: 'bottom 72%', scrub: .6 }
+  });
+
+  /* the interlude: video, and the shader over it */
+  var reelHost = document.querySelector('.reel-media');
+  if (reelHost) {
+    var reelImg = reelHost.querySelector('img');
+    if (reelImg) FX.gl(reelImg, { grain: 0.035 });
+    var rh = FX.split(document.querySelector('.reel-h'));
+    if (rh) g.from(rh.lines, { yPercent: 118, duration: 1.35, ease: 'power3.out', stagger: .1,
+      scrollTrigger: { trigger: '.reel', start: 'top 62%' } });
+    g.from('.reel-k, .reel-p', { opacity: 0, y: 20, duration: 1, ease: 'power3.out', stagger: .08,
+      scrollTrigger: { trigger: '.reel', start: 'top 62%' } });
+    /* the frame drifts, so a held shot is never quite static */
+    g.fromTo(reelHost, { yPercent: -4 }, { yPercent: 4, ease: 'none',
+      scrollTrigger: { trigger: '.reel', start: 'top bottom', end: 'bottom top', scrub: 1 } });
+  }
+
+  /* the name comes up out of the floor */
+  var fm = document.querySelector('.foot-m span');
+  if (fm) g.from(fm, { yPercent: 105, duration: 1.4, ease: 'power3.out',
+    scrollTrigger: { trigger: '.foot', start: 'top 88%' } });
 
   var wasImg = document.querySelector('.was-f img');
   if (wasImg && !soft) {

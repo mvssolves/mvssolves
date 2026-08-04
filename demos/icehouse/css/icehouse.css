@@ -93,7 +93,8 @@ dl,dd{margin:0}
   text-decoration:none;display:grid;align-items:center;min-height:44px;
 }
 .nav-links{display:flex;align-items:center;gap:var(--s2)}
-.nav-links a{text-decoration:none;color:var(--ice-2);font-size:0.9rem}
+.nav-links a{text-decoration:none;color:var(--ice-2);font-size:0.9rem;
+  min-height:44px;display:grid;place-items:center}
 .nav-links a:hover{color:var(--brass)}
 .nav-links a.cta{
   background:var(--brass);color:var(--slate-dd);font-weight:600;
@@ -192,7 +193,56 @@ body.locked{overflow:hidden}
 .lift-in{max-width:var(--wide);margin-inline:auto;display:grid;gap:var(--s3)}
 
 .shaft{display:none}
-.plans{display:none}
+
+/* ── the building, in 3D ──────────────────────────────────────────
+   The stage always holds a real drawn plan. The canvas is added over
+   it and only credited once it has painted a frame, so a failed
+   import, no WebGL or a slow network leaves an architectural drawing
+   rather than an empty box. */
+/* The stage is opt-in. It appears in the two compositions that were
+   designed around it — the desktop ride and the phone deck — and every
+   other case gets the drawn plan inside each floor card instead, which
+   is the same information without a canvas. */
+.b3{display:none;position:relative;aspect-ratio:4/3;min-height:0}
+.fl-plan{
+  display:block;aspect-ratio:4/3;margin-bottom:var(--s2);
+  border:1px solid var(--hair);background:var(--slate-d);padding:var(--s0);
+}
+.fl-plan .plan{width:100%;height:100%}
+.b3-canvas{
+  position:absolute;inset:0;width:100%!important;height:100%!important;
+  display:block;opacity:0;transition:opacity 1.1s var(--ease);
+}
+.b3.b3-live .b3-canvas{opacity:1}
+.b3-plans{position:absolute;inset:0;transition:opacity .9s var(--ease)}
+.b3.b3-live .b3-plans{opacity:0}
+.b3-plans .plan{
+  position:absolute;inset:0;width:100%;height:100%;
+  opacity:0;transition:opacity .5s var(--ease);
+}
+.b3-plans .plan.on{opacity:1}
+.b3-hint{
+  position:absolute;left:0;bottom:-1.6rem;
+  font-size:.72rem;color:var(--ice-3);letter-spacing:.02em;
+}
+.b3-hint[hidden]{display:none}
+
+/* the plan itself — an architect's line drawing, not an icon */
+.pl *{vector-effect:non-scaling-stroke;fill:none}
+.pl-w{stroke:var(--ice);stroke-width:2}
+.pl-u{stroke:var(--ice-3);stroke-width:1.1;
+  fill:color-mix(in oklab,var(--ice) 6%,transparent)}
+.pl-t{stroke:var(--brass);stroke-width:1.1;stroke-dasharray:5 4}
+.pl-c{stroke:var(--brass);stroke-width:1.2;
+  fill:color-mix(in oklab,var(--brass) 35%,transparent)}
+.pl-k{stroke:var(--ice-3);stroke-width:1.1}
+.pl-h{stroke:var(--ice-3);stroke-width:.6;opacity:.5}
+.pl-g{stroke:var(--brass);stroke-width:3}
+.pl-d{stroke:var(--ice-3);stroke-width:.7;opacity:.7}
+.pl-n{stroke:var(--ice-3);stroke-width:.9}
+.pl-n path{fill:var(--ice-3);stroke:none}
+.pl-x{fill:var(--ice-3);stroke:none;font-family:var(--text);font-size:5px;
+  text-anchor:middle;letter-spacing:.04em}
 
 .cards{display:flex;flex-direction:column;gap:var(--s3)}
 .fl{
@@ -215,8 +265,8 @@ body.locked{overflow:hidden}
   .js .lift{height:520vh}                   /* the scroll distance the ride needs */
   .js .lift-stick{position:sticky;top:0;height:100svh;display:grid;align-items:center;padding-block:0}
   .js .lift-in{
-    grid-template-columns:auto minmax(0,1fr) minmax(0,1fr);
-    gap:var(--s5);align-items:center;width:100%;
+    grid-template-columns:auto minmax(0,1.15fr) minmax(0,.85fr);
+    gap:var(--s4);align-items:center;width:100%;
   }
 
   /* the shaft is a genuine position indicator: the car moves with you */
@@ -240,16 +290,8 @@ body.locked{overflow:hidden}
     transition:transform .55s var(--ease);
   }
 
-  .js .plans{display:block;position:relative;aspect-ratio:4/3}
-  .js .plan{
-    position:absolute;inset:0;width:100%;height:100%;
-    opacity:0;transition:opacity .5s var(--ease);
-  }
-  .js .plan.on{opacity:1}
-  .pl rect,.pl line,.pl circle{fill:none;stroke:var(--ice-3);stroke-width:2}
-  .pl rect:first-child{stroke:var(--ice);stroke-width:3}
-  .pl circle{fill:color-mix(in oklab,var(--brass) 30%,transparent);stroke:var(--brass)}
-  .pl .ter{stroke:var(--brass);stroke-dasharray:6 5;fill:none}
+  .js .b3{display:block;aspect-ratio:auto;height:min(70svh,640px)}
+  .js .fl-plan{display:none}
 
   .js .cards{display:block;position:relative;min-height:23rem}
   .js .fl{
@@ -278,6 +320,37 @@ body.locked{overflow:hidden}
 }
 .tl li:last-child{border-bottom:1px solid var(--hair)}
 .tl span{font-family:var(--display);color:var(--brass)}
+
+/* ══════════════════════════ the interlude ═══════════════════════
+   One held shot, full bleed, type sitting in the dark half of the
+   frame. No controls, nothing to click — the point is that the page
+   stops talking for a screen. */
+.reel{
+  position:relative;min-height:min(92svh,860px);
+  display:flex;align-items:flex-end;
+  padding:var(--s5) var(--pad);isolation:isolate;overflow:hidden;
+}
+.reel-media{position:absolute;inset:0;z-index:-1;background:var(--slate-dd)}
+/* A still, not a clip. Stock video of this subject — sun and dust inside a
+   derelict industrial hall — does not exist at a usable length, and the
+   nearest candidates collapse to a black smear under this grade. The
+   photograph carries it, and the shader over it supplies the movement. */
+.reel-media img{width:100%;height:100%;object-fit:cover;
+  filter:brightness(.62) saturate(.30) contrast(1.1)}
+.reel-media::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to top,
+    var(--slate-dd) 6%,
+    color-mix(in oklab,var(--slate-dd) 84%,transparent) 42%,
+    color-mix(in oklab,var(--slate-dd) 44%,transparent) 74%,
+    transparent);
+}
+.reel-b{max-width:min(46rem,100%)}
+.reel-k{font-size:.82rem;color:var(--brass);margin-bottom:var(--s2)}
+.reel-h{font-size:clamp(1.9rem,5vw,3.9rem)}
+.reel-p{margin-top:var(--s2);max-width:42ch;color:var(--ice-2)}
+@media (prefers-reduced-motion: reduce){.reel-vid{display:none}}
+@media(max-width:640px){.reel{min-height:78svh}}
 
 /* ────────────────────────────────────────────────── specification */
 .spec{background:var(--slate-dd);padding:var(--s5) var(--pad)}
@@ -353,7 +426,10 @@ body.locked{overflow:hidden}
   .lift{height:auto}
   .lift-stick{position:relative;height:auto;padding-block:var(--s5)}
   .lift-in{grid-template-columns:minmax(0,1fr)}
-  .shaft,.plans{display:none}
+  /* no canvas, no cross-fade — every floor card simply carries its own
+     plan, so nothing is lost, it is just not animated */
+  .shaft,.b3{display:none}
+  .fl-plan{display:block}
   .cards{display:flex;min-height:0}
   .fl{position:relative;inset:auto;opacity:1;transform:none;pointer-events:auto;
     border-top:1px solid var(--hair);padding-top:var(--s2)}
@@ -382,14 +458,18 @@ html{scroll-behavior:smooth}
     flex:0 0 82%;scroll-snap-align:start;border-top:0;
     border:1px solid var(--hair);padding:var(--s2);background:var(--slate)
   }
-  /* every card carries its own plan, drawn, above the copy */
-  .fl::before{
-    content:'';display:block;aspect-ratio:4/3;margin-bottom:var(--s1);
-    background:var(--slate-d) center/70% no-repeat;
-    border:1px solid var(--hair);
-  }
   .fl dl{grid-template-columns:1fr 1fr;gap:var(--s1)}
-  .plans{display:none}
+  /* the building sits above the deck and turns to whichever card you have
+     swiped to — the same model as the desktop ride, driven by a thumb */
+  .js .b3{display:block;aspect-ratio:auto;height:44svh;margin-bottom:var(--s3)}
+  .js .fl-plan{display:none}
+  /* under the model, not over it — as the last child of a box whose other
+     children are absolute, a static hint would sit at the very top */
+  .b3-hint{left:var(--pad);right:var(--pad);bottom:-1.35rem}
+  .lift-stick{padding-block:var(--s4)}
+  /* the building leads, the floor buttons sit under it as its control,
+     then the deck — reading order matching what the thing actually is */
+  .js .b3{order:1} .shaft{order:2} .cards{order:3}
   .shaft{display:block;padding:0 var(--pad)}
   .shaft ol{display:flex;flex-direction:row-reverse;justify-content:flex-end;gap:var(--s0)}
   .shaft button{
@@ -403,12 +483,54 @@ html{scroll-behavior:smooth}
   .spec-g{grid-template-columns:1fr;gap:var(--s3)}
 }
 
-/* ── arrival: this build's own mark, ground and timing ──────────── */
-#enter{background:var(--slate-dd)}
-#enter .enter-in{display:grid;justify-items:center;gap:var(--s2)}
+/* ── arrival: the freight lift ────────────────────────────────────
+   Everyone who ever worked here arrived through one door, so the veil
+   is that door. Two leaves part on the centre line and the indicator
+   above them runs 7 down to 2 while they do. The container itself no
+   longer slides — the leaves are the motion, so fx.js's translate is
+   overridden and its opacity fade is held off. */
+#enter{background:transparent}
+#enter .e-leaf{
+  position:absolute;top:0;bottom:0;width:50.2%;background:var(--slate-dd);
+  transition:transform 1.05s cubic-bezier(.76,0,.24,1);
+}
+#enter .e-leaf-l{left:0;box-shadow:inset -1px 0 0 var(--hair)}
+#enter .e-leaf-r{right:0;box-shadow:inset 1px 0 0 var(--hair)}
+#enter.up{transform:none;opacity:1}
+#enter.up .e-leaf-l{transform:translateX(-100.5%)}
+#enter.up .e-leaf-r{transform:translateX(100.5%)}
+#enter.up .enter-in{opacity:0;transition:opacity .3s ease}
+
+#enter .enter-in{position:relative;z-index:1;display:grid;justify-items:center;gap:var(--s1)}
+#enter .e-ind{
+  display:grid;place-items:center;width:3.4rem;height:2.2rem;
+  border:1px solid var(--hair);color:var(--brass);
+  font-family:var(--display);font-size:1.15rem;line-height:1;
+  margin-bottom:var(--s1);font-variant-numeric:tabular-nums;
+}
 #enter .e-w{font-family:var(--display);font-size:clamp(2rem,7vw,3.2rem);color:var(--ice);letter-spacing:-.02em}
-#enter .e-r{width:min(240px,50vw);height:1px;background:var(--hair);position:relative;overflow:hidden}
-#enter .e-r::after{content:'';position:absolute;inset:0;background:var(--brass);
-  transform:scaleX(0);transform-origin:left;animation:e-rise 1.5s cubic-bezier(.2,1,.3,1) forwards}
-@keyframes e-rise{to{transform:scaleX(1)}}
 #enter .e-l{font-size:.78rem;color:var(--ice-3);letter-spacing:.1em}
+
+/* ── the timeline draws itself ────────────────────────────────────
+   The rail is a real element rather than a border so its height can be
+   scrubbed. Without JS it is simply full height and looks like the
+   border it replaced. */
+/* An <ol> may only contain <li>, so the rail is a pseudo-element and the
+   scrub drives a custom property rather than a transform on a real node.
+   It defaults to 1, which means no JS leaves a full brass rail. */
+.tl{position:relative;--rail:1}
+.tl::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:1px;
+  background:var(--hair);opacity:.45;
+}
+.tl::after{
+  content:'';position:absolute;left:0;top:0;width:1px;height:100%;
+  background:var(--brass);transform-origin:top;transform:scaleY(var(--rail));
+}
+@media (prefers-reduced-motion: no-preference){.js .tl{--rail:0}}
+
+/* ── the footer wordmark ──────────────────────────────────────────
+   Cropped by its own line box and pushed back up on scroll, so the
+   name arrives out of the floor rather than fading in. */
+.foot-m{overflow:hidden}
+.foot-m span{display:block}
