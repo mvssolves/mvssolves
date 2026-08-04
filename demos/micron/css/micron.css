@@ -436,12 +436,16 @@ html{scroll-behavior:smooth}
 }
 .p3-stage.is-live img{opacity:0}
 .p3-stage.is-live canvas{opacity:1}
+/* display:none, not opacity:0 — with no JS there is nothing to drag, so
+   advertising the interaction would be a lie, and a hidden element is not
+   "content that failed to appear". It only exists once the render does. */
 .p3-hint{
+  display:none;
   position:absolute;left:var(--s2);bottom:var(--s2);z-index:2;
   font-family:var(--mono);font-size:0.64rem;color:var(--ink-3);
-  opacity:0;transition:opacity .6s var(--ease);
+  transition:opacity .6s var(--ease);
 }
-.p3-stage.is-live .p3-hint{opacity:1}
+.p3-stage.is-live .p3-hint{display:block;opacity:1}
 .p3-stage.is-held .p3-hint{opacity:0}
 
 @media (prefers-reduced-motion: reduce){
