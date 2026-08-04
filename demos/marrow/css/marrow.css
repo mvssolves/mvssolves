@@ -426,11 +426,25 @@ html{scroll-behavior:smooth}
 /* ── arrival: this build's own mark, ground and timing ──────────── */
 #enter{background:var(--char)}
 #enter .enter-in{display:grid;justify-items:center;gap:var(--s1)}
-#enter .e-w{font-family:var(--display);font-weight:800;text-transform:uppercase;
+/* The wordmark is solid bone and always was — the heat is a separate
+   layer swept off it by an animated MASK. Doing it as gradient text
+   would put a gradient on the letterforms themselves, which is the tell
+   this project bans, and it would leave the mark mid-gradient if the
+   animation ever failed. A mask can only ever reveal the solid mark. */
+#enter .e-w{
+  position:relative;display:inline-block;
+  font-family:var(--display);font-weight:800;text-transform:uppercase;
   font-size:clamp(3rem,12vw,6rem);line-height:.85;letter-spacing:-.02em;
-  background:linear-gradient(to top,var(--ember) 0%,var(--flame) 42%,var(--bone) 62%);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  background-size:100% 260%;background-position:0 100%;
-  animation:e-burn 2.1s cubic-bezier(.3,0,.2,1) forwards}
-@keyframes e-burn{to{background-position:0 0}}
+  color:var(--bone);
+}
+#enter .e-w::after{
+  content:'Marrow';position:absolute;inset:0;
+  color:var(--flame);pointer-events:none;
+  -webkit-mask-image:linear-gradient(to top,#000 0 22%,transparent 62%);
+  mask-image:linear-gradient(to top,#000 0 22%,transparent 62%);
+  -webkit-mask-size:100% 300%;mask-size:100% 300%;
+  -webkit-mask-position:0 100%;mask-position:0 100%;
+  animation:e-burn 2.1s cubic-bezier(.3,0,.2,1) forwards;
+}
+@keyframes e-burn{to{-webkit-mask-position:0 -60%;mask-position:0 -60%;opacity:0}}
 #enter .e-l{font-size:.82rem;color:var(--bone-3);letter-spacing:.16em;text-transform:uppercase}
