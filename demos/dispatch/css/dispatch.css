@@ -364,3 +364,11 @@ html{scroll-behavior:smooth}
   .area-d>div{flex-direction:column;gap:2px}
   .foot-c{grid-template-columns:1fr 1fr}
 }
+
+/* ── arrival: this build's own mark, ground and timing ──────────── */
+#enter{background:var(--util-dd)}
+#enter .enter-in{display:grid;justify-items:center;gap:var(--s1)}
+#enter .e-g{width:46px;height:46px;fill:var(--hiviz);animation:e-flick .9s steps(1,end) 3}
+@keyframes e-flick{0%,100%{opacity:1}45%{opacity:.25}}
+#enter .e-w{font-family:var(--display);font-weight:800;font-variation-settings:'wdth' 72;
+  font-size:1.3rem;text-transform:uppercase;letter-spacing:.02em;color:var(--w)}

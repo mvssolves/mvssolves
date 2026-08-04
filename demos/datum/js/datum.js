@@ -89,6 +89,8 @@ var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
   'use strict';
   var g = window.gsap, ST = window.ScrollTrigger;
   if (!g || !ST || !window.FX) { return; }
+  FX.enter();
+  FX.links();
   FX.boot({ anchorOffset: -92 });
   var soft = FX.reduce;
 

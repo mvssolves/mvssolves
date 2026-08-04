@@ -465,3 +465,15 @@ body.locked{overflow:hidden}
   .job-d{grid-template-columns:1fr 1fr}
   .foot-c{grid-template-columns:1fr 1fr}
 }
+
+/* ── arrival: this build's own mark, ground and timing ──────────── */
+#enter{background:var(--chalk)}
+#enter .enter-in{display:grid;justify-items:center;gap:var(--s2)}
+#enter .e-g{width:120px;height:60px;fill:none;stroke:var(--on-chalk);stroke-width:2}
+#enter .e-g line{stroke-dasharray:130;stroke-dashoffset:130;animation:e-snap .5s steps(7,end) forwards}
+#enter .e-g line:nth-child(2){animation-delay:.14s}
+#enter .e-g circle{opacity:0;animation:e-mark .01s steps(1,end) .52s forwards}
+@keyframes e-snap{to{stroke-dashoffset:0}}
+@keyframes e-mark{to{opacity:1}}
+#enter .e-w{font-family:var(--display);font-weight:800;font-variation-settings:'wdth' 80;
+  font-size:1.3rem;letter-spacing:.02em;text-transform:uppercase;color:var(--on-chalk)}

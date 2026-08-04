@@ -489,3 +489,15 @@ html{scroll-behavior:smooth}
   .pfp{max-width:120px}
   .say-p{font-size:clamp(1.5rem,7vw,2rem);max-width:none}
 }
+
+/* ── arrival: this build's own mark, ground and timing ──────────── */
+#enter{background:var(--abyss)}
+#enter .enter-in{display:grid;justify-items:center;gap:var(--s2)}
+#enter .e-o{width:44px;height:44px;border-radius:50%;
+  background:radial-gradient(circle at 32% 28%,var(--nacre-3),transparent 55%),
+             radial-gradient(circle at 70% 68%,var(--nacre-2),transparent 58%),var(--nacre);
+  animation:e-turn 2.4s cubic-bezier(.4,0,.2,1) infinite}
+@keyframes e-turn{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(.86)}100%{transform:rotate(360deg) scale(1)}}
+#enter .e-w{font-family:var(--display);font-weight:700;font-variation-settings:'wdth' 118;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--ink);font-size:1.1rem}
+#enter .e-l{font-size:.78rem;color:var(--ink-3)}

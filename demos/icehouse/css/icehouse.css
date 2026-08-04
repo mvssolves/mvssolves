@@ -402,3 +402,13 @@ html{scroll-behavior:smooth}
   .tl li{grid-template-columns:3.5rem 1fr;gap:var(--s1);font-size:.88rem}
   .spec-g{grid-template-columns:1fr;gap:var(--s3)}
 }
+
+/* ── arrival: this build's own mark, ground and timing ──────────── */
+#enter{background:var(--slate-dd)}
+#enter .enter-in{display:grid;justify-items:center;gap:var(--s2)}
+#enter .e-w{font-family:var(--display);font-size:clamp(2rem,7vw,3.2rem);color:var(--ice);letter-spacing:-.02em}
+#enter .e-r{width:min(240px,50vw);height:1px;background:var(--hair);position:relative;overflow:hidden}
+#enter .e-r::after{content:'';position:absolute;inset:0;background:var(--brass);
+  transform:scaleX(0);transform-origin:left;animation:e-rise 1.5s cubic-bezier(.2,1,.3,1) forwards}
+@keyframes e-rise{to{transform:scaleX(1)}}
+#enter .e-l{font-size:.78rem;color:var(--ice-3);letter-spacing:.1em}

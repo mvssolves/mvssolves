@@ -350,6 +350,54 @@ window.FX = (function () {
     return v;
   };
 
+  /* ══════════════════════ arrival ═══════════════════════════════
+     A load sequence, not a spinner. The page underneath is fully
+     rendered the whole time — the veil sits over finished content and
+     lifts, so a failure anywhere still leaves a working page. Every
+     build supplies its own mark and its own colour; the mechanism is
+     the only thing shared. */
+  api.enter = function (opts) {
+    opts = opts || {};
+    var veil = document.getElementById('enter');
+    if (!veil) return Promise.resolve();
+    if (REDUCE) { veil.remove(); document.body.classList.add('entered'); return Promise.resolve(); }
+
+    // a repeat visit in the same session should not sit through it again
+    var seen = false;
+    try { seen = sessionStorage.getItem('mvs-entered') === '1'; } catch (e) {}
+    var nav = performance.getEntriesByType('navigation')[0];
+    if (nav && nav.type === 'reload') seen = false;
+    if (seen) { veil.remove(); document.body.classList.add('entered'); return Promise.resolve(); }
+
+    document.documentElement.classList.add('entering');
+    return new Promise(function (done) {
+      var lift = function () {
+        try { sessionStorage.setItem('mvs-entered', '1'); } catch (e) {}
+        veil.classList.add('up');
+        document.body.classList.add('entered');
+        document.documentElement.classList.remove('entering');
+        setTimeout(function () { veil.remove(); done(); }, 1100);
+      };
+      // wait on the fonts, because a mark that reflows as it lifts is worse
+      // than no sequence at all — but never wait on them for long
+      var ready = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+      var settled = false;
+      var go = function () { if (settled) return; settled = true; setTimeout(lift, opts.hold || 900); };
+      ready.then(go);
+      setTimeout(go, 2200);          // hard ceiling, whatever the network does
+    });
+  };
+
+  /* ── cross-document view transitions ──────────────────────────────
+     Native, so there is no router and no framework. Chrome and Safari
+     animate between pages; everything else navigates normally and loses
+     nothing. Declared in CSS; this only marks the links so a build can
+     name what is travelling. */
+  api.links = function () {
+    if (!document.startViewTransition) return;
+    document.documentElement.classList.add('vt');
+  };
+
   /* ─────────────────────────────────────────────── split headings */
   api.split = function (el, type) {
     if (!window.SplitText || !el) return null;
