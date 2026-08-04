@@ -211,6 +211,10 @@ window.FX = (function () {
       if (f && f !== 'none') cv.style.filter = f;
 
       host.classList.add('fx-on');
+      // the video is a sibling of <picture>, not a child, so the class that
+      // retires it has to live on the shared container
+      var media = host.closest('.hero-media, .board-media, .fx-media') || host;
+      media.classList.add('fx-gl-live');
     }
 
     function size() {
@@ -304,6 +308,12 @@ window.FX = (function () {
     var thrifty = conn.saveData === true ||
                   /2g/.test(conn.effectiveType || '');
     if (REDUCE || thrifty) { v.remove(); return null; }
+
+    var still = host.querySelector('img');
+    if (still) {
+      var f = getComputedStyle(still).filter;
+      if (f && f !== 'none') v.style.filter = f;
+    }
 
     v.muted = true; v.loop = true; v.playsInline = true;
     v.setAttribute('muted', ''); v.setAttribute('playsinline', '');

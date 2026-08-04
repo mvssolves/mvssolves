@@ -144,7 +144,14 @@ body.locked{overflow:hidden}
 .lamp-on .hero-media img{filter:brightness(.62) contrast(1.5) saturate(.3)}
 .hero-media::after{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(to top,var(--graphite) 5%,color-mix(in oklab,var(--graphite) 38%,transparent) 58%,color-mix(in oklab,var(--graphite) 60%,transparent));
+  /* Polished paint throws specular highlights the still never had —
+     measured 2.58:1 under white display type. Graded for the brightest
+     frame, not the average one. */
+  background:linear-gradient(to top,
+    var(--graphite) 6%,
+    color-mix(in oklab,var(--graphite) 80%,transparent) 38%,
+    color-mix(in oklab,var(--graphite) 60%,transparent) 66%,
+    color-mix(in oklab,var(--graphite) 48%,transparent));
 }
 .defects{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;opacity:0;transition:opacity .7s var(--ease)}
 .lamp-on .defects{opacity:1}

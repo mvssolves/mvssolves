@@ -52,6 +52,9 @@ picture{display:contents}
   opacity:0;transition:opacity 1.1s ease;z-index:0;
 }
 .fx-playing .hero-vid{opacity:1}
-/* once GL is sampling the video, the DOM video is just the texture source */
-.fx-host.fx-on .hero-vid{opacity:0}
+/* Once GL is sampling the clip the DOM video is only a texture source and
+   must stop painting, or it covers the shader entirely. The class goes on
+   the media container because <picture> makes the canvas and the video
+   siblings rather than parent and child. */
+.fx-gl-live .hero-vid{opacity:0}
 @media (prefers-reduced-motion: reduce){ .hero-vid{display:none} }

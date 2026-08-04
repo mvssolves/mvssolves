@@ -136,10 +136,22 @@ body.locked{overflow:hidden}
   padding:var(--s5) var(--pad) var(--s3);isolation:isolate;
 }
 .hero-media{position:absolute;inset:0;z-index:-1;overflow:hidden;background:var(--slate-d)}
-.hero-media img{width:100%;height:100%;object-fit:cover;filter:brightness(.62) saturate(.42) contrast(1.05)}
+/* The sunbeam in this footage is genuinely blown out, and no amount of
+   veil holds a floor under white type against a clipped highlight. Graded
+   down at the source instead — the canvas inherits this filter, so the
+   shader gets the same treatment the photograph would have had. */
+.hero-media img{width:100%;height:100%;object-fit:cover;filter:brightness(.40) saturate(.38) contrast(1.12)}
 .hero-media::after{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(to top,var(--slate) 4%,color-mix(in oklab,var(--slate) 46%,transparent) 56%,color-mix(in oklab,var(--slate) 30%,transparent));
+  /* Sun through the windows is the whole point of this footage, and it is
+     far brighter than the smoke clip it replaced — 1.93:1 under the
+     headline. Held down hard where the type sits, left open at the top so
+     the light still reads. */
+  background:linear-gradient(to top,
+    var(--slate) 5%,
+    color-mix(in oklab,var(--slate) 86%,transparent) 40%,
+    color-mix(in oklab,var(--slate) 62%,transparent) 70%,
+    color-mix(in oklab,var(--slate) 28%,transparent));
 }
 .hero-k{font-size:0.82rem;color:var(--brass);margin-bottom:var(--s2)}
 .hero-body{max-width:min(52rem,100%)}
