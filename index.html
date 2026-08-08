@@ -94,13 +94,42 @@ html:not(.js) #veil{display:none}
 html:not(.js) #fade{display:none}
 
 /* ---------- nav ---------- */
+/* difference blending inverts against whatever scrolls under it, so body copy passing
+   beneath the bar used to collide with it. The scrim keeps that backdrop dark enough
+   for the bar to stay one colour the whole way down. It sits under the bar and is not
+   itself blended. */
+.nav-scrim{position:fixed; inset-inline:0; top:0; height:118px; z-index:calc(var(--z-nav) - 1);
+  pointer-events:none; background:linear-gradient(180deg, oklch(0.145 0.008 70 / .72) 0%, oklch(0.145 0.008 70 / .38) 52%, transparent 100%)}
 nav{position:fixed; inset-inline:0; top:0; z-index:var(--z-nav); mix-blend-mode:difference}
 .nav-in{display:flex; align-items:center; gap:2rem; height:74px}
-.mark{font-family:var(--serif); font-weight:400; font-size:1.05rem; letter-spacing:.24em; text-decoration:none; text-transform:uppercase; color:#fff}
+.mark{font-family:var(--serif); font-weight:400; font-size:1.05rem; letter-spacing:.24em; text-decoration:none; text-transform:uppercase; color:#fff;
+  min-height:44px; display:inline-flex; align-items:center}
 .nav-links{display:flex; gap:1.9rem; margin-left:auto; font-family:var(--sans); font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:#fff}
-.nav-links a{text-decoration:none; opacity:.62; transition:opacity .5s var(--ease)}
+.nav-links a{text-decoration:none; opacity:.62; transition:opacity .5s var(--ease);
+  min-height:44px; display:inline-flex; align-items:center}
 .nav-links a:hover{opacity:1}
-@media(max-width:860px){.nav-links{display:none}}
+
+/* menu button — only exists below the breakpoint where the links fit */
+.navbtn{display:none; margin-left:auto; -webkit-appearance:none; appearance:none; background:none; border:0;
+  font-family:var(--sans); font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:#fff;
+  min-height:44px; padding:0 0 0 .85rem; cursor:pointer}
+#menu{position:fixed; inset:0; z-index:calc(var(--z-nav) + 1); background:var(--ground);
+  display:flex; flex-direction:column; justify-content:center; padding:0 var(--pad);
+  opacity:0; visibility:hidden; transition:opacity .42s var(--ease), visibility .42s var(--ease)}
+#menu.open{opacity:1; visibility:visible}
+#menu a{display:block; text-decoration:none; font-family:var(--serif); font-weight:300;
+  font-size:clamp(1.9rem,1.2rem + 4vw,2.9rem); line-height:1; letter-spacing:-.014em; color:var(--ink);
+  padding-block:.62rem; border-bottom:1px solid var(--hair-soft)}
+#menu a:last-of-type{border-bottom:0}
+.menu-close{position:absolute; top:0; right:var(--pad); height:74px; background:none; border:0; cursor:pointer;
+  font-family:var(--sans); font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3); padding-inline:.85rem}
+html:not(.js) .navbtn{display:none !important}
+html:not(.js) #menu{display:none}
+
+@media(max-width:860px){
+  .nav-links{display:none}
+  .navbtn{display:block}
+}
 
 /* ---------- section rail: scroll position as narrative ---------- */
 .rail{position:fixed; left:calc(var(--pad) * .42); top:50%; transform:translateY(-50%); z-index:var(--z-rail);
@@ -211,7 +240,7 @@ h2{font-size:clamp(1.95rem,1.3rem + 2.6vw,3.5rem); font-weight:300}
 /* link — the only "button", a rule that draws itself */
 .go{display:inline-flex; align-items:center; gap:.85rem; text-decoration:none; font-family:var(--sans);
   font-size:.73rem; letter-spacing:.19em; text-transform:uppercase; color:var(--ink);
-  padding-bottom:.55rem; position:relative; margin-top:clamp(1.75rem,4vh,2.5rem)}
+  min-height:44px; padding-bottom:.55rem; position:relative; margin-top:clamp(1.75rem,4vh,2.5rem)}
 .go::before{content:''; position:absolute; inset-inline:0; bottom:0; height:1px; background:var(--hair)}
 .go::after{content:''; position:absolute; inset-inline:0; bottom:0; height:1px; background:var(--ink);
   transform:scaleX(0); transform-origin:left; transition:transform .8s var(--ease)}
@@ -286,14 +315,21 @@ h2{font-size:clamp(1.95rem,1.3rem + 2.6vw,3.5rem); font-weight:300}
 </div>
 <div class="rail" id="rail" aria-hidden="true">Introduction</div>
 
+<div class="nav-scrim" aria-hidden="true"></div>
 <nav>
   <div class="wrap nav-in">
-    <span class="mark">MVS</span>
+    <a class="mark" href="#top" aria-label="MVS Solves — back to top">MVS</a>
     <div class="nav-links">
       <a href="#proof">Proof</a><a href="#systems">Method</a><a href="#work">Work</a><a href="demos/">Demos</a><a href="#martin">Origin</a><a href="contact/">Contact</a>
     </div>
+    <button class="navbtn" id="navbtn" type="button" aria-expanded="false" aria-controls="menu">Menu</button>
   </div>
 </nav>
+
+<div id="menu" role="dialog" aria-modal="true" aria-label="Menu">
+  <button class="menu-close" id="menuclose" type="button">Close</button>
+  <a href="#proof">Proof</a><a href="#systems">Method</a><a href="#work">Work</a><a href="demos/">Demos</a><a href="#martin">Origin</a><a href="contact/">Contact</a>
+</div>
 
 <header class="hero" id="top">
   <div class="hero-media">
@@ -603,6 +639,26 @@ h2{font-size:clamp(1.95rem,1.3rem + 2.6vw,3.5rem); font-weight:300}
     if(lifted && fade.classList.contains('on') && !fade.dataset.nav) fade.classList.remove('on');
   }, 1200);
 
+  /* ---------- menu: the only way to reach the sections below 860px ---------- */
+  var navbtn=document.getElementById('navbtn'), menu=document.getElementById('menu');
+  if(navbtn && menu){
+    var menuOpen=function(on){
+      menu.classList.toggle('open', on);
+      navbtn.setAttribute('aria-expanded', on ? 'true' : 'false');
+      document.documentElement.style.overflow = on ? 'hidden' : '';
+      if(on){ var first=menu.querySelector('a'); if(first) first.focus(); }
+      else navbtn.focus();
+    };
+    navbtn.addEventListener('click', function(){ menuOpen(!menu.classList.contains('open')); });
+    var mc=document.getElementById('menuclose');
+    if(mc) mc.addEventListener('click', function(){ menuOpen(false); });
+    /* runs before the document-level fade handler, so the overlay is gone by the time it jumps */
+    menu.addEventListener('click', function(e){ if(e.target.closest('a')) menuOpen(false); });
+    addEventListener('keydown', function(e){ if(e.key==='Escape' && menu.classList.contains('open')) menuOpen(false); });
+    /* a resize past the breakpoint must not leave a full-screen overlay stranded */
+    addEventListener('resize', function(){ if(innerWidth>860 && menu.classList.contains('open')) menuOpen(false); });
+  }
+
   /* ---------- navigation fades instead of jumping ---------- */
   if(fade && !reduce){
     document.addEventListener('click', function(e){
@@ -699,8 +755,9 @@ h2{font-size:clamp(1.95rem,1.3rem + 2.6vw,3.5rem); font-weight:300}
     function restore(){ for(var i=0;i<nodes.length;i++) nodes[i].node.nodeValue=nodes[i].text; }
 
     var total=nodes.reduce(function(a,b){ return a+b.text.length; },0);
-    /* slowed so the decode is actually watched, not just glimpsed */
-    var DUR=Math.min(1700, 800+total*24), start=null, raf=0;
+    /* long enough to read as a decode, short enough that a normal scroll never
+       catches a heading still sitting in glyphs */
+    var DUR=Math.min(880, 380+total*13), start=null, raf=0;
 
     function frame(ts){
       if(start===null) start=ts;

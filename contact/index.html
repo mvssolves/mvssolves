@@ -63,10 +63,12 @@ h1 em{font-style:italic; color:var(--ink-2)}
 
 nav{position:relative; z-index:3}
 .nav-in{display:flex; align-items:center; gap:2rem; height:74px}
-.mark{font-family:var(--serif); font-weight:400; font-size:1.05rem; letter-spacing:.24em;
+.mark{min-height:44px; display:inline-flex; align-items:center;
+  font-family:var(--serif); font-weight:400; font-size:1.05rem; letter-spacing:.24em;
   text-decoration:none; text-transform:uppercase; color:var(--ink)}
 .back{margin-left:auto; font-family:var(--sans); font-size:.72rem; letter-spacing:.16em;
-  text-transform:uppercase; color:var(--ink-3); text-decoration:none; transition:color .5s var(--ease)}
+  text-transform:uppercase; color:var(--ink-3); text-decoration:none; transition:color .5s var(--ease);
+  min-height:44px; display:inline-flex; align-items:center}
 .back:hover{color:var(--ink)}
 
 /* footage bed for the whole page */
@@ -88,6 +90,7 @@ main{position:relative; z-index:2; flex:1; display:flex; align-items:center;
   padding-block:.95rem; border-bottom:1px solid var(--hair-soft)}
 .aside dt{font-family:var(--sans); font-size:.66rem; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3)}
 .aside dd{margin:0; font-size:.98rem; color:var(--ink-2); text-align:right}
+.aside dd a{min-height:44px; display:inline-flex; align-items:center}
 
 /* form — hairlines only, no boxes */
 form{display:grid; gap:clamp(1.1rem,2.6vh,1.6rem)}
@@ -107,7 +110,7 @@ form{display:grid; gap:clamp(1.1rem,2.6vh,1.6rem)}
 
 button{justify-self:start; margin-top:.6rem; display:inline-flex; align-items:center; gap:.85rem;
   font-family:var(--sans); font-size:.73rem; letter-spacing:.19em; text-transform:uppercase;
-  color:var(--ink); background:transparent; border:0; padding:0 0 .55rem; cursor:pointer; position:relative}
+  color:var(--ink); background:transparent; border:0; min-height:44px; padding:0 0 .55rem; cursor:pointer; position:relative}
 button::before{content:''; position:absolute; inset-inline:0; bottom:0; height:1px; background:var(--hair)}
 button::after{content:''; position:absolute; inset-inline:0; bottom:0; height:1px; background:var(--ink);
   transform:scaleX(0); transform-origin:left; transition:transform .8s var(--ease)}
@@ -122,7 +125,8 @@ button[disabled]{opacity:.5; cursor:default}
   text-transform:uppercase; color:var(--ink-2)}
 
 footer{position:relative; z-index:2; border-top:1px solid var(--hair-soft); padding-block:1.6rem}
-.foot-in{display:flex; flex-wrap:wrap; gap:1rem; justify-content:space-between}
+.foot-in{display:flex; flex-wrap:wrap; gap:1rem; justify-content:space-between; align-items:center}
+.foot-in a{min-height:44px; display:inline-flex; align-items:center}
 
 #fade{position:fixed; inset:0; background:var(--ground); z-index:70; pointer-events:none;
   opacity:1; transition:opacity .42s var(--ease)}
@@ -142,7 +146,7 @@ html:not(.js) #fade{display:none}
 </div>
 
 <nav class="wrap nav-in">
-  <span class="mark">MVS</span>
+  <a class="mark" href="/" aria-label="MVS Solves — home">MVS</a>
   <a class="back" href="../">← Back</a>
 </nav>
 
