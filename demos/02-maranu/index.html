@@ -1,0 +1,890 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MARANU — Desert lodge &amp; table</title>
+<meta name="description" content="A lodge and a table where the setting does the talking. Twelve rooms, one seating, no menu.">
+<meta property="og:title" content="MARANU — Desert lodge &amp; table">
+<meta property="og:description" content="A lodge and a table where the setting does the talking. Twelve rooms, one seating, no menu.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#1A1512">
+<script>/* set synchronously: adding this on DOMContentLoaded races the loader,
+   which can release BEFORE that event fires and get the class re-added after */
+document.documentElement.className+=" js is-loading"</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1A1512;
+  --bone:#F3EBDF;
+  --mute:rgba(243,235,223,.62);
+  --rule:rgba(243,235,223,.22);
+  --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  --pad:clamp(20px,4vw,72px);
+  --rail:clamp(0px,7vw,132px);
+  --ease:cubic-bezier(.22,1,.36,1);
+  --ease-soft:cubic-bezier(.4,0,.2,1);
+  /* warm elevation — light from above, colour borrowed from the sand. No glows. */
+  --e2:0 10px 24px -12px rgba(20,13,8,.5), 0 2px 6px rgba(20,13,8,.24);
+  --e3:0 34px 60px -28px rgba(20,13,8,.66), 0 8px 18px -10px rgba(20,13,8,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
+.lenis.lenis-stopped{overflow:hidden}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  background:var(--ink);color:var(--bone);font-family:var(--serif);
+  font-weight:300;font-size:19px;line-height:1.62;
+  overflow-x:hidden;-webkit-font-smoothing:antialiased;
+}
+body.is-locked{overflow:hidden}
+svg{display:block}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:1px solid var(--bone);outline-offset:6px}
+
+/* one family, no sans anywhere — KHUFU'S (036) */
+.lbl{font-size:12px;letter-spacing:.32em;text-transform:uppercase;font-weight:500;color:var(--mute)}
+.wrap{padding-inline:var(--pad);max-width:1500px;margin-inline:auto}
+.pane{padding-left:var(--rail)}
+
+/* hairline text-link CTA — no buttons anywhere on this page — KHUFU'S (036).
+   The rule wipes out to the right, then draws back in from the left. */
+.tlink{display:inline-block;position:relative;font-size:12px;letter-spacing:.32em;
+  text-transform:uppercase;font-weight:500;padding:.55em 0 .6em;opacity:.82;
+  transition:letter-spacing .55s var(--ease),opacity .5s var(--ease)}
+.tlink::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;
+  transform-origin:right;transform:scaleX(1);transition:transform .5s var(--ease)}
+.tlink::before{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;
+  transform-origin:left;transform:scaleX(0);transition:transform .5s var(--ease) .2s}
+.tlink:hover{opacity:1;letter-spacing:.4em}
+.tlink:hover::after{transform:scaleX(0);transition-duration:.26s}
+.tlink:hover::before{transform:scaleX(1)}
+
+.is-loading .grain{display:none}
+.grain{position:fixed;inset:0;z-index:80;pointer-events:none;opacity:.2;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ---------- reveals ---------- */
+.js .rise{opacity:0;transform:translate3d(0,16px,0)}
+.rise{transition:opacity .8s var(--ease),transform .9s var(--ease)}
+.rise.in{opacity:1;transform:translate3d(0,0,0)}
+.rise[data-d="1"]{transition-delay:.1s}.rise[data-d="2"]{transition-delay:.2s}
+.rise[data-d="3"]{transition-delay:.3s}.rise[data-d="4"]{transition-delay:.4s}
+
+/* per-line editorial mask reveal: each line rides up out of its own clip box.
+   Driven by the same IntersectionObserver as everything else, so a phone gets
+   identical choreography to a desktop — no scroll-position maths to jitter. */
+/* clip box gets headroom top and bottom, pulled back out with negative margins
+   so layout is unchanged — otherwise tight line-height slices the glyphs */
+.lines .ln{display:block;overflow:hidden;padding:.14em 0 .2em;margin:-.14em 0 -.2em}
+.lines .ln > i{display:block;font-style:inherit;transition:transform 1s var(--ease)}
+.js .lines .ln > i{transform:translate3d(0,110%,0)}
+.lines.in .ln > i{transform:translate3d(0,0,0)}
+.lines.in .ln:nth-child(2) > i{transition-delay:.09s}
+.lines.in .ln:nth-child(3) > i{transition-delay:.18s}
+.lines.in .ln:nth-child(4) > i{transition-delay:.27s}
+
+/* wordmark tracking settles inward */
+.settle{display:block;letter-spacing:.42em;
+  transition:letter-spacing 1.6s var(--ease),opacity 1.1s var(--ease)}
+.js .settle{letter-spacing:.72em;opacity:0}
+.settle.in{letter-spacing:.42em;opacity:1}
+
+/* ---------- THE GRADE ----------
+   sepia(1) collapses every source hue onto one; the mix-blend-mode:color wash
+   then sets that hue properly (hue+sat from the wash, luminance from the image).
+   No hue-rotate anywhere — CSS applies it as a linear matrix and pushes
+   near-white pixels green. Drop real photography into .grade and it matches. */
+/* grade is baked into the image files now — a sepia+saturate+contrast+brightness
+   filter plus a blend wash on 2600px layers repainted on every animated frame */
+.grade{}
+/* photo layer: LQIP paints instantly as a blurred background, the real file
+   fades over it once decoded — no flash of empty box on a slow connection */
+.ph{position:absolute;inset:0;overflow:hidden;background-size:cover;background-position:center;
+  z-index:-1;display:block}
+.ph picture{display:block;width:100%;height:100%}
+.ph img{width:100%;height:100%;object-fit:cover;display:block;
+  opacity:0;transition:opacity 1s var(--ease)}
+.ph img.ready{opacity:1}
+
+/* ---------- loading screen ----------
+   Progress is the real decode count of the page's images, not a timer, so the
+   curtain lifts exactly when there is something worth showing. A hard ceiling
+   stops a slow or dead asset from trapping anyone behind it. */
+.load{position:fixed;inset:0;z-index:200;background:var(--ink);display:grid;place-items:center;
+  clip-path:inset(0 0 0 0);transition:clip-path 1.1s var(--ease)}
+.load[data-done="1"]{transform:translate3d(0,-100%,0);pointer-events:none}
+.load__in{display:grid;justify-items:center;gap:26px;padding-inline:var(--pad)}
+.load__mark{font-size:clamp(20px,3vw,30px);font-weight:400;letter-spacing:.9em;text-indent:.9em;
+  color:var(--bone);opacity:.9;transition:letter-spacing 1.6s var(--ease)}
+.load[data-done="1"] .load__mark{letter-spacing:.42em;text-indent:.42em}
+.load__rule{display:block;width:min(240px,52vw);height:1px;background:rgba(243,235,223,.2);overflow:hidden}
+.load__rule i{display:block;height:100%;background:var(--bone);transform-origin:left;
+  transform:scaleX(var(--p,0));transition:transform .5s var(--ease-soft)}
+.load__sub{font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--mute)}
+/* hero holds its reveal behind the curtain so the type plays on entry, not before */
+html.is-loading .hero .lines .ln > i{transform:translate3d(0,110%,0)}
+html.is-loading .hero .rise{opacity:0}
+html.is-loading,html.is-loading body{overflow:hidden}
+@media (prefers-reduced-motion:reduce){.load{transition:none}}
+.tint{display:none}   /* baked into the files */
+
+/* ---------- scroll-driven enhancement ----------
+   These run on the compositor, so parallax and drift cost nothing on a phone —
+   which is how mobile keeps the same motion as desktop instead of having it
+   stripped out. Purely additive: without support the page is simply static. */
+@supports (animation-timeline: view()){
+  @media (prefers-reduced-motion:no-preference){
+    .hero{view-timeline:--heroT block}
+    .par{animation:par linear both;animation-timeline:--heroT;animation-range:cover 0% cover 100%}
+    .par--far{--pd:-3%}
+    .par--mid{--pd:-8%}
+    .par--near{--pd:-17%}
+    .par--fg{--pd:-26%}
+    @keyframes par{to{transform:translate3d(0,var(--pd),0)}}
+
+    /* slow push-in on each full-bleed panel while it crosses the viewport */
+    .kb{animation:kb linear both;animation-timeline:view();animation-range:cover 0% cover 100%}
+    @keyframes kb{from{transform:scale(1.11)}to{transform:scale(1.01)}}
+
+    /* rail fills with document progress */
+    .rail__bar{animation:railFill linear both;animation-timeline:scroll(root block)}
+    @keyframes railFill{from{scale:1 0}to{scale:1 1}}
+  }
+}
+
+/* ---------- vertical scroll-position rail — Izanami (010) ---------- */
+.rail{position:fixed;left:0;top:0;bottom:0;width:var(--rail);z-index:40;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;gap:38px;pointer-events:none}
+.rail a{writing-mode:vertical-rl;transform:rotate(180deg);font-size:11px;letter-spacing:.34em;
+  text-transform:uppercase;font-weight:500;color:var(--bone);opacity:.42;
+  transition:opacity .6s var(--ease);pointer-events:auto;padding-block:.4em}
+.rail a[data-on="1"]{opacity:1}
+.rail__track{position:absolute;left:50%;top:12vh;bottom:12vh;width:1px;translate:-50% 0;
+  background:rgba(243,235,223,.14);overflow:hidden}
+.rail__bar{position:absolute;inset:0;background:var(--bone);transform-origin:top;scale:1 0}
+@media(max-width:900px){.rail{display:none}}
+
+/* ---------- top bar ---------- */
+.top{position:fixed;z-index:60;top:0;left:var(--rail);right:0;display:grid;
+  grid-template-columns:1fr auto 1fr;align-items:start;gap:20px;
+  padding:26px var(--pad);transition:transform .6s var(--ease),opacity .5s var(--ease)}
+.top[data-hidden="1"]{transform:translateY(-125%);opacity:0}
+.top__mark{text-align:center;line-height:1.1}
+.top__mark b{font-size:20px;font-weight:400;text-indent:.42em}
+.top__mark i{display:block;font-style:normal;font-size:10px;letter-spacing:.34em;opacity:.6;margin-top:7px;text-indent:.34em}
+.top__r{justify-self:end;display:flex;gap:20px;align-items:center}
+
+.burger{width:44px;height:44px;position:relative;cursor:pointer;background:none;border:0;color:inherit}
+.burger i{position:absolute;left:10px;right:10px;height:1px;background:currentColor;
+  transition:transform .5s var(--ease)}
+.burger i:nth-child(1){top:19px}
+.burger i:nth-child(2){top:26px}
+.burger[aria-expanded="true"] i:nth-child(1){transform:translateY(3.5px) rotate(45deg)}
+.burger[aria-expanded="true"] i:nth-child(2){transform:translateY(-3.5px) rotate(-45deg)}
+
+.menu{position:fixed;inset:0;z-index:55;background:#15100D;display:grid;place-items:center;
+  padding:var(--pad);clip-path:inset(0 0 100% 0);transition:clip-path .85s var(--ease);pointer-events:none}
+.menu[data-open="1"]{clip-path:inset(0 0 0 0);pointer-events:auto}
+.menu__art{position:absolute;inset:0;z-index:0;opacity:.32;
+  background:radial-gradient(70% 55% at 50% 30%,#6B4223,#241812 70%)}
+.menu ul{list-style:none;text-align:center;display:grid;gap:clamp(8px,2.2vh,20px);position:relative;z-index:1}
+.menu a{display:block;font-size:clamp(30px,7vw,64px);font-weight:400;letter-spacing:.1em;
+  text-transform:uppercase;line-height:1.12;opacity:0;transform:translateY(26px);
+  transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.menu[data-open="1"] a{opacity:.88;transform:none}
+.menu[data-open="1"] li:nth-child(1) a{transition-delay:.14s}
+.menu[data-open="1"] li:nth-child(2) a{transition-delay:.2s}
+.menu[data-open="1"] li:nth-child(3) a{transition-delay:.26s}
+.menu[data-open="1"] li:nth-child(4) a{transition-delay:.32s}
+.menu[data-open="1"] li:nth-child(5) a{transition-delay:.38s}
+.menu a:hover{opacity:1}
+.menu__foot{position:absolute;left:0;right:0;z-index:1;text-align:center;
+  bottom:calc(env(safe-area-inset-bottom) + 24px)}
+
+/* ---------- hero ---------- */
+.hero{position:relative;min-height:100svh;display:grid;place-items:center;overflow:hidden;isolation:isolate}
+.hero__art{position:absolute;inset:-8% -3%;z-index:-1}
+.hero__art svg{width:100%;height:100%}
+.hero__vig{position:absolute;inset:0;z-index:-1;
+  background:
+    radial-gradient(50% 38% at 50% 44%,rgba(26,21,18,.4),transparent 74%),
+    linear-gradient(180deg,rgba(26,21,18,.2) 0%,transparent 20%,transparent 60%,rgba(26,21,18,.46) 100%),
+    radial-gradient(86% 68% at 50% 46%,transparent 42%,rgba(26,21,18,.44) 100%)}
+.hero__body{text-align:center;padding-inline:var(--pad);padding-left:calc(var(--pad) + var(--rail))}
+/* one visual line per clip box — a wrapped line animates as one block and the
+   second row gets sliced by the mask, so the copy is pre-broken instead */
+.hero h1{font-weight:400;font-size:clamp(28px,4.2vw,60px);line-height:1.2;letter-spacing:.06em;
+  text-transform:uppercase;max-width:none;margin-inline:auto;text-wrap:balance}
+.hero h1 .ln > i{white-space:nowrap}
+/* the one italic word carries the emphasis — Medico / Dash / KHUFU'S */
+.hero h1 em{font-style:italic;text-transform:none;letter-spacing:.01em;font-weight:400}
+.hero__cta{margin-top:34px}
+.hero__credit{position:absolute;bottom:calc(env(safe-area-inset-bottom) + 22px);left:50%;translate:-50% 0;z-index:2}
+.hero__scroll{position:absolute;bottom:24px;left:calc(var(--pad) + var(--rail));z-index:2;font-size:10px;
+  letter-spacing:.3em;text-transform:uppercase;opacity:.5;display:flex;align-items:center;gap:12px}
+.hero__scroll::after{content:"";width:36px;height:1px;background:currentColor;transform-origin:left;
+  animation:pull 3s var(--ease-soft) infinite}
+@keyframes pull{0%,100%{transform:scaleX(.25)}50%{transform:scaleX(1)}}
+
+/* ---------- symmetric 3-column, mark at the focal point — sakazuki (023) ---------- */
+.tri{position:relative;min-height:78svh;display:grid;place-items:center;overflow:hidden;isolation:isolate}
+.tri__art{position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(166deg,#3A2318 0%,#54311D 38%,#2E1E17 74%,#1D1411 100%)}
+.tri__art::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(29,20,17,.52) 0%,transparent 32%,transparent 60%,rgba(29,20,17,.62) 100%)}
+.tri__row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:clamp(24px,6vw,90px);
+  width:min(1180px,100%);padding-inline:var(--pad)}
+.tri__row p:first-child{text-align:right}
+.tri__row p{font-size:13px;letter-spacing:.24em;text-transform:uppercase;line-height:2;font-weight:500}
+.tri__mark{text-align:center}
+.tri__mark b{font-size:clamp(22px,2.6vw,34px);font-weight:400;text-indent:.4em}
+.tri__mark svg{margin:14px auto 0;filter:drop-shadow(0 6px 14px rgba(20,13,8,.55))}
+@media(max-width:760px){.tri__row{grid-template-columns:1fr;text-align:center;gap:26px}
+  .tri__row p:first-child{text-align:center}}
+
+/* ---------- slide-up panel reveal — Izanami (010) ----------
+   Each text/panel pair gets its OWN containing block. Two sticky headings sharing
+   one parent means the first never unsticks, and the two headlines end up printed
+   on top of each other — which is exactly what was happening here. */
+.reveal{position:relative;background:var(--ink)}
+.reveal__pair{position:relative}
+.reveal__under{position:sticky;top:0;height:100svh;display:grid;align-content:center;z-index:0}
+.reveal__under h2{font-size:clamp(27px,3.6vw,54px);font-weight:300;line-height:1.26;letter-spacing:.02em;max-width:20ch}
+.reveal__under h2 em{font-style:italic}
+.reveal__over{position:relative;z-index:1;min-height:100svh;display:grid;align-items:end;
+  overflow:hidden;box-shadow:0 -40px 80px -34px rgba(0,0,0,.78)}
+.reveal__bg{position:absolute;inset:0;z-index:0}
+.reveal__bg .ph{z-index:0}
+.reveal__scrim{position:absolute;inset:0;z-index:1;
+  background:linear-gradient(180deg,rgba(26,21,18,0) 0%,rgba(26,21,18,.66) 60%,rgba(26,21,18,.93) 100%)}
+.split__c i .ph{z-index:0}
+.split__scrim{position:absolute;inset:0;z-index:1;
+  background:linear-gradient(180deg,rgba(26,21,18,.12),rgba(26,21,18,.84))}
+.reveal__over .wrap{padding-block:clamp(34px,6vh,72px);position:relative;z-index:1}
+.reveal__over h3{font-size:clamp(23px,2.6vw,40px);font-weight:400;letter-spacing:.03em;line-height:1.2;max-width:16ch}
+.reveal__over p{color:var(--mute);max-width:44ch;margin-top:16px;font-size:17px}
+
+/* ---------- segmented dual path — La Caminera (019) ---------- */
+.split{display:grid;grid-template-columns:1fr 1fr;min-height:86svh;padding-left:var(--rail);perspective:1200px}
+.split__c{position:relative;display:grid;align-content:end;gap:16px;padding:clamp(28px,4vw,68px);
+  overflow:hidden;isolation:isolate;border-left:1px solid var(--rule);transform-style:preserve-3d}
+.split__c:first-child{border-left:0}
+.split__c i{position:absolute;inset:-3%;z-index:-1;transition:transform 1.4s var(--ease)}
+.split__c:hover i{transform:scale(1.06)}
+.split__c > *{transform:translateZ(30px)}
+.split__c h3{font-size:clamp(32px,4.2vw,64px);font-weight:400;letter-spacing:.1em;text-transform:uppercase;
+  line-height:1;text-shadow:0 14px 34px rgba(20,13,8,.55)}
+.split__c p{color:var(--mute);max-width:34ch;font-size:16px}
+.split__c .tlink{margin-top:12px;justify-self:start}
+@media(max-width:820px){
+  .split{grid-template-columns:1fr;perspective:none}
+  .split__c{min-height:62svh;border-left:0;border-top:1px solid var(--rule)}
+  .split__c > *{transform:none}
+}
+
+/* ---------- filmstrip — La Caminera (019) ---------- */
+.strip{padding-block:clamp(60px,10vh,120px)}
+.strip__head{display:flex;justify-content:space-between;align-items:baseline;gap:24px;flex-wrap:wrap;
+  padding-bottom:24px;border-bottom:1px solid var(--rule)}
+.strip__head h2{font-size:clamp(27px,3.4vw,48px);font-weight:300;letter-spacing:.03em}
+.strip__row{display:flex;gap:14px;overflow-x:auto;padding-top:26px;scroll-snap-type:x mandatory;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.strip__row::-webkit-scrollbar{display:none}
+.strip__row figure{flex:0 0 clamp(230px,25vw,320px);scroll-snap-align:start}
+.strip__row i{display:block;aspect-ratio:4/3;overflow:hidden;box-shadow:var(--e2);
+  transition:transform .8s var(--ease),box-shadow .8s var(--ease)}
+.strip__row figure:hover i{transform:translateY(-6px);box-shadow:var(--e3)}
+.strip__row figcaption{margin-top:12px;font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--mute);font-weight:500}
+.strip__row figure:first-child figcaption{color:var(--bone)}
+
+/* ---------- list ---------- */
+.list{padding-block:clamp(60px,10vh,120px);border-top:1px solid var(--rule)}
+.list__grid{display:grid;grid-template-columns:.6fr 1.4fr;gap:clamp(28px,5vw,80px)}
+.list h2{font-size:clamp(27px,3.4vw,48px);font-weight:300;letter-spacing:.03em;line-height:1.14}
+.list h2 em{font-style:italic}
+.row{display:grid;grid-template-columns:auto 1fr auto;gap:clamp(14px,3vw,44px);align-items:baseline;
+  padding-block:24px;border-top:1px solid var(--rule);position:relative}
+.row::after{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:var(--bone);
+  transform:scaleX(0);transform-origin:left;transition:transform .7s var(--ease)}
+.row:hover::after{transform:scaleX(1)}
+.row:last-child{border-bottom:1px solid var(--rule)}
+.row b{font-size:11px;letter-spacing:.24em;font-weight:500;opacity:.5}
+.row h4{font-size:clamp(20px,2.1vw,28px);font-weight:400;letter-spacing:.02em}
+.row p{color:var(--mute);font-size:15px;margin-top:4px;max-width:52ch}
+.row span{font-size:12px;letter-spacing:.22em;text-transform:uppercase;opacity:.6;white-space:nowrap}
+@media(max-width:820px){
+  .list__grid{grid-template-columns:1fr}
+  .row{grid-template-columns:1fr}
+  .row span{justify-self:start;margin-top:10px}
+}
+
+/* ---------- footer ---------- */
+.foot{padding-block:clamp(56px,9vh,110px) 28px;border-top:1px solid var(--rule);text-align:center;
+  padding-bottom:calc(env(safe-area-inset-bottom) + 28px)}
+.foot h2{font-size:clamp(32px,5.4vw,86px);font-weight:400;letter-spacing:.08em;text-transform:uppercase;line-height:1.08}
+.foot h2 em{font-style:italic;text-transform:none;letter-spacing:.01em}
+.foot .lines .ln{padding:.16em 0 .24em;margin:-.16em 0 -.24em}
+.foot__cta{margin-top:32px}
+.foot__bar{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:70px;
+  padding-top:20px;border-top:1px solid var(--rule);text-align:left}
+.clocks{display:flex;gap:30px;flex-wrap:wrap}
+.clocks div{font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:500;color:var(--mute)}
+.clocks b{color:var(--bone);font-weight:500;font-variant-numeric:tabular-nums}
+
+/* ---------- phone ---------- */
+@media(max-width:900px){
+  /* rail is gone, so stop reserving its gutter */
+  :root{--rail:0px}
+}
+@media(max-width:640px){
+  body{font-size:18px}
+  .top{display:flex;align-items:center;justify-content:flex-end;padding:16px var(--pad)}
+  .top__l{display:none}
+  .top__mark{position:absolute;left:50%;translate:-50% 0}
+  .top__mark b{font-size:17px;text-indent:.34em}
+  .top__mark i{font-size:11px}
+  .settle.in{letter-spacing:.34em}
+  .hero h1{font-size:clamp(23px,6.4vw,34px);line-height:1.24}
+  .hero__scroll{display:none}
+  .hero__credit{left:0;translate:none;width:100%;text-align:center;padding-inline:var(--pad)}
+  .tlink{padding:.95em 0 .7em}
+  .reveal__under h2{font-size:clamp(28px,7.6vw,40px)}
+  .split__c h3{font-size:clamp(40px,13vw,58px)}
+  .foot h2{font-size:clamp(34px,9.6vw,54px)}
+}
+
+
+/* ================= motion layer =================
+   Photo wipes and drift are scroll-driven CSS (compositor, identical on phone).
+   Count-ups, scramble and magnetism are JS but pointer/observer driven, never
+   tied to scroll position — nothing here runs a handler on every scroll event. */
+@supports (animation-timeline: view()){
+  @media (prefers-reduced-motion:no-preference){
+    /* photographs settle in with a slight scale — no clip-path. A clipped
+       keyframe with fill-mode:both starts fully hidden, so any inactive timeline
+       would leave the image invisible. Opacity + scale can't fail closed. */
+    .ph img{animation:settleIn linear both;animation-timeline:view();animation-range:entry 4% entry 62%}
+    @keyframes settleIn{from{transform:scale(1.07)}to{transform:scale(1)}}
+    /* section rules draw themselves in */
+    .drawline{animation:draw linear both;animation-timeline:view();animation-range:entry 0% entry 55%}
+    @keyframes draw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  }
+}
+.drawline{transform-origin:left}
+/* magnetic CTA — offsets come from JS, the transform itself stays in CSS */
+.mag{transition:transform .45s cubic-bezier(.22,1,.36,1)}
+.mag[data-mag]{transform:translate3d(var(--mx,0),var(--my,0),0)}
+/* scrambling label holds its width so nothing reflows mid-cycle */
+/* pre-wrap, not pre: `pre` stops the label wrapping, and an unwrappable
+   string sets the grid track's min-content width — that is what pushed the
+   page sideways at 360. pre-wrap still holds the spaces during scrambling. */
+.scramble{display:inline-block;white-space:pre-wrap}
+@media (prefers-reduced-motion:reduce){.mag{transition:none}}
+
+
+/* ================= experience layer =================
+   Page transitions, cursor craft and entrance choreography. Everything
+   scroll-linked is CSS scroll-driven (compositor); the cursor is the only
+   pointer-rAF loop and it is desktop-only. */
+
+/* --- cross-document page transitions --- */
+@view-transition{ navigation: auto }
+@media (prefers-reduced-motion:reduce){ @view-transition{ navigation: none } }
+
+/* fallback curtain for browsers without view transitions */
+.curtain{position:fixed;inset:0;z-index:300;background:var(--curtain,#000);
+  transform:translate3d(0,100%,0);pointer-events:none;will-change:transform}
+.curtain[data-on="1"]{transform:translate3d(0,0,0);transition:transform .5s cubic-bezier(.7,0,.3,1)}
+
+/* --- entrance choreography --- */
+.js [data-anim]{opacity:0}
+[data-anim]{transition:opacity .75s var(--ease),transform .85s var(--ease),filter .8s var(--ease)}
+[data-anim].in{opacity:1;transform:none;filter:none}
+.js [data-anim="up"]{transform:translate3d(0,26px,0)}
+.js [data-anim="left"]{transform:translate3d(-30px,0,0)}
+.js [data-anim="right"]{transform:translate3d(30px,0,0)}
+.js [data-anim="scale"]{transform:scale(.94)}
+.js [data-anim="blur"]{filter:blur(9px);transform:translate3d(0,14px,0)}
+/* children of a stagger container come in one after another */
+[data-stagger] > *{transition-delay:calc(var(--i,0) * 70ms)}
+@media (prefers-reduced-motion:reduce){
+  .js [data-anim]{opacity:1;transform:none;filter:none}
+  .curtain{display:none}
+}
+
+
+/* ── mobile fitment floor ───────────────────────────────────────
+   Measured problems, not guesses: 9–11px labels, 27–34px tap targets,
+   and a calculator figure wide enough to push the page sideways at 360.
+   These floors are the last word — nothing below may undercut them. */
+@media(max-width:640px){
+  .lbl,.micro,figcaption,.tick,.row span,.clocks div{font-size:12px}
+  a.btn,.btn,button,summary{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+  .tlink{min-height:44px;display:inline-flex;align-items:center}
+  input[type=range]{height:44px}
+  /* long tabular figures must shrink, never widen the page */
+  .out,.tier,.pcard,.card{min-width:0}
+  .btn,.calc__lbl,.chip,.seg button,.pcard li,.card li,.tier li,.load__word,
+  .load__sub,.menu ul a b,.hero__scroll,.row b,.srow span,.srow em,.strip__row figcaption{font-size:12px}
+  .nav__mark,.top__mark{min-height:44px;display:inline-flex;align-items:center}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .rise{opacity:1;transform:none}
+  .lines .ln > i{transform:none}
+  .settle{opacity:1;letter-spacing:.42em}
+}
+</style>
+</head>
+<body>
+<div class="load" id="load" role="status" aria-live="polite" aria-label="Loading">
+  <div class="load__in">
+    <b class="load__mark">MARANU</b>
+    <span class="load__rule"><i id="loadBar"></i></span>
+    <span class="load__sub">Two hours from anywhere</span>
+  </div>
+</div>
+<div class="grain"></div>
+
+<nav class="rail" aria-label="Sections">
+  <span class="rail__track"><span class="rail__bar"></span></span>
+  <a href="#setting" data-rail="setting">Setting</a>
+  <a href="#house" data-rail="house">The House</a>
+  <a href="#table" data-rail="table">The Table</a>
+  <a href="#stay" data-rail="stay">Stay</a>
+  <a href="#reserve" data-rail="reserve">Reserve</a>
+</nav>
+
+<div class="top" id="topbar">
+  <a class="lbl top__l" href="#reserve">Reservations</a>
+  <a class="top__mark" href="#top"><b class="settle">MARANU</b><i>Desert lodge &amp; table</i></a>
+  <div class="top__r">
+    <span class="lbl">EN</span>
+    <button class="burger" id="burger" aria-label="Menu" aria-expanded="false" aria-controls="menu"><i></i><i></i></button>
+  </div>
+</div>
+
+<div class="menu" id="menu" data-open="0" aria-hidden="true">
+  <div class="menu__art"></div>
+  <ul>
+    <li><a href="#setting">Setting</a></li>
+    <li><a href="#house">The House</a></li>
+    <li><a href="#table">The Table</a></li>
+    <li><a href="#stay">Stay</a></li>
+    <li><a href="#reserve">Reserve</a></li>
+  </ul>
+  <p class="lbl menu__foot">Two hours from anywhere</p>
+</div>
+
+<header class="hero" id="top">
+  <div class="hero__art grade par par--near" aria-hidden="true">
+    <span class="ph " style="background-image:url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAALABQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwBx1y0HHm5+imom1229X/75rlz0pMmsVSR0+2Z0p1m0bnzGH1U0VzZop+zQvbSP/9k=)"><picture><source type="image/avif" srcset="media/maranu-hero-1200.avif 1200w, media/maranu-hero-1900.avif 1900w, media/maranu-hero-2600.avif 2600w" sizes="100vw"><source type="image/webp" srcset="media/maranu-hero-1200.webp 1200w, media/maranu-hero-1900.webp 1900w, media/maranu-hero-2600.webp 2600w" sizes="100vw"><img src="media/maranu-hero-1200.jpg" srcset="media/maranu-hero-1200.jpg 1200w, media/maranu-hero-1900.jpg 1900w, media/maranu-hero-2600.jpg 2600w" sizes="100vw" width="2600" height="1462" alt="" decoding="async" fetchpriority="high"></picture></span>
+  </div>
+  <div class="tint"></div>
+  <div class="hero__vig"></div>
+
+  <div class="hero__body">
+    <h1 class="lines">
+      <span class="ln"><i>Where the setting</i></span>
+      <span class="ln"><i>becomes part</i></span>
+      <span class="ln"><i>of the <em>table</em></i></span>
+    </h1>
+    <div class="hero__cta rise" data-d="3"><a class="tlink mag" href="#reserve">Reserve your table</a></div>
+  </div>
+  <p class="hero__scroll">Scroll</p>
+  <p class="hero__credit lbl">Est. 2019 · Two hours from anywhere</p>
+</header>
+
+<section class="tri" id="setting">
+  <div class="tri__art grade" aria-hidden="true"><span class="ph " style="background-image:url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAALABQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDO/tNtpV5pZQf7+MU43kkuP3r4HTDVmJUo6Vg0bpl83txn/XGis0sc9TRRZjuj/9k=)"><picture><source type="image/avif" srcset="media/maranu-tri-1200.avif 1200w, media/maranu-tri-1900.avif 1900w" sizes="100vw"><source type="image/webp" srcset="media/maranu-tri-1200.webp 1200w, media/maranu-tri-1900.webp 1900w" sizes="100vw"><img src="media/maranu-tri-1200.jpg" srcset="media/maranu-tri-1200.jpg 1200w, media/maranu-tri-1900.jpg 1900w" sizes="100vw" width="1900" height="1068" alt="" decoding="async" loading="lazy"></picture></span></div>
+  <div class="tint"></div>
+  <div class="tri__row">
+    <p class="rise">Twelve rooms<br>One seating</p>
+    <div class="tri__mark rise" data-d="2">
+      <b class="settle">MARANU</b>
+      <svg width="46" height="26" viewBox="0 0 46 26" fill="none" aria-hidden="true">
+        <path d="M1 1h44L23 25z" fill="#F3EBDF"/>
+      </svg>
+    </div>
+    <p class="rise" data-d="4">Guided by<br>the light</p>
+  </div>
+</section>
+
+<section class="reveal" id="house">
+  <div class="reveal__pair">
+    <div class="reveal__under">
+      <div class="wrap pane">
+        <p class="lbl rise" style="margin-bottom:26px"><span class="scramble">The house</span></p>
+        <h2 class="lines">
+          <span class="ln"><i>We did not build a view.</i></span>
+          <span class="ln"><i>We built <em>somewhere to sit</em></i></span>
+          <span class="ln"><i>and stopped there.</i></span>
+        </h2>
+      </div>
+    </div>
+    <div class="reveal__over">
+      <div class="reveal__bg grade kb"><span class="ph " style="background-image:url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAALABQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDK8P3X2e3mAQMWcdT7VsPcm4j2GPZjk89aoeFuLS5YAbg4wfwqWeaQzxAscHOfepbBIp3bbZse1FMv/wDj4P0ooGf/2Q==)"><picture><source type="image/avif" srcset="media/maranu-house-1200.avif 1200w, media/maranu-house-1900.avif 1900w" sizes="100vw"><source type="image/webp" srcset="media/maranu-house-1200.webp 1200w, media/maranu-house-1900.webp 1900w" sizes="100vw"><img src="media/maranu-house-1200.jpg" srcset="media/maranu-house-1200.jpg 1200w, media/maranu-house-1900.jpg 1900w" sizes="100vw" width="1900" height="1068" alt="" decoding="async" loading="lazy"></picture></span><span class="reveal__scrim"></span></div>
+      <div class="wrap pane">
+        <h3 class="rise">Rammed earth, dug in, facing west</h3>
+        <p class="rise" data-d="1">Nine metres of wall between you and the afternoon. The rooms hold their own temperature — no unit hums, nothing cycles at 3am. The building is the air conditioning.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="reveal__pair" id="table">
+    <div class="reveal__under">
+      <div class="wrap pane">
+        <p class="lbl rise" style="margin-bottom:26px"><span class="scramble">The table</span></p>
+        <h2 class="lines">
+          <span class="ln"><i>There is no menu.</i></span>
+          <span class="ln"><i>There is <em>what came in</em></i></span>
+          <span class="ln"><i>this morning.</i></span>
+        </h2>
+      </div>
+    </div>
+    <div class="reveal__over">
+      <div class="reveal__bg grade kb"><span class="ph " style="background-image:url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAALABQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDl7W285+TgfWrV5YpGgMfbIOe+O9LpQDNg+tWkJkEivyETjt/FWUpNM2jFONzCKE9BminS/LK4HABorQy0P//Z)"><picture><source type="image/avif" srcset="media/maranu-table-1200.avif 1200w, media/maranu-table-1900.avif 1900w" sizes="100vw"><source type="image/webp" srcset="media/maranu-table-1200.webp 1200w, media/maranu-table-1900.webp 1900w" sizes="100vw"><img src="media/maranu-table-1200.jpg" srcset="media/maranu-table-1200.jpg 1200w, media/maranu-table-1900.jpg 1900w" sizes="100vw" width="1900" height="1068" alt="" decoding="async" loading="lazy"></picture></span><span class="reveal__scrim"></span></div>
+      <div class="wrap pane">
+        <h3 class="rise">One seating, 7:40pm, sixteen chairs</h3>
+        <p class="rise" data-d="1">Everyone starts together and the kitchen cooks once. Seven courses, no substitutions, and the last one is served outside after the light has gone.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="split" id="stay" data-stagger>
+  <a class="split__c" href="#reserve">
+    <i class="grade"><span class="ph " style="background-image:url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAaABQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDamKQoXchVHc1BFPFLN5aspbpirVzv8sBFDHPOWxxVe283z/njVRg8hhXJyanRfQsiNcdKKkoq+VE3My5E014Yo3wrpx7GmT+fZJG88m9V+Vgq8sT34q8RgZHX1pjEtOAxyMd6YFe3uHZGbe2Cxxx0FFW8AdAKKq4rH//Z)"><picture><source type="image/avif" srcset="media/maranu-stay-700.avif 700w, media/maranu-stay-1100.avif 1100w" sizes="(max-width:820px) 100vw, 50vw"><source type="image/webp" srcset="media/maranu-stay-700.webp 700w, media/maranu-stay-1100.webp 1100w" sizes="(max-width:820px) 100vw, 50vw"><img src="media/maranu-stay-700.jpg" srcset="media/maranu-stay-700.jpg 700w, media/maranu-stay-1100.jpg 1100w" sizes="(max-width:820px) 100vw, 50vw" width="1100" height="1466" alt="" decoding="async" loading="lazy"></picture></span><span class="split__scrim"></span></i>
+    <p class="lbl rise"><span class="scramble">For the night</span></p>
+    <h3 class="rise" data-d="1">Stay</h3>
+    <p class="rise" data-d="2">Twelve rooms, each facing a different hour of the day. Two-night minimum, dinner included, nothing else to decide.</p>
+    <span class="tlink rise" data-d="3">Check dates</span>
+  </a>
+  <a class="split__c" href="#reserve">
+    <i class="grade"><span class="ph " style="background-image:url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAaABQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDJtLSO72qxYK+SrY7D3+tB05fLWWTOzdtLbsE8VankmtBE+/LBiBgYPNTRW0smWKARyfNywLA9z9ahp9ClYqGGCHCIYzxySc5PrzRV9o4kOGjJPU5Zf8aKLBctK1g8ajbwB3GTUUzafEmdv5qB/SskcJx2bimDmRc81VxWCW908yHMbt7qMCipZI03fcX8qKVwP//Z)"><picture><source type="image/avif" srcset="media/maranu-dine-700.avif 700w, media/maranu-dine-1100.avif 1100w" sizes="(max-width:820px) 100vw, 50vw"><source type="image/webp" srcset="media/maranu-dine-700.webp 700w, media/maranu-dine-1100.webp 1100w" sizes="(max-width:820px) 100vw, 50vw"><img src="media/maranu-dine-700.jpg" srcset="media/maranu-dine-700.jpg 700w, media/maranu-dine-1100.jpg 1100w" sizes="(max-width:820px) 100vw, 50vw" width="1100" height="1466" alt="" decoding="async" loading="lazy"></picture></span><span class="split__scrim"></span></i>
+    <p class="lbl rise"><span class="scramble">For the evening</span></p>
+    <h3 class="rise" data-d="1">Dine</h3>
+    <p class="rise" data-d="2">Sixteen seats at one table, released the first Monday of each month. Arrive by six for the light.</p>
+    <span class="tlink rise" data-d="3">Request a seat</span>
+  </a>
+</section>
+
+<section class="strip wrap pane">
+  <div class="strip__head">
+    <h2 class="rise">The days here are <em style="font-style:italic">very simple</em>.</h2>
+    <p class="lbl rise" data-d="1">01 / 04</p>
+  </div>
+  <div class="strip__row rise" data-d="1" data-stagger>
+    <figure><i class="grade"><span class="ph " style="background-image:url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCvvvbkoHuGWLjAGMn6nvT1EUDLG853dQz+pPT61stZOqbY4Q7HBypCj9aF05p5I3vfJbZnCKmQPxrn1b1Oi6SskZ373pH5JA7s3NFbRtps/JMoHoUoqdewcx//2Q==)"><picture><source type="image/avif" srcset="media/maranu-strip1-600.avif 600w, media/maranu-strip1-900.avif 900w" sizes="(max-width:640px) 70vw, 320px"><source type="image/webp" srcset="media/maranu-strip1-600.webp 600w, media/maranu-strip1-900.webp 900w" sizes="(max-width:640px) 70vw, 320px"><img src="media/maranu-strip1-600.jpg" srcset="media/maranu-strip1-600.jpg 600w, media/maranu-strip1-900.jpg 900w" sizes="(max-width:640px) 70vw, 320px" width="900" height="675" alt="" decoding="async" loading="lazy"></picture></span></i><figcaption>06:10 — First light on the west wall</figcaption></figure>
+    <figure><i class="grade"><span class="ph " style="background-image:url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCBLmh7rjg1jpMalMmay5TfmLLXJ3daKol+aKfKK5//2Q==)"><picture><source type="image/avif" srcset="media/maranu-strip2-600.avif 600w, media/maranu-strip2-900.avif 900w" sizes="(max-width:640px) 70vw, 320px"><source type="image/webp" srcset="media/maranu-strip2-600.webp 600w, media/maranu-strip2-900.webp 900w" sizes="(max-width:640px) 70vw, 320px"><img src="media/maranu-strip2-600.jpg" srcset="media/maranu-strip2-600.jpg 600w, media/maranu-strip2-900.jpg 900w" sizes="(max-width:640px) 70vw, 320px" width="900" height="675" alt="" decoding="async" loading="lazy"></picture></span></i><figcaption>11:30 — The long shade</figcaption></figure>
+    <figure><i class="grade"><span class="ph " style="background-image:url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCd8ZqvKB361Wnu1lhA3FC+BnHvURLCQkxnAkyMtnkg9PyrA3HsgLdKKr/bVBIZSCDRSswuj//Z)"><picture><source type="image/avif" srcset="media/maranu-strip3-600.avif 600w, media/maranu-strip3-900.avif 900w" sizes="(max-width:640px) 70vw, 320px"><source type="image/webp" srcset="media/maranu-strip3-600.webp 600w, media/maranu-strip3-900.webp 900w" sizes="(max-width:640px) 70vw, 320px"><img src="media/maranu-strip3-600.jpg" srcset="media/maranu-strip3-600.jpg 600w, media/maranu-strip3-900.jpg 900w" sizes="(max-width:640px) 70vw, 320px" width="900" height="675" alt="" decoding="async" loading="lazy"></picture></span></i><figcaption>17:45 — Fire lit, table set</figcaption></figure>
+    <figure><i class="grade"><span class="ph " style="background-image:url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDEMfmMFig37eW3ZGff8Kclq724lBDbCAfX2xQHYzkIzgMuSwbBq+kytGu4FtvPTHFcrbR2KNxyaefLVpT5bON21+tFV3vxvO1CRnqx5oqbSK0P/9k=)"><picture><source type="image/avif" srcset="media/maranu-strip4-600.avif 600w, media/maranu-strip4-900.avif 900w" sizes="(max-width:640px) 70vw, 320px"><source type="image/webp" srcset="media/maranu-strip4-600.webp 600w, media/maranu-strip4-900.webp 900w" sizes="(max-width:640px) 70vw, 320px"><img src="media/maranu-strip4-600.jpg" srcset="media/maranu-strip4-600.jpg 600w, media/maranu-strip4-900.jpg 900w" sizes="(max-width:640px) 70vw, 320px" width="900" height="675" alt="" decoding="async" loading="lazy"></picture></span></i><figcaption>21:20 — Last course, outside</figcaption></figure>
+  </div>
+</section>
+
+<section class="list wrap pane">
+  <div class="list__grid" data-stagger>
+    <h2 class="rise">What a stay<br><em>actually</em> includes.</h2>
+    <div class="rise" data-d="1">
+      <div class="row"><b>01</b><div><h4>Dinner, both nights</h4><p>Seven courses at the single table. Wine pairing optional, corkage waived if you bring your own.</p></div><span>Included</span></div>
+      <div class="row"><b>02</b><div><h4>The walk at first light</h4><p>Ninety minutes with Adé, who has been reading this ground for thirty-one years. Six people maximum.</p></div><span>Included</span></div>
+      <div class="row"><b>03</b><div><h4>Transfer from the airstrip</h4><p>Forty minutes. We meet the 14:05 and nothing else, so plan around it.</p></div><span>Included</span></div>
+      <div class="row"><b>04</b><div><h4>The kitchen table</h4><p>One afternoon a week, four seats, cooking whatever came in. Ask at check-in — it goes quickly.</p></div><span>On request</span></div>
+    </div>
+  </div>
+</section>
+
+<footer class="foot wrap pane" id="reserve">
+  <h2 class="lines">
+    <span class="ln"><i>Come for the light.</i></span>
+    <span class="ln"><i>Stay for the <em>quiet</em>.</i></span>
+  </h2>
+  <div class="foot__cta rise" data-d="1"><a class="tlink mag" href="#">Request your dates</a></div>
+  <div class="foot__bar">
+    <div class="clocks">
+      <div>Lodge <b id="c1">—</b></div>
+      <div>Reservations · London <b id="c2">—</b></div>
+    </div>
+    <p class="lbl">MARANU — demo build for MVS Solves</p>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+(function(){
+  'use strict';
+  var reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var coarse = matchMedia('(pointer:coarse)').matches;
+
+  /* QA only: ?static skips smooth scroll, &y=<px> jumps to an offset. */
+  var qaStatic = /[?&]static/.test(location.search);
+  var qaY = (location.search.match(/[?&]y=(\d+)/)||[])[1];
+  if(qaY) addEventListener('load', function(){ window.scrollTo(0, +qaY); });
+
+  var lenis = null;
+  if(window.Lenis && !reduce && !coarse && !qaStatic){
+    lenis = new Lenis({
+      duration: 1.25,
+      easing: function(t){ return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+      smoothWheel: true,
+      wheelMultiplier: 1
+    });
+    (function raf(t){ lenis.raf(t); requestAnimationFrame(raf); })(0);
+  }
+
+  function goTo(el){
+    if(lenis) lenis.scrollTo(el, {offset:-70, duration:1.2});
+    else el.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block:'start'});
+  }
+
+  /* one observer drives rises, per-line masks and the wordmark settle, so a
+     phone gets exactly the choreography a desktop does */
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{rootMargin:'0px 0px -12% 0px'});
+  var animated = document.querySelectorAll('.rise,.lines,.settle');
+  animated.forEach(function(el){ io.observe(el); });
+  /* safety net: if IntersectionObserver never fires — the page is inside a
+     hidden/offscreen iframe, an embed, a print view — nothing must stay
+     invisible. Reveal whatever is still waiting. */
+  setTimeout(function(){
+    animated.forEach(function(el){ el.classList.add('in'); });
+  }, 2600);
+
+  /* rail scroll-position indicator */
+  var links = {};
+  document.querySelectorAll('.rail a').forEach(function(a){ links[a.dataset.rail] = a; });
+  var spy = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      var a = links[e.target.id];
+      if(a && e.isIntersecting){
+        Object.keys(links).forEach(function(k){ links[k].dataset.on = '0'; });
+        a.dataset.on = '1';
+      }
+    });
+  },{rootMargin:'-46% 0px -46% 0px'});
+  ['setting','house','table','stay','reserve'].forEach(function(id){
+    var el = document.getElementById(id); if(el) spy.observe(el);
+  });
+
+  /* ---- menu ---- */
+  var burger = document.getElementById('burger');
+  var menu = document.getElementById('menu');
+  var bar = document.getElementById('topbar');
+  function setMenu(open){
+    menu.dataset.open = open ? '1' : '0';
+    menu.setAttribute('aria-hidden', open ? 'false' : 'true');
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    document.body.classList.toggle('is-locked', open);
+    if(lenis){ open ? lenis.stop() : lenis.start(); }
+  }
+  burger.addEventListener('click', function(){ setMenu(menu.dataset.open !== '1'); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && menu.dataset.open === '1') setMenu(false);
+  });
+
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var id = a.getAttribute('href');
+      if(id.length < 2) return;
+      var el = document.querySelector(id);
+      if(!el) return;
+      e.preventDefault();
+      if(menu.dataset.open === '1'){ setMenu(false); setTimeout(function(){ goTo(el); }, 340); }
+      else goTo(el);
+    });
+  });
+
+  /* bar retracts going down, returns going up */
+  var last = 0;
+  addEventListener('scroll', function(){
+    var y = window.scrollY;
+    if(menu.dataset.open === '1'){ bar.dataset.hidden = '0'; last = y; return; }
+    bar.dataset.hidden = (y > 260 && y > last) ? '1' : '0';
+    last = y;
+  }, {passive:true});
+
+  /* ---- photo fade-in + real load progress ---- */
+  /* Only count images that actually load now. Lazy, below-fold images never
+     complete until you scroll to them — counting those left the bar near zero
+     and made every load sit and wait for the ceiling. */
+  /* Two different jobs, two different lists. Every image fades in when it
+     decodes; only non-lazy ones count toward loader progress. Conflating them
+     left every lazy image stuck at opacity:0 showing just its blur placeholder. */
+  var allImgs = [].slice.call(document.images);
+  var imgs = allImgs.filter(function(im){ return im.loading !== 'lazy'; });
+  allImgs.forEach(function(img){
+    var show = function(){ img.classList.add('ready'); };
+    if(img.complete && img.naturalWidth) show();
+    else { img.addEventListener('load', show, {once:true});
+           img.addEventListener('error', show, {once:true}); }
+  });
+  var bar = document.getElementById('loadBar');
+  var load = document.getElementById('load');
+  var done = 0, total = Math.max(1, imgs.length);
+  function bump(){
+    done++;
+    if(bar) bar.style.setProperty('--p', Math.min(1, done/total).toFixed(3));
+    if(done >= total) finish();
+  }
+  imgs.forEach(function(img){
+    if(img.complete && img.naturalWidth) bump();
+    else { img.addEventListener('load', bump, {once:true});
+           img.addEventListener('error', bump, {once:true}); }
+  });
+
+  /* a loader that vanishes in 80ms reads as a flicker, not a considered entrance.
+     Hold a short floor so it is always perceived, then get out of the way. */
+  var t0 = Date.now(), MIN_SHOW = 900, released = false;
+  if(!imgs.length) finish();   /* nothing eager to wait on */
+  function doRelease(){
+    if(released) return; released = true;
+    if(bar) bar.style.setProperty('--p','1');
+    load.dataset.done = '1';
+    document.documentElement.classList.remove('is-loading');
+    setTimeout(function(){ load.style.display = 'none'; }, 1200);
+  }
+  function release(){ setTimeout(doRelease, Math.max(0, MIN_SHOW - (Date.now() - t0))); }
+  function finish(){
+    /* fonts get a short grace period so the wordmark doesn't reflow on reveal,
+       but release is never CONDITIONAL on them — document.fonts.ready can hang
+       indefinitely in some contexts and would trap the page behind the curtain. */
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(release);
+    setTimeout(release, 600);
+  }
+  /* hard ceiling: a stalled or dead asset must never trap anyone */
+  setTimeout(release, 5000);
+  addEventListener('load', function(){ setTimeout(release, 250); });
+
+  /* dual clocks */
+  function tz(zone){ return new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:zone}); }
+  var f1 = tz('Africa/Windhoek'), f2 = tz('Europe/London');
+  (function clock(){
+    var n = new Date();
+    document.getElementById('c1').textContent = f1.format(n);
+    document.getElementById('c2').textContent = f2.format(n);
+    setTimeout(clock, 15000);
+  })();
+
+  /* ================= motion layer ================= */
+  var coarsePtr = matchMedia('(pointer:coarse)').matches;
+
+  /* count-ups: fire once when the number enters view */
+  var counters = document.querySelectorAll('[data-count]');
+  if(counters.length){
+    var cio = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(!e.isIntersecting) return;
+        cio.unobserve(e.target);
+        var el = e.target;
+        var end = parseFloat(el.dataset.count);
+        var suffix = el.dataset.suffix || '';
+        var dec = (el.dataset.dec|0);
+        if(reduce){ el.textContent = end.toFixed(dec) + suffix; return; }
+        var t0c = null, dur = 1400;
+        (function step(ts){
+          if(t0c === null) t0c = ts;
+          var k = Math.min(1, (ts - t0c) / dur);
+          var eased = 1 - Math.pow(1 - k, 3);
+          el.textContent = (end * eased).toFixed(dec).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + suffix;
+          if(k < 1) requestAnimationFrame(step);
+        })(performance.now());
+        /* rAF is frozen in a background tab — never leave the number stuck at 0 */
+        setTimeout(function(){
+          if(el.textContent === '0' || el.textContent === '')
+            el.textContent = end.toFixed(dec).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + suffix;
+        }, 2200);
+      });
+    },{rootMargin:'0px 0px -18% 0px'});
+    counters.forEach(function(el){ cio.observe(el); });
+  }
+
+  /* scramble: decode-in on small caps labels — Izanami (010) */
+  var GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/\\<>*#';
+  function scramble(el){
+    var text = el.dataset.text || el.textContent;
+    el.dataset.text = text;
+    if(reduce){ el.textContent = text; return; }
+    var frame = 0, len = text.length;
+    var id = setInterval(function(){
+      var out = '';
+      for(var i = 0; i < len; i++){
+        if(text[i] === ' '){ out += ' '; continue; }
+        if(i < frame - 4) out += text[i];
+        else if(i < frame) out += GLYPHS[(Math.random()*GLYPHS.length)|0];
+        else out += ' ';
+      }
+      el.textContent = out;
+      frame++;
+      if(frame > len + 5){ clearInterval(id); el.textContent = text; }
+    }, 28);
+  }
+  var scrambles = document.querySelectorAll('.scramble');
+  if(scrambles.length){
+    var sio = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ sio.unobserve(e.target); scramble(e.target); } });
+    },{rootMargin:'0px 0px -12% 0px'});
+    scrambles.forEach(function(el){ sio.observe(el); });
+  }
+
+  /* magnetic CTAs — desktop pointers only */
+  if(!coarsePtr && !reduce){
+    document.querySelectorAll('.mag').forEach(function(el){
+      el.addEventListener('pointermove', function(e){
+        var r = el.getBoundingClientRect();
+        el.dataset.mag = '1';
+        el.style.setProperty('--mx', ((e.clientX - r.left - r.width/2) * 0.22).toFixed(1) + 'px');
+        el.style.setProperty('--my', ((e.clientY - r.top - r.height/2) * 0.3).toFixed(1) + 'px');
+      });
+      el.addEventListener('pointerleave', function(){
+        el.style.setProperty('--mx','0px'); el.style.setProperty('--my','0px');
+      });
+    });
+  }
+
+  /* ================= experience layer ================= */
+
+  /* entrance choreography — one observer, index-stamped for stagger */
+  document.querySelectorAll('[data-stagger]').forEach(function(box){
+    [].forEach.call(box.children, function(c,i){ c.style.setProperty('--i', i); });
+  });
+  var aio = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); aio.unobserve(e.target); } });
+  },{rootMargin:'0px 0px -10% 0px'});
+  var animEls = document.querySelectorAll('[data-anim]');
+  animEls.forEach(function(el){ aio.observe(el); });
+  setTimeout(function(){ animEls.forEach(function(el){ el.classList.add('in'); }); }, 2600);
+
+
+  /* page transitions: native where supported, curtain everywhere else */
+  if(!reduce){
+    var supportsVT = 'startViewTransition' in document;
+    var curtain = null;
+    if(!supportsVT){
+      curtain = document.createElement('div'); curtain.className = 'curtain';
+      document.body.appendChild(curtain);
+    }
+    document.querySelectorAll('a[href]').forEach(function(a){
+      var href = a.getAttribute('href');
+      if(!href || href.charAt(0) === '#' || a.target === '_blank') return;
+      if(/^(https?:)?\/\//.test(href) && a.hostname !== location.hostname) return;
+      a.addEventListener('click', function(e){
+        if(e.metaKey || e.ctrlKey || e.shiftKey || supportsVT) return;
+        e.preventDefault();
+        curtain.dataset.on = '1';
+        setTimeout(function(){ location.href = a.href; }, 460);
+      });
+    });
+  }
+})();
+</script>
+</body>
+</html>
