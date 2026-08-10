@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script>document.documentElement.className+=' js';</script>
+<title>MVS Solves — You never see the jobs you lose</title>
+<meta name="description" content="The site that sells, the booking that answers, the follow-up that closes. Fifty businesses run on systems built end to end by one person.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0A0A0C">
+<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================
+   SIGNAL — two colours and white. Ink ground, magenta accent.
+   Reference: SUN HUNG (040) for the palette discipline, the
+   blend-difference headline and the CSS-only card stack.
+   CINETIK (001) for the sideways wordmark. Dash (021) for the
+   case list living inside the hero.
+   No photographic beds in the blended sections — difference
+   inverts against whatever passes under it and goes to mud
+   over photography.
+   ========================================================== */
+@view-transition{ navigation: auto }
+
+:root{
+  --ink:#0A0A0C;
+  --mag:#F62A99;
+  --w:#FFFFFF;
+  --w-2:rgba(255,255,255,.66);
+  --w-3:rgba(255,255,255,.42);
+  --hair:rgba(255,255,255,.14);
+  --hair-2:rgba(255,255,255,.07);
+
+  --disp:'Archivo',Helvetica,Arial,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+
+  --d1:clamp(3.1rem,1.6rem + 7.4vw,9rem);
+  --d2:clamp(2.2rem,1.5rem + 4vw,5.4rem);
+  --d3:clamp(1.55rem,1.2rem + 1.9vw,3rem);
+  --d4:clamp(1.15rem,1rem + .6vw,1.5rem);
+  --lbl:.78rem;
+
+  --pad:clamp(1.25rem,4.5vw,4.5rem);
+  --ease:cubic-bezier(.22,1,.28,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; background:var(--ink); scroll-behavior:smooth; overflow-x:clip}
+body{margin:0; background:var(--ink); color:var(--w);
+  font-family:var(--mono); font-weight:400; font-size:.95rem; line-height:1.72;
+  -webkit-font-smoothing:antialiased; overflow-x:clip; max-width:100%}
+img{max-width:100%; display:block}
+a{color:inherit; text-decoration:none}
+p{margin:0}
+h1,h2,h3{margin:0; font-family:var(--disp); font-weight:900; line-height:.94;
+  letter-spacing:-.028em; text-transform:uppercase}
+::selection{background:var(--mag); color:var(--w)}
+:focus-visible{outline:2px solid var(--mag); outline-offset:3px}
+
+.wrap{max-width:1440px; margin-inline:auto; padding-inline:var(--pad)}
+.lbl{font-family:var(--mono); font-size:var(--lbl); letter-spacing:.14em;
+  text-transform:uppercase; color:var(--w-3)}
+.lede{font-size:clamp(.98rem,.94rem + .3vw,1.14rem); line-height:1.7; color:var(--w-2); max-width:52ch}
+
+/* ---------- custom cursor: magnetic, desktop pointers only ---------- */
+#cur,#curr{position:fixed; top:0; left:0; z-index:90; pointer-events:none; opacity:0}
+#cur{width:6px; height:6px; margin:-3px 0 0 -3px; background:var(--mag); border-radius:50%}
+#curr{width:36px; height:36px; margin:-18px 0 0 -18px; border:1px solid var(--hair); border-radius:50%;
+  transition:width .3s var(--ease),height .3s var(--ease),margin .3s var(--ease),border-color .3s var(--ease)}
+#curr.on{width:64px; height:64px; margin:-32px 0 0 -32px; border-color:var(--mag)}
+@media (pointer:fine){ html.js.cursor *{cursor:none !important} }
+@media (pointer:coarse){ #cur,#curr{display:none} }
+
+/* ---------- nav ---------- */
+nav{position:fixed; inset-inline:0; top:0; z-index:60}
+.nav-scrim{position:fixed; inset-inline:0; top:0; height:112px; z-index:59; pointer-events:none;
+  background:linear-gradient(180deg, rgba(10,10,12,.88) 0%, rgba(10,10,12,.5) 55%, transparent 100%)}
+.nav-in{display:flex; align-items:center; gap:1rem; height:72px}
+.mark{font-family:var(--disp); font-weight:900; font-size:1.1rem; letter-spacing:.02em;
+  text-transform:uppercase; min-height:44px; display:inline-flex; align-items:center}
+.mark i{color:var(--mag); font-style:normal}
+
+/* fixed width: a focus-time resize would shove the buttons beside it sideways */
+.ask{margin-left:auto; position:relative; display:flex; align-items:center;
+  width:clamp(150px,20vw,290px)}
+.ask input{width:100%; height:38px; background:transparent; color:var(--w);
+  border:1px solid var(--hair); border-radius:999px; padding:0 2.2rem 0 .95rem;
+  font-family:var(--mono); font-size:.75rem; letter-spacing:.06em;
+  transition:border-color .4s var(--ease), width .4s var(--ease)}
+.ask input{height:44px}
+.ask input::placeholder{color:var(--w-3)}
+.ask input:focus{outline:0; border-color:var(--mag)}
+.ask .k{position:absolute; right:.8rem; font-size:.68rem; color:var(--w-3); pointer-events:none}
+#res{position:absolute; top:52px; right:0; width:min(360px,80vw); background:#111114;
+  border:1px solid var(--hair); border-radius:12px; overflow:hidden; opacity:0; visibility:hidden;
+  pointer-events:none; transition:opacity .22s var(--ease), visibility .22s var(--ease)}
+#res.on{opacity:1; visibility:visible; pointer-events:auto}
+#res a{display:block; padding:.75rem .95rem; border-bottom:1px solid var(--hair-2); font-size:.78rem}
+#res a:last-child{border-bottom:0}
+#res a:hover,#res a.sel{background:var(--mag); color:var(--w)}
+#res .rl{display:block; font-size:.64rem; letter-spacing:.14em; text-transform:uppercase; color:var(--w-3)}
+#res a:hover .rl,#res a.sel .rl{color:rgba(255,255,255,.8)}
+#res .none{padding:.85rem .95rem; font-size:.75rem; color:var(--w-3)}
+
+.iconbtn{-webkit-appearance:none; appearance:none; background:none; border:1px solid var(--hair);
+  border-radius:999px; color:var(--w); font-family:var(--mono); font-size:.7rem; letter-spacing:.14em;
+  text-transform:uppercase; height:44px; min-width:44px; padding-inline:.9rem; cursor:pointer;
+  display:inline-flex; align-items:center; gap:.45rem; transition:border-color .4s var(--ease),color .4s var(--ease)}
+.iconbtn:hover{border-color:var(--mag)}
+.iconbtn .dot{width:6px; height:6px; border-radius:50%; background:var(--w-3); transition:background .3s}
+.iconbtn[aria-pressed="true"] .dot{background:var(--mag)}
+
+/* ---------- full-screen menu ---------- */
+#menu{position:fixed; inset:0; z-index:70; background:var(--ink);
+  display:flex; flex-direction:column; justify-content:center; padding:0 var(--pad);
+  opacity:0; visibility:hidden; pointer-events:none;
+  transition:opacity .4s var(--ease), visibility .4s var(--ease)}
+#menu.open{opacity:1; visibility:visible; pointer-events:auto}
+#menu a{display:block; font-family:var(--disp); font-weight:900; text-transform:uppercase;
+  font-size:clamp(2rem,1rem + 6.5vw,5rem); line-height:1.04; letter-spacing:-.028em;
+  padding-block:.28rem; border-bottom:1px solid var(--hair-2); transition:color .35s var(--ease)}
+#menu a:last-of-type{border-bottom:0}
+#menu a:hover{color:var(--mag)}
+.menu-close{position:absolute; top:0; right:var(--pad); height:72px}
+html:not(.js) #menu{display:none}
+html:not(.js) .navbtn{display:none}
+
+/* ---------- hero ---------- */
+.hero{position:relative; min-height:100svh; display:flex; align-items:flex-end;
+  padding-block:6.5rem 2.5rem; overflow:hidden}
+#gl{position:absolute; inset:0; z-index:0; width:100%; height:100%; display:block}
+.hero-fall{position:absolute; inset:0; z-index:0;
+  background:radial-gradient(58% 58% at 68% 42%, rgba(246,42,153,.34) 0%, rgba(246,42,153,.06) 46%, transparent 72%)}
+.hero-in{position:relative; z-index:2; width:100%; display:grid;
+  grid-template-columns:minmax(0,1.32fr) minmax(0,.68fr); gap:clamp(1.5rem,4vw,4rem); align-items:end}
+
+/* sideways wordmark, CINETIK — full height of the hero, left edge */
+.side{position:absolute; left:calc(var(--pad) * .3); top:0; bottom:0; z-index:2;
+  writing-mode:vertical-rl; transform:rotate(180deg);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--disp); font-weight:900; text-transform:uppercase;
+  font-size:clamp(.7rem,.62rem + .5vw,1rem); letter-spacing:.42em; color:var(--w-3)}
+@media(max-width:900px){ .side{display:none} }
+
+.hero h1{font-size:var(--d1)}
+.hero h1 .mg{color:var(--mag)}
+.hero .lede{margin-top:1.6rem}
+.hint{margin-top:1.5rem; display:inline-flex; align-items:center; gap:.6rem;
+  font-size:.7rem; letter-spacing:.16em; text-transform:uppercase; color:var(--w-3)}
+.hint b{width:22px; height:1px; background:var(--mag); display:block}
+
+.stats{display:flex; flex-wrap:wrap; gap:1rem 2.6rem; margin-top:clamp(1.75rem,4vh,2.75rem);
+  padding-top:1.2rem; border-top:1px solid var(--hair-2)}
+.stat b{display:block; font-family:var(--disp); font-weight:800; font-size:clamp(1.6rem,1.2rem + 1.5vw,2.6rem);
+  line-height:1; letter-spacing:-.03em; font-variant-numeric:tabular-nums}
+.stat span{display:block; margin-top:.4rem; font-size:.66rem; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--w-3)}
+
+/* case-study list inside the hero, Dash */
+.cases{border:1px solid var(--hair); border-radius:14px; overflow:hidden; background:rgba(10,10,12,.58);
+  backdrop-filter:blur(9px); -webkit-backdrop-filter:blur(9px); max-height:min(48svh,430px); overflow-y:auto;
+  overscroll-behavior:contain}
+.cases .ch{padding:.7rem .95rem; border-bottom:1px solid var(--hair-2);
+  font-size:.64rem; letter-spacing:.16em; text-transform:uppercase; color:var(--w-3);
+  position:sticky; top:0; background:rgba(10,10,12,.92); backdrop-filter:blur(9px); z-index:1}
+.case{display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:.85rem; align-items:center;
+  padding:.85rem .95rem; border-bottom:1px solid var(--hair-2); transition:background .35s var(--ease)}
+.case:last-child{border-bottom:0}
+.case:hover{background:rgba(246,42,153,.14)}
+.case .n{font-size:.66rem; color:var(--w-3); font-variant-numeric:tabular-nums}
+.case h3{font-family:var(--disp); font-weight:700; font-size:.92rem; letter-spacing:-.01em; text-transform:uppercase}
+.case p{font-size:.7rem; color:var(--w-3); line-height:1.5; margin-top:.15rem}
+.case .ar{color:var(--mag); font-size:.9rem}
+@media(max-width:900px){
+  .hero{align-items:flex-end; padding-block:5.5rem 2rem}
+  .hero-in{grid-template-columns:1fr; gap:2rem}
+  .cases{max-height:none}
+}
+
+/* ---------- marquee, the honest version: repeated in overflow hidden ---------- */
+.marq{overflow:hidden; max-width:100%; border-block:1px solid var(--hair-2); padding-block:1.1rem; white-space:nowrap}
+.marq-in{display:inline-flex; animation:marq 34s linear infinite}
+.marq span{font-family:var(--disp); font-weight:800; font-size:clamp(1.1rem,.9rem + 1.1vw,2rem);
+  text-transform:uppercase; letter-spacing:-.01em; padding-inline:1.5rem; color:var(--w-3)}
+.marq span em{font-style:normal; color:var(--mag)}
+@keyframes marq{ to{ transform:translateX(-50%) } }
+
+/* ---------- blend-difference sticky headline over flat colour fields ---------- */
+.diffwrap{position:relative}
+/* the pinned headline owns the left column only — the figures live to its right
+   and it must never cross them */
+.diffhead{position:sticky; top:0; z-index:3; mix-blend-mode:difference; pointer-events:none;
+  width:min(54%,740px); padding-block:clamp(3rem,10vh,6rem); padding-inline:var(--pad)}
+.diffhead h2{font-size:var(--d2); color:#fff; max-width:11ch}
+.diffhead .lbl{color:#fff; opacity:.8; margin-bottom:1rem; display:block}
+.fields > div{padding:clamp(3.5rem,10vh,7rem) var(--pad) clamp(3.5rem,10vh,7rem)}
+/* only ink and white pass under the blended headline. Difference of white against
+   magenta resolves to green — a third colour the palette does not have. */
+.f-ink{background:var(--ink)}
+.f-w{background:var(--w); color:var(--ink)}
+.f-w .lbl,.f-w .fp{color:rgba(10,10,12,.62)}
+.figs,.fields .fp{max-width:680px; margin-left:auto}
+.fig{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:1.5rem; align-items:baseline;
+  padding-block:1.05rem; border-bottom:1px solid var(--hair-2)}
+.f-w .fig{border-color:rgba(10,10,12,.16)}
+.f-w .fig b{color:var(--mag)}
+.fig p{font-size:.8rem; line-height:1.55; opacity:.72}
+.fig b{font-family:var(--disp); font-weight:800; font-size:clamp(1.5rem,1.1rem + 1.5vw,2.4rem);
+  letter-spacing:-.03em; font-variant-numeric:tabular-nums; white-space:nowrap}
+
+/* one column below 900px: nothing can slide under a pinned headline, so it stops
+   being pinned and stops being blended rather than sitting on top of the figures */
+@media(max-width:900px){
+  .diffhead{position:static; width:auto; mix-blend-mode:normal; padding-bottom:0}
+  .diffhead h2{max-width:14ch}
+  .figs,.fields .fp{max-width:none; margin-left:0}
+}
+
+/* full-bleed magenta, outside the blended range so nothing inverts over it */
+.magpanel{background:var(--mag); padding-block:clamp(4rem,12vh,8rem)}
+.magpanel h2{font-size:var(--d2); max-width:14ch}
+.magpanel p{margin-top:1.75rem; max-width:46ch; color:rgba(255,255,255,.88);
+  font-size:clamp(.98rem,.94rem + .3vw,1.14rem); line-height:1.7}
+
+/* ---------- method ---------- */
+.sec{padding-block:clamp(4rem,11vh,8rem)}
+.sec h2{font-size:var(--d2); margin-top:1rem; max-width:16ch}
+.split{display:grid; grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr); gap:clamp(1.75rem,5vw,5rem); align-items:start}
+@media(max-width:860px){.split{grid-template-columns:1fr; gap:2.25rem}}
+.seq{list-style:none; margin:clamp(1.75rem,4vh,2.5rem) 0 0; padding:0}
+.seq li{display:grid; grid-template-columns:auto minmax(0,1fr); gap:1.25rem;
+  padding-block:1.35rem; border-top:1px solid var(--hair-2)}
+.seq .n{font-size:.7rem; color:var(--mag); font-variant-numeric:tabular-nums; padding-top:.35rem}
+.seq h3{font-family:var(--disp); font-weight:800; font-size:var(--d4); letter-spacing:-.015em}
+.seq p{margin-top:.5rem; font-size:.82rem; color:var(--w-3); line-height:1.65}
+
+/* ---------- CSS-only sticky card stack, SUN HUNG ---------- */
+.stackwrap{position:relative}
+.card{position:sticky; top:0; min-height:100svh; display:flex; align-items:center;
+  border-top:1px solid var(--hair); padding-block:clamp(3rem,8vh,5rem)}
+.card:nth-child(1){background:#0A0A0C} .card:nth-child(2){background:#0D0D10}
+.card:nth-child(3){background:#101014} .card:nth-child(4){background:#131318}
+.card:nth-child(5){background:#16161C} .card:nth-child(6){background:#1A1A20}
+.card-in{width:100%; display:grid; grid-template-columns:auto minmax(0,1fr); gap:clamp(1.25rem,4vw,3.5rem); align-items:start}
+.card .n{font-family:var(--disp); font-weight:900; font-size:clamp(4rem,2rem + 9vw,11rem);
+  line-height:.8; color:transparent; -webkit-text-stroke:1px var(--hair)}
+.card h3{font-size:var(--d2)}
+.card p{margin-top:1.4rem; max-width:40ch; color:var(--w-2);
+  font-size:clamp(1rem,.95rem + .45vw,1.25rem); line-height:1.62}
+.card .tag{margin-top:1.5rem; display:inline-block; font-size:.64rem; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--mag); border:1px solid var(--mag); border-radius:999px; padding:.35rem .8rem}
+
+/* ---------- scroll-scrub sequence ---------- */
+.scrub{position:relative; height:320svh}
+.scrub-pin{position:sticky; top:0; height:100svh; overflow:hidden; display:flex; align-items:center}
+#seq{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; opacity:.42}
+.scrub-pin::after{content:''; position:absolute; inset:0; z-index:1;
+  background:linear-gradient(90deg, var(--ink) 0%, rgba(10,10,12,.72) 46%, transparent 100%)}
+.scrub-in{position:relative; z-index:2; width:100%}
+.scrub h2{font-size:var(--d2); max-width:12ch}
+.tl{margin-top:clamp(1.75rem,4vh,2.5rem); max-width:560px}
+.tl div{display:grid; grid-template-columns:120px minmax(0,1fr); gap:1.25rem;
+  padding-block:.9rem; border-top:1px solid var(--hair-2)}
+.tl dt{font-size:.66rem; letter-spacing:.16em; text-transform:uppercase; color:var(--mag)}
+.tl dd{margin:0; font-size:.85rem; color:var(--w-2); line-height:1.6}
+@media(max-width:640px){ .tl div{grid-template-columns:1fr; gap:.3rem} }
+
+/* ---------- demos grid ---------- */
+.grid6{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1px;
+  background:var(--hair-2); border:1px solid var(--hair-2); margin-top:clamp(2rem,5vh,3rem)}
+.g6{background:var(--ink); padding:1.5rem 1.35rem; min-height:190px; display:flex; flex-direction:column;
+  justify-content:space-between; transition:background .4s var(--ease)}
+.g6:hover{background:var(--mag)}
+.g6 h3{font-family:var(--disp); font-weight:800; font-size:var(--d4); letter-spacing:-.015em}
+.g6 .k{font-size:.64rem; letter-spacing:.16em; text-transform:uppercase; color:var(--w-3); margin-top:.5rem}
+.g6:hover .k{color:rgba(255,255,255,.82)}
+.g6 p{margin-top:1rem; font-size:.78rem; color:var(--w-3); line-height:1.6}
+.g6:hover p{color:rgba(255,255,255,.9)}
+
+/* ---------- close ---------- */
+.close{padding-block:clamp(5rem,14vh,10rem); border-top:1px solid var(--hair)}
+.close h2{font-size:var(--d2); max-width:12ch}
+.go{margin-top:clamp(1.75rem,4vh,2.5rem); display:inline-flex; align-items:center; gap:.8rem;
+  min-height:52px; padding:0 1.6rem; border-radius:999px; background:var(--mag); color:var(--w);
+  font-family:var(--mono); font-size:.76rem; letter-spacing:.16em; text-transform:uppercase;
+  transition:transform .4s var(--ease)}
+.go:hover{transform:translateX(5px)}
+footer{border-top:1px solid var(--hair-2); padding-block:1.4rem}
+.foot-in{display:flex; flex-wrap:wrap; gap:.4rem 2rem; align-items:center;
+  font-size:.66rem; letter-spacing:.16em; text-transform:uppercase; color:var(--w-3)}
+.foot-in a{min-height:44px; display:inline-flex; align-items:center}
+.foot-in a:hover{color:var(--mag)}
+.foot-in .r{margin-left:auto}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *{transition-duration:.01ms !important; animation-duration:.01ms !important; animation-iteration-count:1 !important}
+  .marq-in{animation:none}
+}
+</style>
+</head>
+<body>
+
+<div id="curr" aria-hidden="true"></div>
+<div id="cur" aria-hidden="true"></div>
+
+<div class="nav-scrim" aria-hidden="true"></div>
+<nav>
+  <div class="wrap nav-in">
+    <a class="mark" href="#top">MVS<i>.</i></a>
+
+    <div class="ask">
+      <input id="ask" type="search" placeholder="Ask MVS anything" aria-label="Search this site" autocomplete="off">
+      <span class="k">/</span>
+      <div id="res" role="listbox" aria-label="Results"></div>
+    </div>
+
+    <button class="iconbtn" id="snd" type="button" aria-pressed="false" aria-label="Toggle ambient sound">
+      <span class="dot" aria-hidden="true"></span>Sound
+    </button>
+    <button class="iconbtn navbtn" id="navbtn" type="button" aria-expanded="false" aria-controls="menu">Menu</button>
+  </div>
+</nav>
+
+<div id="menu" role="dialog" aria-modal="true" aria-label="Menu">
+  <button class="iconbtn menu-close" id="menuclose" type="button">Close</button>
+  <a href="#proof" data-scr>Proof</a>
+  <a href="#method" data-scr>Method</a>
+  <a href="#work" data-scr>Work</a>
+  <a href="/demos/" data-scr>Demos</a>
+  <a href="#origin" data-scr>Origin</a>
+  <a href="/contact/" data-scr>Contact</a>
+</div>
+
+<header class="hero" id="top">
+  <canvas id="gl" aria-hidden="true"></canvas>
+  <div class="hero-fall" aria-hidden="true"></div>
+  <div class="side" aria-hidden="true">MVS Solves — Brea, California</div>
+
+  <div class="wrap hero-in">
+    <div>
+      <h1>You never see<br>the jobs<br>you <span class="mg">lose.</span></h1>
+      <p class="lede">The site that sells, the booking that answers, the follow-up that closes.
+        Built end to end by the person who answers for it.</p>
+      <span class="hint" id="hint"><b aria-hidden="true"></b>Drag the field</span>
+
+      <div class="stats">
+        <div class="stat"><b data-count="720" data-pre="$" data-suf="K">$0K</b><span>Created for clients</span></div>
+        <div class="stat"><b data-count="50" data-suf="+">0+</b><span>Businesses running</span></div>
+        <div class="stat"><b data-count="6">0</b><span>At 10K a month</span></div>
+      </div>
+    </div>
+
+    <div class="cases" aria-label="Demo builds">
+      <div class="ch">Six builds — open any of them</div>
+      <a class="case" href="/demos/dispatch/"><span class="n">01</span><span><h3>Dispatch</h3><p>Live board instead of a sales page. Every rate published.</p></span><span class="ar">&rarr;</span></a>
+      <a class="case" href="/demos/micron/"><span class="n">02</span><span><h3>Micron</h3><p>Switch on the inspection light and the paint defects appear.</p></span><span class="ar">&rarr;</span></a>
+      <a class="case" href="/demos/oyster/"><span class="n">03</span><span><h3>Oyster</h3><p>A shader over the hero that follows your cursor.</p></span><span class="ar">&rarr;</span></a>
+      <a class="case" href="/demos/icehouse/"><span class="n">04</span><span><h3>Icehouse</h3><p>Twenty-eight lofts riding a real 3D building.</p></span><span class="ar">&rarr;</span></a>
+      <a class="case" href="/demos/datum/"><span class="n">05</span><span><h3>Datum</h3><p>Excavation and site work, priced in the open.</p></span><span class="ar">&rarr;</span></a>
+      <a class="case" href="/demos/marrow/"><span class="n">06</span><span><h3>Marrow</h3><p>A fire kitchen, arriving on a masked heat layer.</p></span><span class="ar">&rarr;</span></a>
+    </div>
+  </div>
+</header>
+
+<div class="marq" aria-hidden="true">
+  <div class="marq-in">
+    <span>Six businesses <em>&bull;</em> ten thousand a month <em>&bull;</em> each <em>&bull;</em></span>
+    <span>Six businesses <em>&bull;</em> ten thousand a month <em>&bull;</em> each <em>&bull;</em></span>
+    <span>Six businesses <em>&bull;</em> ten thousand a month <em>&bull;</em> each <em>&bull;</em></span>
+    <span>Six businesses <em>&bull;</em> ten thousand a month <em>&bull;</em> each <em>&bull;</em></span>
+  </div>
+</div>
+
+<section class="diffwrap" id="proof">
+  <div class="diffhead">
+    <span class="lbl">Proof</span>
+    <h2>Six businesses. Ten thousand a month. Each.</h2>
+  </div>
+  <div class="fields">
+    <div class="f-ink">
+      <p class="lede fp">Every one was built around how that business actually works — the way enquiries
+        arrive, who answers them, what quietly gets missed. Not a template with a logo dropped on it.</p>
+    </div>
+    <div class="f-w">
+      <div class="figs">
+        <div class="fig"><p>Annual revenue created for clients, from systems still running today</p><b>$720K</b></div>
+        <div class="fig"><p>Combined monthly revenue across the top six</p><b>$60K</b></div>
+        <div class="fig"><p>Automations running every month, untouched</p><b>10,000+</b></div>
+        <div class="fig"><p>Businesses on systems designed and built end to end</p><b>50+</b></div>
+      </div>
+    </div>
+    <div class="f-ink" style="min-height:40svh"></div>
+  </div>
+</section>
+
+<section class="magpanel">
+  <div class="wrap">
+    <h2>Fifty businesses.<br>One person.<br>No hand-offs.</h2>
+    <p>No account managers, no chain for the work to get watered down as it passes along.
+      Just the person who built it, answering for it.</p>
+  </div>
+</section>
+
+<section class="sec wrap" id="method">
+  <div class="split">
+    <div>
+      <span class="lbl">Method</span>
+      <h2>Four steps. One outcome.</h2>
+      <p class="lede" style="margin-top:1.5rem">A stranger becomes a booked, paying client — and it keeps
+        happening while you work.</p>
+    </div>
+    <ol class="seq">
+      <li><span class="n">01</span><div><h3>We find the leak</h3><p>One call. I map how enquiries actually reach you today — who answers, when, and where they quietly die.</p></div></li>
+      <li><span class="n">02</span><div><h3>The brand gets sharp</h3><p>A site and identity that make you the obvious choice before anyone reads a word of it.</p></div></li>
+      <li><span class="n">03</span><div><h3>The machine goes in</h3><p>Booking, reception, follow-up and reviews — wired to how the business already runs, not the other way round.</p></div></li>
+      <li><span class="n">04</span><div><h3>It keeps running</h3><p>One message a week with the numbers. I'm done when they're going up, not when the site ships.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<section id="work">
+  <div class="sec wrap" style="padding-bottom:0">
+    <span class="lbl">Work</span>
+    <h2>One machine. Six moving parts.</h2>
+    <p class="lede" style="margin-top:1.5rem">Built around how the business actually works. Listed in the
+      order a stranger meets it.</p>
+  </div>
+
+  <div class="stackwrap">
+    <article class="card"><div class="wrap card-in"><span class="n">01</span><div><h3>The site</h3><p>Turns a stranger into a booked job. Not a brochure with your logo on it.</p><span class="tag">First contact</span></div></div></article>
+    <article class="card"><div class="wrap card-in"><span class="n">02</span><div><h3>The calendar</h3><p>Open at eleven on a Sunday — which is when they actually decide.</p><span class="tag">Always open</span></div></div></article>
+    <article class="card"><div class="wrap card-in"><span class="n">03</span><div><h3>The receptionist</h3><p>Answers in seconds, qualifies, and puts it straight in your diary.</p><span class="tag">Seconds, not hours</span></div></div></article>
+    <article class="card"><div class="wrap card-in"><span class="n">04</span><div><h3>The follow-up</h3><p>Chases the quiet ones until they either book or say no.</p><span class="tag">Nothing goes cold</span></div></div></article>
+    <article class="card"><div class="wrap card-in"><span class="n">05</span><div><h3>The reviews</h3><p>Asks the moment the job lands, while they still mean it.</p><span class="tag">Proof, compounding</span></div></div></article>
+    <article class="card"><div class="wrap card-in"><span class="n">06</span><div><h3>The numbers</h3><p>One message a week. Enquiries, calls, jobs, revenue.</p><span class="tag">Weekly, in writing</span></div></div></article>
+  </div>
+</section>
+
+<section class="scrub" id="origin">
+  <div class="scrub-pin">
+    <canvas id="seq" aria-hidden="true"></canvas>
+    <div class="wrap scrub-in">
+      <span class="lbl">Origin</span>
+      <h2>Straight from me.</h2>
+      <p class="lede" style="margin-top:1.5rem">I'm Martin. Self-taught, no agency pedigree, and better for it.
+        In under two months I took six businesses to ten thousand a month each. That isn't a pitch — it's the record.</p>
+      <dl class="tl">
+        <div><dt>2025</dt><dd>Started in marketing and sales. Everything I know came from doing the work.</dd></div>
+        <div><dt>2026</dt><dd>Founded MVS Solves. Solo by design, so nothing stands between you and the person building it.</dd></div>
+        <div><dt>First 30 days</dt><dd>Onboarded 15 clients.</dd></div>
+        <div><dt>3 months in</dt><dd>Took 6 businesses to 10K a month.</dd></div>
+        <div><dt>Today</dt><dd>Every project still runs through me personally, and that won't change as this grows.</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section class="sec wrap" id="demos">
+  <span class="lbl">Demos</span>
+  <h2>Six builds, open any of them.</h2>
+  <p class="lede" style="margin-top:1.5rem">Not screenshots and not a template gallery. Six complete working
+    sites, each built on its own design system, each for a different trade. Use them like a visitor would.</p>
+  <div class="grid6">
+    <a class="g6" href="/demos/dispatch/"><div><h3>Dispatch</h3><div class="k">Heating &amp; electrical</div></div><p>A live board instead of a sales page, and every rate published.</p></a>
+    <a class="g6" href="/demos/micron/"><div><h3>Micron</h3><div class="k">Paint correction</div></div><p>Switch on the inspection light and the paint defects appear.</p></a>
+    <a class="g6" href="/demos/oyster/"><div><h3>Oyster</h3><div class="k">Skin studio</div></div><p>A shader over the hero that follows your cursor.</p></a>
+    <a class="g6" href="/demos/icehouse/"><div><h3>Icehouse</h3><div class="k">28 lofts, DTLA</div></div><p>The building itself, in real 3D, as the plan browser.</p></a>
+    <a class="g6" href="/demos/datum/"><div><h3>Datum</h3><div class="k">Excavation</div></div><p>Site work priced in the open, with the bid sheet public.</p></a>
+    <a class="g6" href="/demos/marrow/"><div><h3>Marrow</h3><div class="k">Fire kitchen</div></div><p>An arrival sequence built on a masked heat layer.</p></a>
+  </div>
+</section>
+
+<section class="close wrap" id="talk">
+  <span class="lbl">Contact</span>
+  <h2>Let's find out what's leaking.</h2>
+  <p class="lede" style="margin-top:1.5rem">Same-day response. Let's bring you more revenue.</p>
+  <a class="go" href="/contact/">Start a project &rarr;</a>
+</section>
+
+<footer>
+  <div class="wrap foot-in">
+    <a href="/demos/">Demo library</a>
+    <a href="/contact/">Contact</a>
+    <a href="/privacy-policy/">Privacy</a>
+    <a href="/terms-of-service/">Terms</a>
+    <span class="r">MVS Solves &middot; Brea, California</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine   = matchMedia('(pointer:fine)').matches;
+  var small  = innerWidth < 900;
+
+  /* ---------- magnetic cursor ---------- */
+  if(fine && !reduce){
+    document.documentElement.classList.add('cursor');
+    var dot=document.getElementById('cur'), ring=document.getElementById('curr');
+    var tx=0,ty=0,rx=0,ry=0,shown=false;
+    addEventListener('pointermove', function(e){
+      tx=e.clientX; ty=e.clientY;
+      if(!shown){ shown=true; dot.style.opacity='1'; ring.style.opacity='1'; rx=tx; ry=ty; }
+      dot.style.transform='translate('+tx+'px,'+ty+'px)';
+      var t=e.target.closest && e.target.closest('a,button,input,.case,.g6');
+      ring.classList.toggle('on', !!t);
+    }, {passive:true});
+    (function loop(){ rx+=(tx-rx)*.16; ry+=(ty-ry)*.16;
+      ring.style.transform='translate('+rx+'px,'+ry+'px)'; requestAnimationFrame(loop); })();
+  }
+
+  /* ---------- decode, reused for the menu ---------- */
+  var GLYPHS='ABCDEFGHIJKLMNOPQRSTUVWXYZ#%$&/*+=<>'.split('');
+  function decode(el){
+    var real=el.dataset.real || el.textContent;
+    el.dataset.real=real;
+    var start=null, DUR=Math.min(760, 300+real.length*34), raf=0;
+    function frame(ts){
+      if(start===null) start=ts;
+      var p=Math.min(1,(ts-start)/DUR), settled=p*real.length, out='';
+      for(var i=0;i<real.length;i++){
+        out += (i<settled || real[i]===' ') ? real[i] : GLYPHS[(i*7 + ((ts/50)|0)) % GLYPHS.length];
+      }
+      el.textContent=out;
+      if(p<1) raf=requestAnimationFrame(frame); else el.textContent=real;
+    }
+    raf=requestAnimationFrame(frame);
+    setTimeout(function(){ cancelAnimationFrame(raf); el.textContent=real; }, DUR+700);
+  }
+
+  /* ---------- menu ---------- */
+  var navbtn=document.getElementById('navbtn'), menu=document.getElementById('menu');
+  var scr=[].slice.call(menu.querySelectorAll('[data-scr]'));
+  function menuOpen(on){
+    menu.classList.toggle('open', on);
+    navbtn.setAttribute('aria-expanded', on?'true':'false');
+    document.documentElement.style.overflow = on ? 'hidden' : '';
+    if(on){
+      if(!reduce) scr.forEach(function(a,i){ setTimeout(function(){ decode(a); }, i*70); });
+      scr[0].focus();
+    } else navbtn.focus();
+  }
+  navbtn.addEventListener('click', function(){ menuOpen(!menu.classList.contains('open')); });
+  document.getElementById('menuclose').addEventListener('click', function(){ menuOpen(false); });
+  menu.addEventListener('click', function(e){ if(e.target.closest('a')) menuOpen(false); });
+  addEventListener('keydown', function(e){ if(e.key==='Escape' && menu.classList.contains('open')) menuOpen(false); });
+
+  /* ---------- ask: real search over this page, no invented answers ---------- */
+  var INDEX=[
+    {t:'Proof',        k:'proof results revenue businesses 720k 60k 10000 automations 50',      h:'#proof',   d:'Six businesses, ten thousand a month, each'},
+    {t:'Method',       k:'method process steps leak brand machine running how it works',        h:'#method',  d:'Four steps, one outcome'},
+    {t:'Work',         k:'work site calendar receptionist follow-up reviews numbers machine',   h:'#work',    d:'One machine, six moving parts'},
+    {t:'Origin',       k:'origin martin about who story self-taught solo history timeline',     h:'#origin',  d:'Straight from me'},
+    {t:'Demos',        k:'demos builds examples portfolio gallery six sites work samples',      h:'/demos/',  d:'Six complete working builds'},
+    {t:'Contact',      k:'contact enquiry email quote start project hire book call talk',       h:'/contact/',d:'Same-day response'},
+    {t:'Dispatch',     k:'dispatch heating air electrical hvac trades live board rates',        h:'/demos/dispatch/', d:'Heating and electrical'},
+    {t:'Micron',       k:'micron paint correction detailing car auto ceramic inspection',       h:'/demos/micron/',   d:'Paint correction'},
+    {t:'Oyster',       k:'oyster skin studio beauty clinic facial aesthetics shader',           h:'/demos/oyster/',   d:'Skin studio'},
+    {t:'Icehouse',     k:'icehouse lofts property real estate apartments building 3d',          h:'/demos/icehouse/', d:'28 lofts, DTLA'},
+    {t:'Datum',        k:'datum excavation site work construction grading earthworks bids',     h:'/demos/datum/',    d:'Excavation and site work'},
+    {t:'Marrow',       k:'marrow restaurant kitchen food dining fire menu seats',               h:'/demos/marrow/',   d:'A fire kitchen'},
+    {t:'Privacy',      k:'privacy policy data gdpr cookies',                                    h:'/privacy-policy/', d:'Privacy policy'},
+    {t:'Terms',        k:'terms service legal conditions',                                      h:'/terms-of-service/', d:'Terms of service'}
+  ];
+  var ask=document.getElementById('ask'), res=document.getElementById('res'), sel=-1;
+  function render(q){
+    q=q.trim().toLowerCase();
+    if(!q){ res.classList.remove('on'); res.innerHTML=''; sel=-1; return; }
+    var hits=INDEX.map(function(x){
+      var hay=(x.t+' '+x.k).toLowerCase(), s=0;
+      q.split(/\s+/).forEach(function(w){ if(w && hay.indexOf(w)>-1) s += (x.t.toLowerCase().indexOf(w)===0?3:1); });
+      return {x:x,s:s};
+    }).filter(function(r){ return r.s>0; }).sort(function(a,b){ return b.s-a.s; }).slice(0,6);
+    res.innerHTML = hits.length
+      ? hits.map(function(r){ return '<a href="'+r.x.h+'"><span class="rl">'+r.x.t+'</span>'+r.x.d+'</a>'; }).join('')
+      : '<div class="none">Nothing here matches that. Ask me directly &mdash; <a href="/contact/" style="color:#F62A99;display:inline;padding:0;border:0">contact</a>.</div>';
+    res.classList.add('on'); sel=-1;
+  }
+  ask.addEventListener('input', function(){ render(ask.value); });
+  ask.addEventListener('focus', function(){ if(ask.value) render(ask.value); });
+  ask.addEventListener('keydown', function(e){
+    var items=[].slice.call(res.querySelectorAll('a'));
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+      if(!items.length) return; e.preventDefault();
+      sel = e.key==='ArrowDown' ? Math.min(sel+1, items.length-1) : Math.max(sel-1, 0);
+      items.forEach(function(a,i){ a.classList.toggle('sel', i===sel); });
+    } else if(e.key==='Enter'){
+      if(sel>-1 && items[sel]){ e.preventDefault(); location.href=items[sel].getAttribute('href'); }
+      else if(items[0]){ e.preventDefault(); location.href=items[0].getAttribute('href'); }
+    } else if(e.key==='Escape'){ ask.value=''; render(''); ask.blur(); }
+  });
+  addEventListener('keydown', function(e){
+    if(e.key==='/' && document.activeElement!==ask && !menu.classList.contains('open')){
+      e.preventDefault(); ask.focus();
+    }
+  });
+  document.addEventListener('click', function(e){ if(!e.target.closest('.ask')) res.classList.remove('on'); });
+
+  /* ---------- ambient bed: generated, not a file. Never autoplays. ---------- */
+  var snd=document.getElementById('snd'), actx=null, master=null, playing=false;
+  snd.addEventListener('click', function(){
+    if(!actx){
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC){ snd.disabled=true; return; }
+      actx = new AC();
+      var len = actx.sampleRate * 4, buf = actx.createBuffer(1, len, actx.sampleRate), d = buf.getChannelData(0);
+      var last=0;
+      for(var i=0;i<len;i++){ var wn=Math.random()*2-1; last=(last+.02*wn)/1.02; d[i]=last*3.2; }
+      var src=actx.createBufferSource(); src.buffer=buf; src.loop=true;
+      var lp=actx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=420; lp.Q.value=.6;
+      var hp=actx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=60;
+      master=actx.createGain(); master.gain.value=0;
+      var lfo=actx.createOscillator(); lfo.frequency.value=.055;
+      var lfoG=actx.createGain(); lfoG.gain.value=140;
+      lfo.connect(lfoG); lfoG.connect(lp.frequency); lfo.start();
+      src.connect(hp); hp.connect(lp); lp.connect(master); master.connect(actx.destination); src.start();
+    }
+    if(actx.state==='suspended') actx.resume();
+    playing=!playing;
+    master.gain.cancelScheduledValues(actx.currentTime);
+    master.gain.linearRampToValueAtTime(playing?.11:0, actx.currentTime + (playing?1.6:.7));
+    snd.setAttribute('aria-pressed', playing?'true':'false');
+  });
+
+  /* ---------- odometer stats ---------- */
+  var stats=[].slice.call(document.querySelectorAll('[data-count]'));
+  function countUp(el){
+    if(el._ran) return; el._ran=true;
+    var target=parseFloat(el.dataset.count), pre=el.dataset.pre||'', suf=el.dataset.suf||'';
+    if(reduce){ el.textContent=pre+target.toLocaleString()+suf; return; }
+    var t0=null, DUR=1500;
+    (function step(ts){
+      if(t0===null) t0=ts;
+      var p=Math.min(1,(ts-t0)/DUR), e=1-Math.pow(1-p,3);
+      el.textContent = pre + Math.round(target*e).toLocaleString() + suf;
+      if(p<1) requestAnimationFrame(step); else el.textContent = pre+target.toLocaleString()+suf;
+    })();
+  }
+  if('IntersectionObserver' in window){
+    var sio=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ countUp(e.target); sio.unobserve(e.target); } });
+    },{threshold:.5});
+    stats.forEach(function(s){ sio.observe(s); });
+  } else stats.forEach(countUp);
+
+  /* ---------- scroll-scrub sequence: desktop only, never on metered phones ---------- */
+  var scrub=document.getElementById('origin'), cv=document.getElementById('seq');
+  if(cv && !reduce && !small && navigator.connection && navigator.connection.saveData){ cv.remove(); cv=null; }
+  if(cv && (reduce || small)){ cv.remove(); cv=null; }
+  if(cv){
+    var ctx=cv.getContext('2d'), FR=32, imgs=new Array(FR), loaded=0, cur=-1, want=0, armed=false;
+    function fit(){ cv.width=cv.clientWidth*Math.min(devicePixelRatio||1,2); cv.height=cv.clientHeight*Math.min(devicePixelRatio||1,2); cur=-1; draw(); }
+    function draw(){
+      var i=Math.max(0,Math.min(FR-1, want));
+      if(i===cur || !imgs[i] || !imgs[i].complete) return;
+      cur=i;
+      var im=imgs[i], s=Math.max(cv.width/im.width, cv.height/im.height);
+      var w=im.width*s, h=im.height*s;
+      ctx.clearRect(0,0,cv.width,cv.height);
+      ctx.drawImage(im, (cv.width-w)/2, (cv.height-h)/2, w, h);
+    }
+    function load(){
+      if(armed) return; armed=true;
+      for(var i=0;i<FR;i++){
+        (function(i){
+          var im=new Image();
+          im.decoding='async';
+          im.onload=function(){ loaded++; if(loaded===1) fit(); draw(); };
+          im.src='seq/f'+String(i+1).padStart(2,'0')+'.jpg';
+          imgs[i]=im;
+        })(i);
+      }
+    }
+    var lio=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting) load(); }); },{rootMargin:'600px 0px'});
+    lio.observe(scrub);
+    var ticking=false;
+    addEventListener('scroll', function(){
+      if(ticking) return; ticking=true;
+      requestAnimationFrame(function(){
+        ticking=false;
+        var r=scrub.getBoundingClientRect(), span=r.height-innerHeight;
+        if(span<=0) return;
+        var p=Math.max(0,Math.min(1,(-r.top)/span));
+        want=Math.round(p*(FR-1));
+        draw();
+      });
+    },{passive:true});
+    addEventListener('resize', fit);
+  }
+
+  /* ---------- hero field: raw WebGL, ~4KB, drag with inertia ---------- */
+  var glc=document.getElementById('gl'), hint=document.getElementById('hint');
+  function killGL(){ if(glc){ glc.remove(); glc=null; } if(hint) hint.style.display='none'; }
+  if(reduce || small) killGL();
+
+  if(glc){
+    var gl=glc.getContext('webgl',{antialias:false,alpha:true,powerPreference:'low-power'});
+    if(!gl) killGL();
+    else{
+      var VS='attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+      var FS=[
+        'precision mediump float;',
+        'uniform vec2 r;uniform float t;uniform vec2 m;',
+        'mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,-s,s,c);}',
+        'float torus(vec3 p,vec2 s){vec2 q=vec2(length(p.xz)-s.x,p.y);return length(q)-s.y;}',
+        'float map(vec3 p){',
+        '  p.xy*=rot(m.y);p.xz*=rot(m.x+t*0.12);',
+        '  vec3 q=p;q.xz*=rot(sin(t*0.2)*0.5+p.y*1.1);',
+        '  float d=torus(q,vec2(1.15,0.30));',
+        '  float d2=torus(q.yzx,vec2(0.85,0.16));',
+        '  return min(d,d2)-0.02*sin(6.0*q.x+t);',
+        '}',
+        'void main(){',
+        '  vec2 uv=(gl_FragCoord.xy-0.5*r)/r.y;',
+        '  vec3 ro=vec3(0.,0.,3.4),rd=normalize(vec3(uv,-1.55));',
+        '  float d=0.,g=0.;vec3 pos;',
+        '  for(int i=0;i<58;i++){',
+        '    pos=ro+rd*d;float h=map(pos);',
+        '    g+=0.014/(0.045+abs(h));',
+        '    if(h<0.001||d>7.0)break;d+=h*0.82;}',
+        '  vec3 ink=vec3(0.039,0.039,0.047);',
+        '  vec3 mag=vec3(0.964,0.164,0.600);',
+        '  float f=clamp(g*0.085,0.,1.);',
+        '  vec3 col=mix(ink,mag,pow(f,1.35));',
+        '  col+=vec3(1.0)*pow(f,7.0)*0.5;',
+        '  float vig=1.0-0.55*dot(uv,uv);',
+        '  gl_FragColor=vec4(col*vig,clamp(f*1.7,0.,1.));',
+        '}'
+      ].join('\n');
+      function sh(type,src){ var s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s);
+        return gl.getShaderParameter(s,gl.COMPILE_STATUS) ? s : null; }
+      var vs=sh(gl.VERTEX_SHADER,VS), fs=sh(gl.FRAGMENT_SHADER,FS);
+      if(!vs||!fs) killGL();
+      else{
+        var pr=gl.createProgram(); gl.attachShader(pr,vs); gl.attachShader(pr,fs); gl.linkProgram(pr);
+        if(!gl.getProgramParameter(pr,gl.LINK_STATUS)) killGL();
+        else{
+          gl.useProgram(pr);
+          var bufq=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,bufq);
+          gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+          var loc=gl.getAttribLocation(pr,'p'); gl.enableVertexAttribArray(loc);
+          gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+          var uR=gl.getUniformLocation(pr,'r'), uT=gl.getUniformLocation(pr,'t'), uM=gl.getUniformLocation(pr,'m');
+          gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+          var dpr=Math.min(devicePixelRatio||1,1.5);
+          function size(){ glc.width=glc.clientWidth*dpr; glc.height=glc.clientHeight*dpr;
+            gl.viewport(0,0,glc.width,glc.height); gl.uniform2f(uR,glc.width,glc.height); }
+          size(); addEventListener('resize',size);
+
+          /* drag physics: grab, throw, spin down */
+          var mx=0,my=0,vx=0,vy=0,down=false,px=0,py=0,moved=false;
+          glc.style.touchAction='none';
+          glc.addEventListener('pointerdown',function(e){ down=true; moved=false; px=e.clientX; py=e.clientY;
+            glc.setPointerCapture(e.pointerId); });
+          addEventListener('pointermove',function(e){
+            if(!down) return;
+            var dx=(e.clientX-px)/innerWidth, dy=(e.clientY-py)/innerHeight;
+            px=e.clientX; py=e.clientY;
+            vx=dx*7.5; vy=dy*5.5; mx+=vx; my+=vy;
+            if(Math.abs(dx)+Math.abs(dy)>0.004) moved=true;
+          });
+          addEventListener('pointerup',function(){ down=false;
+            if(moved && hint) hint.style.opacity='0'; });
+
+          var vis=true;
+          document.addEventListener('visibilitychange',function(){ vis=!document.hidden; });
+          var t0=performance.now();
+          (function frame(now){
+            requestAnimationFrame(frame);
+            if(!vis) return;
+            if(!down){ mx+=vx; my+=vy; vx*=0.94; vy*=0.94; }
+            my=Math.max(-1.15,Math.min(1.15,my));
+            gl.uniform1f(uT,(now-t0)/1000);
+            gl.uniform2f(uM,mx,my);
+            gl.drawArrays(gl.TRIANGLES,0,3);
+          })(t0);
+        }
+      }
+    }
+  }
+})();
+</script>
+</body>
+</html>
