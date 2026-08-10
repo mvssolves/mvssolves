@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "marquee",
+        "value": "* --file v2/index.html",
+        "reason": "User explicitly selected 'Marquee outcome ticker' from the v2 element menu; aria-hidden and disabled under prefers-reduced-motion",
+        "createdAt": "2026-08-10T21:35:32.578Z"
+      }
+    ]
+  }
+}

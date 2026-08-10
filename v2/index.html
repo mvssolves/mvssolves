@@ -67,9 +67,9 @@ h1,h2,h3{margin:0; font-family:var(--disp); font-weight:900; line-height:.94;
 /* ---------- custom cursor: magnetic, desktop pointers only ---------- */
 #cur,#curr{position:fixed; top:0; left:0; z-index:90; pointer-events:none; opacity:0}
 #cur{width:6px; height:6px; margin:-3px 0 0 -3px; background:var(--mag); border-radius:50%}
-#curr{width:36px; height:36px; margin:-18px 0 0 -18px; border:1px solid var(--hair); border-radius:50%;
-  transition:width .3s var(--ease),height .3s var(--ease),margin .3s var(--ease),border-color .3s var(--ease)}
-#curr.on{width:64px; height:64px; margin:-32px 0 0 -32px; border-color:var(--mag)}
+#curr{width:64px; height:64px; margin:-32px 0 0 -32px; border:1px solid var(--hair); border-radius:50%;
+  transition:border-color .3s var(--ease)}
+#curr.on{border-color:var(--mag)}
 @media (pointer:fine){ html.js.cursor *{cursor:none !important} }
 @media (pointer:coarse){ #cur,#curr{display:none} }
 
@@ -88,7 +88,7 @@ nav{position:fixed; inset-inline:0; top:0; z-index:60}
 .ask input{width:100%; height:38px; background:transparent; color:var(--w);
   border:1px solid var(--hair); border-radius:999px; padding:0 2.2rem 0 .95rem;
   font-family:var(--mono); font-size:.75rem; letter-spacing:.06em;
-  transition:border-color .4s var(--ease), width .4s var(--ease)}
+  transition:border-color .4s var(--ease)}
 .ask input{height:44px}
 .ask input::placeholder{color:var(--w-3)}
 .ask input:focus{outline:0; border-color:var(--mag)}
@@ -501,16 +501,22 @@ footer{border-top:1px solid var(--hair-2); padding-block:1.4rem}
   if(fine && !reduce){
     document.documentElement.classList.add('cursor');
     var dot=document.getElementById('cur'), ring=document.getElementById('curr');
-    var tx=0,ty=0,rx=0,ry=0,shown=false;
+    var tx=0,ty=0,rx=0,ry=0,shown=false,sc=.56,scT=.56;
     addEventListener('pointermove', function(e){
       tx=e.clientX; ty=e.clientY;
       if(!shown){ shown=true; dot.style.opacity='1'; ring.style.opacity='1'; rx=tx; ry=ty; }
       dot.style.transform='translate('+tx+'px,'+ty+'px)';
       var t=e.target.closest && e.target.closest('a,button,input,.case,.g6');
       ring.classList.toggle('on', !!t);
+      scT = t ? 1 : .56;
     }, {passive:true});
-    (function loop(){ rx+=(tx-rx)*.16; ry+=(ty-ry)*.16;
-      ring.style.transform='translate('+rx+'px,'+ry+'px)'; requestAnimationFrame(loop); })();
+    /* the ring grows by scaling, not by changing its box — width/height/margin
+       transitions would relayout on every frame of the hover */
+    (function loop(){
+      rx+=(tx-rx)*.16; ry+=(ty-ry)*.16; sc+=(scT-sc)*.16;
+      ring.style.transform='translate('+rx+'px,'+ry+'px) scale('+sc.toFixed(3)+')';
+      requestAnimationFrame(loop);
+    })();
   }
 
   /* ---------- decode, reused for the menu ---------- */
