@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="alternate" media="only screen and (max-width: 820px)" href="/motion/m/">
+<link rel="alternate" media="only screen and (max-width: 820px)" href="/m/">
 <script>
 /* Mobile has its own document at /m/ — a separate layout, not this one
    squeezed. Runs before first paint so there is no flash of the desktop page.
    ?full=1 is an explicit opt-out and sticks for the rest of the session. */
 (function(){try{
-  if(location.pathname.indexOf('/motion/m/')===0) return;
+  if(location.pathname.indexOf('/m/')===0) return;
   if(location.search.indexOf('full=1')>-1){sessionStorage.setItem('mvs-full','1');return;}
   if(sessionStorage.getItem('mvs-full')) return;
-  if(matchMedia('(max-width:820px)').matches) location.replace('/motion/m/');
+  if(matchMedia('(max-width:820px)').matches) location.replace('/m/');
 }catch(e){}})();
 </script>
 
@@ -20,12 +20,12 @@
 <meta name="description" content="Ink advected through a divergence-free curl-noise field. Ping-pong framebuffers, WebGL2, no library.">
 <meta property="og:title" content="INK — a curl-noise fluid study">
 <meta property="og:description" content="Ink advected through a divergence-free velocity field. WebGL2, no library.">
-<meta property="og:url" content="https://mvssolves.com/motion/fluid/">
-<link rel="canonical" href="https://mvssolves.com/motion/fluid/">
-<link rel="icon" href="/motion/favicon.svg" type="image/svg+xml">
-<link rel="icon" href="/motion/favicon-light.svg" type="image/svg+xml" media="(prefers-color-scheme: light)">
-<link rel="apple-touch-icon" href="/motion/favicon.svg">
-<link rel="manifest" href="/motion/site.webmanifest">
+<meta property="og:url" content="https://mvssolves.com/fluid/">
+<link rel="canonical" href="https://mvssolves.com/fluid/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-light.svg" type="image/svg+xml" media="(prefers-color-scheme: light)">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#efe9e1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

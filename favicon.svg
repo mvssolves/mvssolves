@@ -1,1 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><style>path{fill:#141210}@media(prefers-color-scheme:dark){path{fill:#EEE8E0}}</style><g transform="translate(1.421 52.110) scale(0.06140 -0.06140)"><path d="M42 0V16L127 57L147 603L60 644V660H308L509 194L708 660H948V644L860 613L878 57L954 16V0H651V16L731 56L721 530L493 -5H437L207 529L194 56L281 16V0Z"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#050506"/>
+  <rect x="4.5" y="4.5" width="23" height="23" rx="7.5"
+        fill="none" stroke="#f2f0ed" stroke-width="1.6" opacity=".34"/>
+  <rect x="8.5" y="8.5" width="15" height="15" rx="5"
+        fill="none" stroke="#f2f0ed" stroke-width="1.6" opacity=".66"/>
+  <rect x="12.75" y="12.75" width="6.5" height="6.5" rx="2.3" fill="#ff5b23"/>
+</svg>

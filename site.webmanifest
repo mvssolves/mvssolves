@@ -1,7 +1,7 @@
 {
   "name": "MVS Solves — WebGL & Motion Engineering",
   "short_name": "MVS Solves",
-  "icons": [{ "src": "/motion/favicon.svg", "sizes": "any", "type": "image/svg+xml" }],
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }],
   "theme_color": "#050506",
   "background_color": "#050506",
   "display": "standalone"

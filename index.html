@@ -2,820 +2,1284 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<!-- Reveals are opt-in and JS-gated. If this never runs, everything renders visible. -->
-<script>document.documentElement.className+=' js';</script>
-<title>MVS Solves — You never see the jobs you lose</title>
-<meta name="description" content="The site that sells, the booking that answers, the follow-up that closes. Fifty businesses run on systems built end to end by one person.">
-<meta name="author" content="Martin — MVS Solves">
-<link rel="canonical" href="https://mvssolves.com/">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="alternate" media="only screen and (max-width: 820px)" href="/m/">
+<script>
+/* Mobile has its own document at /m/ — a separate layout, not this one
+   squeezed. Runs before first paint so there is no flash of the desktop page.
+   ?full=1 is an explicit opt-out and sticks for the rest of the session. */
+(function(){try{
+  if(location.pathname.indexOf('/m/')===0) return;
+  if(location.search.indexOf('full=1')>-1){sessionStorage.setItem('mvs-full','1');return;}
+  if(sessionStorage.getItem('mvs-full')) return;
+  /* innerWidth 0 means the viewport has not resolved yet (background tab,
+     hidden frame). max-width:820px is TRUE at 0, which would ship desktop
+     visitors to the mobile document. Require a real measurement first. */
+  if(innerWidth > 0 && matchMedia('(max-width:820px)').matches) location.replace('/m/');
+}catch(e){}})();
+</script>
+
+<title>MVS Solves — WebGL &amp; Motion Engineering</title>
+<meta name="description" content="MVS Solves — Martin van Staden builds raymarched WebGL, custom GLSL and GSAP scroll systems. Motion engineered to degrade, and measured on real hardware. Available for contract.">
+<meta property="og:title" content="MVS Solves — WebGL &amp; Motion Engineering">
+<meta property="og:description" content="Raymarched GLSL, scroll systems, kinetic type. Rendered live, not recorded. Available for contract.">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="MVS Solves">
-<meta property="og:title" content="MVS Solves — You never see the jobs you lose">
-<meta property="og:description" content="The site that sells, the booking that answers, the follow-up that closes. Fifty businesses run on systems built end to end by one person.">
 <meta property="og:url" content="https://mvssolves.com/">
-<meta property="og:image" content="https://mvssolves.com/og-image.png?v=3">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="You never see the jobs you lose — MVS Solves">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="MVS Solves — You never see the jobs you lose">
-<meta name="twitter:description" content="The site that sells, the booking that answers, the follow-up that closes. Fifty businesses run on systems built end to end by one person.">
-<meta name="twitter:image" content="https://mvssolves.com/og-image.png?v=3">
-<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
-<link rel="icon" href="/favicon-96.png?v=3" sizes="96x96" type="image/png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
-<link rel="mask-icon" href="/mask-icon.svg?v=3" color="#141210">
-<meta name="theme-color" content="#141210">
+<meta name="twitter:title" content="MVS Solves — WebGL &amp; Motion Engineering">
+<meta name="twitter:description" content="Raymarched GLSL, scroll systems, kinetic type. Rendered live, not recorded.">
+<link rel="canonical" href="https://mvssolves.com/">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Person","name":"Martin van Staden","worksFor":{"@type":"Organization","name":"MVS Solves"},
+"jobTitle":"Front-end & Motion Engineer","url":"https://mvssolves.com/",
+"email":"mailto:martin@mvssolves.com",
+"address":{"@type":"PostalAddress","addressLocality":"Brea","addressRegion":"CA","addressCountry":"US"},
+"knowsAbout":["WebGL","GLSL","Three.js","GSAP","ScrollTrigger","React","Next.js","Creative coding"]}
+</script>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-light.svg" type="image/svg+xml" media="(prefers-color-scheme: light)">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#050506">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Schibsted+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ============================================================
-   STONE — warm stone-dark, full monochrome, serif authority.
-   Reference: IZANAMI's weight and restraint, gallery lighting.
-   No accent colour anywhere. Ground, light and type carry everything.
-   ============================================================ */
+/* Native cross-document transitions — same-origin MPA, no router, no JS. */
+@view-transition{navigation:auto}
+
+/* Registered so the browser knows --ry is a length and can interpolate it
+   properly instead of treating it as an opaque string. */
+/* No @property needed — see the note on .glass. */
+
 :root{
-  --ground:    oklch(0.145 0.008 70);
-  --ground-2:  oklch(0.185 0.008 70);
-  --ground-3:  oklch(0.225 0.008 72);
-  --ink:       oklch(0.935 0.008 80);
-  --ink-2:     oklch(0.745 0.007 78);
-  --ink-3:     oklch(0.640 0.006 74);   /* 5.88:1 on ground — 0.575 measured 4.53, too close to the line */
-  --hair:      oklch(0.935 0.008 80 / .16);
-  --hair-soft: oklch(0.935 0.008 80 / .085);
-
-  --serif:'Spectral',Georgia,'Times New Roman',serif;
-  --sans:'Schibsted Grotesk',system-ui,-apple-system,sans-serif;
-
-  --z-panel:1; --z-rail:30; --z-nav:40; --z-veil:80;
-  --pad: clamp(1.35rem, 5vw, 5.5rem);
-  --ease: cubic-bezier(.22,1,.28,1);      /* slow out, no bounce */
-  --slow: 1.1s;
+  --ink:#050506;
+  --paper:#f2f0ed;
+  --dim:#807c76;
+  --line:rgba(242,240,237,.12);
+  --accent:#ff5b23;
+  --pad:clamp(1.15rem,3.2vw,3.25rem);
 }
-*,*::before,*::after{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%; background:var(--ground)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
 body{
-  margin:0; background:var(--ground); color:var(--ink);
-  font-family:var(--serif); font-weight:300;
-  font-size:clamp(1rem,.95rem + .25vw,1.12rem); line-height:1.72;
-  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  background:var(--ink);color:var(--paper);
+  font-family:"Schibsted Grotesk",system-ui,sans-serif;
+  font-size:16px;line-height:1.45;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
 }
-img{max-width:100%; display:block}
-a{color:inherit}
-p{margin:0; text-wrap:pretty}
-h1,h2,h3{margin:0; font-weight:300; text-wrap:balance; line-height:1.06; letter-spacing:-.014em}
-::selection{background:var(--ink); color:var(--ground)}
-:focus-visible{outline:1px solid var(--ink); outline-offset:4px}
+a{color:inherit;text-decoration:none}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.11em;text-transform:uppercase}
+.shell{width:min(1560px,100vw);margin-inline:auto}
+@media(min-width:1500px){:root{--pad:clamp(1.15rem,3.2vw,4.25rem)}}
 
-.wrap{max-width:1360px; margin-inline:auto; padding-inline:var(--pad)}
-.label{font-family:var(--sans); font-size:.685rem; letter-spacing:.22em; text-transform:uppercase; color:var(--ink-3); font-weight:400}
-.lede{font-size:clamp(1.06rem,1rem + .5vw,1.32rem); line-height:1.68; color:var(--ink-2); max-width:56ch}
-.dim{color:var(--ink-2)} .dimmer{color:var(--ink-3)}
-
-/* ---------- veil: content is underneath and always rendered ---------- */
-#veil{position:fixed; inset:0; background:#000; z-index:var(--z-veil); pointer-events:none;
-  opacity:1; transition:opacity 1.2s var(--ease); overflow:hidden;
-  display:flex; align-items:center; justify-content:center}
-#veil.up{opacity:0}
-html:not(.js) #veil{display:none}
-.veil-in{position:relative; z-index:1; display:flex; align-items:baseline; gap:.1em;
-  font-family:var(--serif); font-weight:300; letter-spacing:.02em;
-  font-size:clamp(1.35rem,1rem + 2vw,2.6rem); color:var(--ink)}
-.veil-caret{display:inline-block; width:.055em; height:1em; background:var(--ink);
-  transform:translateY(.08em); animation:caret 1s steps(1,end) infinite}
-@keyframes caret{0%,50%{opacity:1} 51%,100%{opacity:0}}
-
-/* page-level fade: covers the jump on nav, and the arrival after the loader */
-#fade{position:fixed; inset:0; background:var(--ground); z-index:70; pointer-events:none;
-  opacity:0; transition:opacity .42s var(--ease)}
-#fade.on{opacity:1}
-html:not(.js) #fade{display:none}
-
-/* ---------- nav ---------- */
-/* difference blending inverts against whatever scrolls under it, so body copy passing
-   beneath the bar used to collide with it. The scrim keeps that backdrop dark enough
-   for the bar to stay one colour the whole way down. It sits under the bar and is not
-   itself blended. */
-.nav-scrim{position:fixed; inset-inline:0; top:0; height:118px; z-index:calc(var(--z-nav) - 1);
-  pointer-events:none; background:linear-gradient(180deg, oklch(0.145 0.008 70 / .72) 0%, oklch(0.145 0.008 70 / .38) 52%, transparent 100%)}
-nav{position:fixed; inset-inline:0; top:0; z-index:var(--z-nav); mix-blend-mode:difference}
-.nav-in{display:flex; align-items:center; gap:2rem; height:74px}
-.mark{font-family:var(--serif); font-weight:400; font-size:1.05rem; letter-spacing:.24em; text-decoration:none; text-transform:uppercase; color:#fff;
-  min-height:44px; display:inline-flex; align-items:center}
-.nav-links{display:flex; gap:1.9rem; margin-left:auto; font-family:var(--sans); font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:#fff}
-.nav-links a{text-decoration:none; opacity:.62; transition:opacity .5s var(--ease);
-  min-height:44px; display:inline-flex; align-items:center}
-.nav-links a:hover{opacity:1}
-
-/* menu button — only exists below the breakpoint where the links fit */
-.navbtn{display:none; margin-left:auto; -webkit-appearance:none; appearance:none; background:none; border:0;
-  font-family:var(--sans); font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:#fff;
-  min-height:44px; padding:0 0 0 .85rem; cursor:pointer}
-#menu{position:fixed; inset:0; z-index:calc(var(--z-nav) + 1); background:var(--ground);
-  display:flex; flex-direction:column; justify-content:center; padding:0 var(--pad);
-  opacity:0; visibility:hidden; transition:opacity .42s var(--ease), visibility .42s var(--ease)}
-#menu.open{opacity:1; visibility:visible}
-#menu a{display:block; text-decoration:none; font-family:var(--serif); font-weight:300;
-  font-size:clamp(1.9rem,1.2rem + 4vw,2.9rem); line-height:1; letter-spacing:-.014em; color:var(--ink);
-  padding-block:.62rem; border-bottom:1px solid var(--hair-soft)}
-#menu a:last-of-type{border-bottom:0}
-.menu-close{position:absolute; top:0; right:var(--pad); height:74px; background:none; border:0; cursor:pointer;
-  font-family:var(--sans); font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3); padding-inline:.85rem}
-html:not(.js) .navbtn{display:none !important}
-html:not(.js) #menu{display:none}
-
-@media(max-width:860px){
-  .nav-links{display:none}
-  .navbtn{display:block}
+/* ============ hero canvas ============ */
+#gl{position:fixed;inset:0;width:100%;height:100vh;z-index:0;display:block}
+#gl.gone{opacity:0;transition:opacity .8s ease}
+.glfallback{
+  position:fixed;inset:0;z-index:0;
+  background:radial-gradient(52vw 52vw at 60% 42%,rgba(255,91,35,.30),transparent 62%),
+             radial-gradient(46vw 46vw at 24% 72%,rgba(90,120,255,.14),transparent 60%),
+             var(--ink);
+}
+/* Keeps nav and hero copy legible where the chrome runs bright. */
+.veil{
+  position:fixed;inset:0;pointer-events:none;z-index:1;
+  background:
+    linear-gradient(to bottom,rgba(5,5,6,.80) 0%,rgba(5,5,6,.28) 13%,rgba(5,5,6,0) 25%),
+    /* Bottom stays light — the cast shadow lives down there and is the best
+       depth cue in the scene. Left gradient carries the copy instead. */
+    linear-gradient(to top,rgba(5,5,6,.52) 0%,rgba(5,5,6,.12) 12%,rgba(5,5,6,0) 23%),
+    linear-gradient(to right,rgba(5,5,6,.72) 0%,rgba(5,5,6,.14) 33%,rgba(5,5,6,0) 48%);
+}
+.grain{
+  position:fixed;inset:0;pointer-events:none;z-index:3;opacity:.04;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* ---------- section rail: scroll position as narrative ---------- */
-.rail{position:fixed; left:calc(var(--pad) * .42); top:50%; transform:translateY(-50%); z-index:var(--z-rail);
-  writing-mode:vertical-rl; font-family:var(--sans); font-size:.66rem; letter-spacing:.3em;
-  text-transform:uppercase; color:var(--ink-3); pointer-events:none;
-  transition:opacity .6s var(--ease)}
-@media(max-width:1100px){.rail{display:none}}
 
-/* ---------- hero ---------- */
-.hero{position:relative; min-height:100svh; display:flex; align-items:flex-end; overflow:hidden}
-.hero-media{position:absolute; inset:0; z-index:0}
-.hero-media img,.hero-media video{width:100%; height:100%; object-fit:cover;
-  filter:grayscale(1) sepia(.14) brightness(.42) contrast(1.16)}
-.hero-media::after{content:''; position:absolute; inset:0;
-  background:linear-gradient(180deg, oklch(0.145 0.008 70 / .58) 0%, oklch(0.145 0.008 70 / .25) 38%, oklch(0.145 0.008 70 / .92) 100%)}
-.hero-in{position:relative; z-index:1; width:100%; padding-block:clamp(3rem,12vh,7rem)}
-.hero h1{font-size:clamp(2.5rem,1.5rem + 4.4vw,5.1rem); font-weight:300; max-width:16ch}
-.hero h1 em{font-style:italic; color:var(--ink-2)}
-.hero .lede{margin-top:1.9rem}
-.hero-meta{display:flex; flex-wrap:wrap; gap:1.1rem 2.4rem; margin-top:clamp(2.5rem,6vh,4rem);
-  padding-top:1.3rem; border-top:1px solid var(--hair-soft)}
-/* hard proof, above the fold — figures quiet enough not to shout */
-.hero-stats{display:flex; flex-wrap:wrap; gap:1.4rem 3.4rem; margin-top:clamp(2.5rem,6vh,4rem);
-  padding-top:1.4rem; border-top:1px solid var(--hair-soft)}
-.stat{display:flex; flex-direction:column; gap:.4rem}
-.stat b{font-family:var(--serif); font-weight:300; font-size:clamp(1.5rem,1.1rem + 1.3vw,2.1rem);
-  letter-spacing:-.02em; font-variant-numeric:tabular-nums; line-height:1; color:var(--ink)}
-.scrollcue{position:absolute; right:var(--pad); bottom:clamp(1.5rem,4vh,2.5rem); z-index:1}
-
-/* ---------- cover stack ---------- */
-.stack{position:relative; z-index:var(--z-panel)}
-.panel{background:var(--ground); border-top:1px solid var(--hair-soft); position:relative; overflow:hidden}
-/* the same world carried behind every panel — slow footage at 20%, felt not watched */
-.bed{position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden}
-.bed video,.bed img{width:100%; height:100%; object-fit:cover;
-  filter:grayscale(1) sepia(.1) brightness(.62) contrast(1.04); opacity:.2}
-.panel::after{content:''; position:absolute; inset:0; z-index:0; pointer-events:none;
-  background:radial-gradient(120% 90% at 50% 40%, transparent 20%, var(--ground) 92%)}
-.panel > *:not(.bed){position:relative; z-index:1}   /* .bed must stay absolute */
-@media(min-width:901px){
-  .panel{position:sticky; top:0; min-height:100svh; display:flex; align-items:center}
-  .panel:nth-of-type(1){z-index:1} .panel:nth-of-type(2){z-index:2}
-  .panel:nth-of-type(3){z-index:3} .panel:nth-of-type(4){z-index:4}
-  .panel:nth-of-type(5){z-index:5}
-  /* A pinned panel taller than the viewport hides its own overflow forever —
-     the next panel covers the part you'd need to scroll to. So any panel that
-     doesn't fit stops being pinned and scrolls normally. Set by JS on resize. */
-  .panel.tall{position:relative; min-height:0}
+/* ============ liquid glass ============
+   backdrop-filter is cheap over STATIC content and expensive over a surface
+   that repaints every frame. Everything in <main> sits on a solid background,
+   so it gets real glass. Hero chrome sits over the live canvas and gets
+   simulated glass instead — layered speculars, no compositor cost. */
+.glass{
+  position:relative;
+  background:
+    radial-gradient(120% 80% at 12% -10%,rgba(255,255,255,.15),transparent 55%),
+    linear-gradient(145deg,rgba(255,255,255,.10) 0%,rgba(255,255,255,.028) 42%,rgba(255,255,255,.06) 100%);
+  backdrop-filter:blur(22px) saturate(180%);
+  -webkit-backdrop-filter:blur(22px) saturate(180%);
+  border:1px solid rgba(255,255,255,.13);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.26),      /* specular top edge */
+    inset 0 -1px 0 rgba(0,0,0,.34),           /* thickness underneath */
+    inset 0 0 22px rgba(255,255,255,.035),    /* interior bloom */
+    0 14px 40px rgba(0,0,0,.46);
 }
-@media(max-width:900px){ .panel{padding-block:clamp(4rem,12vh,6rem)} }
-.panel-in{width:100%; padding-block:clamp(3.5rem,9vh,6rem)}
-
-h2{font-size:clamp(1.95rem,1.3rem + 2.6vw,3.5rem); font-weight:300}
-.split{display:grid; grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr); gap:clamp(1.75rem,6vw,6rem); align-items:start}
-@media(max-width:860px){.split{grid-template-columns:1fr; gap:2rem}}
-
-/* proof — quiet ledger, serif figures, no shouting */
-.figs{margin-top:clamp(2rem,5vh,3.25rem); border-top:1px solid var(--hair-soft)}
-.fig{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:1.5rem; align-items:baseline;
-  padding-block:1.15rem; border-bottom:1px solid var(--hair-soft)}
-.fig p{font-size:.95rem; color:var(--ink-3); line-height:1.55}
-.fig b{font-family:var(--serif); font-weight:300; font-size:clamp(1.6rem,1.1rem + 1.9vw,2.5rem);
-  letter-spacing:-.02em; font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--ink)}
-
-/* method — a path you can see, not three equal boxes */
-.seq{list-style:none; margin:clamp(2rem,5vh,3rem) 0 0; padding:0 0 0 clamp(1.75rem,4vw,2.75rem); position:relative}
-.seq::before{content:''; position:absolute; left:0; top:.9rem; bottom:1.6rem; width:1px; background:var(--hair)}
-.step{position:relative; display:grid; grid-template-columns:3rem minmax(0,1fr) auto;
-  gap:.5rem clamp(1rem,3vw,2.25rem); align-items:baseline;
-  padding-block:clamp(1.2rem,2.8vh,2rem)}
-.step + .step{border-top:1px solid var(--hair-soft)}
-.step::before{content:''; position:absolute; left:calc(clamp(1.75rem,4vw,2.75rem) * -1); top:calc(clamp(1.2rem,2.8vh,2rem) + .55rem);
-  width:7px; height:7px; border-radius:50%; background:var(--ground);
-  border:1px solid var(--ink-3); transform:translateX(-3px)}
-.step .k{font-family:var(--sans); font-size:.66rem; letter-spacing:.16em; color:var(--ink-3)}
-.step h3{font-size:clamp(1.3rem,1.05rem + 1.1vw,2rem); font-weight:300}
-.step p{margin-top:.6rem; font-size:.97rem; color:var(--ink-3); line-height:1.6; max-width:52ch}
-.step .when{font-family:var(--sans); font-size:.63rem; letter-spacing:.16em; text-transform:uppercase;
-  color:var(--ink-3); white-space:nowrap}
-@media(max-width:760px){
-  .step{grid-template-columns:2.4rem minmax(0,1fr)}
-  .step .when{grid-column:2; white-space:normal; margin-top:.7rem}
+/* Specular that tracks the pointer. Real glass moves its highlight with the
+   light source — a fixed sheen is what makes CSS glass look like a flat decal.
+   Driven by two custom properties so the whole thing stays compositor-only. */
+.glass::after{
+  content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:radial-gradient(340px circle at var(--mx,50%) var(--my,0%),
+    rgba(255,255,255,.18),rgba(255,255,255,.055) 34%,transparent 62%);
+  opacity:0;transition:opacity .4s ease;z-index:2;
+}
+.glass:hover::after{opacity:1}
+/* Chromatic fringe — glass disperses light at its edges. Two offset inset
+   shadows in complementary hues, barely visible but it kills the flatness. */
+.glass{
+  /* `transform` is written by JS for the tilt. The scroll reveal animates the
+     standalone `translate` property instead — the two compose natively, so
+     neither overwrites the other and no @property registration is needed. */
+  transform-style:preserve-3d;
+  will-change:transform,translate;
+  transition:box-shadow .45s ease,transform .5s cubic-bezier(.22,1,.36,1);
+}
+.tech .glass,.faq .glass{
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.26),
+    inset 0 -1px 0 rgba(0,0,0,.34),
+    inset 1px 0 0 rgba(120,180,255,.10),
+    inset -1px 0 0 rgba(255,150,90,.10),
+    inset 0 0 22px rgba(255,255,255,.035),
+    0 14px 40px rgba(0,0,0,.46);
+}
+/* Simulated glass — same read, zero backdrop cost. For anything over canvas. */
+.glass-lite{
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.085) 0%,rgba(10,10,12,.62) 38%,rgba(10,10,12,.74) 100%);
+  border:1px solid rgba(255,255,255,.13);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.24),
+    inset 0 -1px 0 rgba(0,0,0,.4),
+    0 10px 30px rgba(0,0,0,.45);
 }
 
-/* work — six statements with room to breathe, not a table of rows */
-.parts{display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
-  column-gap:clamp(2rem,7vw,7rem); row-gap:clamp(1.75rem,5vh,3.25rem);
-  margin-top:clamp(2rem,5vh,3.25rem)}
-.part{padding-top:1.15rem; border-top:1px solid var(--hair-soft)}
-.part .n{display:block; font-family:var(--sans); font-size:.64rem; letter-spacing:.2em; color:var(--ink-3)}
-.part h3{margin-top:.9rem; font-size:clamp(1.4rem,1.05rem + 1.4vw,2.15rem); font-weight:300}
-.part p{margin-top:.7rem; font-size:.97rem; color:var(--ink-3); line-height:1.62; max-width:34ch}
-@media(max-width:760px){
-  .parts{grid-template-columns:1fr; row-gap:clamp(1.5rem,4vh,2.25rem)}
-  .part p{max-width:none}
+/* ============ nav ============ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:30;padding:var(--pad);
+  display:flex;justify-content:space-between;align-items:flex-start;gap:2rem;
+  transition:background .4s ease,border-color .4s ease;
+  border-bottom:1px solid transparent;
+}
+/* Solid, not blurred. backdrop-filter over an animating WebGL canvas makes
+   the compositor re-blur that strip every single frame. */
+nav.stuck{
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(5,5,6,.86));
+  border-bottom-color:rgba(255,255,255,.12);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 8px 26px rgba(0,0,0,.4);
+}
+/* Real blur only once the hero canvas has stopped painting — then the blurred
+   result is cacheable and costs nothing. */
+nav.stuck.canvas-idle{
+  backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(5,5,6,.62));
+}
+.brandmark{display:inline-flex;align-items:center;gap:.6rem;color:var(--paper)}
+.brandmark svg{flex:none;transition:transform .6s cubic-bezier(.22,1,.36,1)}
+.brandmark:hover svg{transform:rotate(45deg)}
+.bm-txt{font-weight:600;font-size:15px;letter-spacing:-.02em;line-height:1.15}
+.bm-txt span{display:block;color:var(--dim);font-weight:400;letter-spacing:0}
+
+/* ============ hero ============ */
+header{
+  position:relative;z-index:2;min-height:100svh;
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:clamp(4.2rem, calc(var(--pad) * 3.4), 16svh) var(--pad) var(--pad);
+}
+.status{
+  display:inline-flex;align-items:center;gap:.55rem;
+  border:1px solid var(--line);border-radius:999px;
+  padding:.4rem .8rem .4rem .6rem;width:fit-content;color:var(--dim);
+  background:linear-gradient(145deg,rgba(255,255,255,.085),rgba(10,10,12,.68));
+  border-color:rgba(255,255,255,.15);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.26),0 6px 18px rgba(0,0,0,.4);
+}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex:none;
+  box-shadow:0 0 0 0 rgba(255,91,35,.6);animation:pulse 2.6s ease-out infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 8px rgba(255,91,35,0)}100%{box-shadow:0 0 0 0 rgba(255,91,35,0)}}
+
+h1{
+  font-size:min(10.6vw, 13.5rem, 17svh);
+  font-weight:600;line-height:.9;letter-spacing:-.045em;
+  text-wrap:balance;
+}
+.ln{display:block;overflow:hidden}
+.ln>i{display:block;font-style:normal;will-change:transform}
+h1 .thin{font-weight:400;color:var(--accent)}
+
+/* Two items now that the interaction hints are gone. */
+.hero-btm{display:grid;grid-template-columns:1fr auto;gap:1.5rem;align-items:end}
+.hero-btm .lead{max-width:40ch;color:var(--dim);font-size:clamp(.92rem,1.25vw,1.04rem)}
+.hero-btm .lead b{color:var(--paper);font-weight:500}
+.credential{
+  justify-self:end;text-align:right;border:1px solid var(--line);
+  border-radius:10px;padding:.7rem .9rem;color:var(--dim);
+  background:linear-gradient(145deg,rgba(255,255,255,.085),rgba(10,10,12,.7));
+  border-color:rgba(255,255,255,.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 8px 22px rgba(0,0,0,.42);
+}
+.credential b{display:block;color:var(--paper);font-weight:500;margin-bottom:.2rem}
+@media(max-width:900px){
+  .hero-btm{grid-template-columns:1fr;gap:1.6rem}
+  .credential{justify-self:start;text-align:left}
+  }
+@media(max-width:820px){
+  /* On a phone the sculpture occupies the full width, so the left-hand scrim
+     has nothing to grip. Replace it with a bottom-weighted one that sits under
+     the whole type stack. */
+  .veil{
+    background:
+      linear-gradient(to bottom,rgba(5,5,6,.86) 0%,rgba(5,5,6,.30) 12%,rgba(5,5,6,0) 26%),
+      linear-gradient(to top,rgba(5,5,6,.94) 0%,rgba(5,5,6,.80) 24%,rgba(5,5,6,.40) 42%,rgba(5,5,6,0) 58%);
+  }
+  header{justify-content:flex-end;padding-bottom:calc(var(--pad) * 1.2)}
+  h1{font-size:clamp(2.5rem,11.5vw,4rem);margin-bottom:1.6rem}
+  .status{margin-bottom:auto}
+  .hero-btm .lead{max-width:none}
+  /* 10px mono is a desktop density. On a phone it is a squint. */
+  .mono{font-size:11.5px;letter-spacing:.09em}
+  }
+
+/* ============ shared section chrome ============ */
+main{position:relative;z-index:2;background:var(--ink)}
+section{padding:clamp(5rem,12vw,10rem) var(--pad);position:relative}
+/* Eyebrows removed — the headings carry themselves. A small orange rule marks
+   the section start instead of a numbered label. */
+.head{border-top:1px solid var(--line);padding-top:1.6rem;
+  margin-bottom:clamp(2.2rem,5vw,4rem);position:relative}
+.head::before{content:"";position:absolute;top:-1px;left:0;width:64px;height:2px;
+  background:var(--accent)}
+.head h2{font-size:clamp(1.5rem,3.6vw,3.4rem);font-weight:500;letter-spacing:-.03em;max-width:22ch;text-wrap:balance}
+
+
+
+/* ============ stack strip ============
+   Static on purpose. This is the list a studio actually reads — a marquee
+   would hide half of it at any moment to buy motion the page hasn't needed. */
+.stack{
+  border-block:1px solid rgba(255,255,255,.10);padding:1.15rem var(--pad);
+  display:flex;flex-wrap:wrap;gap:.6rem 2.2rem;align-items:center;
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.012));
+  backdrop-filter:blur(16px) saturate(160%);
+  -webkit-backdrop-filter:blur(16px) saturate(160%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 -1px 0 rgba(0,0,0,.3);
+}
+.stack span{color:var(--dim);white-space:nowrap;display:inline-flex;align-items:center;gap:2.2rem}
+.stack span:not(:last-child)::after{content:"";width:3px;height:3px;border-radius:50%;background:var(--accent);opacity:.8}
+
+/* ============ kinetic type — SUN HUNG difference blend ============ */
+.kinetic{padding:0;position:relative;isolation:isolate}
+/* isolate: confines the difference blend to this section instead of
+   compositing it against the entire page every frame. */
+.k-sticky{
+  position:sticky;top:0;height:100svh;display:grid;place-items:center;
+  mix-blend-mode:difference;pointer-events:none;z-index:2;
+}
+.k-sticky p{
+  font-size:clamp(2rem,8.6vw,9rem);font-weight:600;letter-spacing:-.04em;
+  line-height:.95;text-align:center;max-width:14ch;color:#fff;
+}
+.k-panels{margin-top:-100svh}
+/* Markers sit bottom-left, not centre. Centred, they landed directly behind
+   the sticky headline and the difference blend punched them through it. */
+.panel{height:100svh;display:grid;align-items:end;justify-items:start;padding:var(--pad)}
+.panel:nth-child(1){background:var(--ink)}
+.panel:nth-child(2){background:var(--accent)}
+.panel:nth-child(3){background:var(--paper)}
+.panel:nth-child(4){background:var(--ink)}
+
+
+/* ============ technique cards ============ */
+.tech{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:clamp(.6rem,1.2vw,1rem)}
+.t{border-radius:16px;padding:clamp(1.5rem,2.6vw,2.3rem);position:relative;overflow:hidden;display:block;
+  transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s ease}
+a.t::before{content:"";position:absolute;inset:0;background:var(--accent);opacity:.07;
+  transform:scaleY(0);transform-origin:bottom;transition:transform .5s cubic-bezier(.22,1,.36,1)}
+a.t:hover::before{transform:scaleY(1)}
+a.t:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.34),0 26px 60px rgba(0,0,0,.6)}
+a.t>*{position:relative;z-index:1}
+.faq>div>*{position:relative;z-index:1}
+a.t:hover .n{color:var(--paper)}
+.t .n{color:var(--accent);transition:color .35s}
+.t h3{font-weight:500;font-size:1.12rem;margin:1rem 0 .55rem;letter-spacing:-.015em}
+.t p{color:var(--dim);font-size:.93rem}
+.t code{font-family:"JetBrains Mono",monospace;font-size:.82em;color:var(--paper);background:rgba(242,240,237,.07);padding:.08em .32em;border-radius:3px}
+
+
+
+/* ---- small orange marks. The accent appears as punctuation, never as fill. ---- */
+.tenets article::before{content:"";position:absolute;top:0;left:clamp(1.5rem,2.6vw,2.2rem);
+  width:26px;height:2px;background:var(--accent);z-index:3}
+.t::after{content:"";position:absolute;top:0;left:clamp(1.5rem,2.6vw,2.3rem);
+  width:22px;height:2px;background:var(--accent);z-index:3;opacity:.85}
+.faq>div{position:relative}
+.faq dt::before{content:"";display:inline-block;width:5px;height:5px;
+  background:var(--accent);margin-right:.6rem;vertical-align:middle}
+.stack span:not(:last-child)::after{background:var(--accent)}
+.statement .big::after{content:".";color:var(--accent)}
+.contact h2::after{content:"";display:block;width:52px;height:2px;
+  background:var(--accent);margin-top:1.4rem}
+footer{position:relative}
+footer::before{content:"";position:absolute;top:-1px;left:var(--pad);width:44px;height:2px;
+  background:var(--accent)}
+.credential b::after{content:"";display:inline-block;width:4px;height:4px;
+  background:var(--accent);margin-left:.45rem;vertical-align:middle}
+
+/* ============ point of view ============ */
+.tenets{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:clamp(.7rem,1.3vw,1.1rem)}
+.tenets article{padding:clamp(1.5rem,2.6vw,2.2rem);border-radius:16px}
+.tenets .n{color:var(--accent);margin-bottom:1.1rem}
+.tenets h3{font-size:1.15rem;font-weight:500;letter-spacing:-.02em;margin-bottom:.7rem}
+.tenets p{color:var(--dim);font-size:.94rem;line-height:1.6}
+.tenets p + p{margin-top:.9rem}
+.tenets .ev{color:var(--paper);opacity:.5;font-size:10px;line-height:1.6;
+  padding-top:.8rem;border-top:1px solid var(--line)}
+.pov-close{margin-top:clamp(2.2rem,4vw,3.4rem);max-width:34ch;
+  font-size:clamp(1.2rem,2.4vw,1.9rem);font-weight:500;letter-spacing:-.025em;
+  line-height:1.25;color:var(--paper)}
+.pov-close em{font-style:normal;color:var(--accent)}
+
+.narrow .head{max-width:1040px;margin-inline:auto}
+/* ============ faq ============ */
+/* Fixed two-up. auto-fit was giving 4 across then a ragged 2, which reads as
+   a layout accident rather than a decision. */
+.faq{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:clamp(.7rem,1.3vw,1.1rem);max-width:1040px;margin-inline:auto}
+@media(max-width:760px){.faq{grid-template-columns:1fr}}
+.faq>div{padding:clamp(1.4rem,2.4vw,2rem);border-radius:16px}
+.faq dt{font-weight:500;font-size:1.02rem;letter-spacing:-.01em;margin-bottom:.5rem}
+.faq dd{color:var(--dim);font-size:.93rem;line-height:1.55}
+
+/* ============ statement ============ */
+.statement{padding:clamp(6rem,16vw,14rem) var(--pad)}
+.big{font-size:clamp(2rem,8.6vw,9rem);font-weight:600;letter-spacing:-.045em;line-height:.94}
+.big .thin{font-weight:400;color:var(--dim)}
+
+
+/* ============ loader ============ */
+html.is-loading,html.is-loading body{overflow:hidden}
+#loader{position:fixed;inset:0;z-index:80;background:var(--ink);
+  display:grid;place-items:center;
+  /* opacity only — transitioning visibility snaps and reads as a cut */
+  transition:opacity .9s cubic-bezier(.4,0,.2,1);will-change:opacity}
+#loader.done{opacity:0;pointer-events:none}
+#loader .num{font-size:clamp(3.5rem,17vw,15rem);font-weight:600;letter-spacing:-.05em;line-height:1;
+  font-variant-numeric:tabular-nums}
+#loader .cap{position:absolute;bottom:var(--pad);left:var(--pad);color:var(--dim)}
+#loader .bar{position:absolute;bottom:0;left:0;height:2px;width:100%;background:var(--accent);
+  transform:scaleX(0);transform-origin:left}
+
+/* ============ contact ============ */
+.contact h2{font-size:clamp(2.2rem,7.8vw,7.4rem);font-weight:600;letter-spacing:-.045em;line-height:.94;max-width:13ch;text-wrap:balance}
+.cta{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:clamp(2rem,4vw,3rem)}
+.btn{display:inline-flex;align-items:center;gap:.55rem;position:relative;overflow:hidden;
+  background:linear-gradient(150deg,#ff7a48,var(--accent) 45%,#e0430f);color:#120500;
+  border-radius:999px;padding:.95rem 1.7rem;font-weight:600;font-size:.95rem;
+  border:1px solid rgba(255,255,255,.22);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -1px 0 rgba(0,0,0,.25),
+             0 10px 28px rgba(0,0,0,.5);
+  transition:transform .45s cubic-bezier(.22,1,.36,1),box-shadow .45s ease}
+/* specular sweep on hover */
+.btn::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.5) 48%,transparent 62%);
+  transform:translateX(-130%);transition:transform .85s cubic-bezier(.22,1,.36,1)}
+.btn:hover::after{transform:translateX(130%)}
+.btn:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 18px 46px rgba(0,0,0,.6)}
+.btn:hover{transform:translateY(-2px);opacity:.93}
+.btn.ghost{color:var(--paper);font-weight:500}
+.btn.ghost:hover{border-color:var(--paper)}
+footer{padding:1.5rem var(--pad) 2.4rem;border-top:1px solid var(--line);
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;color:var(--dim)}
+.f-links{display:flex;gap:1.4rem}
+.f-links a{color:var(--dim);text-decoration:none;position:relative}
+.f-links a::after{content:"";position:absolute;left:0;right:100%;bottom:-3px;height:1px;
+  background:var(--accent);transition:right .3s cubic-bezier(.22,1,.36,1)}
+.f-links a:hover{color:var(--paper)}
+.f-links a:hover::after{right:0}
+
+@media(prefers-reduced-motion:reduce){
+  .dot{animation:none}
+  .k-sticky{mix-blend-mode:normal}
+  *{transition-duration:.01ms!important}
 }
 
-/* plates */
+/* Cross-document transition: outgoing settles back, incoming rises in. */
+@media(prefers-reduced-motion:no-preference){
+  ::view-transition-old(root){animation:vt-out .34s cubic-bezier(.4,0,1,1) both}
+  ::view-transition-new(root){animation:vt-in .46s cubic-bezier(.22,1,.36,1) both}
+}
+@keyframes vt-out{to{opacity:0;transform:scale(.985)}}
+@keyframes vt-in{from{opacity:0;transform:scale(1.012)}}
 
-/* timeline */
-.tl{margin-top:clamp(1.75rem,4vh,2.5rem); border-top:1px solid var(--hair-soft)}
-.tl-row{display:grid; grid-template-columns:9rem minmax(0,1fr); gap:1.5rem; padding-block:.95rem; border-bottom:1px solid var(--hair-soft)}
-.tl-row dt{font-family:var(--sans); font-size:.66rem; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3); padding-top:.35rem}
-.tl-row dd{margin:0; font-size:.97rem; color:var(--ink-2)}
-.tl-row dd b{font-weight:400; color:var(--ink); font-variant-numeric:tabular-nums}
-@media(max-width:760px){.tl-row{grid-template-columns:1fr; gap:.25rem}}
+/* ================= mobile =================
+   A phone is not a narrow desktop. Everything that exists to support a cursor
+   goes, the label type comes up to a readable size, and tap targets reach 44px.
+   Appended last so it wins on order regardless of what precedes it. */
+.mobcopy{display:none}
+@media(max-width:820px){
+  .status,.credential,.stack{display:none !important}
+  .deskcopy{display:none}
+  .mobcopy{display:inline}
+  .hero-btm{display:block}
 
-/* link — the only "button", a rule that draws itself */
-.go{display:inline-flex; align-items:center; gap:.85rem; text-decoration:none; font-family:var(--sans);
-  font-size:.73rem; letter-spacing:.19em; text-transform:uppercase; color:var(--ink);
-  min-height:44px; padding-bottom:.55rem; position:relative; margin-top:clamp(1.75rem,4vh,2.5rem)}
-.go::before{content:''; position:absolute; inset-inline:0; bottom:0; height:1px; background:var(--hair)}
-.go::after{content:''; position:absolute; inset-inline:0; bottom:0; height:1px; background:var(--ink);
-  transform:scaleX(0); transform-origin:left; transition:transform .8s var(--ease)}
-.go:hover::after{transform:scaleX(1)}
+  /* The desktop scrim leans on a dark left third that a phone does not have. */
+  .veil{
+    background:
+      linear-gradient(to bottom,rgba(5,5,6,.88) 0%,rgba(5,5,6,.34) 11%,rgba(5,5,6,0) 24%),
+      linear-gradient(to top,rgba(5,5,6,.95) 0%,rgba(5,5,6,.84) 26%,rgba(5,5,6,.44) 44%,rgba(5,5,6,0) 60%) !important;
+  }
+  header{justify-content:flex-end;padding-bottom:calc(var(--pad) * 1.15)}
+  h1{font-size:clamp(2.4rem,11vw,3.8rem);margin-bottom:1rem}
+  .hero-btm .lead{max-width:none;font-size:.92rem;line-height:1.5}
 
-/* ---------- demo library ----------
-   The builds are the only colour anywhere on this site, so they stay
-   grey until you reach for them. Colour is the reward and the proof —
-   showing six loud palettes at rest would break STONE's monochrome. */
-.demos-row{display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:clamp(1rem,2.4vw,2rem); margin-top:clamp(2rem,5vh,3.25rem)}
-.demo{display:block; text-decoration:none; position:relative}
-.demo-shot{display:block; position:relative; overflow:hidden; aspect-ratio:16/10;
-  border:1px solid var(--hair-soft); background:var(--ground-2)}
-.demo-shot img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
-  filter:grayscale(1) brightness(.68) contrast(1.05);
-  transition:filter .9s var(--ease), transform 1.1s var(--ease)}
-.demo:hover .demo-shot img,.demo:focus-visible .demo-shot img{
-  filter:none; transform:scale(1.03)}
-.demo-in{display:flex; flex-wrap:wrap; align-items:baseline; gap:.4rem .9rem;
-  padding-top:.9rem; margin-top:.9rem; border-top:1px solid var(--hair-soft)}
-.demo-in h3{font-size:1.12rem; font-weight:300; margin:0}
-.demo-in span{font-family:var(--sans); font-size:.6rem; letter-spacing:.2em;
-  text-transform:uppercase; color:var(--ink-3); margin-left:auto}
-.demo-in p{flex:0 0 100%; margin-top:.35rem; font-size:.9rem; color:var(--ink-3);
-  line-height:1.6}
-@media(max-width:860px){
-  .demos-row{grid-template-columns:1fr; gap:clamp(1.5rem,4vh,2.25rem)}
-  .demo-in span{margin-left:0}
+  /* 10-11px mono is a desktop density; on a phone it is a squint.
+     .tenets .ev needs matching specificity or it wins at 10px. */
+  .mono{font-size:11.5px;letter-spacing:.085em}
+  .tenets .ev{font-size:11.5px}
+  .brandmark{padding:.35rem .1rem;min-height:44px}
 }
 
-/* ---------- footer ---------- */
-.foot{border-top:1px solid var(--hair-soft); background:var(--ground);
-  position:relative; z-index:var(--z-rail)}
-.foot-in{display:flex; flex-wrap:wrap; gap:.6rem 2.25rem; align-items:center;
-  padding-block:1.6rem}
-.foot-in a{font-family:var(--sans); font-size:.66rem; letter-spacing:.2em;
-  text-transform:uppercase; color:var(--ink-3); text-decoration:none;
-  min-height:44px; display:inline-flex; align-items:center;
-  transition:color .5s var(--ease)}
-.foot-in a:hover{color:var(--ink)}
-.foot-in .rule{margin-left:auto; font-family:var(--sans); font-size:.62rem;
-  letter-spacing:.18em; text-transform:uppercase; color:var(--ink-3)}
-@media(max-width:640px){.foot-in .rule{margin-left:0; flex:0 0 100%}}
-.go span{transition:transform .8s var(--ease)}
-.go:hover span{transform:translateX(5px)}
+/* ================= mobile notice =================
+   Stated once, near the top, instead of apologising on every section. */
+.mobonly{display:none}
+@media(max-width:820px){
+  .mobonly{
+    display:block;margin:0 var(--pad) 0;padding:1.05rem 1.15rem;
+    border:1px solid var(--line);border-radius:14px;
+    background:linear-gradient(150deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+  }
+  .mobonly p{font-size:.9rem;line-height:1.5;color:var(--dim)}
+  .mobonly p b{color:var(--paper);font-weight:600}
+  .safari-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    margin-top:.9rem;padding:.75rem 1.1rem;border-radius:999px;min-height:44px;
+    background:var(--paper);color:var(--ink);font-weight:600;font-size:.88rem;
+  }
+  .safari-btn[hidden]{display:none}
+  .mn-foot{display:block;margin-top:.8rem;color:var(--dim);opacity:.7}
 
-/* closing */
-.close{position:relative; min-height:92svh; display:flex; align-items:center; overflow:hidden; z-index:6}
-.close .hero-media img{filter:grayscale(1) sepia(.14) brightness(.34) contrast(1.2)}
-.close h2{font-size:clamp(2.1rem,1.4rem + 3.4vw,4.4rem)}
-
-
-/* reveal: only pre-hides what is below the fold; visible content is never touched */
-@media (prefers-reduced-motion: no-preference){
-  .js .rv{transition:opacity var(--slow) var(--ease), transform var(--slow) var(--ease)}
-  .js .rv.pre{opacity:0; transform:translateY(26px)}
-}
-@media (prefers-reduced-motion: reduce){
-  *{transition-duration:.01ms !important; animation-duration:.01ms !important}
-  #veil{display:none}
+  /* ---- copy reduction: keep the claim, drop the elaboration ---- */
+  .tenets article p:nth-of-type(2),
+  .tenets .ev,
+  .t p,
+  .pov-close{display:none}
+  .head h2{font-size:clamp(1.35rem,5.6vw,1.7rem);max-width:24ch}
+  .tenets h3{font-size:1.05rem}
+  .tenets p{font-size:.9rem}
+  .faq dd{font-size:.88rem}
+  .t h3{font-size:1.02rem;margin-bottom:0}
+  .tech{gap:.5rem}
+  section{padding:clamp(3rem,9vw,4.5rem) var(--pad)}
 }
 </style>
 </head>
 <body>
 
-<div id="fade" aria-hidden="true"></div>
-<div id="veil" aria-hidden="true">
-  <div class="veil-in">
-    <span class="veil-type" id="veiltype"></span><span class="veil-caret" id="veilcaret"></span>
-  </div>
+<div id="loader">
+  <div class="num" id="lnum">00</div>
+  <div class="cap mono">Compiling shaders</div>
+  <div class="bar" id="lbar"></div>
 </div>
-<div class="rail" id="rail" aria-hidden="true">Introduction</div>
 
-<div class="nav-scrim" aria-hidden="true"></div>
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="veil"></div>
+<div class="grain"></div>
+
 <nav>
-  <div class="wrap nav-in">
-    <a class="mark" href="#top" aria-label="MVS Solves — back to top">MVS</a>
-    <div class="nav-links">
-      <a href="#proof">Proof</a><a href="#systems">Method</a><a href="#work">Work</a><a href="demos/">Demos</a><a href="motion/">Motion</a><a href="#martin">Origin</a><a href="contact/">Contact</a>
-    </div>
-    <button class="navbtn" id="navbtn" type="button" aria-expanded="false" aria-controls="menu">Menu</button>
-  </div>
+  <a class="brandmark" href="/" aria-label="MVS Solves — home">
+    <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true">
+      <!-- Nested isolines: a distance field is literally rings of equal
+           distance from a surface. The mark is what the work is made of. -->
+      <rect x="2.5" y="2.5" width="27" height="27" rx="9"
+            fill="none" stroke="currentColor" stroke-width="1.3" opacity=".32"/>
+      <rect x="7"   y="7"   width="18" height="18" rx="6"
+            fill="none" stroke="currentColor" stroke-width="1.3" opacity=".62"/>
+      <rect x="11.5" y="11.5" width="9" height="9" rx="3.2"
+            fill="var(--accent)" stroke="none"/>
+    </svg>
+    <span class="bm-txt">MVS&nbsp;Solves<span>Martin van Staden</span></span>
+  </a>
 </nav>
 
-<div id="menu" role="dialog" aria-modal="true" aria-label="Menu">
-  <button class="menu-close" id="menuclose" type="button">Close</button>
-  <a href="#proof">Proof</a><a href="#systems">Method</a><a href="#work">Work</a><a href="demos/">Demos</a><a href="motion/">Motion</a><a href="#martin">Origin</a><a href="contact/">Contact</a>
-</div>
+<header class="shell">
+  <div class="status mono"><span class="dot"></span>Available for contract work</div>
 
-<header class="hero" id="top">
-  <div class="hero-media">
-    <video id="herovid" autoplay muted loop playsinline preload="metadata" poster="media/hero.jpg"
-           aria-label="Rain drifting through a dark stand of tall trees."></video>
+  <div>
+    <h1>
+      <span class="ln"><i>Rendered</i></span>
+      <span class="ln"><i class="thin">live.</i></span>
+      <span class="ln"><i>Not recorded.</i></span>
+    </h1>
   </div>
-  <div class="hero-in wrap">
-    <h1 data-scramble>You never see<br><em>the jobs you lose.</em></h1>
-    <p class="lede">The site that sells, the booking that answers, the follow-up that closes. Built end to end by the person who answers for it.</p>
-    <div class="hero-stats">
-      <div class="stat"><b>$720K</b><span class="label" data-scramble>Created for clients</span></div>
-      <div class="stat"><b>50+</b><span class="label" data-scramble>Businesses running</span></div>
-      <div class="stat"><b>6</b><span class="label" data-scramble>At 10K a month</span></div>
-    </div>
+
+  <div class="hero-btm">
+    <p class="lead"><b>That form is a raymarched distance field.</b><span class="deskcopy"> A mesh has to be re-tessellated to become another shape. A distance field just interpolates — so this is one equation, not five models. GLSL in raw WebGL2, solved per pixel, every frame, on your machine right now.</span><span class="mobcopy"> One equation, solved per pixel, every frame. Raw WebGL2 — no Three.js, no video.</span></p>
+    <div class="credential mono"><b>MVS Solves</b>WebGL · GLSL · GSAP · React</div>
   </div>
-  <span class="label scrollcue">Scroll</span>
 </header>
 
-<div class="stack">
+<aside class="mobonly" id="mobnotice">
+  <p><b>This is the short version.</b> The live pieces — a fluid simulation, a
+  raymarched corridor, a spring field — need a desktop and a cursor to run.</p>
+  <a class="safari-btn" id="safaribtn" href="#" hidden>Open in Safari ↗</a>
+  <span class="mn-foot mono">Full site on desktop</span>
+</aside>
 
-  <section class="panel" id="proof">
-    <div class="bed"><video data-bed="media/bed-proof.mp4" muted loop playsinline preload="none" poster="media/bed-proof.jpg"></video></div>
-    <div class="panel-in wrap">
-      <div class="split">
-        <div class="rv">
-          <span class="label" data-scramble>Proof</span>
-          <h2 style="margin-top:1.4rem" data-scramble>Six businesses.<br>Ten thousand<br>a month. Each.</h2>
-        </div>
-        <div class="rv">
-          <p class="lede">Every one was built around how that business actually works — the way enquiries arrive, who answers them, what quietly gets missed. Not a template with a logo dropped on it.</p>
-          <div class="figs">
-            <div class="fig"><p>Annual revenue created for clients, from systems still running today</p><b>$720K</b></div>
-            <div class="fig"><p>Combined monthly revenue across the top six</p><b>$60K</b></div>
-            <div class="fig"><p>Automations running every month, untouched</p><b>10,000+</b></div>
-            <div class="fig"><p>Businesses on systems designed and built end to end</p><b>50+</b></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <section class="panel" id="systems">
-    <div class="bed"><video data-bed="media/bed-method.mp4" muted loop playsinline preload="none" poster="media/bed-method.jpg"></video></div>
-    <div class="panel-in wrap">
-      <div class="split">
-        <div class="rv">
-          <span class="label" data-scramble>Method</span>
-          <h2 style="margin-top:1.4rem" data-scramble>Four steps.<br>One outcome.</h2>
-          <p class="lede" style="margin-top:1.6rem">A stranger becomes a booked, paying client — and it keeps happening while you work.</p>
-        </div>
-      <ol class="seq rv">
-        <li class="step">
-          <span class="k">01</span>
-          <div>
-            <h3>We find the leak</h3>
-            <p>One call. I map how enquiries actually reach you today — who answers, when, and where they quietly die.</p>
-          </div>
-          <span class="when">A call, not a questionnaire</span>
-        </li>
-        <li class="step">
-          <span class="k">02</span>
-          <div>
-            <h3>The brand gets sharp</h3>
-            <p>A site and identity that make you the obvious choice before anyone reads a word of it.</p>
-          </div>
-          <span class="when">Days, not quarters</span>
-        </li>
-        <li class="step">
-          <span class="k">03</span>
-          <div>
-            <h3>The machine goes in</h3>
-            <p>Booking, reception, follow-up and reviews — wired to how the business already runs, not the other way round.</p>
-          </div>
-          <span class="when">Built around you</span>
-        </li>
-        <li class="step">
-          <span class="k">04</span>
-          <div>
-            <h3>I stay on it</h3>
-            <p>Launching isn't the finish line. It gets tuned until the numbers move, and I'm the one still holding it.</p>
-          </div>
-          <span class="when">Until it works</span>
-        </li>
-      </ol>
-      </div>
-    </div>
-  </section>
+<main>
 
-  <section class="panel" id="work">
-    <div class="bed"><video data-bed="media/bed-work.mp4" muted loop playsinline preload="none" poster="media/bed-work.jpg"></video></div>
-    <div class="panel-in wrap">
-      <div class="split">
-        <div class="rv">
-          <span class="label" data-scramble>Work</span>
-          <h2 style="margin-top:1.4rem" data-scramble>One machine.<br>Six moving parts.</h2>
-        </div>
-        <p class="lede rv">Built around how the business actually works. Listed in the order a stranger meets it.</p>
-      </div>
-      <div class="parts rv">
-        <div class="part"><span class="n">01</span><h3 data-scramble>The site</h3><p>Turns a stranger into a booked job. Not a brochure with your logo on it.</p></div>
-        <div class="part"><span class="n">02</span><h3 data-scramble>The calendar</h3><p>Open at eleven on a Sunday — which is when they actually decide.</p></div>
-        <div class="part"><span class="n">03</span><h3 data-scramble>The receptionist</h3><p>Answers in seconds, qualifies, and puts it straight in your diary.</p></div>
-        <div class="part"><span class="n">04</span><h3 data-scramble>The follow-up</h3><p>Chases the quiet ones until they either book or say no.</p></div>
-        <div class="part"><span class="n">05</span><h3 data-scramble>The reviews</h3><p>Asks the moment the job lands, while they still mean it.</p></div>
-        <div class="part"><span class="n">06</span><h3 data-scramble>The numbers</h3><p>One message a week. Enquiries, calls, jobs, revenue.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="panel" id="demos">
-    <div class="bed"><video data-bed="media/bed-work.mp4" muted loop playsinline preload="none" poster="media/bed-work.jpg"></video></div>
-    <div class="panel-in wrap">
-      <div class="split">
-        <div class="rv">
-          <span class="label" data-scramble>Demos</span>
-          <h2 style="margin-top:1.4rem" data-scramble>Three builds,<br>open any of them.</h2>
-        </div>
-        <p class="lede rv">Not screenshots and not a template gallery. Three complete working sites, each built on its own design system, each for a different trade. Use them like a visitor would.</p>
-      </div>
-
-      <div class="demos-row rv">
-        <a class="demo" href="demos/01-volta/">
-          <span class="demo-shot"><img src="demos/01-volta/preview.jpg" width="1920" height="1200" loading="lazy"
-            alt="Volta: a solar array silhouetted against a golden-hour sky, cut hard into black, headed 'Your roof is already generating.'"></span>
-          <span class="demo-in"><h3>Volta</h3><span>Solar &amp; EV charging</span>
-            <p>Size a system on the page and the quote writes itself into WhatsApp.</p></span>
-        </a>
-        <a class="demo" href="demos/02-maranu/">
-          <span class="demo-shot"><img src="demos/02-maranu/preview.jpg" width="1920" height="1200" loading="lazy"
-            alt="Maranu: a sepia desert dune at dusk, headed 'Where the setting becomes part of the table.'"></span>
-          <span class="demo-in"><h3>Maranu</h3><span>Desert lodge &amp; table</span>
-            <p>One type family, no buttons, and every photograph on one temperature.</p></span>
-        </a>
-        <a class="demo" href="demos/03-ironway/">
-          <span class="demo-shot"><img src="demos/03-ironway/preview.jpg" width="1920" height="1200" loading="lazy"
-            alt="Ironway: bone and clay split by a hard seam with weight plates crossing it, headed 'Built not bought.'"></span>
-          <span class="demo-in"><h3>Ironway</h3><span>Barbell gym</span>
-            <p>A hard colour seam, and a ticker pulling the gym's real weather.</p></span>
-        </a>
-      </div>
-
-      <a class="go" href="demos/">Open the demo library <span>&rarr;</span></a>
-    </div>
-  </section>
-
-  <section class="panel" id="martin">
-    <div class="bed"><video data-bed="media/bed-origin.mp4" muted loop playsinline preload="none" poster="media/bed-origin.jpg"></video></div>
-    <div class="panel-in wrap">
-      <div class="split">
-        <div class="rv">
-          <span class="label" data-scramble>Origin</span>
-          <h2 style="margin-top:1.4rem" data-scramble>Straight from me.</h2>
-        </div>
-        <div class="rv">
-          <p class="lede">I'm Martin. Self-taught, no agency pedigree, and better for it. In under two months I took six businesses to ten thousand a month each. That isn't a pitch — it's the record.</p>
-          <p style="margin-top:1.1rem; color:var(--ink-3)">Fifty businesses run on systems I designed and built myself, end to end. No account managers, no hand-offs, no work watered down as it passes along a chain. Just the person who built it, answering for it.</p>
-          <p style="margin-top:1.1rem"><em>Launching isn't the finish line. I'm done when the numbers are going up.</em></p>
-          <dl class="tl">
-            <div class="tl-row"><dt>2025</dt><dd>Started in marketing and sales. Everything I know came from doing the work.</dd></div>
-            <div class="tl-row"><dt>2026</dt><dd>Founded MVS Solves. Solo by design, so nothing stands between you and the person building it.</dd></div>
-            <div class="tl-row"><dt>First 30 days</dt><dd>Onboarded <b>15</b> clients.</dd></div>
-            <div class="tl-row"><dt>3 months in</dt><dd>Took <b>6</b> businesses to <b>10K</b> a month.</dd></div>
-            <div class="tl-row"><dt>Today</dt><dd>Every project still runs through me personally, and that won't change as this grows.</dd></div>
-          </dl>
-        </div>
-      </div>
-    </div>
-  </section>
-
+<div class="stack mono">
+  <span>Raymarching</span><span>Custom GLSL</span><span>ScrollTrigger</span><span>Lenis</span><span>Three.js</span><span>React / Next</span><span>Shader materials</span><span>Core Web Vitals</span>
 </div>
 
-<section class="close" id="talk">
-  <div class="hero-media">
-    <video data-bed="media/bed-contact.mp4" muted loop playsinline preload="none"
-           poster="media/bed-contact.jpg" aria-label="Bare trees in slow-moving mist."></video>
-  </div>
-  <div class="hero-in wrap">
-    <span class="label" data-scramble>Contact</span>
-    <h2 style="margin-top:1.4rem" data-scramble>Let's find out<br>what's leaking.</h2>
-    <p class="lede" style="margin-top:1.5rem">Same-day response. Let's bring you more revenue.</p>
-    <a class="go" href="contact/">Start a project <span>→</span></a>
+<section class="kinetic">
+  <div class="k-sticky"><p>Most front-end devs stop at the CSS transition.</p></div>
+  <div class="k-panels">
+    <div class="panel"></div>
+    <div class="panel"></div>
+    <div class="panel"></div>
+    <div class="panel"></div>
   </div>
 </section>
 
-<footer class="foot">
-  <div class="wrap foot-in">
-    <a href="demos/">Demo library</a>
-    <a href="contact/">Contact</a>
-    <a href="privacy-policy/">Privacy</a>
-    <a href="terms-of-service/">Terms</a>
-    <span class="rule">MVS Solves &middot; Brea, California</span>
+<section class="shell">
+  <div class="head">
+    <h2>Four running pieces. Open any of them — nothing here is a recording.</h2>
   </div>
+  <div class="tech">
+    <a class="t glass" href="fluid/">
+      <div class="n mono">01 ↗</div>
+      <h3>Curl-noise fluid</h3>
+      <p>Dye advected through a divergence-free velocity field, ping-ponged between two framebuffers each frame. Flows like a fluid without ever solving for pressure. <code>WebGL2</code></p>
+    </a>
+    <a class="t glass" href="scroll/">
+      <div class="n mono">02 ↗</div>
+      <h3>Scroll-driven corridor</h3>
+      <p>An infinite raymarched corridor whose camera is your scrollbar. Lenis, the GSAP ticker and the shader all read from one clock. <code>WebGL2 · GSAP</code></p>
+    </a>
+    <a class="t glass" href="type/">
+      <div class="n mono">03 ↗</div>
+      <h3>Kinetic typography</h3>
+      <p>Mask reveals clipped by real overflow, characters decoding out of noise, and difference-blend inversion across four panels. <code>No WebGL, no library</code></p>
+    </a>
+    <a class="t glass" href="physics/">
+      <div class="n mono">04 ↗</div>
+      <h3>Spring particles</h3>
+      <p>Thousands of damped springs anchored to pixels sampled from rendered text, scattered by an inverse-square cursor force. <code>Typed arrays · canvas</code></p>
+    </a>
+  </div>
+</section>
+
+<section class="shell pov" id="approach">
+  <div class="head">
+    <h2>Most web motion is a demo that survives exactly one machine.</h2>
+  </div>
+
+  <div class="tenets">
+    <article class="glass">
+      <div class="n mono">01</div>
+      <h3>The maths, not the library call</h3>
+      <p>If an off-the-shelf plugin can do it, you do not need me — you need
+      twenty minutes and the docs. I get hired for the brief that has no plugin:
+      the shader, the simulation, the scroll system that has to feel physically
+      attached to the page.</p>
+      <p class="ev mono">Evidence — the hero above ships no 3D library at all.</p>
+    </article>
+
+    <article class="glass">
+      <div class="n mono">02</div>
+      <h3>It degrades or it does not ship</h3>
+      <p>Effects that only work on the machine they were built on are a
+      liability you inherit at launch. Every piece here has a defined failure
+      path: no WebGL2, no GPU headroom, or reduced-motion enabled, and the
+      layout still reads perfectly.</p>
+      <p class="ev mono">Evidence — kill WebGL and every word on this site survives.</p>
+    </article>
+
+    <article class="glass">
+      <div class="n mono">03</div>
+      <h3>Measured, never hoped for</h3>
+      <p>"It runs fine on my laptop" is not a performance strategy. These pages
+      measure their own frame time and move the render resolution to hold the
+      budget on hardware neither of us has tested.</p>
+      <p class="ev mono">Evidence — press P for live frame rate and render scale.</p>
+    </article>
+  </div>
+
+  <p class="pov-close">Motion is the easiest thing on a site to do badly and the
+  hardest to do <em>durably</em>. I do the durable kind.</p>
+</section>
+
+<section class="shell" id="services">
+  <div class="head">
+    <h2>The work that gets subcontracted out because nobody in-house will take it.</h2>
+  </div>
+  <div class="tech">
+    <div class="t">
+      <div class="n mono">A</div>
+      <h3>WebGL &amp; shader work</h3>
+      <p>Raymarched scenes, custom GLSL, scroll-linked cameras, fluid and particle systems. Written to degrade to plain DOM rather than break on a mid-range Android.</p>
+    </div>
+    <div class="t">
+      <div class="n mono">B</div>
+      <h3>Scroll &amp; motion systems</h3>
+      <p>GSAP ScrollTrigger pinning, stacking and scrubbing, SplitText reveals, Lenis smooth scroll — built as one timeline sharing one clock, not five libraries fighting each other.</p>
+    </div>
+    <div class="t">
+      <div class="n mono">C</div>
+      <h3>Marketing-site front-end</h3>
+      <p>React, Next.js and Tailwind, or hand-coded static. Core Web Vitals, semantic markup, structured data, and complete HTML from the server every time.</p>
+    </div>
+    <div class="t">
+      <div class="n mono">D</div>
+      <h3>Automation &amp; AI integration</h3>
+      <p>n8n and Make pipelines, LLM agent workflows, scrape-to-CRM plumbing. Built to be handed over and run by someone who is not me.</p>
+    </div>
+  </div>
+</section>
+
+<section class="shell narrow" id="about">
+  <div class="head">
+    <h2>Short answers to the things worth asking before a first call.</h2>
+  </div>
+  <dl class="faq">
+    <div class="glass"><dt>Are you available?</dt>
+      <dd>Yes — contract and white-label, part-time or full-time. Based in Brea, California, Pacific time, and used to working across European hours.</dd></div>
+    <div class="glass"><dt>What do you actually do?</dt>
+      <dd>The motion and WebGL layer of the front-end, plus the marketing-site build around it. I take the brief a studio can't staff internally — the shader hero, the scroll sequence, the thing the pitch deck promised.</dd></div>
+    <div class="glass"><dt>Do you work through agencies?</dt>
+      <dd>Often. White-label is fine, your name on the work is fine, and I'll stay off the client call if that's how you run things.</dd></div>
+    <div class="glass"><dt>What do you need to start?</dt>
+      <dd>The design file or a reference, the deadline, and who owns the final call on visual decisions. That's genuinely it for a scoped piece of motion work.</dd></div>
+    <div class="glass"><dt>What don't you do?</dt>
+      <dd>Page builders, template reskins, and anything where "make it pop" is the whole brief. I'm also not the right person for backend-heavy platform work.</dd></div>
+    <div class="glass"><dt>How is this site built?</dt>
+      <dd>Hand-coded static HTML. Raw WebGL2 for the sculpture above — no Three.js on this page. Every study is a single self-contained file with no build step, deployed on Cloudflare Pages.</dd></div>
+  </dl>
+</section>
+
+<section class="statement">
+  <p class="big">
+    <span class="ln"><i>Anyone can</i></span>
+    <span class="ln"><i class="thin">install a library.</i></span>
+    <span class="ln"><i>I write the</i></span>
+    <span class="ln"><i>maths under it.</i></span>
+  </p>
+</section>
+
+<section class="contact shell">
+  <h2>Got a brief your team would rather not staff?</h2>
+  <div class="cta">
+    <a class="btn mag" href="mailto:martin@mvssolves.com?subject=Contract%20work">Email me →</a>
+  </div>
+</section>
+
+</main>
+
+<footer class="mono">
+  <div>MVS&nbsp;Solves — Martin van Staden, Brea, California</div>
+  <nav class="f-links" aria-label="Site">
+    <a href="/contact/">Contact</a>
+    <a href="/privacy-policy/">Privacy</a>
+    <a href="/terms-of-service/">Terms</a>
+  </nav>
+  <div>Contract &amp; white-label</div>
 </footer>
 
+<script>
+/* Nav state — outside the module so a blocked CDN can't disable it. */
+(() => {
+  const nav = document.querySelector('nav');
+  const sync = () => nav.classList.toggle('stuck', scrollY > 64);
+  addEventListener('scroll', sync, {passive:true});
+  sync();
+})();
+
+/* Loader. Deliberately NOT in the module: it covers the whole page, so if the
+   CDN never resolves the site must still become usable. */
+(() => {
+  const el = document.getElementById('loader');
+  const num = document.getElementById('lnum');
+  const bar = document.getElementById('lbar');
+  /* No loading screen on a phone. It is pure added latency before the first
+     paint, and on mobile the heavy shader work it was covering does not run. */
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches
+     || matchMedia('(max-width:820px)').matches){ el.remove(); return; }
+
+  let shown = 0, target = 0, done = false, ready = false;
+  const t0 = performance.now();
+  /* Removing the scrollbar is what makes `inset:0` equal the real viewport —
+     with it present the loader centred 7px left on a 1440 screen. */
+  document.documentElement.classList.add('is-loading');
+
+  const finish = () => {
+    if(done) return; done = true;
+    num.textContent = '100';
+    bar.style.transform = 'scaleX(1)';
+    setTimeout(() => {
+      el.classList.add('done');
+      document.documentElement.classList.remove('is-loading');
+      window.__loaderDone = true;
+      dispatchEvent(new Event('mvs:loaded'));
+      setTimeout(() => el.remove(), 1000);
+    }, 300);
+  };
+
+  /* Hold until the page has loaded AND the hero has drawn its first frame,
+     so the veil lifts onto something already running smoothly. */
+  let loaded = false;
+  addEventListener('load', () => { loaded = true; });
+  setTimeout(() => { loaded = true; }, 2600);   // hard backstop
+  setTimeout(() => { window.__glReady = true; }, 4200);   // never wait forever
+
+  /* One rAF loop, eased toward a moving target. The old version stepped in
+     random setInterval jumps, which is what made it feel stuttery. */
+  (function loop(now){
+    const ms = now - t0;
+    const natural = 92 * (1 - Math.exp(-ms / 850));   // approaches 92, never stalls at 0
+    ready = loaded && window.__glReady === true;
+    target = ready ? 100 : Math.max(target, natural);
+    shown += (target - shown) * 0.11;
+    const v = Math.min(100, shown);
+    num.textContent = String(Math.round(v)).padStart(2,'0');
+    bar.style.transform = 'scaleX(' + (v / 100).toFixed(4) + ')';
+    if(ready && v > 99.3){ finish(); return; }
+    requestAnimationFrame(loop);
+  })(performance.now());
+})();
+
+
+
+/* Magnetic CTA — kept. The custom cursor is gone: replacing the system cursor
+   costs accuracy and gains nothing a real client cares about. */
+(() => {
+  if(matchMedia('(hover:none)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.mag').forEach(el => {
+    let q=false, dx=0, dy=0;
+    const paint = () => { q=false; el.style.transform=`translate3d(${dx}px,${dy}px,0)`; };
+    el.addEventListener('pointermove', e => {
+      const r = el.getBoundingClientRect();
+      dx = (e.clientX - (r.left + r.width/2)) * .26;
+      dy = (e.clientY - (r.top + r.height/2)) * .34;
+      if(!q){ q=true; requestAnimationFrame(paint); }
+    }, {passive:true});
+    el.addEventListener('pointerleave', () => { el.style.transform=''; }, {passive:true});
+  });
+})();
+
+/* Liquid-glass interaction: the specular follows the pointer and the panel
+   tilts toward it. Everything is written inside one rAF and touches only
+   custom properties, so it stays on the compositor. */
+(() => {
+  if(matchMedia('(hover:none)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.glass').forEach(el => {
+    let queued = false, px = 0, py = 0, rect = null;
+    const paint = () => {
+      queued = false;
+      el.style.setProperty('--mx', px.toFixed(1) + '%');
+      el.style.setProperty('--my', py.toFixed(1) + '%');
+      const ry = ((px - 50) / 50 *  3.4).toFixed(2);
+      const rx = ((py - 50) / 50 * -3.0).toFixed(2);
+      el.style.transform =
+        `perspective(1100px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+    };
+    el.addEventListener('pointerenter', e => { rect = el.getBoundingClientRect(); }, {passive:true});
+    el.addEventListener('pointermove', e => {
+      if(!rect) rect = el.getBoundingClientRect();
+      px = ((e.clientX - rect.left) / rect.width)  * 100;
+      py = ((e.clientY - rect.top)  / rect.height) * 100;
+      if(!queued){ queued = true; requestAnimationFrame(paint); }
+    }, {passive:true});
+    el.addEventListener('pointerleave', () => {
+      rect = null;
+      el.style.transform = 'perspective(1100px) rotateX(0deg) rotateY(0deg)';
+    }, {passive:true});
+  });
+})();
+
+/* Perf HUD — press P. I cannot watch this run; this lets the page report its
+   own frame rate and current render scale. */
+(() => {
+  const hud=document.createElement('div');
+  hud.style.cssText='position:fixed;left:10px;bottom:10px;z-index:99;padding:6px 9px;'+
+    'font:11px/1.5 ui-monospace,monospace;color:#0f0;background:rgba(0,0,0,.8);'+
+    'border:1px solid #0f0;display:none;pointer-events:none;white-space:pre';
+  document.body.appendChild(hud);
+  let on=false,n=0,t0=performance.now();
+  addEventListener('keydown',e=>{
+    if(e.key==='p'||e.key==='P'){ on=!on; hud.style.display=on?'block':'none'; }
+  });
+  (function loop(now){
+    n++;
+    if(now-t0>=500){
+      if(on) hud.textContent='fps  '+Math.round(n*1000/(now-t0))+
+        '\nscale '+(window.__glScale||1).toFixed(2)+
+        '\ndpr  '+(devicePixelRatio||1);
+      n=0; t0=now;
+    }
+    requestAnimationFrame(loop);
+  })(performance.now());
+})();
+
+/* ===== raw WebGL2 raymarcher =====
+   Kept out of the module below on purpose: the hero must render even if the
+   GSAP/Lenis CDN never resolves. */
+(() => {
+  const cv = document.getElementById('gl');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const gl = reduced ? null : cv.getContext('webgl2', {antialias:false, alpha:false, powerPreference:'high-performance'});
+
+  if(!gl){
+    cv.remove();
+    document.body.insertAdjacentHTML('afterbegin','<div class="glfallback"></div>');
+    window.__glReady = true;
+    return;
+  }
+
+  const VS = `#version 300 es
+  in vec2 p; void main(){ gl_Position = vec4(p,0.,1.); }`;
+
+  const FS = `#version 300 es
+  precision highp float;
+  out vec4 o;
+  uniform vec2 uRes; uniform float uTime; uniform vec2 uMouse; uniform float uScroll;
+
+  mat2 rot(float a){ float s=sin(a), c=cos(a); return mat2(c,-s,s,c); }
+
+  /* Primitives. A mesh has to be re-tessellated to become another shape; a
+     distance field just interpolates. That is the whole argument for SDFs and
+     it is what this hero exists to demonstrate. */
+  float sdSphere(vec3 p, float r){ return length(p) - r; }
+  float sdBox(vec3 p, vec3 b, float r){
+    vec3 q = abs(p) - b + r;
+    return length(max(q,0.)) + min(max(q.x,max(q.y,q.z)), 0.) - r;
+  }
+  float sdTorus(vec3 p, vec2 t){
+    vec2 q = vec2(length(p.xz) - t.x, p.y);
+    return length(q) - t.y;
+  }
+  float sdOcta(vec3 p, float s){
+    p = abs(p);
+    return (p.x + p.y + p.z - s) * 0.57735027;
+  }
+  float sdCross(vec3 p){
+    float d = sdBox(p, vec3(1.05,.26,.26), .05);
+    d = min(d, sdBox(p, vec3(.26,1.05,.26), .05));
+    d = min(d, sdBox(p, vec3(.26,.26,1.05), .05));
+    return d;
+  }
+
+  float shapeAt(vec3 p, float i){
+    if(i < 0.5) return sdCross(p);              // 1.05
+    if(i < 1.5) return sdBox(p, vec3(.606), .06);   // .606*sqrt3 = 1.05
+    if(i < 2.5) return sdOcta(p, 1.05);
+    if(i < 3.5) return sdTorus(p, vec2(.72,.33));  // .72+.33 = 1.05
+    return sdSphere(p, 1.03);
+  }
+
+  /* Hold on a shape, then morph, then hold again. A constant morph reads as
+     mush — the pauses are what let the eye register each form. */
+  float obj(vec3 p){
+    p.xz *= rot(uTime*(.26 + uScroll*.55) + uMouse.x*.65);
+    p.xy *= rot(uTime*.17 + uMouse.y*.42);
+
+    float k = 1. - uScroll*.45;
+    p /= k;
+
+    float t  = uTime * 0.37037;    // one shape every 2.7s
+    float f  = fract(t);
+    float i0 = mod(floor(t), 5.);
+    float i1 = mod(floor(t) + 1., 5.);
+    float e  = smoothstep(0., 1., smoothstep(.46, 1., f));
+
+    float d = mix(shapeAt(p, i0), shapeAt(p, i1), e);
+    return d * k;
+  }
+
+  const float GY = -1.24;   // clears max extent 1.05 with margin
+
+  /* x = distance, y = material id (1 object, 2 ground) */
+  vec2 map(vec3 p){
+    float o = obj(p);
+    float g = p.y - GY;
+    return o < g ? vec2(o,1.) : vec2(g,2.);
+  }
+
+  vec3 normalAt(vec3 p){
+    vec2 e = vec2(.0015, 0.);
+    return normalize(vec3(
+      map(p+e.xyy).x - map(p-e.xyy).x,
+      map(p+e.yxy).x - map(p-e.yxy).x,
+      map(p+e.yyx).x - map(p-e.yyx).x));
+  }
+
+  /* Soft shadow — the single strongest depth cue on the page. */
+  float shadow(vec3 ro, vec3 rd){
+    float res = 1., t = .06;
+    for(int i=0;i<28;i++){
+      float h = obj(ro + rd*t);
+      res = min(res, 9.*h/t);
+      t += clamp(h, .035, .34);
+      if(res < .004 || t > 6.) break;
+    }
+    return clamp(res, 0., 1.);
+  }
+
+  float ao(vec3 p, vec3 n){
+    float o = 0., s = 1.;
+    for(int i=0;i<4;i++){
+      float h = .018 + .145*float(i);
+      o += (h - map(p + n*h).x) * s;
+      s *= .72;
+    }
+    return clamp(1. - 1.5*o, 0., 1.);
+  }
+
+
+  float h21(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
+  float vn(vec2 p){
+    vec2 i=floor(p), f=fract(p); f=f*f*(3.-2.*f);
+    return mix(mix(h21(i),h21(i+vec2(1,0)),f.x), mix(h21(i+vec2(0,1)),h21(i+vec2(1,1)),f.x), f.y);
+  }
+
+  /* Thin-film interference. Path difference through a film shifts which
+     wavelengths cancel, so the hue rides the view angle instead of being
+     painted on. This is what stops it reading as grey plastic. */
+  vec3 filmTint(float cosTheta, float thick){
+    float d = thick * (1.0 - cosTheta * 0.78);
+    return 0.5 + 0.5*cos(6.28318*d*vec3(1.00,0.78,0.61) + vec3(0.0,2.3,4.5));
+  }
+
+  /* Concentric isolines — the same rings as the wordmark, and the honest
+     visualisation of a distance field: bands of equal distance. */
+  float contour(vec3 p, float freq){
+    float band = abs(fract(length(p)*freq) - 0.5) * 2.0;
+    return smoothstep(0.40, 0.98, band);
+  }
+
+  /* Procedural studio env. The horizontal softbox strips are the whole trick —
+     a mirror with nothing to reflect just reads as grey plastic. */
+  vec3 env(vec3 rd){
+    float y = rd.y*.5 + .5;
+    vec3 c = mix(vec3(.008,.009,.012), vec3(.26,.28,.33), pow(y,1.35));
+
+    float strip1 = smoothstep(.52,.60, sin(rd.y*9.5 + 1.2)*.5+.5);
+    c += vec3(.88,.92,1.) * strip1 * .60;
+    float strip2 = smoothstep(.70,.79, sin(rd.y*4.1 - .6)*.5+.5);
+    c += vec3(1.,.98,.95) * strip2 * 1.05;
+
+    c += vec3(1.,.38,.12) * pow(max(dot(rd, normalize(vec3(.55,.42,.5))),0.), 7.)  * 2.6;
+    c += vec3(.24,.42,1.) * pow(max(dot(rd, normalize(vec3(-.75,.1,.32))),0.), 6.) * .75;
+    return c;
+  }
+
+  void main(){
+    vec2 uv = (gl_FragCoord.xy - .5*uRes) / uRes.y;
+    /* On wide screens push the sculpture right so the headline keeps clean space. */
+    float aspect = uRes.x / uRes.y;
+    bool narrow = aspect < 1.15;
+    /* uv is normalised by HEIGHT, so a tall screen gets a telephoto field of
+       view and the sculpture fills the frame. Widen the FOV and drop it so the
+       type owns the lower half — there is no left/right to trade on a phone. */
+    uv *= narrow ? 3.6 : 1.0;
+    uv.x -= narrow ? 0.  : .36;
+    uv.y -= narrow ? .52 : 0.;
+
+    /* Camera sits above and looks slightly down — a level camera flattens the
+       ground plane into a horizon line and kills the depth read. */
+    /* Camera cranes up and pulls back through the first screen, so leaving the
+       hero reads as a move rather than the object merely shrinking. */
+    vec3 ro = vec3(0., .62 + uScroll*1.55, 4.55 + uScroll*3.2);
+    vec3 rd = normalize(vec3(uv, -1.6));
+    rd.yz *= rot(-.145 - uScroll*0.16);
+
+    float t = 0.; vec2 h = vec2(0.); bool hit = false;
+    for(int i=0;i<88;i++){
+      vec3 p = ro + rd*t;
+      h = map(p);
+      if(h.x < .0016){ hit = true; break; }
+      t += h.x * .92;
+      if(t > 14.) break;
+    }
+
+    /* Graded ground haze rather than a flat black plate. */
+    vec3 col = mix(vec3(.030,.026,.030), vec3(.008,.008,.011), smoothstep(-.35,.55,uv.y));
+    col += vec3(1.,.36,.12) * .075 / (length(uv - vec2(.26,.10))*3.4 + .55);
+
+    vec3 sunDir = normalize(vec3(.55,.78,.42));
+
+    if(hit){
+      vec3 p = ro + rd*t;
+      vec3 n = normalAt(p);
+      /* A surface pointing away from the key light is already unlit — marching
+         a shadow ray for it is pure cost. Skips the 20-step march on roughly
+         half the shaded pixels. */
+      float ndl = dot(n, sunDir);
+      float sh  = ndl > 0.0 ? shadow(p + n*.02, sunDir) : 0.0;
+      float occ = ao(p, n);
+
+      if(h.y < 1.5){
+        /* --- surface: engraved contours + brushed grain ------------------- */
+        float ring  = contour(p, 2.6);
+        float brush = vn(vec2(atan(p.z,p.x)*7.0, length(p.xz)*46.0)) - 0.5;
+
+        /* Perturb the normal rather than just darkening, so the engraving
+           catches light like real cutting instead of looking printed on. */
+        vec3 nn = normalize(n + brush*0.016 + n.yzx*ring*0.022);
+
+        vec3 r = reflect(rd, nn);
+        float cosT = max(dot(nn,-rd), 0.);
+        float fres = pow(1. - cosT, 2.6);
+
+        vec3 chrome = env(r) * (.95 + 1.15*fres) * occ;
+
+        /* Iridescence. Multiplying a near-achromatic base only rescales its
+           greyness — chroma has to be ADDED. Removing the film's mean leaves
+           pure hue, injected without shifting overall luminance. */
+        vec3 film = filmTint(cosT, 3.1 + ring*0.55);
+        vec3 tint = film - dot(film, vec3(0.3333));
+        float lum = dot(chrome, vec3(0.299,0.587,0.114));
+        chrome += tint * (0.42 + 1.05*fres) * clamp(lum, 0.06, 1.5) * 1.6;
+
+        /* engraved lines sit deeper and catch the accent */
+        chrome *= 1.0 - ring*0.24;
+        chrome += vec3(1.,.42,.16) * ring * 0.16 * (0.35 + 0.65*fres);
+
+        chrome += vec3(1.,.52,.22) * pow(max(dot(nn,sunDir),0.), 46.) * 2.1 * sh;
+        chrome += vec3(1.) * pow(max(dot(r, normalize(vec3(-.3,.85,.4))),0.), 90.) * 1.3;
+
+        /* accent bleeds into the crevices AO already found */
+        chrome += vec3(1.,.36,.12) * (1.0-occ) * 0.30;
+
+        /* Keep the shadow term shallow — a mirror barely darkens in shade. */
+        chrome *= .74 + .26*max(ndl,0.)*sh;
+        col = chrome;
+      } else {
+        /* Matte floor. Its whole job is to catch the shadow, so it has to be
+           bright enough for the shadow to actually be visible against it. */
+        float diff = max(ndl, 0.);
+        vec3 g = vec3(.15,.15,.165) * (.16 + .84*diff*sh) * occ;
+        g += vec3(1.,.42,.15) * .045 * sh;
+        /* Fully faded well before the 15-unit march limit. Fading to zero AT the
+           limit is what leaves a hard horizon edge where rays simply stop. */
+        float fade = 1. - smoothstep(4.2, 11.5, t);
+        col = mix(col, g, fade);
+      }
+    }
+
+    col = col / (col + .85);                 // reinhard
+    col = pow(col, vec3(.4545));             // gamma
+    col *= 1. - .30*length(uv)*length(uv);   // vignette
+    o = vec4(col, 1.);
+  }`;
+
+  const sh = (type, src) => {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src); gl.compileShader(s);
+    if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+    return s;
+  };
+
+  let prog;
+  try{
+    prog = gl.createProgram();
+    gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS));
+    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
+    gl.linkProgram(prog);
+    if(!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  }catch(e){
+    cv.remove();
+    document.body.insertAdjacentHTML('afterbegin','<div class="glfallback"></div>');
+    window.__glReady = true;
+    return;
+  }
+
+  gl.useProgram(prog);
+  const vao = gl.createVertexArray(); gl.bindVertexArray(vao);
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog,'p');
+  gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+  const U = n => gl.getUniformLocation(prog, n);
+  const uRes = U('uRes'), uTime = U('uTime'), uMouse = U('uMouse'), uScroll = U('uScroll');
+
+  /* Adaptive resolution. A raymarcher is fill-rate bound, so the only reliable
+     way to hold 60fps across unknown GPUs is to measure real frame time and
+     move the render target — not to guess a DPR cap up front. */
+  /* Start at full quality and let measurement take it down. Starting low
+     renders below native on a 2x display, which just looks broken. */
+  let scale = 1;
+  window.__glScale = scale;
+  const resize = () => {
+    const dpr = Math.min(devicePixelRatio || 1, 1.75) * scale;
+    cv.width  = Math.max(2, Math.floor(innerWidth  * dpr));
+    cv.height = Math.max(2, Math.floor(innerHeight * dpr));
+    gl.viewport(0,0,cv.width,cv.height);
+    gl.uniform2f(uRes, cv.width, cv.height);
+  };
+  resize(); addEventListener('resize', resize, {passive:true});
+
+  let fCount = 0, fAcc = 0, fLast = 0;
+  const govern = now => {
+    if(fLast){ fAcc += now - fLast; }
+    fLast = now; fCount++;
+    if(fCount < 16) return;               // react in ~0.25s, not ~0.5s
+    const avg = fAcc / (fCount - 1);      // ms per frame
+    fCount = 0; fAcc = 0;
+    if(avg > 19 && scale > .6){ scale = Math.max(.6, scale - .18); resize(); }
+    else if(avg < 12.5 && scale < 1){ scale = Math.min(1, scale + .07); resize(); }
+    window.__glScale = scale;
+  };
+
+  let mx=0, my=0, tx=0, ty=0;
+  addEventListener('pointermove', e => {
+    tx = (e.clientX/innerWidth)*2 - 1;
+    ty = -((e.clientY/innerHeight)*2 - 1);
+  }, {passive:true});
+
+  const start = performance.now();
+  let running = true;
+  document.addEventListener('visibilitychange', () => {
+    running = !document.hidden;
+    if(running) requestAnimationFrame(frame);
+  });
+
+  let offscreen = false, lastW = 0, lastH = 0;
+  function frame(now){
+    if(!running) return;
+    requestAnimationFrame(frame);
+    /* A page that boots hidden reports innerWidth 0, which clamps the canvas
+       to 2x2 and no resize event ever arrives to fix it. Poll instead. */
+    if(innerWidth !== lastW || innerHeight !== lastH){
+      lastW = innerWidth; lastH = innerHeight;
+      if(innerWidth > 1) resize();
+    }
+    /* Below the hero there is nothing to draw — skip the whole pass rather
+       than just hiding the canvas, so scrolling the page costs nothing. */
+    if(offscreen) return;
+    govern(now);
+    mx += (tx-mx)*.055; my += (ty-my)*.055;
+    const s = Math.min(scrollY / innerHeight, 1);
+    gl.uniform1f(uTime, (now-start)/1000);
+    gl.uniform2f(uMouse, mx, my);
+    gl.uniform1f(uScroll, s);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    /* Tell the loader the hero is actually rendering. Lifting the veil while
+       the shader is still compiling puts the hitch right at the reveal. */
+    if(!window.__glReady) window.__glReady = true;
+  }
+  requestAnimationFrame(frame);
+
+  const navEl = document.querySelector('nav');
+  addEventListener('scroll', () => {
+    offscreen = scrollY > innerHeight * 1.15;
+    cv.style.visibility = offscreen ? 'hidden' : 'visible';
+    /* Once the canvas stops painting, the nav's blur becomes cacheable, so it
+       can upgrade from simulated glass to the real thing for free. */
+    navEl.classList.toggle('canvas-idle', offscreen);
+    if(!offscreen) fLast = 0;          // don't count the paused gap as a slow frame
+  }, {passive:true});
+})();
+</script>
+
+<script type="module">
+import gsap from 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/+esm';
+import ScrollTrigger from 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js/+esm';
+
+/* No smooth-scroll library. Lenis at lerp .09 put the page hundreds of
+   milliseconds behind the wheel — that latency IS the lag people feel, and no
+   amount of shader tuning hides it. Native scroll has zero input delay. */
+/* Scroll reveals are a desktop affordance. On a phone the content is already
+   in view when the trigger fires, so it pops and flickers instead of revealing.
+   Everything below the hero simply renders. */
+const MOBILE = matchMedia('(max-width:820px)').matches;
+if(!matchMedia('(prefers-reduced-motion: reduce)').matches && !MOBILE){
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* Entrance runs off the loader finishing, not off DOMContentLoaded, so the
+     hero arrives into a clear screen instead of animating behind the veil. */
+  const intro = gsap.timeline({paused:true});
+  gsap.set('h1 .ln > i', {yPercent:112});
+  intro
+    .to('h1 .ln > i', {yPercent:0, duration:1.35, ease:'expo.out', stagger:.09})
+    .from('.brandmark', {opacity:0, x:-14, duration:.9, ease:'expo.out'}, .15)
+    .from('.status',    {opacity:0, y:16, duration:.85, ease:'expo.out'}, .45)
+    .from('.hero-btm > *', {opacity:0, y:22, duration:1, ease:'expo.out', stagger:.1}, .6);
+
+  const playIntro = () => intro.play();
+  if(window.__loaderDone) playIntro();
+  else addEventListener('mvs:loaded', playIntro, {once:true});
+  setTimeout(playIntro, 4600);   // never strand the hero
+
+  /* Hard backstop. If the intro tween never completes — tab backgrounded during
+     load, rAF throttled, GSAP stalled — the hero must not stay invisible. */
+  setTimeout(() => {
+    gsap.set('h1 .ln > i', {yPercent:0, clearProps:'transform'});
+    document.querySelectorAll('.status, .hero-btm > *').forEach(el => {
+      el.style.opacity = '1'; el.style.transform = 'none';
+    });
+  }, 2600);
+
+  gsap.set('.head', {opacity:0, y:26});
+  gsap.utils.toArray('.head').forEach(el =>
+    gsap.to(el, {opacity:1, y:0, duration:1, ease:'expo.out',
+      scrollTrigger:{trigger:el, start:'top 90%'}}));
+
+  /* Glass panels reveal via --ry so the pointer tilt keeps ownership of transform. */
+  gsap.set('.t, .faq > div', {opacity:0, translate:'0px 30px'});
+  gsap.utils.toArray('.t, .faq > div').forEach((el,i) =>
+    gsap.to(el, {opacity:1, translate:'0px 0px', duration:1.05, ease:'expo.out', delay:(i%4)*.06,
+      scrollTrigger:{trigger:el, start:'top 92%'}}));
+
+  /* Backstop for every scroll-revealed element. If ScrollTrigger never fires —
+     throttled rAF, a background tab during load — content must not stay at
+     opacity 0. Anything already revealed is unaffected. */
+  setTimeout(() => {
+    document.querySelectorAll('.t, .head, .faq > div').forEach(el => {
+      if(parseFloat(getComputedStyle(el).opacity) < .05){
+        el.style.opacity = '1';
+        el.style.translate = '0px 0px';
+        if(!el.classList.contains('glass')) el.style.transform = 'none';
+      }
+    });
+  }, 3200);
+
+  /* Statement lines rise out of their own mask as the block crosses centre. */
+  gsap.set('.big .ln > i', {yPercent:110});
+  gsap.to('.big .ln > i', {
+    yPercent:0, duration:1.2, ease:'expo.out', stagger:.09,
+    scrollTrigger:{trigger:'.statement', start:'top 68%'}
+  });
+
+  /* Stack strip letter-spacing opens up slightly as it passes — small, but it
+     makes the band feel alive without animating anything that reflows. */
+  gsap.fromTo('.stack span',
+    {opacity:.35},
+    {opacity:1, duration:.7, stagger:.045, ease:'power2.out',
+     scrollTrigger:{trigger:'.stack', start:'top 92%'}});
+}
+</script>
 
 <script>
-(function(){
-  'use strict';
-  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  /* ---------- loader: footage + typed line, then it lifts ----------
-     Content underneath is fully rendered the whole time. Every path ends in lift(),
-     and a hard timer lifts it regardless — a stalled video can never gate the site. */
-  var veil=document.getElementById('veil'), lifted=false;
-  var fade=document.getElementById('fade');
-  /* the typed loader is a first-arrival event only — coming back from another page just fades */
-  var seen=false; try{ seen=sessionStorage.getItem('mvs-seen')==='1'; }catch(e){}
-  /* a reload always replays the loader; only in-site navigation skips it */
-  var navType='navigate';
-  try{
-    var ne=performance.getEntriesByType('navigation')[0];
-    if(ne && ne.type) navType=ne.type;
-    else if(performance.navigation) navType=['navigate','reload','back_forward','reserved'][performance.navigation.type]||'navigate';
-  }catch(e){}
-  if(navType==='reload') seen=false;
-
-  function lift(){
-    if(lifted || !veil) return; lifted=true;
-    try{ sessionStorage.setItem('mvs-seen','1'); }catch(e){}
-    veil.classList.add('up');
-    setTimeout(function(){ veil.style.display='none'; }, 1300);
-    /* small settle after the veil — timer-driven only, never gated on a frame callback */
-    if(fade){
-      fade.classList.add('on');
-      setTimeout(function(){ fade.classList.remove('on'); }, 60);
-    }
-    /* now the hero is actually visible, decode what's above the fold */
-    setTimeout(function(){
-      if(typeof window.__decodeAboveFold==='function') window.__decodeAboveFold();
-    }, 120);
-  }
-  setTimeout(lift, 4200);                       // hard ceiling, whatever happens
-
-  if(reduce || seen){
-    /* skip the type entirely: hide the veil, fade the page in */
-    if(veil){ veil.style.display='none'; lifted=true; }
-    if(fade && !reduce){
-      fade.classList.add('on');
-      addEventListener('load', function(){ setTimeout(function(){ fade.classList.remove('on'); }, 60); });
-      setTimeout(function(){ fade.classList.remove('on'); }, 900);
-    }
-  }
-  else {
-    var line='MVS SOLVES', el=document.getElementById('veiltype'), i=0;
-    (function type(){
-      if(!el) return lift();
-      el.textContent=line.slice(0,++i);
-      if(i<line.length) setTimeout(type, 95);
-      else setTimeout(function(){
-        var c=document.getElementById('veilcaret'); if(c) c.style.opacity='0';
-        setTimeout(lift, 420);
-      }, 620);
-    })();
-  }
-
-  /* hero footage — a blocked or slow video just leaves the poster frame showing */
-  var hv=document.getElementById('herovid');
-  if(hv){
-    if(!reduce){
-      var src=document.createElement('source');
-      src.src='media/hero.mp4'; src.type='video/mp4';
-      hv.appendChild(src); hv.load();
-      /* same clip as the loader, run slower here so the hero drifts */
-      hv.playbackRate=0.45;
-      hv.addEventListener('loadedmetadata', function(){ hv.playbackRate=0.45; });
-      hv.play().catch(function(){});
-    }
-  }
-
-  /* ---------- figures rise to their value — subtle, ease-out, no bounce ---------- */
-  function countUp(el){
-    if(el._ran) return;
-    var raw=el.textContent.trim();
-    var m=raw.match(/^([^\d]*)([\d,\.]+)(.*)$/);
-    if(!m) return;
-    el._ran=true;
-    var pre=m[1], num=m[2], suf=m[3];
-    var target=parseFloat(num.replace(/,/g,''));
-    if(!isFinite(target)){ el._ran=false; return; }
-    var dec=(num.split('.')[1]||'').length, grouped=num.indexOf(',')>-1;
-    var DUR=1150, start=null, raf=0;
-    function fmt(v){
-      var s = dec ? v.toFixed(dec) : String(Math.round(v));
-      if(grouped) s = Number(s).toLocaleString('en-US');
-      return pre+s+suf;
-    }
-    function frame(ts){
-      if(start===null) start=ts;
-      var p=Math.min(1,(ts-start)/DUR);
-      el.textContent = fmt(target*(1-Math.pow(1-p,4)));
-      if(p<1) raf=requestAnimationFrame(frame); else el.textContent=raw;
-    }
-    raf=requestAnimationFrame(frame);
-    /* the true value is always restored, whatever the renderer does */
-    setTimeout(function(){ cancelAnimationFrame(raf); el.textContent=raw; }, DUR+800);
-  }
-  var figs=[].slice.call(document.querySelectorAll('.fig b, .stat b, .tl-row dd b'));
-  if(!reduce && 'IntersectionObserver' in window){
-    var fio=new IntersectionObserver(function(es){
-      es.forEach(function(e){ if(e.isIntersecting){ countUp(e.target); fio.unobserve(e.target); } });
-    },{threshold:.6});
-    figs.forEach(function(f){ fio.observe(f); });
-  }
-
-  /* Last-resort uncover: whatever happens above, the page is never left behind a cover. */
-  if(fade) setInterval(function(){
-    if(lifted && fade.classList.contains('on') && !fade.dataset.nav) fade.classList.remove('on');
-  }, 1200);
-
-  /* ---------- menu: the only way to reach the sections below 860px ---------- */
-  var navbtn=document.getElementById('navbtn'), menu=document.getElementById('menu');
-  if(navbtn && menu){
-    var menuOpen=function(on){
-      menu.classList.toggle('open', on);
-      navbtn.setAttribute('aria-expanded', on ? 'true' : 'false');
-      document.documentElement.style.overflow = on ? 'hidden' : '';
-      if(on){ var first=menu.querySelector('a'); if(first) first.focus(); }
-      else navbtn.focus();
-    };
-    navbtn.addEventListener('click', function(){ menuOpen(!menu.classList.contains('open')); });
-    var mc=document.getElementById('menuclose');
-    if(mc) mc.addEventListener('click', function(){ menuOpen(false); });
-    /* runs before the document-level fade handler, so the overlay is gone by the time it jumps */
-    menu.addEventListener('click', function(e){ if(e.target.closest('a')) menuOpen(false); });
-    addEventListener('keydown', function(e){ if(e.key==='Escape' && menu.classList.contains('open')) menuOpen(false); });
-    /* a resize past the breakpoint must not leave a full-screen overlay stranded */
-    addEventListener('resize', function(){ if(innerWidth>860 && menu.classList.contains('open')) menuOpen(false); });
-  }
-
-  /* ---------- navigation fades instead of jumping ---------- */
-  if(fade && !reduce){
-    document.addEventListener('click', function(e){
-      var a=e.target.closest && e.target.closest('a[href]');
-      if(!a) return;
-      if(a.target==='_blank' || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
-      var href=a.getAttribute('href');
-      if(!href || href.charAt(0)==='#' && href.length<2) return;
-      if(/^(mailto:|tel:|https?:)/i.test(href)) return;
-
-      if(href.charAt(0)==='#'){                       // in-page: fade, jump under cover, fade back
-        var t=document.querySelector(href); if(!t) return;
-        e.preventDefault();
-        fade.dataset.nav='1'; fade.classList.add('on');
-        setTimeout(function(){
-          t.scrollIntoView();
-          history.replaceState(null,'',href);
-          setTimeout(function(){ delete fade.dataset.nav; fade.classList.remove('on'); }, 60);
-        }, 430);
-      } else {                                        // another page: fade out, then go
-        e.preventDefault();
-        fade.dataset.nav='1'; fade.classList.add('on');
-        setTimeout(function(){ location.href=href; }, 430);
-      }
-    });
-    /* returning via the back button must never leave the cover stuck on */
-    addEventListener('pageshow', function(){ fade.classList.remove('on'); });
-  }
-
-  /* ---------- section beds: only the visible one is ever decoding ---------- */
-  var beds=[].slice.call(document.querySelectorAll('video[data-bed]'));
-  if(!reduce && beds.length){
-    var bio=new IntersectionObserver(function(es){
-      es.forEach(function(e){
-        var v=e.target;
-        if(e.isIntersecting){
-          if(!v.dataset.loaded){
-            var s=document.createElement('source');
-            s.src=v.dataset.bed; s.type='video/mp4';
-            v.appendChild(s); v.load(); v.dataset.loaded='1';
-          }
-          v.play().catch(function(){});      // refused autoplay just leaves the poster
-        } else {
-          try{ v.pause(); }catch(err){}
-        }
-      });
-    },{rootMargin:'150px 0px'});
-    beds.forEach(function(v){ bio.observe(v); });
-  }
-
-  /* ---------- no panel may clip its own content ---------- */
-  var panels=[].slice.call(document.querySelectorAll('.panel'));
-  function fitPanels(){
-    panels.forEach(function(p){
-      var inner=p.querySelector('.panel-in'); if(!inner) return;
-      p.classList.remove('tall');                       // measure unpinned
-      var h=inner.getBoundingClientRect().height;
-      if(h > innerHeight - 8) p.classList.add('tall');
-    });
-  }
-  fitPanels();
-  addEventListener('load', fitPanels);
-  var rt; addEventListener('resize', function(){ clearTimeout(rt); rt=setTimeout(fitPanels,150); });
-  if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitPanels);
-
-  /* ---------- reveals: pre-hide only what is below the fold ---------- */
-  var rv=[].slice.call(document.querySelectorAll('.rv'));
-  if(!reduce && 'IntersectionObserver' in window){
-    var pre=rv.filter(function(n){ return n.getBoundingClientRect().top > innerHeight*0.9; });
-    pre.forEach(function(n){ n.classList.add('pre'); });
-    var io=new IntersectionObserver(function(es){
-      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.remove('pre'); io.unobserve(e.target); } });
-    },{threshold:.08, rootMargin:'0px 0px -5% 0px'});
-    pre.forEach(function(n){ io.observe(n); });
-    setTimeout(function(){ pre.forEach(function(n){ n.classList.remove('pre'); }); }, 3500);
-  }
-
-  /* ---------- decode: IZANAMI's signature. Text is real in the DOM first. ---------- */
-  var GLYPHS='ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ';
-  /* shuffle once, then walk it with a coprime stride: no two characters
-     scrambling at the same moment ever show the same glyph */
-  var POOL=GLYPHS.split('');
-  for(var _i=POOL.length-1;_i>0;_i--){ var _j=Math.floor(Math.random()*(_i+1)); var _t=POOL[_i]; POOL[_i]=POOL[_j]; POOL[_j]=_t; }
-  var STRIDE=17;   /* coprime with 45 */
-  function decode(el){
-    if(el.dataset.done) return;
-    // per text node, so <br> and <em> survive intact
-    var nodes=[], walk=document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), n;
-    while((n=walk.nextNode())){ if(n.nodeValue.trim()) nodes.push({node:n, text:n.nodeValue}); }
-    if(!nodes.length){ el.dataset.done='1'; return; }
-    el.dataset.done='1';
-
-    // the real text is ALWAYS restorable — a stalled frame can never strand garbage
-    function restore(){ for(var i=0;i<nodes.length;i++) nodes[i].node.nodeValue=nodes[i].text; }
-
-    var total=nodes.reduce(function(a,b){ return a+b.text.length; },0);
-    /* long enough to read as a decode, short enough that a normal scroll never
-       catches a heading still sitting in glyphs */
-    var DUR=Math.min(880, 380+total*13), start=null, raf=0;
-
-    function frame(ts){
-      if(start===null) start=ts;
-      var p=Math.min(1,(ts-start)/DUR), settled=p*total, seen=0;
-      for(var i=0;i<nodes.length;i++){
-        var t=nodes[i].text, out='';
-        for(var c=0;c<t.length;c++){
-          var idx=seen+c;
-          // full length is always rendered — glyphs stand in, never blanks
-          out += (idx<settled || t[c]===' ') ? t[c] : POOL[(idx*STRIDE + ((ts/70)|0)) % POOL.length];
-        }
-        nodes[i].node.nodeValue=out; seen+=t.length;
-      }
-      if(p<1) raf=requestAnimationFrame(frame); else restore();
-    }
-    raf=requestAnimationFrame(frame);
-    setTimeout(function(){ cancelAnimationFrame(raf); restore(); }, DUR+900);
-  }
-
-  var targets=[].slice.call(document.querySelectorAll('[data-scramble]'));
-  if(!reduce && 'IntersectionObserver' in window && document.createTreeWalker){
-    /* Anything already on screen would decode behind the loader and be missed.
-       Hold those back and fire them once the veil is actually gone. */
-    var above=[], below=[];
-    targets.forEach(function(t){
-      (t.getBoundingClientRect().top < innerHeight*0.9 ? above : below).push(t);
-    });
-    var dio=new IntersectionObserver(function(es){
-      es.forEach(function(e){ if(e.isIntersecting) decode(e.target); });
-    },{threshold:.4});
-    below.forEach(function(t){ dio.observe(t); });
-
-    window.__decodeAboveFold=function(){
-      above.forEach(function(t){ decode(t); });
-      above=[];
-    };
-  } else {
-    window.__decodeAboveFold=function(){};
-  }
-
-  /* ---------- rail: scroll position as narrative ---------- */
-  var rail=document.getElementById('rail');
-  var marks=[['top','Introduction'],['proof','Proof'],['systems','Method'],['work','Work'],['martin','Origin'],['talk','Contact']];
-  if(rail && 'IntersectionObserver' in window){
-    var rio=new IntersectionObserver(function(es){
-      es.forEach(function(e){
-        if(e.isIntersecting){
-          for(var i=0;i<marks.length;i++){
-            if(marks[i][0]===e.target.id && rail.textContent!==marks[i][1]){
-              rail.style.opacity='0';
-              setTimeout(function(txt){ return function(){ rail.textContent=txt; rail.style.opacity='1'; }; }(marks[i][1]), 260);
-            }
-          }
-        }
-      });
-    },{threshold:.35});
-    marks.forEach(function(m){ var el=document.getElementById(m[0]); if(el) rio.observe(el); });
-  }
+/* iOS has no API to force Safari, but the x-safari-https: scheme does open it
+   from inside a webview. Only offered where it helps: in-app browsers, which
+   routinely ship no WebGL2 and give no indication why. */
+(() => {
+  const btn = document.getElementById('safaribtn');
+  if(!btn) return;
+  const ua = navigator.userAgent || '';
+  const inApp = /(FBAN|FBAV|Instagram|LinkedInApp|Line\/|Twitter|TikTok|Snapchat|Pinterest|GSA\/)/i.test(ua);
+  const iOS = /iPad|iPhone|iPod/.test(ua);
+  if(!inApp) return;
+  btn.hidden = false;
+  btn.href = iOS ? 'x-safari-' + location.href : location.href;
+  if(!iOS){ btn.textContent = 'Open in your browser \u2197'; btn.target = '_blank'; btn.rel = 'noopener'; }
 })();
 </script>
 </body>

@@ -1,0 +1,12 @@
+# The portfolio lived at /motion/ for one afternoon before moving to the root.
+# Anything already linked from that window keeps resolving.
+/motion/fluid/*    /fluid/:splat     301
+/motion/scroll/*   /scroll/:splat    301
+/motion/type/*     /type/:splat      301
+/motion/physics/*  /physics/:splat   301
+/motion/m/*        /m/:splat         301
+/motion/*          /:splat           301
+
+# Retired agency routes.
+/book-a-call       /contact/         301
+/agency            /                 301

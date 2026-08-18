@@ -33,12 +33,18 @@
 /subpage.css
   Cache-Control: public, max-age=3600, must-revalidate
 
-# Motion portfolio — HTML must revalidate so shader/layout fixes actually ship.
-/motion/*
+# Shader pages: HTML must revalidate so fixes reach returning visitors.
+/fluid/*
   Cache-Control: public, max-age=0, must-revalidate
 
-/motion/favicon.svg
-  Cache-Control: public, max-age=3600, must-revalidate
+/scroll/*
+  Cache-Control: public, max-age=0, must-revalidate
 
-/motion/favicon-light.svg
-  Cache-Control: public, max-age=3600, must-revalidate
+/type/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/physics/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/m/*
+  Cache-Control: public, max-age=0, must-revalidate

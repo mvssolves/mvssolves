@@ -6,14 +6,14 @@
 <title>MVS Solves — WebGL &amp; Motion Engineering</title>
 <meta name="description" content="MVS Solves — Martin van Staden builds raymarched WebGL, custom GLSL and GSAP scroll systems. Mobile edition; the live studies run on desktop.">
 <meta name="theme-color" content="#050506">
-<link rel="canonical" href="https://mvssolves.com/motion/">
+<link rel="canonical" href="https://mvssolves.com/">
 <meta name="robots" content="noindex,follow">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://mvssolves.com/motion/">
+<meta property="og:url" content="https://mvssolves.com/">
 <meta property="og:title" content="MVS Solves — WebGL &amp; Motion Engineering">
 <meta property="og:description" content="Raymarched GLSL, scroll systems, kinetic type. Rendered live, not recorded.">
-<link rel="icon" href="/motion/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/motion/favicon.svg">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Non-blocking: the fonts are a progressive enhancement, not a dependency.
@@ -205,7 +205,7 @@ footer{padding:2.2rem var(--pad) 1.6rem;border-top:1px solid var(--line);
 <header>
   <svg class="field" viewBox="0 0 760 560" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M162 202 159 187 161 163 174 141 190 128 214 120 230 119 259 124 325 146 340 146 354 140 359 132 361 93 366 78 372 70 381 62 396 56 412 57 420 60 432 70 440 86 442 93 442 132 446 140 483 163 492 171 502 187 506 202 507 233 513 257 522 272 530 279 546 287 570 293 596 303 609 311 624 327 632 342 636 358 635 381 629 397 618 413 602 426 594 430 563 436 538 433 428 407 412 405 301 405 285 400 269 390 258 373 254 358 252 303 245 280 233 264 182 230 171 218 162 202Z" fill="none" stroke="var(--accent)" stroke-width="1.6" opacity="0.62"/><path d="M133 210 128 179 134 148 148 124 166 107 182 98 206 90 222 88 245 88 277 92 301 90 317 82 348 49 372 32 396 26 420 28 442 39 451 46 464 62 487 109 524 163 535 187 544 218 554 235 570 250 618 280 633 292 650 311 661 334 665 349 667 366 662 397 645 428 625 446 610 456 594 462 565 467 522 465 404 436 301 435 277 430 253 416 236 397 226 373 222 337 214 312 198 289 150 242 133 210Z" fill="none" stroke="var(--paper)" stroke-width="1.2" opacity="0.3"/><path d="M453 0 484 23 499 41 519 70 562 148 591 194 610 218 669 272 681 287 697 317 704 342 706 373 704 389 695 420 681 445 662 467 641 483 609 498 576 506 554 508 511 506 459 495 396 477 371 474 301 474 285 472 265 467 245 458 217 436 205 420 190 390 170 334 112 257 103 240 92 210 89 187 90 163 102 124 117 101 131 86 150 71 188 54 253 45 285 36 349 0" fill="none" stroke="var(--paper)" stroke-width="1.2" opacity="0.2"/><path d="M529 0 570 54 605 117 625 147 697 230 723 264 744 308 753 350 751 397 743 428 724 467 706 490 673 519 640 537 602 550 546 557 483 552 380 526 332 521 293 521 253 513 235 506 206 489 181 467 158 436 114 350 71 283 55 251 45 218 41 187 42 163 48 132 60 101 79 72 95 54 113 39 150 17 208 0" fill="none" stroke="var(--paper)" stroke-width="1.2" opacity="0.14"/><path d="M219 560 198 550 158 523 142 508 121 482 87 430 46 358 13 296 0 264M72 0 47 23 32 41 13 70 0 99M760 218 675 109 604 0M711 560 739 537 760 513" fill="none" stroke="var(--paper)" stroke-width="1.2" opacity="0.1"/><path d="M97 560 63 522 45 498 0 426M760 97 736 66 692 0" fill="none" stroke="var(--paper)" stroke-width="1.2" opacity="0.07"/></svg>
 
-  <a class="brand" href="/motion/m/">
+  <a class="brand" href="/m/">
     <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true">
       <rect x="2.5" y="2.5" width="27" height="27" rx="9" fill="none"
             stroke="currentColor" stroke-width="1.3" opacity=".32"/>
@@ -338,7 +338,7 @@ footer{padding:2.2rem var(--pad) 1.6rem;border-top:1px solid var(--line);
   const ua = navigator.userAgent || '';
   if(!/(FBAN|FBAV|Instagram|LinkedInApp|Line\/|Twitter|TikTok|Snapchat|Pinterest|GSA\/)/i.test(ua)) return;
   const iOS = /iPad|iPhone|iPod/.test(ua);
-  const here = location.origin + '/motion/m/';
+  const here = location.origin + '/m/';
   btn.hidden = false;
   btn.href = iOS ? 'x-safari-' + here : here;
   if(!iOS){ btn.textContent = 'Open in your browser ↗'; btn.target = '_blank'; btn.rel = 'noopener'; }
@@ -347,7 +347,7 @@ footer{padding:2.2rem var(--pad) 1.6rem;border-top:1px solid var(--line);
 /* No link to the desktop site from a phone — it would only render badly.
    Copying the URL is the honest way to move this to a real machine. */
 (() => {
-  const url = location.origin + '/motion/';
+  const url = location.origin + '/';
   const wire = (id, sel) => {
     const b = document.getElementById(id);
     if(!b) return;

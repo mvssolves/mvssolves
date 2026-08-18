@@ -1,30 +1,35 @@
 # MVS Solves
 
-> Real automation, done properly. One person — Martin — builds websites, funnels, local presence, automation, AI assistants, and custom systems for small businesses. End to end, no agency, no handoffs.
+> WebGL and motion engineering. Martin van Staden builds the motion layer most front-end developers turn down — raymarched GLSL, custom shaders, and scroll systems that feel attached to the page rather than towed behind it.
 
-MVS Solves is a one-person studio. Every engagement starts with a free 30-minute call, followed by a plain-language plan (what, when, how much) and then the build. Contact: martin@mvssolves.com.
+MVS Solves is a one-person studio in Brea, California, working on contract and white-label with agencies, studios, and product teams. Contact: martin@mvssolves.com.
 
-## Services
+Everything on this site is rendered live in the browser. There are no recordings, no video loops, and no pre-baked frames — each piece is running on the visitor's own GPU.
 
-- [Websites built to convert](https://mvssolves.com/#what-i-do): Fast, honest, built to sell — not template soup.
-- [Funnels that actually convert](https://mvssolves.com/#what-i-do): One page, one action. Less noise, more bookings.
-- [Local presence, owned](https://mvssolves.com/#what-i-do): Google Profile, map-pack visibility, and a steady stream of real 5-stars.
-- [Automation, end to end](https://mvssolves.com/#what-i-do): Workflows, integrations, the boring bits handled — so the work runs itself.
-- [AI assistants in your voice](https://mvssolves.com/#what-i-do): Booking, FAQs, replies — trained on your business, not a chatbot template.
-- [Systems built around your business](https://mvssolves.com/#what-i-do): Internal tools, dashboards, integrations — whatever the off-the-shelf stack can't do.
+## Work
 
-## Pages
+- [Rendered live](https://mvssolves.com/): raymarched signed-distance field in raw WebGL2 — no Three.js on the page. The hero object morphs between five primitives by interpolating distance functions, not by swapping meshes.
+- [DESCENT](https://mvssolves.com/scroll/): an infinite corridor whose camera is driven entirely by scroll position.
+- [INK](https://mvssolves.com/fluid/): a curl-noise fluid simulation, ping-ponged between framebuffers each frame.
+- [SET IN MOTION](https://mvssolves.com/type/): kinetic typography built from mask reveals and difference blending, with no animation library.
+- [SPRING FIELD](https://mvssolves.com/physics/): a particle field of thousands of damped springs sampled from rendered text.
 
-- [Home](https://mvssolves.com/): Overview of services, how it works, and FAQs.
-- [Book a call](https://mvssolves.com/book-a-call): Pick a free 30-minute discovery slot.
+## Capabilities
 
-## How it works
+- Custom GLSL and raw WebGL2 — raymarching, signed distance fields, post-processing
+- Scroll systems with GSAP and ScrollTrigger
+- Three.js and React Three Fiber when a scene graph is the right tool
+- React, Next.js, TypeScript, Tailwind
+- Performance work: adaptive resolution, frame budgets, Core Web Vitals
 
-1. We talk for 30 minutes — you tell me what you're trying to fix, build, or automate; I tell you straight if I can help.
-2. A plan you can actually read — what I'll build, when it ships, what it costs. One page, no jargon.
-3. I build it — drafts before live, then I hand over the keys or stay on to run it.
+## How the work is engineered
+
+- Everything degrades. No WebGL2, a weak GPU, or reduced-motion enabled and the layout still reads.
+- Performance is measured, not hoped for. The shaders run an adaptive resolution governor that holds frame rate on unknown hardware.
+- White-label is fine. The studio's name goes on the work.
 
 ## Contact
 
+- [Contact](https://mvssolves.com/contact/)
 - Email: martin@mvssolves.com
-- Booking: https://mvssolves.com/book-a-call
+- Location: Brea, California — comfortable across European hours
