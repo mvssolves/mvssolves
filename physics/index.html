@@ -218,29 +218,29 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 body{padding-top:52px}
 
 /* ---- scroll reveal (studies) ---- */
-.rv{transition:opacity 1.25s cubic-bezier(.22,1,.36,1),transform 1.25s cubic-bezier(.22,1,.36,1)}
+.rv{transition:opacity 1.6s cubic-bezier(.22,1,.36,1),transform 1.6s cubic-bezier(.22,1,.36,1)}
 .armed-rv .rv{opacity:0;transform:translateY(32px)}
 /* children move a shorter distance so the card reads as one arrival
    with detail inside it, not eight separate things sliding about */
 .armed-rv .n-grid > div > .rv{transform:translateY(14px)}
-.armed-rv .n-grid > div > .rv{transition-duration:1.45s}
+.armed-rv .n-grid > div > .rv{transition-duration:1.85s}
 .armed-rv .rv.seen{opacity:1;transform:none}
 /* the orange section rule draws itself in */
 .notes .n-lbl{position:relative;padding-top:1.2rem}
 .notes .n-lbl::before{content:"";position:absolute;top:0;left:0;height:2px;width:56px;
   background:currentColor;transform:scaleX(0);transform-origin:left;
-  transition:transform 1.15s cubic-bezier(.22,1,.36,1)}
+  transition:transform 1.5s cubic-bezier(.22,1,.36,1)}
 .notes .n-lbl.seen::before{transform:scaleX(1)}
 /* Engineering-note heading rises line by line, same move as the homepage
    statement. Lines are measured from real layout, so the wrap points are
    whatever the browser chose at this width. */
 .notes h2 .ln{display:block;overflow:hidden;padding-bottom:.20em;margin-bottom:-.20em}
 .notes h2 .ln>i{display:block;font-style:normal;transform:translateY(135%);
-  transition:transform 1.45s cubic-bezier(.19,1,.22,1)}
+  transition:transform 1.9s cubic-bezier(.19,1,.22,1)}
 .notes h2.lines-in .ln>i{transform:none}
-.notes h2 .ln:nth-child(2)>i{transition-delay:.12s}
-.notes h2 .ln:nth-child(3)>i{transition-delay:.24s}
-.notes h2 .ln:nth-child(4)>i{transition-delay:.36s}
+.notes h2 .ln:nth-child(2)>i{transition-delay:.16s}
+.notes h2 .ln:nth-child(3)>i{transition-delay:.32s}
+.notes h2 .ln:nth-child(4)>i{transition-delay:.48s}
 @media(prefers-reduced-motion:reduce){ .notes h2 .ln>i{transform:none;transition:none} }
 .n-specs>div{transition:background .35s ease}
 .n-specs>div:hover{background:rgba(128,128,128,.07)}
@@ -611,7 +611,7 @@ if(reduced){
     entries.forEach((en, i) => {
       if(en.isIntersecting){
         fired = true;
-        setTimeout(() => en.target.classList.add('seen'), (i % 6) * 105);
+        setTimeout(() => en.target.classList.add('seen'), (i % 6) * 135);
         ob.unobserve(en.target);
       }
     });

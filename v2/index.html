@@ -194,6 +194,17 @@ html:not(.js) .navbtn{display:none}
 .diffhead{position:sticky; top:0; z-index:3; mix-blend-mode:difference; pointer-events:none;
   width:min(54%,740px); padding-block:clamp(3rem,10vh,6rem); padding-inline:var(--pad)}
 .diffhead h2{font-size:var(--d2); color:#fff; max-width:11ch}
+/* The blend-difference headline over the colour fields rises line by line, the
+   same reveal the rest of the site uses. The mask sits inside the blended
+   element so the inversion still applies to the finished lines. */
+.diffhead h2 .ln{display:block;overflow:hidden;padding-bottom:.20em;margin-bottom:-.20em}
+.diffhead h2 .ln>i{display:block;font-style:normal;transform:translateY(132%);
+  transition:transform 2.05s cubic-bezier(.19,1,.22,1)}
+.diffhead h2.lines-in .ln>i{transform:none}
+.diffhead h2 .ln:nth-child(2)>i{transition-delay:.15s}
+.diffhead h2 .ln:nth-child(3)>i{transition-delay:.3s}
+.diffhead h2 .ln:nth-child(4)>i{transition-delay:.45s}
+@media(prefers-reduced-motion:reduce){ .diffhead h2 .ln>i{transform:none;transition:none} }
 .diffhead .lbl{color:#fff; opacity:.8; margin-bottom:1rem; display:block}
 .fields > div{padding:clamp(3.5rem,10vh,7rem) var(--pad) clamp(3.5rem,10vh,7rem)}
 /* only ink and white pass under the blended headline. Difference of white against
@@ -650,6 +661,31 @@ footer{border-top:1px solid var(--hair-2); padding-block:1.4rem}
       if(p<1) requestAnimationFrame(step); else el.textContent = pre+target.toLocaleString()+suf;
     })();
   }
+/* ---- blend-difference headline: line-by-line rise ---- */
+(function(){
+  var h=document.querySelector('.diffhead h2');
+  if(!h || !('IntersectionObserver' in window)) return;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var raw=h.textContent;
+  try{
+    h.innerHTML=raw.trim().split(/\s+/).map(function(w){return '<span class="sw">'+w+'</span>';}).join(' ');
+    var words=[].slice.call(h.querySelectorAll('.sw'));
+    if(!words.length) throw 0;
+    var lines=[],top=null,cur=null;
+    words.forEach(function(w){
+      var y=Math.round(w.offsetTop);
+      if(top===null||Math.abs(y-top)>4){top=y;cur=[];lines.push(cur);}
+      cur.push(w.textContent);
+    });
+    h.innerHTML=lines.map(function(l){return '<span class="ln"><i>'+l.join(' ')+'</i></span>';}).join('');
+  }catch(e){ h.textContent=raw; return; }
+  var io=new IntersectionObserver(function(es,ob){
+    es.forEach(function(e){ if(e.isIntersecting){ h.classList.add('lines-in'); ob.disconnect(); } });
+  },{threshold:.2});
+  io.observe(h);
+  setTimeout(function(){ h.classList.add('lines-in'); },6000);
+})();
+
   if('IntersectionObserver' in window){
     var sio=new IntersectionObserver(function(es){
       es.forEach(function(e){ if(e.isIntersecting){ countUp(e.target); sio.unobserve(e.target); } });
