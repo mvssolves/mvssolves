@@ -185,6 +185,21 @@ body > nav.stuck.canvas-idle{
 .brandmark:hover svg{transform:rotate(45deg)}
 .bm-txt{font-weight:600;font-size:15px;letter-spacing:-.02em;line-height:1.15}
 .bm-txt span{display:block;color:var(--dim);font-weight:400;letter-spacing:0}
+/* Hairline text links, not buttons — a second filled pill up here would compete
+   with the one real CTA at the bottom of the page. */
+.nav-r{display:flex;align-items:center;gap:1.9rem;padding-top:.2rem}
+.nav-lnk{color:var(--dim);position:relative;padding-bottom:.35rem;white-space:nowrap;
+  transition:color .35s ease}
+.nav-lnk::after{content:"";position:absolute;left:0;right:100%;bottom:0;height:1px;
+  background:currentColor;transition:right .45s cubic-bezier(.22,1,.36,1)}
+.nav-lnk:hover{color:var(--paper)}
+.nav-lnk:hover::after{right:0}
+.nav-go{color:var(--paper)}
+.nav-go::after{right:0;background:var(--accent)}
+.nav-go:hover{color:var(--accent)}
+.nav-go span{display:inline-block;transition:transform .45s cubic-bezier(.22,1,.36,1)}
+.nav-go:hover span{transform:translateX(4px)}
+@media(max-width:900px){ .nav-r .nav-lnk:not(.nav-go){display:none} }
 
 /* ============ hero ============ */
 header{
@@ -506,6 +521,10 @@ footer{padding:1.5rem var(--pad) 2.4rem;border-top:1px solid var(--line);
     </svg>
     <span class="bm-txt">MVS&nbsp;Solves<span>Martin van Staden</span></span>
   </a>
+  <div class="nav-r mono">
+    <a class="nav-lnk" href="#work">Studies</a>
+    <a class="nav-lnk nav-go" href="mailto:martin@mvssolves.com?subject=Contract%20work">Start a project <span aria-hidden="true">→</span></a>
+  </div>
 </nav>
 
 <header class="shell">
@@ -549,7 +568,7 @@ footer{padding:1.5rem var(--pad) 2.4rem;border-top:1px solid var(--line);
   </div>
 </section>
 
-<section class="shell">
+<section class="shell" id="work">
   <div class="head">
     <h2>Four running pieces. Open any of them — nothing here is a recording.</h2>
   </div>
@@ -741,12 +760,17 @@ footer{padding:1.5rem var(--pad) 2.4rem;border-top:1px solid var(--line);
 
   /* One rAF loop, eased toward a moving target. The old version stepped in
      random setInterval jumps, which is what made it feel stuttery. */
+  let prev = t0;
   (function loop(now){
     const ms = now - t0;
+    /* Ease on elapsed time, not per frame. A fixed 0.11 step per frame means a
+       30fps machine sits on the veil twice as long as a 120fps one for exactly
+       the same amount of real work. */
+    const dt = Math.min(64, now - prev); prev = now;
     const natural = 92 * (1 - Math.exp(-ms / 850));   // approaches 92, never stalls at 0
     ready = loaded && window.__glReady === true;
     target = ready ? 100 : Math.max(target, natural);
-    shown += (target - shown) * 0.11;
+    shown += (target - shown) * (1 - Math.exp(-dt / 105));
     const v = Math.min(100, shown);
     num.textContent = String(Math.round(v)).padStart(2,'0');
     bar.style.transform = 'scaleX(' + (v / 100).toFixed(4) + ')';
@@ -1216,6 +1240,7 @@ if(!matchMedia('(prefers-reduced-motion: reduce)').matches && !MOBILE){
   intro
     .to('h1 .ln > i', {yPercent:0, duration:1.35, ease:'expo.out', stagger:.09})
     .from('.brandmark', {opacity:0, x:-14, duration:.9, ease:'expo.out'}, .15)
+    .from('.nav-r > *',  {opacity:0, x:14, duration:.9, ease:'expo.out', stagger:.08}, .22)
     .from('.status',    {opacity:0, y:16, duration:.85, ease:'expo.out'}, .45)
     .from('.hero-btm > *', {opacity:0, y:22, duration:1, ease:'expo.out', stagger:.1}, .6);
 
@@ -1228,7 +1253,7 @@ if(!matchMedia('(prefers-reduced-motion: reduce)').matches && !MOBILE){
      load, rAF throttled, GSAP stalled — the hero must not stay invisible. */
   setTimeout(() => {
     gsap.set('h1 .ln > i', {yPercent:0, clearProps:'transform'});
-    document.querySelectorAll('.status, .hero-btm > *').forEach(el => {
+    document.querySelectorAll('.status, .hero-btm > *, .brandmark, .nav-r > *').forEach(el => {
       el.style.opacity = '1'; el.style.transform = 'none';
     });
   }, 2600);
