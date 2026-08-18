@@ -1017,9 +1017,13 @@ footer{padding:1.5rem var(--pad) 2.4rem;border-top:1px solid var(--line);
        further back both have to be framed — a fixed distance drives the object
        straight through the headline at laptop widths. */
     float wide = clamp((aspect - 1.25) / .55, 0., 1.);
-    uv *= narrow ? 3.6 : mix(1.45, 1.10, wide);
-    uv.x -= narrow ? 0.  : .44;
-    uv.y -= narrow ? .52 : 0.;
+    uv *= narrow ? 3.6 : mix(1.58, 1.30, wide);
+    uv.x -= narrow ? 0.  : .56;
+    /* Lifted off centre. The headline is three full-width lines and the last one
+       runs to two thirds of the viewport, so a vertically centred object sits
+       straight through it — raising the sculpture puts the type under its
+       narrowest arc instead of its widest. */
+    uv.y -= narrow ? .52 : .13;
 
     /* Camera sits above and looks slightly down — a level camera flattens the
        ground plane into a horizon line and kills the depth read. */
