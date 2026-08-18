@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="alternate" media="only screen and (max-width: 820px)" href="/motion/m/">
+<script>
+/* Mobile has its own document at /m/ — a separate layout, not this one
+   squeezed. Runs before first paint so there is no flash of the desktop page.
+   ?full=1 is an explicit opt-out and sticks for the rest of the session. */
+(function(){try{
+  if(location.pathname.indexOf('/motion/m/')===0) return;
+  if(location.search.indexOf('full=1')>-1){sessionStorage.setItem('mvs-full','1');return;}
+  if(sessionStorage.getItem('mvs-full')) return;
+  if(matchMedia('(max-width:820px)').matches) location.replace('/motion/m/');
+}catch(e){}})();
+</script>
+
+<title>DESCENT — 34 units of corridor</title>
+<meta name="description" content="An infinite raymarched corridor whose camera is driven entirely by scroll position. WebGL2, one shared clock.">
+<meta property="og:title" content="DESCENT — 34 units of corridor">
+<meta property="og:description" content="The camera is your scrollbar. Raymarched WebGL2, no footage.">
+<meta property="og:url" content="https://mvssolves.com/motion/scroll/">
+<link rel="canonical" href="https://mvssolves.com/motion/scroll/">
+<link rel="icon" href="/motion/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/motion/favicon-light.svg" type="image/svg+xml" media="(prefers-color-scheme: light)">
+<link rel="apple-touch-icon" href="/motion/favicon.svg">
+<link rel="manifest" href="/motion/site.webmanifest">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500&family=Archivo:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Native cross-document transitions between studies. */
+@view-transition{navigation:auto}
+
+:root{
+  --void:#000;
+  --bone:#e8e6e1;
+  --dim:#6e6a63;
+  --bronze:#b98243;
+  --hair:rgba(232,230,225,.22);
+  --pad:clamp(1rem,2.6vw,2.2rem);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--void);color:var(--bone);font-family:"Archivo",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase}
+
+canvas{position:fixed;inset:0;width:100%;height:100vh;display:block;z-index:0}
+.vig{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(120% 90% at 50% 45%,transparent 30%,rgba(0,0,0,.72) 100%)}
+.scan{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.16;
+  background:repeating-linear-gradient(to bottom,rgba(232,230,225,.10) 0 1px,transparent 1px 3px)}
+
+/* ---- viewfinder frame: four corner brackets, 21HRS device ---- */
+.frame{position:fixed;inset:calc(var(--pad) * .7);top:calc(52px + var(--pad) * .7);z-index:22;pointer-events:none}
+.frame i{position:absolute;width:46px;height:46px;border:1px solid var(--bronze);opacity:.62}
+.frame i:nth-child(1){top:0;left:0;border-right:0;border-bottom:0}
+.frame i:nth-child(2){top:0;right:0;border-left:0;border-bottom:0}
+.frame i:nth-child(3){bottom:0;left:0;border-right:0;border-top:0}
+.frame i:nth-child(4){bottom:0;right:0;border-left:0;border-top:0}
+
+.sysline{display:flex;gap:1.6rem;color:var(--dim)}
+.sysline b{color:var(--bronze);font-weight:400}
+@media(max-width:760px){.sysline{display:none}}
+
+/* ---- title plate ---- */
+.plate{position:relative;z-index:10;min-height:100svh;padding-top:52px;display:grid;place-items:center;padding:var(--pad);text-align:center}
+.rulerow{display:flex;align-items:center;gap:1.1rem;justify-content:center;margin-bottom:.6rem}
+.rulerow::before,.rulerow::after{content:"";height:1px;background:var(--hair);width:clamp(2rem,14vw,15rem)}
+.rulerow span{color:var(--bone);white-space:nowrap}
+h1{font-family:"Archivo Black",system-ui,sans-serif;font-weight:400;
+  font-size:clamp(3.2rem,17vw,15rem);line-height:.82;letter-spacing:-.02em;
+  /* metallic fill — cheap way to make one word look milled rather than typed */
+  background:linear-gradient(178deg,#fff 8%,#cfcac1 34%,#6f6a62 58%,#efeae2 82%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+/* Kept inside the viewfinder brackets — at 92vw the edge labels sat on top
+   of the corner marks. */
+.mission{display:flex;justify-content:space-between;align-items:flex-end;gap:2rem;
+  width:min(1040px,84vw);margin:1.6rem auto 0}
+.mission div{color:var(--dim);line-height:1.7}
+.mission b{display:block;color:var(--bone);font-weight:400;font-size:12.5px;letter-spacing:.04em}
+/* The corridor is brightest dead centre, which is exactly where this copy
+   sits — it needs its own ground, not just a lighter grey. */
+.mission p{max-width:44ch;color:#a9a49b;font-size:.94rem;line-height:1.5;
+  background:rgba(0,0,0,.80);
+  padding:.85rem 1rem;border:1px solid var(--hair)}
+.mission p b{display:inline;color:var(--bone);font-weight:500}
+@media(max-width:820px){.mission{flex-direction:column;align-items:flex-start}}
+
+.cue{margin-top:2.4rem;display:inline-flex;align-items:center;gap:.7rem;
+  border:1px solid var(--hair);padding:.7rem 1.3rem;color:var(--dim);position:relative}
+.cue::before,.cue::after{content:"";position:absolute;width:5px;height:5px;border:1px solid var(--bronze)}
+.cue::before{top:-3px;left:-3px;border-right:0;border-bottom:0}
+.cue::after{bottom:-3px;right:-3px;border-left:0;border-top:0}
+
+/* ---- steps ---- */
+.track{position:relative;z-index:10}
+.step{min-height:100svh;display:grid;place-items:center;padding:var(--pad)}
+.step:last-child{padding-bottom:calc(var(--pad) + 3.4rem)}
+.card{width:min(660px,92vw);border:1px solid var(--hair);background:rgba(0,0,0,.86);
+  padding:clamp(1.6rem,4vw,2.8rem);position:relative}
+.card::before{content:"";position:absolute;top:-1px;left:-1px;width:16px;height:16px;
+  border-top:1px solid var(--bronze);border-left:1px solid var(--bronze)}
+.card .idx{color:var(--bronze);margin-bottom:1rem}
+.card h2{font-family:"Archivo Black",system-ui,sans-serif;font-weight:400;
+  font-size:clamp(1.4rem,3.4vw,2.4rem);line-height:1.02;letter-spacing:-.015em;margin-bottom:.8rem}
+.card p{color:var(--dim);font-size:.97rem;line-height:1.55}
+.card p b{color:var(--bone);font-weight:500}
+
+/* ---- telemetry rail ---- */
+.rail{position:fixed;right:calc(var(--pad) * 2.4);top:50%;transform:translateY(-50%);
+  z-index:24;display:flex;flex-direction:column;gap:.5rem;align-items:flex-end}
+/* Fixed 34px box scaled from the right edge — animating width would force
+   layout on every tick for an identical result. */
+.rail i{display:block;width:34px;height:1px;background:var(--hair);transform-origin:right;
+  transform:scaleX(.47);transition:transform .45s cubic-bezier(.22,1,.36,1),background .45s}
+.rail i.on{transform:scaleX(1);background:var(--bronze)}
+.depth{position:fixed;left:calc(var(--pad) * 2.4);bottom:calc(var(--pad) * 2.1);z-index:24;color:var(--dim)}
+.depth b{color:var(--bronze);font-weight:400;font-variant-numeric:tabular-nums}
+@media(max-width:760px){.rail,.depth{display:none}}
+.prog{position:fixed;left:0;top:0;height:1px;width:100%;background:var(--bronze);z-index:26;
+  transform:scaleX(0);transform-origin:left}
+.fallback{position:fixed;inset:0;z-index:0;background:radial-gradient(70vw 70vw at 50% 38%,rgba(185,130,67,.16),transparent 66%),var(--void)}
+@media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+
+/* Always-visible return control. Never inside a media query — every study is a
+   shareable entry point, and on a phone the section navs collapse away. */
+.backhome{position:fixed;left:max(12px,env(safe-area-inset-left));
+  bottom:max(12px,env(safe-area-inset-bottom));z-index:70;
+  display:inline-flex;align-items:center;gap:.5rem;
+  padding:.6rem .95rem;border-radius:999px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;
+  letter-spacing:.12em;text-transform:uppercase;
+  transition:transform .35s cubic-bezier(.22,1,.36,1),opacity .3s}
+.backhome:hover{transform:translateX(-3px)}
+.backhome span{font-size:13px;line-height:1}
+.backhome{background:rgba(0,0,0,.86);color:#e8e6e1;border:1px solid rgba(232,230,225,.30)}
+
+/* ---- glass, simulated: this sits over a canvas that repaints every frame,
+       so a real backdrop-filter would re-blur it 60x a second ---- */
+.card{
+  background:linear-gradient(150deg,rgba(255,255,255,.075) 0%,rgba(0,0,0,.80) 40%,rgba(0,0,0,.88) 100%);
+  border:1px solid rgba(232,230,225,.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.20),
+    inset 0 -1px 0 rgba(0,0,0,.5),
+    0 16px 44px rgba(0,0,0,.6);
+}
+.mission p{
+  background:linear-gradient(150deg,rgba(255,255,255,.06),rgba(0,0,0,.82));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 10px 30px rgba(0,0,0,.5);
+}
+.backhome{box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 8px 24px rgba(0,0,0,.5)}
+.cue{background:linear-gradient(150deg,rgba(255,255,255,.06),rgba(0,0,0,.5));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16)}
+
+/* Cross-document transition: outgoing settles back, incoming rises in. */
+@media(prefers-reduced-motion:no-preference){
+  ::view-transition-old(root){animation:vt-out .34s cubic-bezier(.4,0,1,1) both}
+  ::view-transition-new(root){animation:vt-in .46s cubic-bezier(.22,1,.36,1) both}
+}
+@keyframes vt-out{to{opacity:0;transform:scale(.985)}}
+@keyframes vt-in{from{opacity:0;transform:scale(1.012)}}
+
+/* ---- engineering note ---- */
+.notes{padding:clamp(3rem,7vw,6rem) var(--pad);position:relative;z-index:12}
+.notes-inner{max-width:1100px;margin-inline:auto}
+.n-lbl{margin-bottom:1rem}
+.notes h2{font-size:clamp(1.5rem,3.4vw,2.6rem);font-weight:600;letter-spacing:-.03em;
+  margin-bottom:2.2rem;max-width:22ch}
+.n-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));
+  gap:clamp(1.2rem,2.6vw,2.4rem);margin-bottom:2.6rem}
+.n-grid h3{font-size:.82rem;text-transform:uppercase;letter-spacing:.1em;
+  margin-bottom:.6rem;opacity:.55;font-weight:600}
+.n-grid p{font-size:.95rem;line-height:1.6;opacity:.82}
+.n-grid code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.86em}
+.n-specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0 2rem}
+.n-specs>div{display:flex;justify-content:space-between;gap:1rem;
+  padding:.7rem 0;border-top:1px solid rgba(128,128,128,.24)}
+.n-specs dt{opacity:.5}
+.n-specs dd{text-align:right}
+.notes{background:#050505;border-top:1px solid var(--hair)}
+.n-lbl{color:var(--bronze)}
+
+/* ---- persistent study bar. Replaces the bottom-left chip: a return control a
+       visitor has to hunt for is a broken control. ---- */
+.studybar{position:fixed;top:0;left:0;right:0;z-index:80;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  padding:.7rem clamp(.9rem,2.4vw,1.7rem);
+  background:rgba(0,0,0,.72);
+  border-bottom:1px solid rgba(232,230,225,.20);color:#e8e6e1}
+.sb-left{display:flex;align-items:center;gap:.9rem;min-width:0}
+.sb-exit{display:inline-flex;align-items:center;gap:.5rem;flex:none;
+  border:1px solid rgba(232,230,225,.20);border-radius:999px;padding:.42rem .85rem;
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;
+  letter-spacing:.12em;text-transform:uppercase;
+  transition:background .3s,border-color .3s,color .3s,transform .35s cubic-bezier(.22,1,.36,1)}
+.sb-exit:hover{background:#b98243;border-color:#b98243;color:#fff;transform:translateX(-3px)}
+.sb-exit b{font-size:12px;line-height:1;font-weight:400}
+.sb-title{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;
+  letter-spacing:.14em;text-transform:uppercase;opacity:.62;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-title i{font-style:normal;color:#b98243}
+.sb-nav{position:static;display:flex;align-items:center;gap:.15rem;flex:none;padding:0}
+.sb-nav a{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;
+  letter-spacing:.1em;text-transform:uppercase;opacity:.5;
+  padding:.4rem .55rem;border-radius:6px;transition:opacity .3s,background .3s,color .3s}
+.sb-nav a:hover{opacity:1;background:rgba(232,230,225,.20)}
+.sb-nav a[aria-current]{opacity:1;color:#b98243}
+@media(max-width:820px){.sb-title{display:none} .sb-nav a span{display:none}}
+
+
+/* ---- scroll reveal (studies) ---- */
+.rv{transition:opacity .9s cubic-bezier(.22,1,.36,1),transform .9s cubic-bezier(.22,1,.36,1)}
+.armed-rv .rv{opacity:0;transform:translateY(26px)}
+.armed-rv .rv.seen{opacity:1;transform:none}
+/* the orange section rule draws itself in */
+.notes .n-lbl{position:relative;padding-top:1.2rem}
+.notes .n-lbl::before{content:"";position:absolute;top:0;left:0;height:2px;width:56px;
+  background:currentColor;transform:scaleX(0);transform-origin:left;
+  transition:transform .8s cubic-bezier(.22,1,.36,1)}
+.notes .n-lbl.seen::before{transform:scaleX(1)}
+.n-specs>div{transition:background .35s ease}
+.n-specs>div:hover{background:rgba(128,128,128,.07)}
+
+/* ================= mobile =================
+   The live piece does not run on a phone: no GL context is created at all.
+   Everything that supports a cursor is removed, label type comes up to a
+   readable size, and tap targets reach 44px. Appended last so it wins on order. */
+.poster{display:none}
+@media(max-width:820px){
+  body.is-mobile canvas,
+  body.is-mobile .vig, body.is-mobile .scan, body.is-mobile .frame,
+  body.is-mobile .grid, body.is-mobile .hint, body.is-mobile .rail,
+  body.is-mobile .depth, body.is-mobile .prog, body.is-mobile .plate-tag,
+  body.is-mobile .corner, body.is-mobile .seamlabel{display:none !important}
+
+  .mono{font-size:11.5px;letter-spacing:.085em}
+  /* The chip was replaced by a persistent .studybar upstream — target that. */
+  .studybar{min-height:52px}
+  .studybar a,.studybar button{min-height:44px;display:inline-flex;align-items:center}
+  .wordmark,.brand,.bar .l,.back{min-height:44px;display:inline-flex;align-items:center}
+  /* Inline links in a sentence are exempt from 44px (WCAG 2.5.8) and forcing it
+     breaks the line box — vertical padding grows the hit area instead. */
+  .card p a,.note a,.n-grid p a,.t-info p a{padding-block:.55rem}
+  .coord a,.t-foot a,.headnav a,.herofoot nav a,.pill a,footer a{
+    display:inline-flex;align-items:center;justify-content:center;
+    padding-block:.7rem;min-height:44px;min-width:44px}
+
+  .poster{
+    display:block;position:relative;overflow:hidden;border-radius:14px;
+    padding:clamp(1.3rem,5vw,1.9rem);min-height:38svh;
+  }
+  .poster .pnum{opacity:.55}
+  .poster h2{font-size:clamp(1.5rem,7.2vw,2.1rem);line-height:1.05;
+    letter-spacing:-.02em;margin:1.1rem 0 .7rem;max-width:16ch}
+  .poster p{font-size:.95rem;line-height:1.55;opacity:.75;max-width:40ch}
+  .poster .deskcue{display:inline-flex;align-items:center;gap:.55rem;margin-top:1.4rem;
+    padding:.7rem 1rem;border-radius:999px;min-height:44px;
+    font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:11.5px;letter-spacing:.09em;text-transform:uppercase}
+  .poster .art{position:absolute;inset:0;z-index:-1;pointer-events:none}
+}
+
+@media(max-width:820px){
+  .poster{background:linear-gradient(165deg,#0d0c0b,#000);border:1px solid var(--hair);
+    color:var(--bone);margin:0 var(--pad) 1.4rem}
+  .poster .art{background:
+    radial-gradient(46% 34% at 50% 46%,rgba(185,130,67,.30),transparent 70%),
+    repeating-radial-gradient(circle at 50% 46%,transparent 0 38px,rgba(232,230,225,.07) 38px 39px)}
+  .poster .pnum{color:var(--bronze)}
+  .poster .deskcue{background:var(--bronze);color:#12100d}
+  /* Those 100svh steps paced the corridor. Without it they are five cards with
+     a blank screen between each. */
+  body.is-mobile .step{min-height:auto;padding:0 var(--pad) var(--pad)}
+  body.is-mobile .step:last-child{padding-bottom:calc(var(--pad) * 3)}
+  body.is-mobile .card{width:100%}
+  body.is-mobile .cue{display:none}
+  body.is-mobile .plate{min-height:auto;place-items:start;text-align:left;
+    padding:calc(var(--pad) * 5) var(--pad) calc(var(--pad) * 2)}
+  body.is-mobile .mission{width:100%;gap:1.1rem;margin-top:1.4rem}
+  body.is-mobile .mission div{display:flex;gap:.6rem;align-items:baseline}
+  body.is-mobile .mission b{display:inline;font-size:11.5px}
+  body.is-mobile .mission p{text-align:left;max-width:none}
+  /* The paragraph already says "one repeated shape" — the COST pair restates it. */
+  body.is-mobile .mission div:last-child{display:none}
+  body.is-mobile .rulerow{justify-content:flex-start}
+  body.is-mobile .rulerow::before{display:none}
+  body.is-mobile h1{font-size:clamp(2.8rem,15vw,4.4rem)}
+}
+
+/* ---- mobile notice + copy reduction ---- */
+.mobonly{display:none}
+@media(max-width:820px){
+  .mobonly{display:block;margin:1.2rem var(--pad);padding:.95rem 1.1rem;
+    border:1px solid var(--hair);border-radius:13px;background:rgba(232,230,225,.05);color:var(--bone)}
+  .mobonly p{font-size:.88rem;line-height:1.5;opacity:.85}
+  .mobonly p b{opacity:1;font-weight:600}
+  .safari-btn{display:inline-flex;align-items:center;justify-content:center;
+    margin-top:.8rem;padding:.72rem 1.05rem;border-radius:999px;min-height:44px;
+    background:var(--bone);color:#12100d;font-weight:600;font-size:.86rem}
+  .safari-btn[hidden]{display:none}
+  /* The engineering note is the reason to be here on a phone — keep the
+     constraint and the solution, drop the two supporting columns. */
+  .n-grid > div:nth-child(2),.n-grid > div:nth-child(4){display:none}
+  .n-specs > div:nth-child(n+5){display:none}
+  .notes h2{font-size:clamp(1.35rem,5.8vw,1.8rem)}
+  .poster p:nth-of-type(1){display:none}
+  .poster h2{margin-top:.6rem}
+}
+</style>
+</head>
+<body>
+<header class="studybar">
+  <div class="sb-left">
+    <a class="sb-exit" href="../"><b>&larr;</b> All studies</a>
+    <span class="sb-title">MVS Solves &nbsp;/&nbsp; <i>Study 02</i> &nbsp;/&nbsp; DESCENT</span>
+  </div>
+  <nav class="sb-nav"><a href="../fluid/">01<span> INK</span></a><a href="../scroll/" aria-current="page">02<span> DESCENT</span></a><a href="../type/">03<span> SET IN MOTION</span></a><a href="../physics/">04<span> SPRING FIELD</span></a></nav>
+</header>
+
+<canvas id="c"></canvas>
+<div class="vig"></div>
+<div class="scan"></div>
+<div class="prog" id="prog"></div>
+<div class="frame"><i></i><i></i><i></i><i></i></div>
+
+
+<div class="rail" id="rail"><i></i><i></i><i></i><i></i><i></i></div>
+<div class="depth mono">Depth <b id="dep">00.0</b>u / 34.0u</div>
+
+<section class="plate">
+  <div>
+    <div class="rulerow"><span class="mono">Study 02 — scroll-driven</span></div>
+    <h1>DESCENT</h1>
+    <div class="mission">
+      <div class="mono"><b>METHOD</b>Signed distance field</div>
+      <p>An infinite corridor folded out of <b>one repeated shape</b>. Scroll position is normalised to 0–1 and handed to the fragment shader as a uniform — there is no footage here, and scrubbing backwards costs exactly what scrubbing forwards costs.</p>
+      <div class="mono" style="text-align:right"><b>COST</b>1 shape, ∞ length</div>
+    </div>
+    <div class="cue mono">Scroll to descend ↓</div>
+  </div>
+</section>
+
+<div class="track">
+  <section class="step"><div class="card">
+    <div class="idx mono">01 / Origin</div>
+    <h2>The camera is your scrollbar.</h2>
+    <p><b>Nothing here is a video.</b> You are moving a ray origin through a distance field. Every frame re-solves the whole corridor from scratch at whatever depth you happen to be at.</p>
+  </div></section>
+
+  <section class="step"><div class="card">
+    <div class="idx mono">02 / Clock</div>
+    <h2>One clock, not three.</h2>
+    <p>Lenis drives smooth scroll, the render loop reads the same frame, and the shader reads the same value. <b>No competing rAF loops</b> — that is the difference between scroll-linked 3D that feels attached and 3D that feels towed.</p>
+  </div></section>
+
+  <section class="step"><div class="card">
+    <div class="idx mono">03 / Fold</div>
+    <h2>Infinite for the price of one.</h2>
+    <p>The ribs are a single box folded with a modulo on z. <b>Thirty-four units of corridor cost the same as one</b>, and the open gaps between ribs are what give it a dark vanishing point instead of grey soup.</p>
+  </div></section>
+
+  <section class="step"><div class="card">
+    <div class="idx mono">04 / Fail-safe</div>
+    <h2>And it degrades.</h2>
+    <p>No WebGL2, or reduced motion enabled, and the canvas is dropped for a static field. <b>Every word on this page still reads.</b> The scroll rail and depth counter keep working without a GPU at all.</p>
+  </div></section>
+
+  <section class="step"><div class="card">
+    <div class="idx mono">05 / Exit</div>
+    <h2>Surface.</h2>
+    <p>Three more studies at the index — <a href="../fluid/" style="color:var(--bronze)">INK</a>, <a href="../type/" style="color:var(--bronze)">kinetic type</a>, and <a href="../physics/" style="color:var(--bronze)">spring particles</a>.</p>
+    <p class="mono" style="margin-top:1.4rem"><a href="../" style="color:var(--bronze)">MVS Solves — WebGL &amp; motion ↗</a></p>
+  </div></section>
+</div>
+
+<script>
+(() => {
+/* Mobile never initialises the renderer. Hiding a canvas still pays for the
+   context, the shader compile and the rAF loop — skipping it costs nothing. */
+if(matchMedia('(max-width:820px)').matches){ document.body.classList.add('is-mobile'); return; }
+const cv = document.getElementById('c');
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const gl = reduced ? null : cv.getContext('webgl2', {alpha:false, antialias:false});
+if(!gl){ cv.remove(); document.body.insertAdjacentHTML('afterbegin','<div class="fallback"></div>'); }
+
+let setScroll = () => {};
+
+if(gl){
+const VS = `#version 300 es
+in vec2 p; void main(){ gl_Position = vec4(p,0.,1.); }`;
+
+const FS = `#version 300 es
+precision highp float;
+out vec4 o;
+uniform vec2 uRes; uniform float uTime, uScroll;
+
+mat2 rot(float a){ float s=sin(a),c=cos(a); return mat2(c,-s,s,c); }
+float sdBox(vec3 p, vec3 b, float r){ vec3 q=abs(p)-b+r; return length(max(q,0.))+min(max(q.x,max(q.y,q.z)),0.)-r; }
+
+float map(vec3 p){
+  float z = p.z;
+  vec3 q = p;
+  q.z = mod(q.z + 1.6, 3.2) - 1.6;
+
+  float ring = sdBox(q, vec3(2.5,2.5,.22), .10);
+  ring = max(ring, -sdBox(q, vec3(2.02,2.02,2.), .06));
+
+  float twist = z*.045;
+  vec3 t = p; t.xy *= rot(twist);
+  float spine = sdBox(vec3(abs(t.x)-1.30, abs(t.y)-1.30, mod(t.z+.8,1.6)-.8), vec3(.055,.055,.34), .03);
+  return min(ring, spine);
+}
+
+vec3 nrm(vec3 p){
+  vec2 e=vec2(.0018,0.);
+  return normalize(vec3(map(p+e.xyy)-map(p-e.xyy), map(p+e.yxy)-map(p-e.yxy), map(p+e.yyx)-map(p-e.yyx)));
+}
+
+void main(){
+  vec2 uv = (gl_FragCoord.xy - .5*uRes)/uRes.y;
+
+  float z = uScroll * 34.;
+  vec3 ro = vec3(sin(z*.09)*.55, cos(z*.07)*.38, z);
+  vec3 rd = normalize(vec3(uv, 1.45));
+  rd.xy *= rot(sin(z*.05)*.16);
+
+  float t=0.; bool hit=false;
+  for(int i=0;i<86;i++){
+    vec3 p = ro + rd*t;
+    float d = map(p);
+    if(d < .0019){ hit=true; break; }
+    t += d*.88;
+    if(t > 25.) break;
+  }
+
+  vec3 col = vec3(.004,.004,.005);
+  if(hit){
+    vec3 p = ro + rd*t;
+    vec3 n = nrm(p);
+    vec3 ld = normalize(vec3(.4,.7,-.5));
+    float diff = max(dot(n,ld),0.);
+    float fres = pow(1.-max(dot(n,-rd),0.), 3.);
+
+    /* graded to bone + bronze — no colour beyond those two */
+    vec3 bronze = vec3(.72,.51,.26);
+    vec3 bone   = vec3(.91,.90,.88);
+    vec3 base   = mix(vec3(.035,.034,.033), vec3(.085,.083,.080), fres);
+    col  = base*(.10 + .90*diff);
+    col += bronze * fres * .78;
+    col += bone   * pow(max(dot(n, normalize(vec3(-.5,-.3,-.6))),0.), 8.) * .14;
+    col += bronze * smoothstep(.72,1.,sin(p.z*.55 - uTime*1.5)*.5+.5) * .34;
+    col *= exp(-t*.20);
+  }
+  col += vec3(.72,.51,.26) * .045 / (length(uv)*4.4 + .72);
+
+  col = col/(col+.8);
+  col = pow(col, vec3(.4545));
+  col *= 1. - .30*dot(uv,uv);
+  o = vec4(col,1.);
+}`;
+
+const mk=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);
+  if(!gl.getShaderParameter(o,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o;};
+let prog;
+try{
+  prog=gl.createProgram(); gl.attachShader(prog,mk(gl.VERTEX_SHADER,VS)); gl.attachShader(prog,mk(gl.FRAGMENT_SHADER,FS));
+  gl.linkProgram(prog);
+  if(!gl.getProgramParameter(prog,gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+}catch(e){
+  cv.remove(); document.body.insertAdjacentHTML('afterbegin','<div class="fallback"></div>');
+}
+if(prog && gl.getProgramParameter(prog,gl.LINK_STATUS)){
+  gl.useProgram(prog);
+  const vao=gl.createVertexArray(); gl.bindVertexArray(vao);
+  const b=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,b);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+  const l=gl.getAttribLocation(prog,'p'); gl.enableVertexAttribArray(l); gl.vertexAttribPointer(l,2,gl.FLOAT,false,0,0);
+  const U=n=>gl.getUniformLocation(prog,n);
+  const uRes=U('uRes'), uTime=U('uTime'), uScroll=U('uScroll');
+
+  /* Adaptive resolution — measure real frame time, move the render target.
+     Guessing a DPR cap up front cannot hold 60fps across unknown GPUs. */
+  /* Full quality first; the governor lowers it only if frames actually sag. */
+  let scale=1;
+  window.__glScale=scale;
+  const resize=()=>{
+    const dpr=Math.min(devicePixelRatio||1,1.75)*scale;
+    cv.width=Math.max(2,Math.floor(innerWidth*dpr)); cv.height=Math.max(2,Math.floor(innerHeight*dpr));
+    gl.viewport(0,0,cv.width,cv.height); gl.uniform2f(uRes,cv.width,cv.height);
+  };
+  resize(); addEventListener('resize',resize,{passive:true});
+
+  let fCount=0,fAcc=0,fLast=0;
+  const govern=now=>{
+    if(fLast) fAcc+=now-fLast;
+    fLast=now; fCount++;
+    if(fCount<16) return;
+    const avg=fAcc/(fCount-1);
+    fCount=0; fAcc=0;
+    if(avg>19 && scale>.6){ scale=Math.max(.6,scale-.18); resize(); }
+    else if(avg<12.5 && scale<1){ scale=Math.min(1,scale+.07); resize(); }
+    window.__glScale=scale;
+  };
+
+  let sc=0, target=0;
+  setScroll = v => { target = v; };
+  const start=performance.now();
+  let alive=true;
+  document.addEventListener('visibilitychange',()=>{
+    alive=!document.hidden; fLast=0; if(alive) requestAnimationFrame(draw);});
+  let lastW=0,lastH=0;
+  function draw(now){
+    if(!alive) return;
+    requestAnimationFrame(draw);
+    /* Booting hidden reports innerWidth 0 and clamps the canvas to 2x2 with no
+       resize event to follow. Poll rather than trust the event. */
+    if(innerWidth!==lastW||innerHeight!==lastH){
+      lastW=innerWidth; lastH=innerHeight;
+      if(innerWidth>1) resize();
+    }
+    govern(now);
+    sc += (target-sc)*.09;
+    gl.uniform1f(uTime,(now-start)/1000);
+    gl.uniform1f(uScroll,sc);
+    gl.drawArrays(gl.TRIANGLES,0,3);
+  }
+  requestAnimationFrame(draw);
+}
+}
+
+/* Telemetry works with or without a GPU. */
+const bar=document.getElementById('prog');
+const dep=document.getElementById('dep');
+const rail=[...document.querySelectorAll('.rail i')];
+const steps=[...document.querySelectorAll('.step')];
+function onScroll(){
+  const max=document.documentElement.scrollHeight-innerHeight;
+  const v=max>0?Math.min(scrollY/max,1):0;
+  setScroll(v);
+  bar.style.transform=`scaleX(${v})`;
+  dep.textContent=(v*34).toFixed(1).padStart(4,'0');
+  const idx=Math.min(steps.length-1, Math.max(0, Math.floor((scrollY - innerHeight*.5)/innerHeight)+1));
+  rail.forEach((r,i)=>r.classList.toggle('on', i===idx));
+}
+addEventListener('scroll',onScroll,{passive:true});
+onScroll();
+
+/* No Lenis. The corridor camera already eases toward the scroll target inside
+   the render loop, so smoothing the scroll itself only adds input latency. */
+})();
+</script>
+<script>
+/* Perf HUD — press P. Lets the page report its own frame rate. */
+(() => {
+  const hud=document.createElement('div');
+  hud.style.cssText='position:fixed;left:10px;bottom:10px;z-index:99;padding:6px 9px;'+
+    'font:11px/1.5 ui-monospace,monospace;color:#0f0;background:rgba(0,0,0,.8);'+
+    'border:1px solid #0f0;display:none;pointer-events:none;white-space:pre';
+  document.body.appendChild(hud);
+  let on=false,n=0,t0=performance.now();
+  addEventListener('keydown',e=>{if(e.key==='p'||e.key==='P'){on=!on;hud.style.display=on?'block':'none';}});
+  (function loop(now){
+    n++;
+    if(now-t0>=500){
+      if(on) hud.textContent='fps  '+Math.round(n*1000/(now-t0))+
+        '\nscale '+(window.__glScale||1).toFixed(2)+'\ndpr  '+(devicePixelRatio||1);
+      n=0;t0=now;
+    }
+    requestAnimationFrame(loop);
+  })(performance.now());
+})();
+</script>
+
+
+
+<aside class="mobonly">
+  <p><b>Short version.</b> The live piece runs on desktop.</p>
+  <a class="safari-btn" href="#" hidden>Open in Safari ↗</a>
+</aside>
+
+<section class="poster">
+  <div class="art" aria-hidden="true"></div>
+  <div class="pnum mono">Study 02 — scroll-driven</div>
+  <h2>The corridor needs a scrollbar.</h2>
+  <p>Thirty-four units of raymarched corridor folded from a single shape, with
+  your scroll position wired straight into the fragment shader as the camera.
+  A phone has no scrollbar to hand it and no fill-rate to spare.</p>
+  <p style="margin-top:.8rem">Below is how it is built.</p>
+  <span class="deskcue">Best on a desktop — bring a scrollbar ↗</span>
+</section>
+
+<section class="notes">
+  <div class="notes-inner">
+    <div class="n-lbl mono">Engineering note</div>
+    <h2>Thirty-four units of corridor for the price of one</h2>
+    <div class="n-grid">
+      <div><h3>The constraint</h3>
+        <p>A corridor you can scrub in both directions at any speed, with no
+        loading, no seeking, and no file to download. It also has to survive a
+        visitor who drags the scrollbar from top to bottom in one motion.</p></div>
+      <div><h3>Why the obvious route fails</h3>
+        <p>The usual approach is a pre-rendered image sequence or a scrubbed
+        video. That means megabytes over the wire, decode stalls when scrubbing
+        backwards, and a resolution baked in at export time that will be wrong
+        on half the devices that load it.</p></div>
+      <div><h3>What I did instead</h3>
+        <p>The corridor is a signed-distance field with one rib, folded
+        infinitely by a <code>mod()</code> on the z axis. Scroll is normalised
+        to 0–1 and handed to the fragment shader as a uniform. Scrubbing
+        backwards costs exactly what scrubbing forwards costs, because there is
+        nothing to seek — the frame is solved from scratch every time.</p></div>
+      <div><h3>The trade-off I accepted</h3>
+        <p>Raymarching is fill-rate bound, so cost scales with pixels rather
+        than with scene complexity. That is the wrong trade for a detailed
+        environment and the right one here, where the geometry is three shapes.
+        An adaptive resolution governor absorbs the rest.</p></div>
+    </div>
+    <dl class="n-specs mono">
+      <div><dt>Geometry</dt><dd>1 rib + 1 spine, folded by mod()</dd></div>
+      <div><dt>March</dt><dd>86 steps max, 0.88 step factor</dd></div>
+      <div><dt>Corridor length</dt><dd>34 units — O(1) cost</dd></div>
+      <div><dt>Scroll coupling</dt><dd>One clock; camera eases, input does not</dd></div>
+      <div><dt>Resolution</dt><dd>Adaptive, 0.6–1.0x on measured frame time</dd></div>
+      <div><dt>Degradation</dt><dd>No WebGL2 → static field, all copy intact</dd></div>
+    </dl>
+  </div>
+</section>
+
+<script>
+/* Reveal on scroll. Visible by default — JS arms the hidden state only after
+   confirming it can un-arm it, and a timeout un-arms everything regardless. */
+(() => {
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if(!('IntersectionObserver' in window)) return;
+  const els = document.querySelectorAll('.n-grid > div, .n-specs > div, .notes h2, .notes .n-lbl');
+  if(!els.length) return;
+  els.forEach(e => e.classList.add('rv'));
+  document.body.classList.add('armed-rv');
+  const io = new IntersectionObserver((entries, ob) => {
+    entries.forEach((en, i) => {
+      if(en.isIntersecting){
+        setTimeout(() => en.target.classList.add('seen'), (i % 6) * 70);
+        ob.unobserve(en.target);
+      }
+    });
+  }, {threshold:.15, rootMargin:'0px 0px -8% 0px'});
+  els.forEach(e => io.observe(e));
+  setTimeout(() => els.forEach(e => e.classList.add('seen')), 2600);
+})();
+</script>
+
+<script>
+/* A fixed chip on a long page ends up on a line of body copy. Hide it while
+   reading down, return it the moment the user scrolls up. */
+(() => {
+  const chip=document.querySelector('.backhome');
+  if(!chip||!matchMedia('(max-width:820px)').matches) return;
+  let last=scrollY,q=false;
+  const sync=()=>{q=false;const y=scrollY;
+    const max=document.documentElement.scrollHeight-innerHeight;
+    chip.classList.toggle('tucked',!(y<80||y>max-80)&&y>last+4);last=y;};
+  addEventListener('scroll',()=>{if(!q){q=true;requestAnimationFrame(sync);}},{passive:true});
+})();
+</script>
+
+<script>
+(() => {
+  const btn=document.querySelector('.safari-btn'); if(!btn) return;
+  const ua=navigator.userAgent||'';
+  if(!/(FBAN|FBAV|Instagram|LinkedInApp|Line\/|Twitter|TikTok|Snapchat|Pinterest|GSA\/)/i.test(ua)) return;
+  const iOS=/iPad|iPhone|iPod/.test(ua);
+  btn.hidden=false;
+  btn.href=iOS?'x-safari-'+location.href:location.href;
+  if(!iOS){btn.textContent='Open in your browser \u2197';btn.target='_blank';btn.rel='noopener';}
+})();
+</script>
+</body>
+</html>

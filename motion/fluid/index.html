@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="alternate" media="only screen and (max-width: 820px)" href="/motion/m/">
+<script>
+/* Mobile has its own document at /m/ — a separate layout, not this one
+   squeezed. Runs before first paint so there is no flash of the desktop page.
+   ?full=1 is an explicit opt-out and sticks for the rest of the session. */
+(function(){try{
+  if(location.pathname.indexOf('/motion/m/')===0) return;
+  if(location.search.indexOf('full=1')>-1){sessionStorage.setItem('mvs-full','1');return;}
+  if(sessionStorage.getItem('mvs-full')) return;
+  if(matchMedia('(max-width:820px)').matches) location.replace('/motion/m/');
+}catch(e){}})();
+</script>
+
+<title>INK — a curl-noise fluid study</title>
+<meta name="description" content="Ink advected through a divergence-free curl-noise field. Ping-pong framebuffers, WebGL2, no library.">
+<meta property="og:title" content="INK — a curl-noise fluid study">
+<meta property="og:description" content="Ink advected through a divergence-free velocity field. WebGL2, no library.">
+<meta property="og:url" content="https://mvssolves.com/motion/fluid/">
+<link rel="canonical" href="https://mvssolves.com/motion/fluid/">
+<link rel="icon" href="/motion/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/motion/favicon-light.svg" type="image/svg+xml" media="(prefers-color-scheme: light)">
+<link rel="apple-touch-icon" href="/motion/favicon.svg">
+<link rel="manifest" href="/motion/site.webmanifest">
+<meta name="theme-color" content="#efe9e1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;1,6..96,400&family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+/* Native cross-document transitions between studies. */
+@view-transition{navigation:auto}
+
+:root{
+  --paper:#efe9e1;
+  --ink:#0e0d0c;
+  --rust:#c8471f;
+  --rule:rgba(14,13,12,.16);
+  --pad:clamp(1.1rem,3vw,2.8rem);
+  --seam:46svh;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:"Archivo",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase}
+
+/* the seam — paper above, ink field below */
+.field{position:fixed;left:0;right:0;top:var(--seam);height:calc(100svh - var(--seam));background:var(--ink);z-index:0}
+canvas{position:fixed;left:0;right:0;top:0;height:100svh;width:100%;display:block;z-index:1}
+
+/* thin vertical measure lines, CURA-style */
+.grid{position:fixed;top:0;left:0;right:0;height:100svh;z-index:2;pointer-events:none;
+  background:repeating-linear-gradient(to right,transparent 0 calc(12.5% - 1px),rgba(14,13,12,.10) calc(12.5% - 1px),rgba(14,13,12,.10) 12.5%)}
+
+/* Only one child left after the old top nav moved into the study bar —
+   space-between would pin it to the top. */
+.ui{position:fixed;top:52px;left:0;right:0;height:calc(100svh - 52px);z-index:4;
+  padding:var(--pad);display:flex;flex-direction:column;justify-content:flex-end;
+  pointer-events:none}
+.ui a,.ui button{pointer-events:auto}
+/* The headline is locked to the paper band. Letting it cross the seam puts
+   ink-black type on an ink-black field, which is how it vanished. */
+.paperzone{position:fixed;top:52px;left:0;right:0;height:calc(var(--seam) - 52px);z-index:5;
+  padding:var(--pad);display:flex;flex-direction:column;justify-content:flex-end;pointer-events:none}
+
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:1.5rem}
+.wordmark{display:flex;align-items:center;gap:.5rem;font-weight:600;letter-spacing:.02em;font-size:14px}
+.sq{width:8px;height:8px;background:var(--rust);flex:none}
+.pill{display:flex;align-items:center;gap:1.15rem;background:var(--paper);
+  border:1px solid var(--rule);border-radius:999px;padding:.5rem 1.05rem}
+.pill a{color:rgba(14,13,12,.62);transition:color .3s}
+.pill a:hover{color:var(--ink)}
+@media(max-width:720px){.pill{display:none}}
+
+/* Didone: the thick/thin contrast is a nib on paper, which is the subject. */
+h1{font-family:"Bodoni Moda",Didot,Georgia,serif;font-weight:400;
+  font-size:clamp(2rem,5.9vw,4.9rem);line-height:1.02;letter-spacing:-.015em;
+  max-width:16ch}
+h1 em{font-style:italic;color:var(--rust)}
+
+.btm{display:grid;grid-template-columns:1fr auto;gap:1.5rem;align-items:end;color:var(--paper)}
+.btm .lead{max-width:44ch;font-size:.92rem;line-height:1.5;color:rgba(239,233,225,.66)}
+.btm .lead b{color:var(--paper);font-weight:500}
+.coord{text-align:right;color:rgba(239,233,225,.5);line-height:1.9}
+.hint{color:var(--rust);font-weight:500}
+@media(max-width:760px){
+  .btm{grid-template-columns:1fr}
+  .coord{text-align:left}
+  /* Leave room for the fixed back chip, and drop the fig label — at this width
+     the headline grows down into where it sits. */
+  .ui{padding-bottom:calc(var(--pad) + 3.4rem)}
+  .seamlabel{display:none}
+}
+
+.seamlabel{position:fixed;top:var(--seam);left:var(--pad);transform:translateY(-160%);
+  z-index:5;color:rgba(14,13,12,.45)}
+.fallback{position:fixed;inset:0;z-index:3;display:none;place-items:center;text-align:center;
+  padding:2rem;color:rgba(239,233,225,.7)}
+
+/* Always-visible return control. Never inside a media query — every study is a
+   shareable entry point, and on a phone the section navs collapse away. */
+.backhome{position:fixed;left:max(12px,env(safe-area-inset-left));
+  bottom:max(12px,env(safe-area-inset-bottom));z-index:70;
+  display:inline-flex;align-items:center;gap:.5rem;
+  padding:.6rem .95rem;border-radius:999px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;
+  letter-spacing:.12em;text-transform:uppercase;
+  transition:transform .35s cubic-bezier(.22,1,.36,1),opacity .3s}
+.backhome:hover{transform:translateX(-3px)}
+.backhome span{font-size:13px;line-height:1}
+.backhome{background:rgba(239,233,225,.92);color:#0e0d0c;border:1px solid rgba(14,13,12,.18)}
+
+/* ---- glass, simulated (over the ink canvas) ---- */
+.pill{
+  background:linear-gradient(150deg,rgba(255,255,255,.85),rgba(239,233,225,.72));
+  border:1px solid rgba(255,255,255,.8);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 8px 22px rgba(14,13,12,.14);
+}
+.backhome{box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 8px 24px rgba(14,13,12,.18)}
+
+/* Cross-document transition: outgoing settles back, incoming rises in. */
+@media(prefers-reduced-motion:no-preference){
+  ::view-transition-old(root){animation:vt-out .34s cubic-bezier(.4,0,1,1) both}
+  ::view-transition-new(root){animation:vt-in .46s cubic-bezier(.22,1,.36,1) both}
+}
+@keyframes vt-out{to{opacity:0;transform:scale(.985)}}
+@keyframes vt-in{from{opacity:0;transform:scale(1.012)}}
+
+/* ---- engineering note ---- */
+.notes{padding:clamp(3rem,7vw,6rem) var(--pad);position:relative;z-index:6}
+.notes-inner{max-width:1100px;margin-inline:auto}
+.n-lbl{color:var(--rust);margin-bottom:1rem}
+.notes h2{font-size:clamp(1.5rem,3.4vw,2.6rem);font-weight:600;letter-spacing:-.03em;
+  margin-bottom:2.2rem;max-width:20ch}
+.n-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));
+  gap:clamp(1.2rem,2.6vw,2.4rem);margin-bottom:2.6rem}
+.n-grid h3{font-size:.82rem;text-transform:uppercase;letter-spacing:.1em;
+  margin-bottom:.6rem;opacity:.55;font-weight:600}
+.n-grid p{font-size:.95rem;line-height:1.6;opacity:.82}
+.n-grid em{font-style:italic}
+.n-grid code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.86em}
+.n-specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0 2rem}
+.n-specs>div{display:flex;justify-content:space-between;gap:1rem;
+  padding:.7rem 0;border-top:1px solid rgba(128,128,128,.22)}
+.n-specs dt{opacity:.5}
+.n-specs dd{text-align:right}
+.notes{background:var(--paper);border-top:1px solid var(--rule);margin-top:100svh}
+
+/* ---- persistent study bar. Replaces the bottom-left chip: a return control a
+       visitor has to hunt for is a broken control. ---- */
+.studybar{position:fixed;top:0;left:0;right:0;z-index:80;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  padding:.7rem clamp(.9rem,2.4vw,1.7rem);
+  background:rgba(239,233,225,.86);backdrop-filter:blur(20px) saturate(170%);-webkit-backdrop-filter:blur(20px) saturate(170%);
+  border-bottom:1px solid rgba(14,13,12,.14);color:#0e0d0c}
+.sb-left{display:flex;align-items:center;gap:.9rem;min-width:0}
+.sb-exit{display:inline-flex;align-items:center;gap:.5rem;flex:none;
+  border:1px solid rgba(14,13,12,.14);border-radius:999px;padding:.42rem .85rem;
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;
+  letter-spacing:.12em;text-transform:uppercase;
+  transition:background .3s,border-color .3s,color .3s,transform .35s cubic-bezier(.22,1,.36,1)}
+.sb-exit:hover{background:#c8471f;border-color:#c8471f;color:#fff;transform:translateX(-3px)}
+.sb-exit b{font-size:12px;line-height:1;font-weight:400}
+.sb-title{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;
+  letter-spacing:.14em;text-transform:uppercase;opacity:.62;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-title i{font-style:normal;color:#c8471f}
+.sb-nav{display:flex;align-items:center;gap:.15rem;flex:none}
+.sb-nav a{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;
+  letter-spacing:.1em;text-transform:uppercase;opacity:.5;
+  padding:.4rem .55rem;border-radius:6px;transition:opacity .3s,background .3s,color .3s}
+.sb-nav a:hover{opacity:1;background:rgba(14,13,12,.14)}
+.sb-nav a[aria-current]{opacity:1;color:#c8471f}
+@media(max-width:820px){.sb-title{display:none} .sb-nav a span{display:none}}
+
+
+/* ---- scroll reveal (studies) ---- */
+.rv{transition:opacity .9s cubic-bezier(.22,1,.36,1),transform .9s cubic-bezier(.22,1,.36,1)}
+.armed-rv .rv{opacity:0;transform:translateY(26px)}
+.armed-rv .rv.seen{opacity:1;transform:none}
+/* the orange section rule draws itself in */
+.notes .n-lbl{position:relative;padding-top:1.2rem}
+.notes .n-lbl::before{content:"";position:absolute;top:0;left:0;height:2px;width:56px;
+  background:currentColor;transform:scaleX(0);transform-origin:left;
+  transition:transform .8s cubic-bezier(.22,1,.36,1)}
+.notes .n-lbl.seen::before{transform:scaleX(1)}
+.n-specs>div{transition:background .35s ease}
+.n-specs>div:hover{background:rgba(128,128,128,.07)}
+
+/* ================= mobile =================
+   The live piece does not run on a phone: no GL context is created at all.
+   Everything that supports a cursor is removed, label type comes up to a
+   readable size, and tap targets reach 44px. Appended last so it wins on order. */
+.poster{display:none}
+@media(max-width:820px){
+  body.is-mobile canvas,
+  body.is-mobile .vig, body.is-mobile .scan, body.is-mobile .frame,
+  body.is-mobile .grid, body.is-mobile .hint, body.is-mobile .rail,
+  body.is-mobile .depth, body.is-mobile .prog, body.is-mobile .plate-tag,
+  body.is-mobile .corner, body.is-mobile .seamlabel{display:none !important}
+
+  .mono{font-size:11.5px;letter-spacing:.085em}
+  /* The chip was replaced by a persistent .studybar upstream — target that. */
+  .studybar{min-height:52px}
+  .studybar a,.studybar button{min-height:44px;display:inline-flex;align-items:center}
+  .wordmark,.brand,.bar .l,.back{min-height:44px;display:inline-flex;align-items:center}
+  /* Inline links in a sentence are exempt from 44px (WCAG 2.5.8) and forcing it
+     breaks the line box — vertical padding grows the hit area instead. */
+  .card p a,.note a,.n-grid p a,.t-info p a{padding-block:.55rem}
+  .coord a,.t-foot a,.headnav a,.herofoot nav a,.pill a,footer a{
+    display:inline-flex;align-items:center;justify-content:center;
+    padding-block:.7rem;min-height:44px;min-width:44px}
+
+  .poster{
+    display:block;position:relative;overflow:hidden;border-radius:14px;
+    padding:clamp(1.3rem,5vw,1.9rem);min-height:38svh;
+  }
+  .poster .pnum{opacity:.55}
+  .poster h2{font-size:clamp(1.5rem,7.2vw,2.1rem);line-height:1.05;
+    letter-spacing:-.02em;margin:1.1rem 0 .7rem;max-width:16ch}
+  .poster p{font-size:.95rem;line-height:1.55;opacity:.75;max-width:40ch}
+  .poster .deskcue{display:inline-flex;align-items:center;gap:.55rem;margin-top:1.4rem;
+    padding:.7rem 1rem;border-radius:999px;min-height:44px;
+    font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:11.5px;letter-spacing:.09em;text-transform:uppercase}
+  .poster .art{position:absolute;inset:0;z-index:-1;pointer-events:none}
+}
+
+@media(max-width:820px){
+  .poster{background:linear-gradient(160deg,#f6f2ec,#e6ddd2);border:1px solid var(--rule);
+    color:var(--ink);margin:1.4rem var(--pad) 0}
+  .poster .art{background:
+    radial-gradient(60% 48% at 24% 28%,rgba(200,71,31,.28),transparent 62%),
+    radial-gradient(52% 46% at 76% 66%,rgba(14,13,12,.30),transparent 64%);filter:blur(6px)}
+  .poster .pnum{color:var(--rust)}
+  .poster .deskcue{background:var(--ink);color:var(--paper)}
+  /* INK's hero is entirely position:fixed because on desktop the page does not
+     scroll. With no canvas it must become an ordinary document. */
+  body.is-mobile{overflow:visible;height:auto;background:var(--paper);
+    display:flex;flex-direction:column}
+  body.is-mobile .field,body.is-mobile .btm{display:none}
+  body.is-mobile .ui{position:static;height:auto;
+    padding:calc(var(--pad) * 2.6) var(--pad) 0;display:block;order:1}
+  body.is-mobile .paperzone{position:static;height:auto;
+    padding:1.2rem var(--pad) 0;display:block;order:2}
+  body.is-mobile .poster{order:3}
+  body.is-mobile .notes{order:4;margin-top:0;background:var(--paper)}
+  body.is-mobile .backhome{order:5}
+  h1{font-size:clamp(2rem,9vw,2.9rem);max-width:none}
+}
+
+/* ---- mobile notice + copy reduction ---- */
+.mobonly{display:none}
+@media(max-width:820px){
+  .mobonly{display:block;margin:1.2rem var(--pad);padding:.95rem 1.1rem;
+    border:1px solid var(--rule);border-radius:13px;background:rgba(14,13,12,.05);color:var(--ink)}
+  .mobonly p{font-size:.88rem;line-height:1.5;opacity:.85}
+  .mobonly p b{opacity:1;font-weight:600}
+  .safari-btn{display:inline-flex;align-items:center;justify-content:center;
+    margin-top:.8rem;padding:.72rem 1.05rem;border-radius:999px;min-height:44px;
+    background:var(--ink);color:var(--paper);font-weight:600;font-size:.86rem}
+  .safari-btn[hidden]{display:none}
+  /* The engineering note is the reason to be here on a phone — keep the
+     constraint and the solution, drop the two supporting columns. */
+  .n-grid > div:nth-child(2),.n-grid > div:nth-child(4){display:none}
+  .n-specs > div:nth-child(n+5){display:none}
+  .notes h2{font-size:clamp(1.35rem,5.8vw,1.8rem)}
+  .poster p:nth-of-type(1){display:none}
+  .poster h2{margin-top:.6rem}
+}
+</style>
+</head>
+<body>
+<header class="studybar">
+  <div class="sb-left">
+    <a class="sb-exit" href="../"><b>&larr;</b> All studies</a>
+    <span class="sb-title">MVS Solves &nbsp;/&nbsp; <i>Study 01</i> &nbsp;/&nbsp; INK</span>
+  </div>
+  <nav class="sb-nav"><a href="../fluid/" aria-current="page">01<span> INK</span></a><a href="../scroll/">02<span> DESCENT</span></a><a href="../type/">03<span> SET IN MOTION</span></a><a href="../physics/">04<span> SPRING FIELD</span></a></nav>
+</header>
+
+<div class="field"></div>
+<canvas id="c"></canvas>
+<div class="grid"></div>
+<div class="fallback mono" id="fb">WebGL2 unavailable — this study needs it.</div>
+<div class="seamlabel mono">Fig. 01 — advection</div>
+
+<div class="paperzone">
+  <h1>Ink knows <em>where</em> it is going.</h1>
+</div>
+
+<div class="ui">
+
+  <div class="btm">
+    <p class="lead"><b>Dye advected through a divergence-free curl-noise field.</b> Two framebuffers ping-pong every frame: sample where the fluid came from, fade a little, inject under the cursor. The curl of a noise field cannot converge or diverge, so it flows like a fluid without ever solving for pressure.</p>
+    <div class="coord mono">
+      <span class="hint">Drag to bleed</span><br>
+      Double-click to clear<br>
+      RGBA8 · half-res · 4-octave fBm<br>
+      <a href="../" style="color:rgba(239,233,225,.72)">MVS Solves ↗</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+/* Mobile never initialises the renderer. Hiding a canvas still pays for the
+   context, the shader compile and the rAF loop — skipping it costs nothing. */
+if(matchMedia('(max-width:820px)').matches){ document.body.classList.add('is-mobile'); return; }
+const cv = document.getElementById('c');
+const gl = cv.getContext('webgl2', {alpha:true, antialias:false, premultipliedAlpha:false});
+if(!gl){ cv.remove(); document.getElementById('fb').style.display='grid'; return; }
+
+const VS = `#version 300 es
+in vec2 p; out vec2 uv;
+void main(){ uv = p*.5+.5; gl_Position = vec4(p,0.,1.); }`;
+
+const SIM = `#version 300 es
+precision highp float;
+in vec2 uv; out vec4 o;
+uniform sampler2D uPrev;
+uniform vec2 uMouse, uPrevMouse;
+uniform float uTime, uDown, uAspect, uClear;
+
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }
+float vnoise(vec2 p){
+  vec2 i=floor(p), f=fract(p); vec2 u=f*f*(3.-2.*f);
+  return mix(mix(hash(i),hash(i+vec2(1,0)),u.x), mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x), u.y);
+}
+/* 4 octaves, not 5 — curl calls fbm four times and this runs per pixel per
+   frame, so the last octave costs more than it shows. */
+float fbm(vec2 p){ float v=0.,a=.5; for(int i=0;i<4;i++){ v+=a*vnoise(p); p*=2.03; a*=.5; } return v; }
+vec2 curl(vec2 p){
+  float e=.06;
+  float dx=fbm(p+vec2(e,0.))-fbm(p-vec2(e,0.));
+  float dy=fbm(p+vec2(0.,e))-fbm(p-vec2(0.,e));
+  return vec2(dy,-dx)/(2.*e);
+}
+
+void main(){
+  if(uClear > .5){ o = vec4(0.); return; }
+  vec2 asp = vec2(uAspect,1.);
+  vec2 p = uv*asp;
+
+  vec2 v = curl(p*1.9 + vec2(0., uTime*.05)) * .16;
+  v += curl(p*4.7 - vec2(uTime*.028, 0.)) * .055;
+  /* slight downward bias — ink falls */
+  v.y -= .045;
+
+  vec2 toM = (uMouse*asp) - p;
+  float md = length(toM);
+  v += normalize(toM + 1e-6) * exp(-md*md*9.) * .30 * uDown;
+
+  vec2 src = uv - v*.0055/asp;
+  vec4 dye = texture(uPrev, src) * .9925;
+
+  vec2 a = uPrevMouse*asp, b = uMouse*asp, ab = b-a;
+  float len2 = max(dot(ab,ab),1e-7);
+  float t = clamp(dot(p-a,ab)/len2, 0., 1.);
+  float d = length(p - (a+ab*t));
+  dye.r += exp(-d*d*260.) * .10 * uDown;
+
+  o = vec4(min(dye.r, 2.5), 0., 0., 1.);
+}`;
+
+/* Subtractive display — density removes light from paper instead of adding to
+   black. That is the whole reason this reads as ink and not as neon smoke. */
+const SHOW = `#version 300 es
+precision highp float;
+in vec2 uv; out vec4 o;
+uniform sampler2D uTex; uniform float uSeam;
+
+void main(){
+  float d = texture(uTex, uv).r;
+  d = d/(d+.85);
+  d = pow(d, .72);
+
+  vec3 paperInk = vec3(.055,.05,.045);
+  vec3 fieldInk = vec3(.94,.90,.85);
+  vec3 rust     = vec3(.78,.28,.12);
+
+  /* above the seam we sit on paper, below it on the ink field — the fluid has
+     to invert across the boundary or it disappears on one side */
+  float below = step(uv.y, uSeam);
+  vec3 tint = mix(paperInk, fieldInk, below);
+  tint = mix(tint, rust, smoothstep(.45,.95,d)*.55);
+
+  float a = smoothstep(.02,.42,d);
+  o = vec4(tint, a);
+}`;
+
+const mk=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);
+  if(!gl.getShaderParameter(o,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o;};
+const P=fs=>{const p=gl.createProgram();gl.attachShader(p,mk(gl.VERTEX_SHADER,VS));
+  gl.attachShader(p,mk(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);
+  if(!gl.getProgramParameter(p,gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p)); return p;};
+
+let pSim,pShow;
+try{ pSim=P(SIM); pShow=P(SHOW); }
+catch(e){ cv.remove(); document.getElementById('fb').style.display='grid'; return; }
+
+const vao=gl.createVertexArray(); gl.bindVertexArray(vao);
+const buf=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+[pSim,pShow].forEach(p=>{const l=gl.getAttribLocation(p,'p');
+  gl.enableVertexAttribArray(l); gl.vertexAttribPointer(l,2,gl.FLOAT,false,0,0);});
+
+let W=0,H=0,tex=[],cur=0;
+const T=(w,h)=>{
+  const t=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,t);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA8,w,h,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  const f=gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER,f);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,t,0);
+  return {t,f};
+};
+/* Display scale is governed by measured frame time; simulation resolution is
+   NOT — recreating the framebuffers would wipe the ink every time it adjusts. */
+/* Full quality first; measurement lowers it only if needed. */
+let scale=1;
+window.__glScale=scale;
+
+function resize(recreateSim){
+  const base=Math.min(devicePixelRatio||1,1.75);
+  cv.width=Math.max(2,Math.floor(innerWidth*base*scale));
+  cv.height=Math.max(2,Math.floor(innerHeight*base*scale));
+  if(recreateSim){
+    W=Math.max(2,Math.floor(innerWidth*base*.5));
+    H=Math.max(2,Math.floor(innerHeight*base*.5));
+    tex.forEach(o=>{gl.deleteTexture(o.t);gl.deleteFramebuffer(o.f);});
+    tex=[T(W,H),T(W,H)];
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+  }
+}
+resize(true);
+addEventListener('resize',()=>resize(true),{passive:true});
+
+let fCount=0,fAcc=0,fLast=0;
+const govern=now=>{
+  if(fLast) fAcc+=now-fLast;
+  fLast=now; fCount++;
+  if(fCount<16) return;
+  const avg=fAcc/(fCount-1);
+  fCount=0; fAcc=0;
+  if(avg>19 && scale>.6){ scale=Math.max(.6,scale-.18); resize(false); }
+  else if(avg<12.5 && scale<1){ scale=Math.min(1,scale+.07); resize(false); }
+  window.__glScale=scale;
+};
+
+let mx=.5,my=.7,pmx=.5,pmy=.7,down=0,clear=0;
+const setM=e=>{const r=cv.getBoundingClientRect();
+  mx=(e.clientX-r.left)/r.width; my=1-(e.clientY-r.top)/r.height;};
+addEventListener('pointerdown',e=>{setM(e);pmx=mx;pmy=my;down=1;},{passive:true});
+addEventListener('pointermove',e=>{setM(e); if(e.pointerType==='mouse'&&e.buttons===0) down=Math.max(down,.30);},{passive:true});
+addEventListener('pointerup',()=>{down=0;},{passive:true});
+addEventListener('pointerleave',()=>{down=0;},{passive:true});
+addEventListener('dblclick',()=>{clear=1;});
+
+const U=(p,n)=>gl.getUniformLocation(p,n);
+const start=performance.now(); let alive=true;
+document.addEventListener('visibilitychange',()=>{
+  alive=!document.hidden; fLast=0; if(alive) requestAnimationFrame(frame);});
+
+/* seam in 0..1 from the bottom, matching the CSS --seam from the top */
+const seam = () => 1 - (parseFloat(getComputedStyle(document.documentElement)
+  .getPropertyValue('--seam')) / 100);
+
+let lastW=0,lastH=0;
+function frame(now){
+  if(!alive) return;
+  requestAnimationFrame(frame);
+  /* Booting hidden clamps the canvas to 2x2 and no resize event follows. */
+  if(innerWidth!==lastW||innerHeight!==lastH){
+    lastW=innerWidth; lastH=innerHeight;
+    if(innerWidth>1) resize(true);
+  }
+  govern(now);
+  const s=tex[cur], d=tex[1-cur];
+
+  gl.bindFramebuffer(gl.FRAMEBUFFER,d.f); gl.viewport(0,0,W,H);
+  gl.useProgram(pSim);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,s.t);
+  gl.uniform1i(U(pSim,'uPrev'),0);
+  gl.uniform2f(U(pSim,'uMouse'),mx,my);
+  gl.uniform2f(U(pSim,'uPrevMouse'),pmx,pmy);
+  gl.uniform1f(U(pSim,'uTime'),(now-start)/1000);
+  gl.uniform1f(U(pSim,'uDown'),down);
+  gl.uniform1f(U(pSim,'uAspect'),cv.width/cv.height);
+  gl.uniform1f(U(pSim,'uClear'),clear);
+  gl.drawArrays(gl.TRIANGLES,0,3);
+  clear=0;
+
+  gl.bindFramebuffer(gl.FRAMEBUFFER,null); gl.viewport(0,0,cv.width,cv.height);
+  gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.useProgram(pShow);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,d.t);
+  gl.uniform1i(U(pShow,'uTex'),0);
+  gl.uniform1f(U(pShow,'uSeam'),seam());
+  gl.drawArrays(gl.TRIANGLES,0,3);
+
+  pmx=mx; pmy=my; cur=1-cur;
+}
+requestAnimationFrame(frame);
+})();
+</script>
+<script>
+/* Perf HUD — press P. Lets the page report its own frame rate. */
+(() => {
+  const hud=document.createElement('div');
+  hud.style.cssText='position:fixed;left:10px;bottom:10px;z-index:99;padding:6px 9px;'+
+    'font:11px/1.5 ui-monospace,monospace;color:#0f0;background:rgba(0,0,0,.8);'+
+    'border:1px solid #0f0;display:none;pointer-events:none;white-space:pre';
+  document.body.appendChild(hud);
+  let on=false,n=0,t0=performance.now();
+  addEventListener('keydown',e=>{if(e.key==='p'||e.key==='P'){on=!on;hud.style.display=on?'block':'none';}});
+  (function loop(now){
+    n++;
+    if(now-t0>=500){
+      if(on) hud.textContent='fps  '+Math.round(n*1000/(now-t0))+
+        '\nscale '+(window.__glScale||1).toFixed(2)+'\ndpr  '+(devicePixelRatio||1);
+      n=0;t0=now;
+    }
+    requestAnimationFrame(loop);
+  })(performance.now());
+})();
+</script>
+
+
+
+<aside class="mobonly">
+  <p><b>Short version.</b> The live piece runs on desktop.</p>
+  <a class="safari-btn" href="#" hidden>Open in Safari ↗</a>
+</aside>
+
+<section class="poster">
+  <div class="art" aria-hidden="true"></div>
+  <div class="pnum mono">Study 01 — advection</div>
+  <h2>The ink runs on a desktop.</h2>
+  <p>A live fluid simulation — dye advected through a divergence-free field, two
+  framebuffers ping-ponging every frame. It wants a cursor to bleed into and a
+  GPU that is not sharing a battery.</p>
+  <p style="margin-top:.8rem">Below is how it is built.</p>
+  <span class="deskcue">Best on a desktop — bring a cursor ↗</span>
+</section>
+
+<section class="notes">
+  <div class="notes-inner">
+    <div class="n-lbl mono">Engineering note</div>
+    <h2>Fluid without a pressure solve</h2>
+
+    <div class="n-grid">
+      <div>
+        <h3>The constraint</h3>
+        <p>A real fluid simulation enforces incompressibility with a pressure
+        projection — typically 20–40 Jacobi iterations per frame, each its own
+        render pass. That is a serious frame budget for what is, here, a
+        decorative background.</p>
+      </div>
+      <div>
+        <h3>Why the obvious route fails</h3>
+        <p>Full stable-fluids gives physical accuracy nobody looking at a
+        marketing site can perceive, and spends most of the GPU getting there.
+        On a mid-range phone it simply does not hold 60fps.</p>
+      </div>
+      <div>
+        <h3>What I did instead</h3>
+        <p>The curl of a scalar field is divergence-free by construction —
+        <em>∇·(∇×F) = 0</em> identically. Advect dye through curl-noise and you
+        get motion that cannot converge or diverge, so it behaves like an
+        incompressible fluid <em>without ever solving for pressure</em>. Two
+        framebuffers ping-pong: sample where the fluid came from, fade, inject
+        under the cursor.</p>
+      </div>
+      <div>
+        <h3>The trade-off I accepted</h3>
+        <p>This is a visual fluid, not a simulation. There is no obstacle
+        interaction and no true boundary response — you cannot put a wall in it
+        and expect the flow to react correctly. For a background, that is the
+        right trade. For a physics tool, it would be the wrong one.</p>
+      </div>
+    </div>
+
+    <dl class="n-specs mono">
+      <div><dt>Velocity field</dt><dd>2 curl samples, 4-octave fBm each</dd></div>
+      <div><dt>Simulation</dt><dd>Half resolution, RGBA8, ping-pong FBO</dd></div>
+      <div><dt>Passes per frame</dt><dd>2 — advect, then display</dd></div>
+      <div><dt>Display</dt><dd>Subtractive; density removes light from paper</dd></div>
+      <div><dt>Dependencies</dt><dd>None. Raw WebGL2</dd></div>
+      <div><dt>Degradation</dt><dd>No WebGL2 → static field, layout intact</dd></div>
+    </dl>
+  </div>
+</section>
+
+<script>
+/* Reveal on scroll. Visible by default — JS arms the hidden state only after
+   confirming it can un-arm it, and a timeout un-arms everything regardless. */
+(() => {
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if(!('IntersectionObserver' in window)) return;
+  const els = document.querySelectorAll('.n-grid > div, .n-specs > div, .notes h2, .notes .n-lbl');
+  if(!els.length) return;
+  els.forEach(e => e.classList.add('rv'));
+  document.body.classList.add('armed-rv');
+  const io = new IntersectionObserver((entries, ob) => {
+    entries.forEach((en, i) => {
+      if(en.isIntersecting){
+        setTimeout(() => en.target.classList.add('seen'), (i % 6) * 70);
+        ob.unobserve(en.target);
+      }
+    });
+  }, {threshold:.15, rootMargin:'0px 0px -8% 0px'});
+  els.forEach(e => io.observe(e));
+  setTimeout(() => els.forEach(e => e.classList.add('seen')), 2600);
+})();
+</script>
+
+<script>
+/* A fixed chip on a long page ends up on a line of body copy. Hide it while
+   reading down, return it the moment the user scrolls up. */
+(() => {
+  const chip=document.querySelector('.backhome');
+  if(!chip||!matchMedia('(max-width:820px)').matches) return;
+  let last=scrollY,q=false;
+  const sync=()=>{q=false;const y=scrollY;
+    const max=document.documentElement.scrollHeight-innerHeight;
+    chip.classList.toggle('tucked',!(y<80||y>max-80)&&y>last+4);last=y;};
+  addEventListener('scroll',()=>{if(!q){q=true;requestAnimationFrame(sync);}},{passive:true});
+})();
+</script>
+
+<script>
+(() => {
+  const btn=document.querySelector('.safari-btn'); if(!btn) return;
+  const ua=navigator.userAgent||'';
+  if(!/(FBAN|FBAV|Instagram|LinkedInApp|Line\/|Twitter|TikTok|Snapchat|Pinterest|GSA\/)/i.test(ua)) return;
+  const iOS=/iPad|iPhone|iPod/.test(ua);
+  btn.hidden=false;
+  btn.href=iOS?'x-safari-'+location.href:location.href;
+  if(!iOS){btn.textContent='Open in your browser \u2197';btn.target='_blank';btn.rel='noopener';}
+})();
+</script>
+</body>
+</html>
