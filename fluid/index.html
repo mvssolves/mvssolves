@@ -467,8 +467,27 @@ const govern=now=>{
 let mx=.5,my=.7,pmx=.5,pmy=.7,down=0,clear=0;
 const setM=e=>{const r=cv.getBoundingClientRect();
   mx=(e.clientX-r.left)/r.width; my=1-(e.clientY-r.top)/r.height;};
-addEventListener('pointerdown',e=>{setM(e);pmx=mx;pmy=my;down=1;},{passive:true});
-addEventListener('pointermove',e=>{setM(e); if(e.pointerType==='mouse'&&e.buttons===0) down=Math.max(down,.30);},{passive:true});
+/* The field is empty until something injects into it, so a visitor who never
+   moves the cursor meets a black rectangle — the worst possible first frame for
+   a piece linked from a proposal. An opening stroke draws itself, then hands
+   over the moment a real pointer arrives. */
+let userLed=false, autoSeeded=false;
+const sstep=(a,b,x)=>{const k=Math.min(1,Math.max(0,(x-a)/(b-a))); return k*k*(3-2*k);};
+function autopilot(now){
+  if(userLed) return;
+  const a=(now-start)/1000;
+  if(a>4.4){ down=0; return; }
+  const nx=.5 + .30*Math.sin(a*1.15)*Math.cos(a*.42);
+  const ny=.52 + .20*Math.sin(a*.83 + 1.1);
+  /* First auto frame seeds both positions, or the opening delta draws one long
+     streak across the whole canvas. */
+  if(!autoSeeded){ mx=pmx=nx; my=pmy=ny; autoSeeded=true; return; }
+  pmx=mx; pmy=my; mx=nx; my=ny;
+  down = .62 * sstep(0,.45,a) * (1 - sstep(3.4,4.4,a));
+}
+
+addEventListener('pointerdown',e=>{userLed=true;setM(e);pmx=mx;pmy=my;down=1;},{passive:true});
+addEventListener('pointermove',e=>{userLed=true;setM(e); if(e.pointerType==='mouse'&&e.buttons===0) down=Math.max(down,.30);},{passive:true});
 addEventListener('pointerup',()=>{down=0;},{passive:true});
 addEventListener('pointerleave',()=>{down=0;},{passive:true});
 addEventListener('dblclick',()=>{clear=1;});
@@ -492,6 +511,7 @@ function frame(now){
     if(innerWidth>1) resize(true);
   }
   govern(now);
+  autopilot(now);
   const s=tex[cur], d=tex[1-cur];
 
   gl.bindFramebuffer(gl.FRAMEBUFFER,d.f); gl.viewport(0,0,W,H);
