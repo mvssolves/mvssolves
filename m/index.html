@@ -61,19 +61,32 @@ a{color:inherit;text-decoration:none}
 .wrap{padding-inline:var(--pad)}
 
 /* ---------- hero ---------- */
-header{
-  position:relative;overflow:hidden;
-  padding:calc(env(safe-area-inset-top) + 1.5rem) var(--pad) 1.5rem;
+header{padding:calc(env(safe-area-inset-top) + 1.5rem) var(--pad) 0}
+/* The desktop hero raymarches this field in a fragment shader; this is the
+   same field contoured once at build time. It gets its own plate rather than
+   sitting behind the headline — at 375px a backdrop of stray arcs across type
+   reads as scratches, and a labelled diagram is the stronger claim anyway. */
+.plate{
+  position:relative;margin-top:1.6rem;height:216px;overflow:hidden;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  background:#08080a;
 }
-/* The desktop hero raymarches this field in a fragment shader. Here it is
-   the same field, contoured once at build time — a cross-section rather
-   than a downgrade. Masked so it never competes with the headline. */
 .field{
-  position:absolute;top:-14%;right:-38%;width:150%;height:118%;
-  z-index:-1;pointer-events:none;
-  -webkit-mask-image:radial-gradient(62% 58% at 62% 40%,#000 18%,transparent 78%);
-  mask-image:radial-gradient(62% 58% at 62% 40%,#000 18%,transparent 78%);
+  position:absolute;inset:-6% -4%;width:108%;height:112%;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 16%,#000 84%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 16%,#000 84%,transparent);
 }
+/* Scrim, not a solid bar: the contours keep running under the caption. */
+.plate::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:76px;
+  background:linear-gradient(to top,#08080a 22%,rgba(8,8,10,.72) 58%,transparent);
+  pointer-events:none;
+}
+.plate figcaption{
+  position:absolute;left:var(--pad);bottom:.8rem;right:var(--pad);z-index:1;
+  font-size:10.5px;letter-spacing:.08em;color:var(--dim);white-space:nowrap;
+}
+.plate figcaption b{color:var(--paper);font-weight:500}
 .brand{display:flex;align-items:center;gap:.65rem;min-height:44px}
 .brand svg{flex:none}
 .brand b{font-weight:600;font-size:15px;letter-spacing:-.02em;line-height:1.15;display:block}
@@ -90,7 +103,7 @@ h1 i{font-style:normal;color:var(--dim)}
 
 /* ---------- one honest line, not an apology block ---------- */
 .note{
-  margin:1.5rem var(--pad) 0;padding:.95rem 1rem;
+  margin:1.35rem var(--pad) 0;padding:.95rem 1rem;
   border:1px solid var(--line);border-left:2px solid var(--accent);
   border-radius:12px;background:rgba(255,255,255,.032);
 }
@@ -112,7 +125,7 @@ button.btn{font:inherit;cursor:pointer;background:none}
 .btn[hidden]{display:none}
 
 /* ---------- sections ---------- */
-section{padding:2.9rem 0 0}
+section{padding:2.6rem 0 0}
 .lbl{color:var(--dim);margin-bottom:.9rem}
 h2{font-size:1.42rem;font-weight:600;letter-spacing:-.025em;line-height:1.18;
   margin-bottom:1.25rem;max-width:21ch;text-wrap:balance}
@@ -123,20 +136,21 @@ h2{font-size:1.42rem;font-weight:600;letter-spacing:-.025em;line-height:1.18;
 .study{
   display:flex;align-items:center;gap:.85rem;
   border:1px solid var(--line);border-radius:var(--r);
-  padding:.7rem .85rem .7rem .7rem;background:var(--surface);
+  padding:.65rem .9rem .65rem .65rem;background:var(--surface);
 }
 .tw{
-  width:88px;height:66px;flex:none;border-radius:10px;overflow:hidden;
+  width:94px;height:71px;flex:none;border-radius:10px;overflow:hidden;
   background:#08080a;border:1px solid var(--line);
 }
 .tn{display:block;width:100%;height:100%}
 .study .txt{min-width:0;flex:1}
-.study h3{font-size:.98rem;font-weight:600;letter-spacing:-.01em;line-height:1.2}
-.study p{font-size:.82rem;color:var(--dim);margin-top:.2rem;line-height:1.35}
-.study .tag{
-  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.08em;
-  color:var(--dim);border:1px solid var(--line);border-radius:6px;
-  padding:.28rem .38rem;flex:none;align-self:flex-start;
+.study h3{font-size:1rem;font-weight:600;letter-spacing:-.018em;line-height:1.2}
+/* The tech token used to be a third column and it squeezed every title onto
+   two lines. As a lead-in to the description it costs no width at all. */
+.meta{font-size:.8rem;color:var(--dim);margin-top:.28rem;line-height:1.35}
+.meta span{
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px;
+  letter-spacing:.09em;color:var(--paper);opacity:.85;margin-right:.42rem;
 }
 
 /* ---------- what I build ---------- */
@@ -156,20 +170,25 @@ h2{font-size:1.42rem;font-weight:600;letter-spacing:-.025em;line-height:1.18;
 .proof dt,.proof dd{padding:.66rem 0;border-top:1px solid var(--line);font-size:.87rem}
 .proof div:first-child dt,.proof div:first-child dd{border-top:0}
 .proof dt{color:var(--dim);padding-right:1rem}
-.proof dd{text-align:right;font-weight:500;font-variant-numeric:tabular-nums}
+/* tabular-nums also widens the comma in "1 shape, folded" — the values are
+   right-aligned already, so nothing needs the fixed advance. */
+.proof dd{text-align:right;font-weight:500}
 
 /* ---------- contact ---------- */
 /* Shorthand padding would reset .wrap's padding-inline and drop this block
    flush to the screen edge while every other section stays inset. */
 .contact{padding:3.2rem var(--pad) 0}
-.contact h2{font-size:1.85rem;max-width:15ch;margin-bottom:.9rem}
+.contact h2{font-size:1.8rem;max-width:18ch;margin-bottom:.9rem}
 .contact .sub{margin-bottom:1.25rem}
 .acts{display:flex;flex-direction:column;gap:.5rem}
 .act{
-  display:flex;align-items:center;gap:.85rem;min-height:60px;
+  display:flex;align-items:center;gap:.85rem;min-height:60px;width:100%;
   border:1px solid var(--line);border-radius:var(--r);
   padding:.85rem 1rem;background:var(--surface);
 }
+/* A <button> takes none of the above from the cascade — without this it
+   renders black-on-black in Arial, centred, and is effectively invisible. */
+button.act{font:inherit;color:inherit;text-align:left;cursor:pointer}
 .act .k{flex:1;min-width:0}
 .act .k b{display:block;font-size:.95rem;font-weight:600}
 .act .k span{display:block;font-size:.82rem;color:var(--dim);
@@ -177,7 +196,7 @@ h2{font-size:1.42rem;font-weight:600;letter-spacing:-.025em;line-height:1.18;
 .act .ar{color:var(--dim);font-size:1rem;flex:none}
 
 footer{padding:2.2rem var(--pad) 1.6rem;border-top:1px solid var(--line);
-  margin-top:3rem;color:var(--dim);display:flex;flex-direction:column;gap:.45rem}
+  margin-top:2.4rem;color:var(--dim);display:flex;flex-direction:column;gap:.45rem}
 
 /* ---------- persistent action bar ---------- */
 /* Opaque rather than a backdrop-filter: a blurred fixed layer forces a
@@ -203,8 +222,6 @@ footer{padding:2.2rem var(--pad) 1.6rem;border-top:1px solid var(--line);
 <body>
 
 <header>
-  <svg class="field" viewBox="0 0 760 560" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M162 202 159 187 161 163 174 141 190 128 214 120 230 119 259 124 325 146 340 146 354 140 359 132 361 93 366 78 372 70 381 62 396 56 412 57 420 60 432 70 440 86 442 93 442 132 446 140 483 163 492 171 502 187 506 202 507 233 513 257 522 272 530 279 546 287 570 293 596 303 609 311 624 327 632 342 636 358 635 381 629 397 618 413 602 426 594 430 563 436 538 433 428 407 412 405 301 405 285 400 269 390 258 373 254 358 252 303 245 280 233 264 182 230 171 218 162 202Z" fill="none" stroke="var(--accent)" stroke-width="1.6" opacity="0.62"/><path d="M133 210 128 179 134 148 148 124 166 107 182 98 206 90 222 88 245 88 277 92 301 90 317 82 348 49 372 32 396 26 420 28 442 39 451 46 464 62 487 109 524 163 535 187 544 218 554 235 570 250 618 280 633 292 650 311 661 334 665 349 667 366 662 397 645 428 625 446 610 456 594 462 565 467 522 465 404 436 301 435 277 430 253 416 236 397 226 373 222 337 214 312 198 289 150 242 133 210Z" fill="none" stroke="var(--paper)" stroke-width="1.2" opacity="0.3"/><path d="M453 0 484 23 499 41 519 70 562 148 591 194 610 218 669 272 681 287 697 317 704 342 706 373 704 389 695 420 681 445 662 467 641 483 609 498 576 506 554 508 511 506 459 495 396 477 371 474 301 474 285 472 265 467 245 458 217 436 205 420 190 390 170 334 112 257 103 240 92 210 89 187 90 163 102 124 117 101 131 86 150 71 188 54 253 45 285 36 349 0" fill="none" stroke="var(--paper)" stroke-width="1.2" opacity="0.2"/><path d="M529 0 570 54 605 117 625 147 697 230 723 264 744 308 753 350 751 397 743 428 724 467 706 490 673 519 640 537 602 550 546 557 483 552 380 526 332 521 293 521 253 513 235 506 206 489 181 467 158 436 114 350 71 283 55 251 45 218 41 187 42 163 48 132 60 101 79 72 95 54 113 39 150 17 208 0" fill="none" stroke="var(--paper)" stroke-width="1.2" opacity="0.14"/><path d="M219 560 198 550 158 523 142 508 121 482 87 430 46 358 13 296 0 264M72 0 47 23 32 41 13 70 0 99M760 218 675 109 604 0M711 560 739 537 760 513" fill="none" stroke="var(--paper)" stroke-width="1.2" opacity="0.1"/><path d="M97 560 63 522 45 498 0 426M760 97 736 66 692 0" fill="none" stroke="var(--paper)" stroke-width="1.2" opacity="0.07"/></svg>
-
   <a class="brand" href="/m/">
     <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true">
       <rect x="2.5" y="2.5" width="27" height="27" rx="9" fill="none"
@@ -221,6 +238,11 @@ footer{padding:2.2rem var(--pad) 1.6rem;border-top:1px solid var(--line);
   can't staff internally.</p>
 </header>
 
+<figure class="plate">
+  <svg class="field" viewBox="0 0 760 560" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path d="M162 202 159 187 161 163 174 141 190 128 214 120 230 119 259 124 325 146 340 146 354 140 359 132 361 93 366 78 372 70 381 62 396 56 412 57 420 60 432 70 440 86 442 93 442 132 446 140 483 163 492 171 502 187 506 202 507 233 513 257 522 272 530 279 546 287 570 293 596 303 609 311 624 327 632 342 636 358 635 381 629 397 618 413 602 426 594 430 563 436 538 433 428 407 412 405 301 405 285 400 269 390 258 373 254 358 252 303 245 280 233 264 182 230 171 218 162 202Z" fill="none" stroke="var(--accent)" stroke-width="1.6" opacity="0.7"/><path d="M133 210 128 179 134 148 148 124 166 107 182 98 206 90 222 88 245 88 277 92 301 90 317 82 348 49 372 32 396 26 420 28 442 39 451 46 464 62 487 109 524 163 535 187 544 218 554 235 570 250 618 280 633 292 650 311 661 334 665 349 667 366 662 397 645 428 625 446 610 456 594 462 565 467 522 465 404 436 301 435 277 430 253 416 236 397 226 373 222 337 214 312 198 289 150 242 133 210Z" fill="none" stroke="var(--paper)" stroke-width="1.2" opacity="0.36"/><path d="M453 0 484 23 499 41 519 70 562 148 591 194 610 218 669 272 681 287 697 317 704 342 706 373 704 389 695 420 681 445 662 467 641 483 609 498 576 506 554 508 511 506 459 495 396 477 371 474 301 474 285 472 265 467 245 458 217 436 205 420 190 390 170 334 112 257 103 240 92 210 89 187 90 163 102 124 117 101 131 86 150 71 188 54 253 45 285 36 349 0" fill="none" stroke="var(--paper)" stroke-width="1.2" opacity="0.25"/><path d="M529 0 570 54 605 117 625 147 697 230 723 264 744 308 753 350 751 397 743 428 724 467 706 490 673 519 640 537 602 550 546 557 483 552 380 526 332 521 293 521 253 513 235 506 206 489 181 467 158 436 114 350 71 283 55 251 45 218 41 187 42 163 48 132 60 101 79 72 95 54 113 39 150 17 208 0" fill="none" stroke="var(--paper)" stroke-width="1.2" opacity="0.18"/><path d="M219 560 198 550 158 523 142 508 121 482 87 430 46 358 13 296 0 264M72 0 47 23 32 41 13 70 0 99M760 218 675 109 604 0M711 560 739 537 760 513" fill="none" stroke="var(--paper)" stroke-width="1.2" opacity="0.13"/><path d="M97 560 63 522 45 498 0 426M760 97 736 66 692 0" fill="none" stroke="var(--paper)" stroke-width="1.2" opacity="0.09"/></svg>
+  <figcaption class="mono"><b>Signed distance field</b> — six levels</figcaption>
+</figure>
+
 <aside class="note">
   <p><b>Mobile edition.</b> Five pieces run live on this site and need a desktop
   GPU. Every drawing here is solved from their own equations.</p>
@@ -233,34 +255,34 @@ footer{padding:2.2rem var(--pad) 1.6rem;border-top:1px solid var(--line);
   <div class="lbl mono">01 — Live studies</div>
   <h2>Five pieces, each rendered rather than recorded.</h2>
   <div class="studies">
-    <article class="study">
-      <div class="tw"><svg class="tn" viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M56 72 54 66 56 54 63 46 75 42 90 44 114 52 141 52 147 54 152 57 156 63 158 78 164 90 183 98 195 108 198 117 197 129 192 137 183 143 171 144 129 128 99 128 93 126 88 123 84 117 82 102 76 90 60 78 56 72Z" fill="none" stroke="var(--accent)" stroke-width="2.2" opacity="0.95"/><path d="M42 66 42 57 45 48 49 42 57 35 69 30 84 29 114 38 150 41 157 45 163 51 176 75 195 90 206 102 211 120 208 135 204 142 196 150 189 154 177 157 162 156 126 142 90 139 83 135 73 123 66 105 53 90 45 78 42 66Z" fill="none" stroke="var(--paper)" stroke-width="2.2" opacity="0.5"/><path d="M27 72 26 57 30 42 39 29 54 18 69 13 84 12 108 17 123 22 141 23 156 26 168 33 177 42 192 62 215 87 221 96 227 117 223 141 216 153 207 162 195 169 180 173 156 172 123 160 84 154 72 147 61 135 33 90 27 72Z" fill="none" stroke="var(--paper)" stroke-width="2.2" opacity="0.34"/><path d="M113 180 83 174 66 167 57 160 40 141 30 126 11 90 6 69 6 57 9 42 20 21 33 8 46 0M240 91 229 72 215 54 197 33 177 15 168 10 150 4 123 0M215 180 229 168 240 150" fill="none" stroke="var(--paper)" stroke-width="2.2" opacity="0.22"/><path d="M45 180 27 163 19 153 0 122M240 47 219 21 196 0" fill="none" stroke="var(--paper)" stroke-width="2.2" opacity="0.14"/></svg></div>
-      <div class="txt"><h3>Raymarched sculpture</h3><p>Signed distance fields, blended</p></div>
-      <span class="tag">GLSL</span>
-    </article>
-    <article class="study">
-      <div class="tw"><svg class="tn" viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M-16 178Q4 178 14 178T23 178T42 183T61 188T80 194T99 198T119 198T138 202T157 207T176 212T196 215T215 215T235 213T254 208M-16 166Q4 165 14 166T23 166T43 169T62 174T80 179T100 183T119 183T139 187T158 193T176 198T196 202T215 202T235 200T254 194M-16 153Q4 153 14 153T23 153T43 155T62 159T81 163T100 167T120 167T139 171T158 177T177 183T196 187T216 188T235 184T254 178M-16 140Q4 140 14 140T23 140T43 141T62 143T82 145T101 147T121 148T140 152T159 159T177 165T196 170T216 170T235 167T254 160M-16 128Q4 127 14 127T23 127T43 127T62 127T82 127T102 126T121 127T140 131T159 138T177 144T196 149T216 150T235 146T254 140M-16 115Q4 115 14 115T23 115T43 113T62 111T82 108T101 106T121 106T140 110T159 116T177 122T196 127T216 128T235 125T254 120M-16 103Q4 102 14 102T23 102T43 99T62 95T81 90T100 86T120 86T139 90T158 95T177 101T196 105T216 106T235 104T254 101M-16 90Q4 90 14 90T23 89T42 85T61 80T80 74T99 70T119 70T138 72T157 77T176 82T196 86T215 87T235 85T254 83M-16 77Q4 77 14 76T23 76T42 72T61 66T80 60T99 57T119 57T138 59T158 62T177 67T196 70T216 71T235 70T255 67M-16 65Q4 64 14 64T23 63T42 59T61 54T80 50T100 47T120 47T139 49T159 51T178 54T197 56T217 57T237 55T256 53M-16 52Q4 51 14 51T23 51T42 47T62 43T81 41T101 39T120 39T140 40T160 41T179 42T199 43T218 43T238 42T257 40M-16 40Q4 38 14 38T23 38T43 36T62 34T82 33T101 32T121 32T141 32T160 32T180 31T199 30T219 30T239 30T258 29M-16 27Q4 25 14 25T23 25T43 25T62 26T82 26T102 26T121 26T141 25T160 23T180 21T199 18T219 18T238 18T258 18M-16 14Q3 12 13 12T23 12T43 15T62 17T82 19T101 19T121 19T140 18T160 15T179 11T198 7T218 6T237 6T257 7M-16 2Q3 -1 13 0T23 0T42 4T61 8T81 11T100 12T120 12T139 10T159 6T177 1T196 -5T216 -6T235 -6T255 -5" fill="none" stroke="var(--paper)" stroke-width="1.8" opacity=".52" stroke-linecap="round"/></svg></div>
-      <div class="txt"><h3>Curl-noise fluid</h3><p>Divergence-free, no pressure solve</p></div>
-      <span class="tag">GPGPU</span>
-    </article>
-    <article class="study">
-      <div class="tw"><svg class="tn" viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M113 79L106 71M127 79L137 75M127 90L134 98M113 90L103 94M106 71L99 58M137 75L151 72M134 98L141 111M103 94L89 97M99 58L94 39M151 72L171 72M141 111L146 130M89 97L69 97M94 39L92 15M171 72L195 77M146 130L148 154M69 97L45 92M92 15L95 -14M195 77L222 88M148 154L145 183M45 92L18 81M95 -14L105 -47M222 88L250 107M145 183L135 216M18 81L-10 63M105 -47L123 -82M250 107L280 134M135 216L117 252M-10 63L-40 35M123 -82L151 -119M280 134L307 172M117 252L89 288M-40 35L-67 -2" fill="none" stroke="var(--paper)" stroke-width="1.1" opacity=".2"/><path d="M113 79 127 79 127 90 113 90ZM106 71 137 75 134 98 103 94ZM99 58 151 72 141 111 89 97ZM94 39 171 72 146 130 69 97ZM92 15 195 77 148 154 45 92ZM95 -14 222 88 145 183 18 81ZM105 -47 250 107 135 216 -10 63ZM123 -82 280 134 117 252 -40 35ZM151 -119 307 172 89 288 -67 -2Z" fill="none" stroke="var(--paper)" stroke-width="1.7" opacity=".5"/></svg></div>
-      <div class="txt"><h3>Scroll-driven corridor</h3><p>The scrollbar is the camera</p></div>
-      <span class="tag">SDF</span>
-    </article>
-    <article class="study">
-      <div class="tw"><svg class="tn" viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g color="var(--paper)" opacity=".66"><clipPath id="tb0"><rect x="-80" y="0.0" width="420" height="24.1"/></clipPath><clipPath id="tb1"><rect x="-80" y="25.7" width="420" height="24.1"/></clipPath><clipPath id="tb2"><rect x="-80" y="51.4" width="420" height="24.1"/></clipPath><clipPath id="tb3"><rect x="-80" y="77.1" width="420" height="24.1"/></clipPath><clipPath id="tb4"><rect x="-80" y="102.9" width="420" height="24.1"/></clipPath><clipPath id="tb5"><rect x="-80" y="128.6" width="420" height="24.1"/></clipPath><clipPath id="tb6"><rect x="-80" y="154.3" width="420" height="24.1"/></clipPath><g clip-path="url(#tb0)"><text x="120" y="151" text-anchor="middle" font-family="Schibsted Grotesk,system-ui,sans-serif" font-weight="700" font-size="188" letter-spacing="-8" fill="currentColor">M</text></g><g clip-path="url(#tb1)"><text x="137" y="151" text-anchor="middle" font-family="Schibsted Grotesk,system-ui,sans-serif" font-weight="700" font-size="188" letter-spacing="-8" fill="currentColor">M</text></g><g clip-path="url(#tb2)"><text x="108" y="151" text-anchor="middle" font-family="Schibsted Grotesk,system-ui,sans-serif" font-weight="700" font-size="188" letter-spacing="-8" fill="currentColor">M</text></g><g clip-path="url(#tb3)"><text x="142" y="151" text-anchor="middle" font-family="Schibsted Grotesk,system-ui,sans-serif" font-weight="700" font-size="188" letter-spacing="-8" fill="currentColor">M</text></g><g clip-path="url(#tb4)"><text x="112" y="151" text-anchor="middle" font-family="Schibsted Grotesk,system-ui,sans-serif" font-weight="700" font-size="188" letter-spacing="-8" fill="currentColor">M</text></g><g clip-path="url(#tb5)"><text x="134" y="151" text-anchor="middle" font-family="Schibsted Grotesk,system-ui,sans-serif" font-weight="700" font-size="188" letter-spacing="-8" fill="currentColor">M</text></g><g clip-path="url(#tb6)"><text x="116" y="151" text-anchor="middle" font-family="Schibsted Grotesk,system-ui,sans-serif" font-weight="700" font-size="188" letter-spacing="-8" fill="currentColor">M</text></g></g></svg></div>
-      <div class="txt"><h3>Kinetic typography</h3><p>Mask reveals, no library</p></div>
-      <span class="tag">CSS</span>
-    </article>
-    <article class="study">
-      <div class="tw"><svg class="tn" viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M6 6Q5 24 4 34T4 43T4 62T4 81T4 100T4 119T5 138T6 156T7 174M24 5Q22 23 22 32T21 42T21 61T20 81T21 100T21 120T22 139T23 157T24 175M41 3Q40 22 39 32T38 41T37 60T37 81T37 101T38 121T40 140T41 158T42 177M59 2Q58 20 57 30T56 39T54 59T53 81T54 102T55 122T57 142T59 160T61 178M78 0Q76 18 75 28T74 37T72 58T71 80T72 103T74 124T76 144T78 162T79 179M98 -2Q96 16 95 26T94 35T92 56T90 80T91 105T93 127T96 146T97 164T99 181M118 -3Q117 14 116 24T116 33T115 54T113 80T114 107T116 129T117 148T118 165T119 181M139 -3Q140 14 140 23T140 32T141 53T142 80T142 107T141 129T140 148T139 165T139 181M160 -2Q161 15 162 24T163 34T166 55T167 80T166 105T164 127T162 147T160 164T159 181M180 0Q182 17 183 26T184 36T186 57T187 80T187 104T185 125T182 144T180 162T179 180M199 1Q201 19 202 29T203 39T204 59T205 81T205 102T203 123T201 142T199 161T198 178M217 3Q219 21 220 30T220 40T222 60T222 81T222 101T221 121T219 140T217 159T216 177M235 4Q236 23 236 32T237 42T238 61T239 81T238 101T238 120T236 139T235 158T234 176M6 6Q24 5 32 4T41 3T59 2T78 0T98 -2T118 -3T139 -3T160 -2T180 0T199 1T217 3T235 4M5 24Q22 23 31 22T40 22T58 20T76 18T96 16T117 14T140 14T161 15T182 17T201 19T219 21T236 23M4 43Q21 42 30 42T38 41T56 39T74 37T94 35T116 33T140 32T163 34T184 36T203 39T220 40T237 42M4 62Q21 61 29 60T37 60T54 59T72 58T92 56T115 54T141 53T166 55T186 57T204 59T222 60T238 61M4 81Q20 81 28 81T37 81T53 81T71 80T90 80T113 80T142 80T167 80T187 80T205 81T222 81T239 81M4 100Q21 100 29 100T37 101T54 102T72 103T91 105T114 107T142 107T166 105T187 104T205 102T222 101T238 101M4 119Q21 120 30 120T38 121T55 122T74 124T93 127T116 129T141 129T164 127T185 125T203 123T221 121T238 120M5 138Q22 139 31 140T40 140T57 142T76 144T96 146T117 148T140 148T162 147T182 144T201 142T219 140T236 139M6 156Q23 157 32 158T41 158T59 160T78 162T97 164T118 165T139 165T160 164T180 162T199 161T217 159T235 158M7 174Q24 175 33 176T42 177T61 178T79 179T99 181T119 181T139 181T159 181T179 180T198 178T216 177T234 176" fill="none" stroke="var(--paper)" stroke-width="1.1" opacity=".36"/><g fill="var(--accent)" opacity=".85"><circle cx="22" cy="23" r="2.4"/><circle cx="20" cy="81" r="2.4"/><circle cx="22" cy="139" r="2.4"/><circle cx="76" cy="18" r="2.4"/><circle cx="71" cy="80" r="2.4"/><circle cx="76" cy="144" r="2.4"/><circle cx="140" cy="14" r="2.4"/><circle cx="142" cy="80" r="2.4"/><circle cx="140" cy="148" r="2.4"/><circle cx="201" cy="19" r="2.4"/><circle cx="205" cy="81" r="2.4"/><circle cx="201" cy="142" r="2.4"/></g></svg></div>
-      <div class="txt"><h3>Spring field</h3><p>~5,000 damped springs</p></div>
-      <span class="tag">CANVAS</span>
-    </article>
+      <article class="study">
+        <div class="tw"><svg class="tn" viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M56 72 54 66 56 54 63 46 75 42 90 44 114 52 141 52 147 54 152 57 156 63 158 78 164 90 183 98 195 108 198 117 197 129 192 137 183 143 171 144 129 128 99 128 93 126 88 123 84 117 82 102 76 90 60 78 56 72Z" fill="none" stroke="var(--accent)" stroke-width="2.2" opacity="0.95"/><path d="M42 66 42 57 45 48 49 42 57 35 69 30 84 29 114 38 150 41 157 45 163 51 176 75 195 90 206 102 211 120 208 135 204 142 196 150 189 154 177 157 162 156 126 142 90 139 83 135 73 123 66 105 53 90 45 78 42 66Z" fill="none" stroke="var(--paper)" stroke-width="2.2" opacity="0.5"/><path d="M27 72 26 57 30 42 39 29 54 18 69 13 84 12 108 17 123 22 141 23 156 26 168 33 177 42 192 62 215 87 221 96 227 117 223 141 216 153 207 162 195 169 180 173 156 172 123 160 84 154 72 147 61 135 33 90 27 72Z" fill="none" stroke="var(--paper)" stroke-width="2.2" opacity="0.34"/><path d="M113 180 83 174 66 167 57 160 40 141 30 126 11 90 6 69 6 57 9 42 20 21 33 8 46 0M240 91 229 72 215 54 197 33 177 15 168 10 150 4 123 0M215 180 229 168 240 150" fill="none" stroke="var(--paper)" stroke-width="2.2" opacity="0.22"/><path d="M45 180 27 163 19 153 0 122M240 47 219 21 196 0" fill="none" stroke="var(--paper)" stroke-width="2.2" opacity="0.14"/></svg></div>
+        <div class="txt"><h3>Raymarched sculpture</h3>
+          <p class="meta"><span>GLSL</span>Signed distance fields, blended</p></div>
+      </article>
+      <article class="study">
+        <div class="tw"><svg class="tn" viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M-16 178Q4 178 14 178T23 178T42 183T61 188T80 194T99 198T119 198T138 202T157 207T176 212T196 215T215 215T235 213T254 208M-16 166Q4 165 14 166T23 166T43 169T62 174T80 179T100 183T119 183T139 187T158 193T176 198T196 202T215 202T235 200T254 194M-16 153Q4 153 14 153T23 153T43 155T62 159T81 163T100 167T120 167T139 171T158 177T177 183T196 187T216 188T235 184T254 178M-16 140Q4 140 14 140T23 140T43 141T62 143T82 145T101 147T121 148T140 152T159 159T177 165T196 170T216 170T235 167T254 160M-16 128Q4 127 14 127T23 127T43 127T62 127T82 127T102 126T121 127T140 131T159 138T177 144T196 149T216 150T235 146T254 140M-16 115Q4 115 14 115T23 115T43 113T62 111T82 108T101 106T121 106T140 110T159 116T177 122T196 127T216 128T235 125T254 120M-16 103Q4 102 14 102T23 102T43 99T62 95T81 90T100 86T120 86T139 90T158 95T177 101T196 105T216 106T235 104T254 101M-16 90Q4 90 14 90T23 89T42 85T61 80T80 74T99 70T119 70T138 72T157 77T176 82T196 86T215 87T235 85T254 83M-16 77Q4 77 14 76T23 76T42 72T61 66T80 60T99 57T119 57T138 59T158 62T177 67T196 70T216 71T235 70T255 67M-16 65Q4 64 14 64T23 63T42 59T61 54T80 50T100 47T120 47T139 49T159 51T178 54T197 56T217 57T237 55T256 53M-16 52Q4 51 14 51T23 51T42 47T62 43T81 41T101 39T120 39T140 40T160 41T179 42T199 43T218 43T238 42T257 40M-16 40Q4 38 14 38T23 38T43 36T62 34T82 33T101 32T121 32T141 32T160 32T180 31T199 30T219 30T239 30T258 29M-16 27Q4 25 14 25T23 25T43 25T62 26T82 26T102 26T121 26T141 25T160 23T180 21T199 18T219 18T238 18T258 18M-16 14Q3 12 13 12T23 12T43 15T62 17T82 19T101 19T121 19T140 18T160 15T179 11T198 7T218 6T237 6T257 7M-16 2Q3 -1 13 0T23 0T42 4T61 8T81 11T100 12T120 12T139 10T159 6T177 1T196 -5T216 -6T235 -6T255 -5" fill="none" stroke="var(--paper)" stroke-width="1.8" opacity=".52" stroke-linecap="round"/></svg></div>
+        <div class="txt"><h3>Curl-noise fluid</h3>
+          <p class="meta"><span>GPGPU</span>Divergence-free advection</p></div>
+      </article>
+      <article class="study">
+        <div class="tw"><svg class="tn" viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M113 79L106 71M127 79L137 75M127 90L134 98M113 90L103 94M106 71L99 58M137 75L151 72M134 98L141 111M103 94L89 97M99 58L94 39M151 72L171 72M141 111L146 130M89 97L69 97M94 39L92 15M171 72L195 77M146 130L148 154M69 97L45 92M92 15L95 -14M195 77L222 88M148 154L145 183M45 92L18 81M95 -14L105 -47M222 88L250 107M145 183L135 216M18 81L-10 63M105 -47L123 -82M250 107L280 134M135 216L117 252M-10 63L-40 35M123 -82L151 -119M280 134L307 172M117 252L89 288M-40 35L-67 -2" fill="none" stroke="var(--paper)" stroke-width="1.1" opacity=".2"/><path d="M113 79 127 79 127 90 113 90ZM106 71 137 75 134 98 103 94ZM99 58 151 72 141 111 89 97ZM94 39 171 72 146 130 69 97ZM92 15 195 77 148 154 45 92ZM95 -14 222 88 145 183 18 81ZM105 -47 250 107 135 216 -10 63ZM123 -82 280 134 117 252 -40 35ZM151 -119 307 172 89 288 -67 -2Z" fill="none" stroke="var(--paper)" stroke-width="1.7" opacity=".5"/></svg></div>
+        <div class="txt"><h3>Scroll-driven corridor</h3>
+          <p class="meta"><span>SDF</span>One shape, folded</p></div>
+      </article>
+      <article class="study">
+        <div class="tw"><svg class="tn" viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g color="var(--paper)" opacity=".66"><clipPath id="tb0"><rect x="-80" y="0.0" width="420" height="43.0"/></clipPath><clipPath id="tb1"><rect x="-80" y="45.0" width="420" height="43.0"/></clipPath><clipPath id="tb2"><rect x="-80" y="90.0" width="420" height="43.0"/></clipPath><clipPath id="tb3"><rect x="-80" y="135.0" width="420" height="43.0"/></clipPath><g clip-path="url(#tb0)"><text x="120" y="151" text-anchor="middle" font-family="Schibsted Grotesk,system-ui,sans-serif" font-weight="700" font-size="188" letter-spacing="-8" fill="currentColor">M</text></g><g clip-path="url(#tb1)"><text x="140" y="151" text-anchor="middle" font-family="Schibsted Grotesk,system-ui,sans-serif" font-weight="700" font-size="188" letter-spacing="-8" fill="currentColor">M</text></g><g clip-path="url(#tb2)"><text x="106" y="151" text-anchor="middle" font-family="Schibsted Grotesk,system-ui,sans-serif" font-weight="700" font-size="188" letter-spacing="-8" fill="currentColor">M</text></g><g clip-path="url(#tb3)"><text x="130" y="151" text-anchor="middle" font-family="Schibsted Grotesk,system-ui,sans-serif" font-weight="700" font-size="188" letter-spacing="-8" fill="currentColor">M</text></g></g></svg></div>
+        <div class="txt"><h3>Kinetic typography</h3>
+          <p class="meta"><span>CSS</span>Mask reveals, no library</p></div>
+      </article>
+      <article class="study">
+        <div class="tw"><svg class="tn" viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M6 6Q5 24 4 34T4 43T4 62T4 81T4 100T4 119T5 138T6 156T7 174M24 5Q22 23 22 32T21 42T21 61T20 81T21 100T21 120T22 139T23 157T24 175M41 3Q40 22 39 32T38 41T37 60T37 81T37 101T38 121T40 140T41 158T42 177M59 2Q58 20 57 30T56 39T54 59T53 81T54 102T55 122T57 142T59 160T61 178M78 0Q76 18 75 28T74 37T72 58T71 80T72 103T74 124T76 144T78 162T79 179M98 -2Q96 16 95 26T94 35T92 56T90 80T91 105T93 127T96 146T97 164T99 181M118 -3Q117 14 116 24T116 33T115 54T113 80T114 107T116 129T117 148T118 165T119 181M139 -3Q140 14 140 23T140 32T141 53T142 80T142 107T141 129T140 148T139 165T139 181M160 -2Q161 15 162 24T163 34T166 55T167 80T166 105T164 127T162 147T160 164T159 181M180 0Q182 17 183 26T184 36T186 57T187 80T187 104T185 125T182 144T180 162T179 180M199 1Q201 19 202 29T203 39T204 59T205 81T205 102T203 123T201 142T199 161T198 178M217 3Q219 21 220 30T220 40T222 60T222 81T222 101T221 121T219 140T217 159T216 177M235 4Q236 23 236 32T237 42T238 61T239 81T238 101T238 120T236 139T235 158T234 176M6 6Q24 5 32 4T41 3T59 2T78 0T98 -2T118 -3T139 -3T160 -2T180 0T199 1T217 3T235 4M5 24Q22 23 31 22T40 22T58 20T76 18T96 16T117 14T140 14T161 15T182 17T201 19T219 21T236 23M4 43Q21 42 30 42T38 41T56 39T74 37T94 35T116 33T140 32T163 34T184 36T203 39T220 40T237 42M4 62Q21 61 29 60T37 60T54 59T72 58T92 56T115 54T141 53T166 55T186 57T204 59T222 60T238 61M4 81Q20 81 28 81T37 81T53 81T71 80T90 80T113 80T142 80T167 80T187 80T205 81T222 81T239 81M4 100Q21 100 29 100T37 101T54 102T72 103T91 105T114 107T142 107T166 105T187 104T205 102T222 101T238 101M4 119Q21 120 30 120T38 121T55 122T74 124T93 127T116 129T141 129T164 127T185 125T203 123T221 121T238 120M5 138Q22 139 31 140T40 140T57 142T76 144T96 146T117 148T140 148T162 147T182 144T201 142T219 140T236 139M6 156Q23 157 32 158T41 158T59 160T78 162T97 164T118 165T139 165T160 164T180 162T199 161T217 159T235 158M7 174Q24 175 33 176T42 177T61 178T79 179T99 181T119 181T139 181T159 181T179 180T198 178T216 177T234 176" fill="none" stroke="var(--paper)" stroke-width="1.1" opacity=".36"/><g fill="var(--accent)" opacity=".85"><circle cx="22" cy="23" r="2.4"/><circle cx="20" cy="81" r="2.4"/><circle cx="22" cy="139" r="2.4"/><circle cx="76" cy="18" r="2.4"/><circle cx="71" cy="80" r="2.4"/><circle cx="76" cy="144" r="2.4"/><circle cx="140" cy="14" r="2.4"/><circle cx="142" cy="80" r="2.4"/><circle cx="140" cy="148" r="2.4"/><circle cx="201" cy="19" r="2.4"/><circle cx="205" cy="81" r="2.4"/><circle cx="201" cy="142" r="2.4"/></g></svg></div>
+        <div class="txt"><h3>Spring field</h3>
+          <p class="meta"><span>CANVAS</span>~5,000 damped springs</p></div>
+      </article>
   </div>
-  <p class="cap">Thumbnails above are contour plots, streamlines and lattices
-  computed from each piece's own maths — not screenshots.</p>
+  <p class="cap">Each thumbnail is that piece's own maths, solved once and
+  frozen — not a screenshot.</p>
 </section>
 
 <section class="wrap">
@@ -269,7 +291,7 @@ footer{padding:2.2rem var(--pad) 1.6rem;border-top:1px solid var(--line);
   <div class="does">
     <div class="doe">
       <h3>WebGL &amp; shaders</h3>
-      <p>Raymarched scenes, custom GLSL, fluid and particle systems — written to degrade, not to break.</p>
+      <p>Raymarched scenes, custom GLSL, fluid and particle systems.</p>
     </div>
     <div class="doe">
       <h3>Scroll &amp; motion systems</h3>
@@ -348,22 +370,32 @@ footer{padding:2.2rem var(--pad) 1.6rem;border-top:1px solid var(--line);
    Copying the URL is the honest way to move this to a real machine. */
 (() => {
   const url = location.origin + '/';
+  /* navigator.clipboard.writeText never settles if the document is not
+     focused — awaiting it before showing feedback leaves the button looking
+     dead. Fire it, never await it, and confirm to the user immediately. */
+  const copy = () => {
+    if (navigator.clipboard && isSecureContext) {
+      navigator.clipboard.writeText(url).catch(fallback);
+    } else fallback();
+  };
+  const fallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch(_) {}
+    ta.remove();
+  };
   const wire = (id, sel) => {
     const b = document.getElementById(id);
     if(!b) return;
     const node = sel ? b.querySelector(sel) : b;
-    b.addEventListener('click', async () => {
-      const was = node.textContent;
-      try { await navigator.clipboard.writeText(url); }
-      catch(e) {
-        const ta = document.createElement('textarea');
-        ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
-        document.body.appendChild(ta); ta.select();
-        try { document.execCommand('copy'); } catch(_) {}
-        ta.remove();
-      }
-      node.textContent = 'Copied ✓';
-      setTimeout(() => { node.textContent = was; }, 1800);
+    let t = 0;
+    b.addEventListener('click', () => {
+      copy();
+      if(!t) b.dataset.was = node.textContent;
+      node.textContent = 'Copied \u2713';
+      clearTimeout(t);
+      t = setTimeout(() => { node.textContent = b.dataset.was; t = 0; }, 1800);
     });
   };
   wire('copylink', '.k b');
