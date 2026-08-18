@@ -297,9 +297,6 @@ section{padding:clamp(5rem,12vw,10rem) var(--pad);position:relative}
 .stack:hover .stack-track{animation-play-state:paused}
 .stack-grp{display:flex;flex:none;align-items:center;gap:2.6rem;padding-right:2.6rem}
 .stack-grp span{white-space:nowrap;color:var(--dim)}
-.stack-grp span::before{content:"";display:inline-block;width:3px;height:3px;
-  border-radius:50%;background:var(--accent);opacity:.55;
-  vertical-align:middle;margin-right:.85rem;transform:translateY(-1px)}
 @keyframes stackrun{
   from{transform:translate3d(0,0,0)}
   to{transform:translate3d(calc(-1 * var(--gw,0px)),0,0)}
@@ -309,7 +306,7 @@ section{padding:clamp(5rem,12vw,10rem) var(--pad);position:relative}
   .stack{-webkit-mask-image:none;mask-image:none}
 }
 .stack span{color:var(--dim);white-space:nowrap;display:inline-flex;align-items:center;gap:2.2rem}
-.stack span:not(:last-child)::after{content:"";width:3px;height:3px;border-radius:50%;background:var(--accent);opacity:.8}
+.stack span::after{content:"";width:3px;height:3px;border-radius:50%;background:var(--accent);opacity:.8}
 
 /* ============ kinetic type — SUN HUNG difference blend ============ */
 .kinetic{padding:0;position:relative;isolation:isolate}
@@ -359,7 +356,7 @@ a.t:hover .n{color:var(--paper)}
 .faq>div{position:relative}
 .faq dt::before{content:"";display:inline-block;width:5px;height:5px;
   background:var(--accent);margin-right:.6rem;vertical-align:middle}
-.stack span:not(:last-child)::after{background:var(--accent)}
+.stack span::after{background:var(--accent)}
 .statement .big::after{content:".";color:var(--accent)}
 .contact h2::after{content:"";display:block;width:52px;height:2px;
   background:var(--accent);margin-top:1.4rem}
