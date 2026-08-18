@@ -48,3 +48,7 @@
 
 /m/*
   Cache-Control: public, max-age=0, must-revalidate
+
+# Social cards are content-addressed by name; safe to cache hard.
+/og/*
+  Cache-Control: public, max-age=604800, must-revalidate
