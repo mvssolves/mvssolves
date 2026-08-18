@@ -39,7 +39,7 @@
 <meta name="theme-color" content="#efe9e1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;1,6..96,400&family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;1,6..96,400&family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400&display=block" rel="stylesheet">
 <style>
 /* Native cross-document transitions between studies. */
 @view-transition{navigation:auto}
@@ -191,6 +191,10 @@ h1 em{font-style:italic;color:var(--rust)}
 /* ---- scroll reveal (studies) ---- */
 .rv{transition:opacity .9s cubic-bezier(.22,1,.36,1),transform .9s cubic-bezier(.22,1,.36,1)}
 .armed-rv .rv{opacity:0;transform:translateY(26px)}
+/* children move a shorter distance so the card reads as one arrival
+   with detail inside it, not eight separate things sliding about */
+.armed-rv .n-grid > div > .rv{transform:translateY(14px)}
+.armed-rv .n-grid > div > .rv{transition-duration:1.05s}
 .armed-rv .rv.seen{opacity:1;transform:none}
 /* the orange section rule draws itself in */
 .notes .n-lbl{position:relative;padding-top:1.2rem}
@@ -635,20 +639,34 @@ requestAnimationFrame(frame);
 (() => {
   if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   if(!('IntersectionObserver' in window)) return;
-  const els = document.querySelectorAll('.n-grid > div, .n-specs > div, .notes h2, .notes .n-lbl');
+  const els = document.querySelectorAll(
+    '.n-grid > div, .n-grid > div > *, .n-specs > div, .notes h2, .notes .n-lbl, .notes > p');
   if(!els.length) return;
   els.forEach(e => e.classList.add('rv'));
   document.body.classList.add('armed-rv');
+  let fired = false;
   const io = new IntersectionObserver((entries, ob) => {
     entries.forEach((en, i) => {
       if(en.isIntersecting){
+        fired = true;
         setTimeout(() => en.target.classList.add('seen'), (i % 6) * 70);
         ob.unobserve(en.target);
       }
     });
-  }, {threshold:.15, rootMargin:'0px 0px -8% 0px'});
+  }, {threshold:.12, rootMargin:'0px 0px -8% 0px'});
   els.forEach(e => io.observe(e));
-  setTimeout(() => els.forEach(e => e.classList.add('seen')), 2600);
+  /* This used to reveal every element unconditionally at 2.6s, which meant only
+     whatever happened to be on screen during those first seconds ever animated —
+     the entire rest of the page was already "seen" by the time it was scrolled
+     to. Rescue what should be visible now, and only give up on the observer if
+     it produced nothing at all. */
+  setTimeout(() => {
+    els.forEach(e => {
+      const r = e.getBoundingClientRect();
+      if(r.top < innerHeight && r.bottom > 0) e.classList.add('seen');
+    });
+  }, 2600);
+  setTimeout(() => { if(!fired) els.forEach(e => e.classList.add('seen')); }, 7000);
 })();
 </script>
 

@@ -11,7 +11,7 @@
 <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=block" rel="stylesheet">
 <style>
 /* ==========================================================
    SIGNAL — two colours and white. Ink ground, magenta accent.
@@ -181,7 +181,7 @@ html:not(.js) .navbtn{display:none}
 
 /* ---------- marquee, the honest version: repeated in overflow hidden ---------- */
 .marq{overflow:hidden; max-width:100%; border-block:1px solid var(--hair-2); padding-block:1.1rem; white-space:nowrap}
-.marq-in{display:inline-flex; animation:marq 34s linear infinite}
+.marq-in{display:inline-flex; will-change:transform; animation:marq 68s linear infinite}
 .marq span{font-family:var(--disp); font-weight:800; font-size:clamp(1.1rem,.9rem + 1.1vw,2rem);
   text-transform:uppercase; letter-spacing:-.01em; padding-inline:1.5rem; color:var(--w-3)}
 .marq span em{font-style:normal; color:var(--mag)}
@@ -367,6 +367,10 @@ footer{border-top:1px solid var(--hair-2); padding-block:1.4rem}
 
 <div class="marq" aria-hidden="true">
   <div class="marq-in">
+    <span>Six businesses <em>&bull;</em> ten thousand a month <em>&bull;</em> each <em>&bull;</em></span>
+    <span>Six businesses <em>&bull;</em> ten thousand a month <em>&bull;</em> each <em>&bull;</em></span>
+    <span>Six businesses <em>&bull;</em> ten thousand a month <em>&bull;</em> each <em>&bull;</em></span>
+    <span>Six businesses <em>&bull;</em> ten thousand a month <em>&bull;</em> each <em>&bull;</em></span>
     <span>Six businesses <em>&bull;</em> ten thousand a month <em>&bull;</em> each <em>&bull;</em></span>
     <span>Six businesses <em>&bull;</em> ten thousand a month <em>&bull;</em> each <em>&bull;</em></span>
     <span>Six businesses <em>&bull;</em> ten thousand a month <em>&bull;</em> each <em>&bull;</em></span>

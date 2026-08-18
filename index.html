@@ -45,7 +45,7 @@
 <meta name="theme-color" content="#050506">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=block" rel="stylesheet">
 <style>
 /* Native cross-document transitions — same-origin MPA, no router, no JS. */
 @view-transition{navigation:auto}
@@ -224,7 +224,10 @@ h1{
   font-weight:600;line-height:.9;letter-spacing:-.045em;
   text-wrap:balance;
 }
-.ln{display:block;overflow:hidden}
+/* The mask box is the line box, and a line-height under 1 puts descenders
+   outside it — the y in "library" was being sliced off. Extra room below,
+   pulled back out of the layout so spacing is unchanged. */
+.ln{display:block;overflow:hidden;padding-bottom:.17em;margin-bottom:-.17em}
 .ln>i{display:block;font-style:normal;will-change:transform}
 h1 .thin{font-weight:400;color:var(--accent)}
 
@@ -275,15 +278,35 @@ section{padding:clamp(5rem,12vw,10rem) var(--pad);position:relative}
 
 
 /* ============ stack strip ============
-   Static on purpose. This is the list a studio actually reads — a marquee
-   would hide half of it at any moment to buy motion the page hasn't needed. */
+   Wrapping this list left a single orphan item alone on a second row at most
+   widths. It runs instead — one group, cloned by JS until the track is wider
+   than the viewport, and translated by exactly one group width so the loop has
+   no seam at any window size. --gw and --dur are written from measurement. */
 .stack{
-  border-block:1px solid rgba(255,255,255,.10);padding:1.15rem var(--pad);
-  display:flex;flex-wrap:wrap;gap:.6rem 2.2rem;align-items:center;
+  position:relative;overflow:hidden;border-block:1px solid rgba(255,255,255,.10);
+  padding-block:1.15rem;
   background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.012));
   backdrop-filter:blur(16px) saturate(160%);
   -webkit-backdrop-filter:blur(16px) saturate(160%);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 -1px 0 rgba(0,0,0,.3);
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
+          mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
+}
+.stack-track{display:flex;width:max-content;will-change:transform;
+  animation:stackrun var(--dur,52s) linear infinite}
+.stack:hover .stack-track{animation-play-state:paused}
+.stack-grp{display:flex;flex:none;align-items:center;gap:2.6rem;padding-right:2.6rem}
+.stack-grp span{white-space:nowrap;color:var(--dim)}
+.stack-grp span::before{content:"";display:inline-block;width:3px;height:3px;
+  border-radius:50%;background:var(--accent);opacity:.55;
+  vertical-align:middle;margin-right:.85rem;transform:translateY(-1px)}
+@keyframes stackrun{
+  from{transform:translate3d(0,0,0)}
+  to{transform:translate3d(calc(-1 * var(--gw,0px)),0,0)}
+}
+@media(prefers-reduced-motion:reduce){
+  .stack-track{animation:none}
+  .stack{-webkit-mask-image:none;mask-image:none}
 }
 .stack span{color:var(--dim);white-space:nowrap;display:inline-flex;align-items:center;gap:2.2rem}
 .stack span:not(:last-child)::after{content:"";width:3px;height:3px;border-radius:50%;background:var(--accent);opacity:.8}
@@ -554,8 +577,10 @@ footer{padding:1.5rem var(--pad) 2.4rem;border-top:1px solid var(--line);
 
 <main>
 
-<div class="stack mono">
-  <span>Raymarching</span><span>Custom GLSL</span><span>ScrollTrigger</span><span>Lenis</span><span>Three.js</span><span>React / Next</span><span>Shader materials</span><span>Core Web Vitals</span>
+<div class="stack" aria-label="Stack">
+  <div class="stack-track">
+    <div class="stack-grp mono"><span>Raymarching</span><span>Signed distance fields</span><span>Custom GLSL</span><span>Framebuffers</span><span>Curl noise</span><span>Post-processing</span><span>GSAP</span><span>ScrollTrigger</span><span>Lenis</span><span>Three.js</span><span>React / Next</span><span>TypeScript</span><span>Shader materials</span><span>Core Web Vitals</span></div>
+  </div>
 </div>
 
 <section class="kinetic">
@@ -779,6 +804,43 @@ footer{padding:1.5rem var(--pad) 2.4rem;border-top:1px solid var(--line);
   })(performance.now());
 })();
 
+
+
+/* Stack strip. Deliberately outside the module: the strip is content, and it
+   must still read correctly if the GSAP CDN never resolves. */
+(() => {
+  const track = document.querySelector('.stack-track');
+  if(!track) return;
+  const seed = track.firstElementChild;
+  const SPEED = 42;                       // px per second, constant at any width
+  let last = 0;
+
+  const fit = () => {
+    /* A hidden or unlaid-out document measures 0 and would clone forever. */
+    const gw = seed.getBoundingClientRect().width;
+    if(!gw || !innerWidth) return;
+    if(Math.abs(innerWidth - last) < 2 && track.children.length > 1) return;
+    last = innerWidth;
+
+    while(track.children.length > 1) track.lastElementChild.remove();
+    /* Cover the viewport plus one whole group, so the moment the animation
+       wraps there is already an identical group sitting under the seam. */
+    const need = innerWidth + gw;
+    for(let w = gw; w < need; w += gw){
+      const c = seed.cloneNode(true);
+      c.setAttribute('aria-hidden','true');
+      track.append(c);
+    }
+    track.style.setProperty('--gw', gw + 'px');
+    track.style.setProperty('--dur', (gw / SPEED).toFixed(2) + 's');
+  };
+
+  fit();
+  addEventListener('resize', fit, {passive:true});
+  /* Web fonts land after first layout and change the group width; re-measure. */
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  setTimeout(fit, 1200);
+})();
 
 
 /* Magnetic CTA — kept. The custom cursor is gone: replacing the system cursor
@@ -1240,7 +1302,7 @@ if(!matchMedia('(prefers-reduced-motion: reduce)').matches && !MOBILE){
   /* Entrance runs off the loader finishing, not off DOMContentLoaded, so the
      hero arrives into a clear screen instead of animating behind the veil. */
   const intro = gsap.timeline({paused:true});
-  gsap.set('h1 .ln > i', {yPercent:112});
+  gsap.set('h1 .ln > i', {yPercent:134});
   intro
     .to('h1 .ln > i', {yPercent:0, duration:1.35, ease:'expo.out', stagger:.09})
     .from('.brandmark', {opacity:0, x:-14, duration:.9, ease:'expo.out'}, .15)
@@ -1248,7 +1310,8 @@ if(!matchMedia('(prefers-reduced-motion: reduce)').matches && !MOBILE){
     .from('.status',    {opacity:0, y:16, duration:.85, ease:'expo.out'}, .45)
     .from('.hero-btm > *', {opacity:0, y:22, duration:1, ease:'expo.out', stagger:.1}, .6);
 
-  const playIntro = () => intro.play();
+  let introStarted = false;
+  const playIntro = () => { introStarted = true; intro.play(); };
   if(window.__loaderDone) playIntro();
   else addEventListener('mvs:loaded', playIntro, {once:true});
   setTimeout(playIntro, 4600);   // never strand the hero
@@ -1256,7 +1319,12 @@ if(!matchMedia('(prefers-reduced-motion: reduce)').matches && !MOBILE){
   /* Hard backstop. If the intro tween never completes — tab backgrounded during
      load, rAF throttled, GSAP stalled — the hero must not stay invisible. */
   setTimeout(() => {
-    gsap.set('h1 .ln > i', {yPercent:0, clearProps:'transform'});
+    /* Only rescue a hero that never animated. This used to fire unconditionally,
+       so on a normal load it landed in the middle of the entrance, snapped every
+       line to its end state and dropped the compositing layer — which is exactly
+       what the flicker was. */
+    if(introStarted && intro.progress() > 0) return;
+    gsap.set('h1 .ln > i', {yPercent:0});
     document.querySelectorAll('.status, .hero-btm > *, .brandmark, .nav-r > *').forEach(el => {
       el.style.opacity = '1'; el.style.transform = 'none';
     });
@@ -1277,7 +1345,12 @@ if(!matchMedia('(prefers-reduced-motion: reduce)').matches && !MOBILE){
      throttled rAF, a background tab during load — content must not stay at
      opacity 0. Anything already revealed is unaffected. */
   setTimeout(() => {
-    document.querySelectorAll('.t, .head, .faq > div').forEach(el => {
+    document.querySelectorAll('.t, .head, .faq > div, .tenets article, .contact h2, .cta').forEach(el => {
+      /* Only rescue what should already be on screen. Revealing everything
+         stripped the reveal off every section below the fold — the page had
+         appear motion for one screen and then nothing for the rest of it. */
+      const r = el.getBoundingClientRect();
+      if(r.top > innerHeight || r.bottom < 0) return;
       if(parseFloat(getComputedStyle(el).opacity) < .05){
         el.style.opacity = '1';
         el.style.translate = '0px 0px';
@@ -1287,18 +1360,51 @@ if(!matchMedia('(prefers-reduced-motion: reduce)').matches && !MOBILE){
   }, 3200);
 
   /* Statement lines rise out of their own mask as the block crosses centre. */
-  gsap.set('.big .ln > i', {yPercent:110});
+  gsap.set('.big .ln > i', {yPercent:132});
   gsap.to('.big .ln > i', {
     yPercent:0, duration:1.2, ease:'expo.out', stagger:.09,
     scrollTrigger:{trigger:'.statement', start:'top 68%'}
   });
 
-  /* Stack strip letter-spacing opens up slightly as it passes — small, but it
-     makes the band feel alive without animating anything that reflows. */
-  gsap.fromTo('.stack span',
-    {opacity:.35},
-    {opacity:1, duration:.7, stagger:.045, ease:'power2.out',
-     scrollTrigger:{trigger:'.stack', start:'top 92%'}});
+  /* The strip is a running track now, so staggering its spans fights the loop.
+     The band itself arrives instead. */
+  gsap.fromTo('.stack',
+    {opacity:0, translate:'0px 18px'},
+    {opacity:1, translate:'0px 0px', duration:.9, ease:'expo.out',
+     scrollTrigger:{trigger:'.stack', start:'top 94%'}});
+
+  /* ---- more arrival motion, section by section ---- */
+
+  /* Point-of-view cards deal in from the left in sequence. */
+  gsap.set('.tenets article', {opacity:0, translate:'-22px 14px'});
+  gsap.utils.toArray('.tenets article').forEach((el,i) =>
+    gsap.to(el, {opacity:1, translate:'0px 0px', duration:1.1, ease:'expo.out', delay:i*.09,
+      scrollTrigger:{trigger:'.tenets', start:'top 84%'}}));
+
+  /* The closing line of the point-of-view section lands on its own. */
+  gsap.fromTo('.pov-close',
+    {opacity:0, translate:'0px 24px'},
+    {opacity:1, translate:'0px 0px', duration:1.2, ease:'expo.out',
+     scrollTrigger:{trigger:'.pov-close', start:'top 90%'}});
+
+  /* Study cards get a small lift as the row crosses, on top of their own fade. */
+  gsap.utils.toArray('.t').forEach(el =>
+    gsap.fromTo(el, {scale:.985}, {scale:1, duration:1.2, ease:'expo.out',
+      scrollTrigger:{trigger:el, start:'top 92%'}}));
+
+  /* Final call to action: headline, then the button, then the footer rule. */
+  gsap.fromTo('.contact h2',
+    {opacity:0, translate:'0px 26px'},
+    {opacity:1, translate:'0px 0px', duration:1.1, ease:'expo.out',
+     scrollTrigger:{trigger:'.contact', start:'top 82%'}});
+  gsap.fromTo('.cta',
+    {opacity:0, translate:'0px 20px'},
+    {opacity:1, translate:'0px 0px', duration:1, ease:'expo.out', delay:.14,
+     scrollTrigger:{trigger:'.contact', start:'top 82%'}});
+  gsap.fromTo('footer > *',
+    {opacity:0, translate:'0px 14px'},
+    {opacity:1, translate:'0px 0px', duration:.85, ease:'expo.out', stagger:.08,
+     scrollTrigger:{trigger:'footer', start:'top 96%'}});
 }
 </script>
 
