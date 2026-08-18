@@ -225,19 +225,30 @@ h1{font-family:"Archivo Black",system-ui,sans-serif;font-weight:400;
 
 
 /* ---- scroll reveal (studies) ---- */
-.rv{transition:opacity .9s cubic-bezier(.22,1,.36,1),transform .9s cubic-bezier(.22,1,.36,1)}
-.armed-rv .rv{opacity:0;transform:translateY(26px)}
+.rv{transition:opacity 1.25s cubic-bezier(.22,1,.36,1),transform 1.25s cubic-bezier(.22,1,.36,1)}
+.armed-rv .rv{opacity:0;transform:translateY(32px)}
 /* children move a shorter distance so the card reads as one arrival
    with detail inside it, not eight separate things sliding about */
 .armed-rv .n-grid > div > .rv{transform:translateY(14px)}
-.armed-rv .n-grid > div > .rv{transition-duration:1.05s}
+.armed-rv .n-grid > div > .rv{transition-duration:1.45s}
 .armed-rv .rv.seen{opacity:1;transform:none}
 /* the orange section rule draws itself in */
 .notes .n-lbl{position:relative;padding-top:1.2rem}
 .notes .n-lbl::before{content:"";position:absolute;top:0;left:0;height:2px;width:56px;
   background:currentColor;transform:scaleX(0);transform-origin:left;
-  transition:transform .8s cubic-bezier(.22,1,.36,1)}
+  transition:transform 1.15s cubic-bezier(.22,1,.36,1)}
 .notes .n-lbl.seen::before{transform:scaleX(1)}
+/* Engineering-note heading rises line by line, same move as the homepage
+   statement. Lines are measured from real layout, so the wrap points are
+   whatever the browser chose at this width. */
+.notes h2 .ln{display:block;overflow:hidden;padding-bottom:.20em;margin-bottom:-.20em}
+.notes h2 .ln>i{display:block;font-style:normal;transform:translateY(135%);
+  transition:transform 1.45s cubic-bezier(.19,1,.22,1)}
+.notes h2.lines-in .ln>i{transform:none}
+.notes h2 .ln:nth-child(2)>i{transition-delay:.12s}
+.notes h2 .ln:nth-child(3)>i{transition-delay:.24s}
+.notes h2 .ln:nth-child(4)>i{transition-delay:.36s}
+@media(prefers-reduced-motion:reduce){ .notes h2 .ln>i{transform:none;transition:none} }
 .n-specs>div{transition:background .35s ease}
 .n-specs>div:hover{background:rgba(128,128,128,.07)}
 
@@ -653,7 +664,7 @@ onScroll();
   if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   if(!('IntersectionObserver' in window)) return;
   const els = document.querySelectorAll(
-    '.n-grid > div, .n-grid > div > *, .n-specs > div, .notes h2, .notes .n-lbl, .notes > p');
+    '.n-grid > div, .n-grid > div > *, .n-specs > div, .notes .n-lbl, .notes > p');
   if(!els.length) return;
   els.forEach(e => e.classList.add('rv'));
   document.body.classList.add('armed-rv');
@@ -662,7 +673,7 @@ onScroll();
     entries.forEach((en, i) => {
       if(en.isIntersecting){
         fired = true;
-        setTimeout(() => en.target.classList.add('seen'), (i % 6) * 70);
+        setTimeout(() => en.target.classList.add('seen'), (i % 6) * 105);
         ob.unobserve(en.target);
       }
     });
@@ -681,6 +692,36 @@ onScroll();
   }, 2600);
   setTimeout(() => { if(!fired) els.forEach(e => e.classList.add('seen')); }, 7000);
 })();
+
+/* ---- engineering-note heading: line-by-line rise ---- */
+(() => {
+  const h = document.querySelector('.notes h2');
+  if(!h) return;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if(!('IntersectionObserver' in window)) return;
+  const raw = h.textContent;
+  try{
+    h.innerHTML = raw.trim().split(/\s+/).map(w => '<span class="sw">' + w + '</span>').join(' ');
+    const words = [...h.querySelectorAll('.sw')];
+    if(!words.length) throw 0;
+    const lines = []; let top = null, cur = null;
+    words.forEach(w => {
+      const y = Math.round(w.offsetTop);
+      if(top === null || Math.abs(y - top) > 4){ top = y; cur = []; lines.push(cur); }
+      cur.push(w.textContent);
+    });
+    h.innerHTML = lines.map(l => '<span class="ln"><i>' + l.join(' ') + '</i></span>').join('');
+  }catch(e){
+    /* Never leave a heading half-rebuilt. */
+    h.textContent = raw; return;
+  }
+  const io = new IntersectionObserver((es, ob) => es.forEach(e => {
+    if(e.isIntersecting){ h.classList.add('lines-in'); ob.disconnect(); }
+  }), {threshold:.2});
+  io.observe(h);
+  setTimeout(() => h.classList.add('lines-in'), 6000);   // never strand the heading
+})();
+
 </script>
 
 <script>

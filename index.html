@@ -1301,11 +1301,11 @@ if(!matchMedia('(prefers-reduced-motion: reduce)').matches && !MOBILE){
   const intro = gsap.timeline({paused:true});
   gsap.set('h1 .ln > i', {yPercent:134});
   intro
-    .to('h1 .ln > i', {yPercent:0, duration:1.35, ease:'expo.out', stagger:.09})
+    .to('h1 .ln > i', {yPercent:0, duration:1.55, ease:'expo.out', stagger:.115})
     .from('.brandmark', {opacity:0, x:-14, duration:.9, ease:'expo.out'}, .15)
     .from('.nav-r > *',  {opacity:0, x:14, duration:.9, ease:'expo.out', stagger:.08}, .22)
     .from('.status',    {opacity:0, y:16, duration:.85, ease:'expo.out'}, .45)
-    .from('.hero-btm > *', {opacity:0, y:22, duration:1, ease:'expo.out', stagger:.1}, .6);
+    .from('.hero-btm > *', {opacity:0, y:22, duration:1.3, ease:'expo.out', stagger:.13}, .6);
 
   let introStarted = false;
   const playIntro = () => { introStarted = true; intro.play(); };
@@ -1327,22 +1327,66 @@ if(!matchMedia('(prefers-reduced-motion: reduce)').matches && !MOBILE){
     });
   }, 2600);
 
-  gsap.set('.head', {opacity:0, y:26});
-  gsap.utils.toArray('.head').forEach(el =>
-    gsap.to(el, {opacity:1, y:0, duration:1, ease:'expo.out',
-      scrollTrigger:{trigger:el, start:'top 90%'}}));
+  /* Section headings rise line by line out of their own mask — the same move as
+     the statement block, which is the one that reads best on the page. Lines are
+     measured from real layout so the wrap points are whatever the browser chose,
+     text-wrap:balance included. */
+  const splitLines = (el) => {
+    const raw = el.dataset.raw || el.textContent;
+    el.dataset.raw = raw;
+    try{
+      el.innerHTML = raw.trim().split(/\s+/)
+        .map(w => '<span class="sw">' + w + '</span>').join(' ');
+      const words = [...el.querySelectorAll('.sw')];
+      if(!words.length) throw 0;
+      const lines = []; let top = null, cur = null;
+      words.forEach(w => {
+        const y = Math.round(w.offsetTop);
+        if(top === null || Math.abs(y - top) > 4){ top = y; cur = []; lines.push(cur); }
+        cur.push(w.textContent);
+      });
+      el.innerHTML = lines.map(l => '<span class="ln"><i>' + l.join(' ') + '</i></span>').join('');
+      return true;
+    }catch(e){ el.textContent = raw; return false; }
+  };
+
+  const headings = gsap.utils.toArray('.head h2, .contact h2');
+  headings.forEach(h => {
+    if(!splitLines(h)) return;
+    gsap.set(h.querySelectorAll('.ln > i'), {yPercent:128});
+    gsap.to(h.querySelectorAll('.ln > i'), {
+      yPercent:0, duration:1.5, ease:'expo.out', stagger:.11,
+      scrollTrigger:{trigger:h, start:'top 88%'}
+    });
+  });
+  /* Re-wrapping at a new width invalidates the measured lines. */
+  let reflow;
+  addEventListener('resize', () => {
+    clearTimeout(reflow);
+    reflow = setTimeout(() => {
+      headings.forEach(h => {
+        if(!splitLines(h)) return;
+        gsap.set(h.querySelectorAll('.ln > i'), {yPercent:0});
+      });
+      ScrollTrigger.refresh();
+    }, 260);
+  }, {passive:true});
 
   /* Glass panels reveal via --ry so the pointer tilt keeps ownership of transform. */
   gsap.set('.t, .faq > div', {opacity:0, translate:'0px 30px'});
   gsap.utils.toArray('.t, .faq > div').forEach((el,i) =>
-    gsap.to(el, {opacity:1, translate:'0px 0px', duration:1.05, ease:'expo.out', delay:(i%4)*.06,
+    gsap.to(el, {opacity:1, translate:'0px 0px', duration:1.45, ease:'expo.out', delay:(i%4)*.09,
       scrollTrigger:{trigger:el, start:'top 92%'}}));
 
   /* Backstop for every scroll-revealed element. If ScrollTrigger never fires —
      throttled rAF, a background tab during load — content must not stay at
      opacity 0. Anything already revealed is unaffected. */
   setTimeout(() => {
-    document.querySelectorAll('.t, .head, .faq > div, .tenets article, .contact h2, .cta').forEach(el => {
+    document.querySelectorAll('.head h2 .ln > i, .contact h2 .ln > i').forEach(el => {
+      const r = el.getBoundingClientRect();
+      if(r.top < innerHeight && r.bottom > 0) gsap.set(el, {yPercent:0});
+    });
+    document.querySelectorAll('.t, .faq > div, .tenets article, .cta').forEach(el => {
       /* Only rescue what should already be on screen. Revealing everything
          stripped the reveal off every section below the fold — the page had
          appear motion for one screen and then nothing for the rest of it. */
@@ -1359,15 +1403,15 @@ if(!matchMedia('(prefers-reduced-motion: reduce)').matches && !MOBILE){
   /* Statement lines rise out of their own mask as the block crosses centre. */
   gsap.set('.big .ln > i', {yPercent:132});
   gsap.to('.big .ln > i', {
-    yPercent:0, duration:1.2, ease:'expo.out', stagger:.09,
-    scrollTrigger:{trigger:'.statement', start:'top 68%'}
+    yPercent:0, duration:1.55, ease:'expo.out', stagger:.12,
+    scrollTrigger:{trigger:'.statement', start:'top 72%'}
   });
 
   /* The strip is a running track now, so staggering its spans fights the loop.
      The band itself arrives instead. */
   gsap.fromTo('.stack',
     {opacity:0, translate:'0px 18px'},
-    {opacity:1, translate:'0px 0px', duration:.9, ease:'expo.out',
+    {opacity:1, translate:'0px 0px', duration:1.3, ease:'expo.out',
      scrollTrigger:{trigger:'.stack', start:'top 94%'}});
 
   /* ---- more arrival motion, section by section ---- */
@@ -1375,32 +1419,28 @@ if(!matchMedia('(prefers-reduced-motion: reduce)').matches && !MOBILE){
   /* Point-of-view cards deal in from the left in sequence. */
   gsap.set('.tenets article', {opacity:0, translate:'-22px 14px'});
   gsap.utils.toArray('.tenets article').forEach((el,i) =>
-    gsap.to(el, {opacity:1, translate:'0px 0px', duration:1.1, ease:'expo.out', delay:i*.09,
+    gsap.to(el, {opacity:1, translate:'0px 0px', duration:1.5, ease:'expo.out', delay:i*.13,
       scrollTrigger:{trigger:'.tenets', start:'top 84%'}}));
 
   /* The closing line of the point-of-view section lands on its own. */
   gsap.fromTo('.pov-close',
     {opacity:0, translate:'0px 24px'},
-    {opacity:1, translate:'0px 0px', duration:1.2, ease:'expo.out',
+    {opacity:1, translate:'0px 0px', duration:1.6, ease:'expo.out',
      scrollTrigger:{trigger:'.pov-close', start:'top 90%'}});
 
   /* Study cards get a small lift as the row crosses, on top of their own fade. */
   gsap.utils.toArray('.t').forEach(el =>
-    gsap.fromTo(el, {scale:.985}, {scale:1, duration:1.2, ease:'expo.out',
+    gsap.fromTo(el, {scale:.978}, {scale:1, duration:1.7, ease:'expo.out',
       scrollTrigger:{trigger:el, start:'top 92%'}}));
 
   /* Final call to action: headline, then the button, then the footer rule. */
-  gsap.fromTo('.contact h2',
-    {opacity:0, translate:'0px 26px'},
-    {opacity:1, translate:'0px 0px', duration:1.1, ease:'expo.out',
-     scrollTrigger:{trigger:'.contact', start:'top 82%'}});
   gsap.fromTo('.cta',
     {opacity:0, translate:'0px 20px'},
-    {opacity:1, translate:'0px 0px', duration:1, ease:'expo.out', delay:.14,
+    {opacity:1, translate:'0px 0px', duration:1.35, ease:'expo.out', delay:.24,
      scrollTrigger:{trigger:'.contact', start:'top 82%'}});
   gsap.fromTo('footer > *',
     {opacity:0, translate:'0px 14px'},
-    {opacity:1, translate:'0px 0px', duration:.85, ease:'expo.out', stagger:.08,
+    {opacity:1, translate:'0px 0px', duration:1.2, ease:'expo.out', stagger:.12,
      scrollTrigger:{trigger:'footer', start:'top 96%'}});
 }
 </script>
